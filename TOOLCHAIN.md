@@ -1,7 +1,7 @@
 # Samvaya Phase 2 — Toolchain Setup
 
 > This file is referenced by CLAUDE.md. Read it once at the start of every session.
-> It defines the CLIs, MCPs, official plugins, and skills available in this project.
+> It defines the CLIs, MCPs, and agent skills available in this project.
 > If any CLI or MCP listed here is not yet installed, install it before proceeding with any task.
 
 ---
@@ -10,7 +10,7 @@
 
 - **Prefer CLI over MCP** where both exist. CLIs are faster, use fewer context tokens, and have no auth overhead.
 - **Keep MCPs minimal.** Each MCP's tool descriptions consume context window tokens. Only the MCPs listed below are approved for this project.
-- **Skills inform behaviour.** The official skills listed below encode best practices from Supabase, Vercel, and the Next.js team. Apply them automatically when writing code in their respective domains.
+- **Skills inform behaviour.** The agent skills listed below encode best practices from Supabase and Vercel Engineering. They are auto-applied when writing code in their respective domains.
 
 ---
 
@@ -18,31 +18,31 @@
 
 ### Supabase CLI
 Used for: writing and running migrations, generating TypeScript types, managing RLS policies, linking dev and prod projects.
+
 ```bash
-# Install
-npm install -g supabase
+# Install (macOS — npm global install is NOT supported)
+brew install supabase/tap/supabase
 
 # Login
 supabase login
 
-# Link dev project (run from project root)
+# Link to dev project (run from project root)
 supabase link --project-ref YOUR_DEV_PROJECT_REF
 
 # Verify
 supabase --version
 ```
+
 **Daily usage:** `supabase db push`, `supabase gen types typescript --local > types/supabase.ts`
 
 ---
 
 ### GitHub CLI
-Used for: creating commits, opening PRs, checking CI/CD status, managing issues — all without leaving the terminal.
+Used for: creating commits, opening PRs, checking CI/CD and Vercel deployment status — all without leaving the terminal. Also provides the git workflow commands (`gh pr create`, `gh repo view`) that replace any need for separate commit/push plugins.
+
 ```bash
-# Install (if not already present)
-# macOS:
+# Install (macOS)
 brew install gh
-# Windows:
-winget install --id GitHub.cli
 
 # Login
 gh auth login
@@ -50,12 +50,14 @@ gh auth login
 # Verify
 gh --version
 ```
-**Daily usage:** `gh pr create`, `gh run list`, `gh issue list`
+
+**Daily usage:** `gh pr create`, `gh run list`, `gh repo view`, `git commit`, `git push`
 
 ---
 
 ### Vercel CLI
-Used for: pulling environment variables into `.env.local`, checking deployment status, tailing build logs.
+Used for: pulling environment variables into `.env.local`, checking deployment logs, linking the project.
+
 ```bash
 # Install
 npm install -g vercel
@@ -72,45 +74,56 @@ vercel env pull .env.local
 # Verify
 vercel --version
 ```
-**Daily usage:** `vercel env pull`, `vercel logs`, `vercel deploy --prebuilt`
+
+**Daily usage:** `vercel env pull`, `vercel logs`, `vercel deploy`
 
 ---
 
-## 2. MCPs — Install Where No CLI Equivalent Exists
+## 2. MCP Servers — Install Where No CLI Equivalent Exists
 
 > Only install MCPs listed here. Do not add others without updating this file.
+> Each MCP consumes context window tokens. Keep the list short.
 
-### Context7 MCP *(Tier 1 — Install Before Day 1)*
-**Purpose:** Fetches live, version-specific documentation for any library directly into the prompt. Prevents hallucinated APIs and outdated patterns for Next.js 14, Supabase, Tailwind, Resend, and Sharp.
+### Context7 MCP — Installed
+**Status:** Installed (user-scoped)
+**Purpose:** Fetches live, version-specific documentation for any library directly into the prompt. Prevents hallucinated APIs and outdated patterns for Next.js, Supabase, Tailwind, Resend, and Sharp.
+
+**Pre-requisite:** Get a free API key at https://context7.com/dashboard
 
 ```bash
-claude mcp add context7 -- npx -y @upstash/context7-mcp@latest
+# Install (user-scoped so it persists across sessions)
+claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp --api-key YOUR_API_KEY
 ```
 
-**How to use:** Append `use context7` to any prompt that involves a library. Example:
+**How to use:** Append `use context7` to any prompt involving a library:
 ```
 Implement email OTP authentication with Supabase Auth. use context7
-```
-Or target a specific library:
-```
-Set up Sharp server-side image blurring. use library /lovell/sharp for API and docs.
+Set up Sharp for server-side image blurring. use context7
 ```
 
 ---
 
-### Playwright MCP *(Tier 2 — Install Before Day 16)*
-**Purpose:** Lets Claude Code control a real Chrome browser for end-to-end testing. Used on Day 16 to run through the full 100-question form as a test applicant without manual input.
+### Playwright MCP — Not Yet Installed *(Install Before Day 16)*
+**Status:** Not yet needed
+**Purpose:** Lets Claude Code control a real Chrome browser for end-to-end testing. Used on Day 16 to run through all 100 form questions as a test applicant automatically.
+
+**Pre-requisite:** Node.js 18+ required. Run `node --version` to confirm.
 
 ```bash
-claude mcp add playwright -s local npx '@playwright/mcp@latest'
-```
+# Install (project-scoped — runs from this project only)
+claude mcp add --scope project playwright npx @playwright/mcp@latest
 
-**How to use:** Ask Claude Code to "fill out the form as a test applicant using Playwright, starting at the login screen, and report any errors encountered."
+# Install browser binaries if not already installed
+npx playwright install chromium
+```
 
 ---
 
-### Airtable MCP *(Tier 2 — Install When Build Tracking Begins)*
-**Purpose:** Lets Claude Code mark tasks as complete directly in Airtable after finishing each day's work. Keeps the build checklist in sync without manual updates.
+### Airtable MCP — Not Yet Installed *(Install When Build Tracking Begins)*
+**Status:** Not yet needed
+**Purpose:** Lets Claude Code mark tasks as complete directly in Airtable after finishing each day's work.
+
+**Pre-requisite:** Create a Personal Access Token at https://airtable.com/create/tokens with `data.records:read` and `data.records:write` scopes.
 
 ```bash
 claude mcp add airtable \
@@ -118,84 +131,55 @@ claude mcp add airtable \
   -- npx -y @domdomegg/airtable-mcp-server
 ```
 
-**How to use:** After completing a task, ask Claude Code to "mark [task name] as Done in the Airtable build tracker."
-
 ---
 
-## 3. Official Claude Code Plugins — Install on First Session
+## 3. Agent Skills — Installed
 
-These are official plugins from Anthropic's marketplace. They bundle commands, agents, and MCP configs for common workflows.
+Agent skills are installed via the `npx skills` CLI tool. They live in `.agents/skills/` and are symlinked into `.claude/skills/` for Claude Code to pick up automatically. Skills are auto-applied when writing code in their respective domains — no explicit instruction needed.
 
-```bash
-# Inside Claude Code, run:
-/plugin install vercel
-/plugin install supabase
-/plugin install commit-commands
-```
-
-- **vercel** — Deploys, checks build logs, manages environment variables via plugin commands
-- **supabase** — Schema management, migration workflows, RLS audit commands
-- **commit-commands** — Standardised `/commit`, `/push`, `/pr` slash commands for consistent Git workflow
-
----
-
-## 4. Official Agent Skills — Apply Automatically
-
-These are official skill files from Supabase and Vercel Labs. They define best practices that Claude Code should follow automatically when writing code in their domains — no explicit instruction needed.
-
-### Install commands (run once from project root):
+### Installed skills:
 
 ```bash
-# Create the skills directory
-mkdir -p .claude/skills
+# Supabase: PostgreSQL and RLS best practices (1 skill)
+npx skills add supabase/agent-skills -y
 
-# Supabase official: PostgreSQL and RLS best practices
-curl -o .claude/skills/supabase-postgres-best-practices.md \
-  https://raw.githubusercontent.com/supabase/agent-skills/main/postgres-best-practices.md
+# Vercel: React and web design best practices (2 skills)
+npx skills add vercel-labs/agent-skills --skill vercel-react-best-practices -y
+npx skills add vercel-labs/agent-skills --skill web-design-guidelines -y
 
-# Vercel Labs official: Next.js best practices
-curl -o .claude/skills/next-best-practices.md \
-  https://raw.githubusercontent.com/vercel-labs/agent-skills/main/next-best-practices.md
-
-# Vercel Labs official: React best practices
-curl -o .claude/skills/react-best-practices.md \
-  https://raw.githubusercontent.com/vercel-labs/agent-skills/main/react-best-practices.md
-
-# Vercel Labs official: Web design guidelines
-curl -o .claude/skills/web-design-guidelines.md \
-  https://raw.githubusercontent.com/vercel-labs/agent-skills/main/web-design-guidelines.md
+# Next.js: App Router, caching, and upgrade patterns (3 skills)
+npx skills add vercel-labs/next-skills -y
 ```
 
 ### What each skill enforces:
 
-| Skill | Enforces |
-|---|---|
-| `supabase-postgres-best-practices` | RLS on every table, proper indexing, no raw SQL in client code, migration hygiene |
-| `next-best-practices` | App Router patterns, Server Components by default, correct use of `use client`, data fetching patterns |
-| `react-best-practices` | Component composition, avoiding unnecessary re-renders, proper hook usage |
-| `web-design-guidelines` | Accessibility, responsive design, Tailwind usage patterns |
+| Skill | Source | Enforces |
+|---|---|---|
+| `supabase-postgres-best-practices` | supabase/agent-skills | RLS on every table, proper indexing, migration hygiene, query performance |
+| `vercel-react-best-practices` | vercel-labs/agent-skills | Component composition, hook usage, avoiding unnecessary re-renders |
+| `web-design-guidelines` | vercel-labs/agent-skills | Accessibility, responsive design, Tailwind usage patterns |
+| `next-best-practices` | vercel-labs/next-skills | App Router patterns, Server Components by default, correct `use client`, data fetching |
+| `next-cache-components` | vercel-labs/next-skills | Caching strategies, ISR, revalidation patterns |
+| `next-upgrade` | vercel-labs/next-skills | Migration patterns between Next.js versions |
 
 ---
 
-## 5. Token Budget Warning
+## 4. Verification Checklist
 
-> Running all MCPs simultaneously is expensive. Each MCP's tool list consumes context tokens.
-> The approved MCPs for this project (Context7 + Playwright + Airtable) are lightweight.
-> Never add additional MCPs mid-session without checking context usage first.
-> If context feels tight, disable Playwright MCP — it's only needed on Day 16.
-
----
-
-## 6. Verification Checklist
-
-Run this at the start of Day 1 to confirm everything is ready:
+Run this in the terminal at the start of each session:
 
 ```bash
-supabase --version       # Should return a version number
-gh --version             # Should return a version number
-vercel --version         # Should return a version number
-claude mcp list          # Should show context7 (and playwright/airtable if installed)
-ls .claude/skills/       # Should list the four skill .md files
+supabase --version      # Should return a version number
+gh --version            # Should return a version number
+vercel --version        # Should return a version number
+claude mcp list         # Should show: context7
+ls .claude/skills/      # Should list 6 skill directories
 ```
 
-If anything is missing, install it before proceeding to Day 1 tasks.
+If anything is missing, install it before proceeding.
+
+---
+
+## 5. Token Budget Note
+
+Context7, Playwright, and Airtable are the only approved MCPs. Do not enable additional MCPs mid-session without disabling one first. If context feels tight during a long session, disable the Playwright MCP — it is only needed on Day 16.
