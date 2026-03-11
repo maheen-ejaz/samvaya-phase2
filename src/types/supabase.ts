@@ -604,6 +604,7 @@ export type Database = {
           employment_visa_country: string | null
           father_name: string | null
           father_occupation: string | null
+          father_occupation_other: string | null
           first_name: string | null
           fitness_habits:
             | Database["public"]["Enums"]["fitness_habits_enum"]
@@ -614,6 +615,7 @@ export type Database = {
           has_disability: Database["public"]["Enums"]["disability_enum"] | null
           height_cm: number | null
           hobbies_interests: string[] | null
+          hobbies_other: string | null
           hobbies_regular: string | null
           id: string
           languages_spoken: string[] | null
@@ -629,6 +631,7 @@ export type Database = {
             | null
           mother_name: string | null
           mother_occupation: string | null
+          mother_occupation_other: string | null
           mother_tongue: string | null
           open_to_immediate_relocation:
             | Database["public"]["Enums"]["relocation_openness_enum"]
@@ -699,6 +702,7 @@ export type Database = {
           employment_visa_country?: string | null
           father_name?: string | null
           father_occupation?: string | null
+          father_occupation_other?: string | null
           first_name?: string | null
           fitness_habits?:
             | Database["public"]["Enums"]["fitness_habits_enum"]
@@ -709,6 +713,7 @@ export type Database = {
           has_disability?: Database["public"]["Enums"]["disability_enum"] | null
           height_cm?: number | null
           hobbies_interests?: string[] | null
+          hobbies_other?: string | null
           hobbies_regular?: string | null
           id?: string
           languages_spoken?: string[] | null
@@ -724,6 +729,7 @@ export type Database = {
             | null
           mother_name?: string | null
           mother_occupation?: string | null
+          mother_occupation_other?: string | null
           mother_tongue?: string | null
           open_to_immediate_relocation?:
             | Database["public"]["Enums"]["relocation_openness_enum"]
@@ -794,6 +800,7 @@ export type Database = {
           employment_visa_country?: string | null
           father_name?: string | null
           father_occupation?: string | null
+          father_occupation_other?: string | null
           first_name?: string | null
           fitness_habits?:
             | Database["public"]["Enums"]["fitness_habits_enum"]
@@ -804,6 +811,7 @@ export type Database = {
           has_disability?: Database["public"]["Enums"]["disability_enum"] | null
           height_cm?: number | null
           hobbies_interests?: string[] | null
+          hobbies_other?: string | null
           hobbies_regular?: string | null
           id?: string
           languages_spoken?: string[] | null
@@ -819,6 +827,7 @@ export type Database = {
             | null
           mother_name?: string | null
           mother_occupation?: string | null
+          mother_occupation_other?: string | null
           mother_tongue?: string | null
           open_to_immediate_relocation?:
             | Database["public"]["Enums"]["relocation_openness_enum"]
@@ -873,6 +882,7 @@ export type Database = {
           bgv_consent: Database["public"]["Enums"]["bgv_consent_enum"]
           bgv_flagged: boolean
           created_at: string
+          gate_answers: Record<string, string>
           id: string
           is_bgv_complete: boolean
           is_goocampus_member: boolean
@@ -892,6 +902,7 @@ export type Database = {
           bgv_consent?: Database["public"]["Enums"]["bgv_consent_enum"]
           bgv_flagged?: boolean
           created_at?: string
+          gate_answers?: Record<string, string>
           id: string
           is_bgv_complete?: boolean
           is_goocampus_member?: boolean
@@ -911,6 +922,7 @@ export type Database = {
           bgv_consent?: Database["public"]["Enums"]["bgv_consent_enum"]
           bgv_flagged?: boolean
           created_at?: string
+          gate_answers?: Record<string, string>
           id?: string
           is_bgv_complete?: boolean
           is_goocampus_member?: boolean
