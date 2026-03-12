@@ -208,9 +208,9 @@ Applicant list, individual profile view, BGV tracker (13 checks), payment flag t
 
 ## Current Task
 
-> **YOU ARE HERE: Phase 2A, Part 1 — Day 11**
+> **YOU ARE HERE: Phase 2A, Part 1 — Day 12**
 >
-> **Task:** Section J (Q63–Q75) + Claude Chat 2 (Q75). Review `Samvaya_Claude_Chat_Prompts_v1.md` with founder first. Budget extra time — richest conversation, extraction maps to multiple schema fields.
+> **Task:** Section K (Q76–Q94) — Partner Preferences. Dual location selector, specialty checkboxes, quality tag grid.
 >
 > **When this day's work is done:** Update this block to show the next day number, date, and task. Do not change the plan above — only this block changes.
 
