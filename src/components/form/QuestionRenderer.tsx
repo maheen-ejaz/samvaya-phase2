@@ -15,6 +15,8 @@ import { FileUploadInput } from './inputs/FileUploadInput';
 import { ChatInterface } from './inputs/ChatInterface';
 import { TimelineInput } from './inputs/TimelineInput';
 import { AutocompleteInput } from './inputs/AutocompleteInput';
+import { DualLocationInput } from './inputs/DualLocationInput';
+import type { DualLocationValue } from './inputs/DualLocationInput';
 import type { QuestionConfig } from '@/lib/form/types';
 import type { ChatState } from '@/lib/claude/types';
 
@@ -194,6 +196,15 @@ function InputSwitch({ question, value, onChange }: InputSwitchProps) {
 
     case 'timeline':
       return <TimelineInput question={question} value={value} onChange={onChange} />;
+
+    case 'dual_location':
+      return (
+        <DualLocationInput
+          question={question}
+          value={(value as DualLocationValue | null) || null}
+          onChange={onChange}
+        />
+      );
 
     default:
       return <p className="text-gray-500">Unsupported question type</p>;

@@ -39,6 +39,15 @@ export function NavigationButtons() {
       return true;
     }
 
+    // Dual location: valid if "no preference" or at least one location selected
+    if (currentQuestion.type === 'dual_location') {
+      if (!currentValue || typeof currentValue !== 'object') return false;
+      const loc = currentValue as { states?: string[]; countries?: string[]; noPreference?: boolean };
+      return loc.noPreference === true ||
+        (Array.isArray(loc.states) && loc.states.length > 0) ||
+        (Array.isArray(loc.countries) && loc.countries.length > 0);
+    }
+
     // Timeline validation: at least one complete entry with valid dates
     if (currentQuestion.type === 'timeline') {
       if (!Array.isArray(currentValue) || currentValue.length === 0) return false;

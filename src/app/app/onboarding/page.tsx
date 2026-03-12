@@ -83,6 +83,18 @@ export default async function OnboardingPage() {
       if (min !== null && min !== undefined) {
         answers[q.id] = [min, max ?? null];
       }
+    } else if (q.type === 'dual_location' && q.targetColumn2 && q.targetColumn3) {
+      // Dual location: reconstruct {states, countries, noPreference}
+      const states = (row as Record<string, unknown>)[q.targetColumn];
+      const countries = (row as Record<string, unknown>)[q.targetColumn2];
+      const noPreference = (row as Record<string, unknown>)[q.targetColumn3];
+      if (states || countries || noPreference) {
+        answers[q.id] = {
+          states: (states as string[]) || [],
+          countries: (countries as string[]) || [],
+          noPreference: noPreference === true,
+        };
+      }
     } else {
       const val = (row as Record<string, unknown>)[q.targetColumn];
       if (val !== null && val !== undefined) {

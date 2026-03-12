@@ -1,4 +1,4 @@
-import type { QuestionConfig } from './types';
+import type { QuestionConfig, OptionGroup } from './types';
 import { COUNTRIES } from '@/lib/data/countries';
 import { INDIAN_STATES } from '@/lib/data/indian-states';
 import { RELIGIONS } from '@/lib/data/religions';
@@ -107,7 +107,7 @@ const BODY_TYPE_OPTIONS = [
   { value: 'slim', label: 'Slim' },
   { value: 'athletic', label: 'Athletic' },
   { value: 'average', label: 'Average' },
-  { value: 'heavy', label: 'Heavy' },
+  { value: 'full_figured', label: 'Full-Figured' },
   { value: 'no_preference', label: 'No preference' },
 ];
 
@@ -121,22 +121,67 @@ const DIET_PREFERENCE_OPTIONS = [
 ];
 
 const PARTNER_QUALITY_OPTIONS = [
-  { value: 'ambitious', label: 'Ambitious' },
-  { value: 'caring', label: 'Caring & Nurturing' },
-  { value: 'intellectual', label: 'Intellectual' },
-  { value: 'family_oriented', label: 'Family-Oriented' },
-  { value: 'humorous', label: 'Good Sense of Humor' },
-  { value: 'adventurous', label: 'Adventurous' },
-  { value: 'empathetic', label: 'Empathetic' },
-  { value: 'independent', label: 'Independent' },
-  { value: 'spiritual', label: 'Spiritual' },
-  { value: 'loyal', label: 'Loyal & Trustworthy' },
+  // Character & Values
+  { value: 'honest', label: 'Honest' },
+  { value: 'loyal', label: 'Loyal' },
+  { value: 'kind', label: 'Kind' },
+  { value: 'humble', label: 'Humble' },
   { value: 'patient', label: 'Patient' },
-  { value: 'confident', label: 'Confident' },
-  { value: 'creative', label: 'Creative' },
-  { value: 'supportive', label: 'Supportive of Career' },
-  { value: 'good_communicator', label: 'Good Communicator' },
+  { value: 'responsible', label: 'Responsible' },
+  { value: 'trustworthy', label: 'Trustworthy' },
   { value: 'emotionally_mature', label: 'Emotionally Mature' },
+  { value: 'respectful', label: 'Respectful' },
+  // Personality
+  { value: 'grounded', label: 'Grounded' },
+  { value: 'calm', label: 'Calm' },
+  { value: 'humorous', label: 'Humorous' },
+  { value: 'intellectual', label: 'Intellectual' },
+  { value: 'creative', label: 'Creative' },
+  { value: 'spontaneous', label: 'Spontaneous' },
+  { value: 'adventurous', label: 'Adventurous' },
+  { value: 'disciplined', label: 'Disciplined' },
+  { value: 'energetic', label: 'Energetic' },
+  { value: 'confident', label: 'Confident' },
+  // Relationship Style
+  { value: 'affectionate', label: 'Affectionate' },
+  { value: 'supportive', label: 'Supportive' },
+  { value: 'good_listener', label: 'Good Listener' },
+  { value: 'direct_communicator', label: 'Direct Communicator' },
+  { value: 'thoughtful', label: 'Thoughtful' },
+  { value: 'emotionally_expressive', label: 'Emotionally Expressive' },
+  { value: 'independent', label: 'Independent' },
+  // Family & Home
+  { value: 'family_oriented', label: 'Family-Oriented' },
+  { value: 'nurturing', label: 'Nurturing' },
+  { value: 'protective', label: 'Protective' },
+  { value: 'involved_parent', label: 'Involved Parent' },
+  { value: 'respectful_of_in_laws', label: 'Respectful of In-Laws' },
+  { value: 'values_traditions', label: 'Values Traditions' },
+  // Career & Ambition
+  { value: 'ambitious', label: 'Ambitious' },
+  { value: 'hard_working', label: 'Hard-Working' },
+  { value: 'financially_responsible', label: 'Financially Responsible' },
+  { value: 'entrepreneurial', label: 'Entrepreneurial' },
+  { value: 'values_work_life_balance', label: 'Values Work-Life Balance' },
+  { value: 'career_driven', label: 'Career-Driven' },
+  // Social & Cultural
+  { value: 'socially_active', label: 'Socially Active' },
+  { value: 'community_minded', label: 'Community-Minded' },
+  { value: 'culturally_aware', label: 'Culturally Aware' },
+  { value: 'spiritually_inclined', label: 'Spiritually Inclined' },
+  { value: 'charitable', label: 'Charitable' },
+  { value: 'open_to_other_cultures', label: 'Open to Other Cultures' },
+  // Other
+  { value: 'other', label: 'Other' },
+];
+
+const PARTNER_QUALITY_GROUPS: OptionGroup[] = [
+  { key: 'character_values', label: 'Character & Values', icon: '💎', optionValues: ['honest', 'loyal', 'kind', 'humble', 'patient', 'responsible', 'trustworthy', 'emotionally_mature', 'respectful'] },
+  { key: 'personality', label: 'Personality', icon: '🌟', optionValues: ['grounded', 'calm', 'humorous', 'intellectual', 'creative', 'spontaneous', 'adventurous', 'disciplined', 'energetic', 'confident'] },
+  { key: 'relationship_style', label: 'Relationship Style', icon: '💕', optionValues: ['affectionate', 'supportive', 'good_listener', 'direct_communicator', 'thoughtful', 'emotionally_expressive', 'independent'] },
+  { key: 'family_home', label: 'Family & Home', icon: '🏡', optionValues: ['family_oriented', 'nurturing', 'protective', 'involved_parent', 'respectful_of_in_laws', 'values_traditions'] },
+  { key: 'career_ambition', label: 'Career & Ambition', icon: '🚀', optionValues: ['ambitious', 'hard_working', 'financially_responsible', 'entrepreneurial', 'values_work_life_balance', 'career_driven'] },
+  { key: 'social_cultural', label: 'Social & Cultural', icon: '🌍', optionValues: ['socially_active', 'community_minded', 'culturally_aware', 'spiritually_inclined', 'charitable', 'open_to_other_cultures'] },
 ];
 
 // ============================================================
@@ -650,20 +695,20 @@ const sectionK: QuestionConfig[] = [
   { id: 'Q77', questionNumber: 77, section: 'K', text: 'What is your preferred height range (in cm)?', type: 'range', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_height_min_cm', targetColumn2: 'preferred_height_max_cm' },
   { id: 'Q78', questionNumber: 78, section: 'K', text: 'Do you want your partner in a specific medical specialty?', type: 'select', required: true, targetTable: 'partner_preferences', targetColumn: 'prefers_specific_specialty', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No, open to all' }] },
   { id: 'Q79', questionNumber: 79, section: 'K', text: 'Which specialties do you prefer?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_specialties', options: MEDICAL_SPECIALTY_OPTIONS },
-  { id: 'Q80', questionNumber: 80, section: 'K', text: 'Where would you prefer your partner to be based?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_indian_states', options: INDIAN_STATES },
+  { id: 'Q80', questionNumber: 80, section: 'K', text: 'Where would you prefer your partner to currently be based?', type: 'dual_location', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_indian_states', targetColumn2: 'preferred_countries', targetColumn3: 'no_location_preference' },
   { id: 'Q81', questionNumber: 81, section: 'K', text: 'Do you have a mother tongue preference for your partner?', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_mother_tongue', options: MOTHER_TONGUE_OPTIONS },
   { id: 'Q82', questionNumber: 82, section: 'K', text: 'Do you have a body type preference?', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'body_type_preference', options: BODY_TYPE_OPTIONS },
   { id: 'Q83', questionNumber: 83, section: 'K', text: "What is your preference for your partner's everyday attire?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'attire_preference', options: [{ value: 'modern_western', label: 'Western' }, { value: 'traditional', label: 'Traditional' }, { value: 'mix', label: 'Mix of both' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q84', questionNumber: 84, section: 'K', text: "What is your preference for your partner's diet?", type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'diet_preference', options: DIET_PREFERENCE_OPTIONS },
   { id: 'Q85', questionNumber: 85, section: 'K', text: "What is your preference for your partner's fitness habits?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'fitness_preference', options: [{ value: 'regularly_exercises', label: 'Regular' }, { value: 'occasionally', label: 'Moderate' }, { value: 'rarely', label: 'Any level' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q86', questionNumber: 86, section: 'K', text: "What is your preference regarding your partner's smoking?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'smoking_preference', options: [{ value: 'never', label: 'Non-smoker only' }, { value: 'occasionally', label: 'Occasional is fine' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q87', questionNumber: 87, section: 'K', text: "What is your preference regarding your partner's drinking?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'drinking_preference', options: [{ value: 'never', label: 'Non-drinker only' }, { value: 'occasionally', label: 'Social drinking is fine' }, { value: 'no_preference', label: 'No preference' }] },
+  { id: 'Q86', questionNumber: 86, section: 'K', text: "What is your preference regarding your partner's smoking?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'smoking_preference', options: [{ value: 'never', label: 'Non-smoker only' }, { value: 'occasionally', label: 'Occasional is fine' }, { value: 'frequently', label: 'Frequent is fine' }, { value: 'no_preference', label: 'No preference' }] },
+  { id: 'Q87', questionNumber: 87, section: 'K', text: "What is your preference regarding your partner's drinking?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'drinking_preference', options: [{ value: 'never', label: 'Non-drinker only' }, { value: 'occasionally', label: 'Social drinking is fine' }, { value: 'frequently', label: 'Frequent is fine' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q88', questionNumber: 88, section: 'K', text: "What is your preference regarding your partner's tattoos or piercings?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'tattoo_preference', options: [{ value: 'none', label: 'None preferred' }, { value: 'tattoos_only', label: 'Tattoos are fine' }, { value: 'piercings_only', label: 'Piercings are fine' }, { value: 'both', label: 'Both are fine' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q89', questionNumber: 89, section: 'K', text: 'What is your preference for family type?', type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'family_type_preference', options: [{ value: 'nuclear', label: 'Nuclear' }, { value: 'joint', label: 'Joint' }, { value: 'flexible', label: 'Flexible' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q90', questionNumber: 90, section: 'K', text: "What is your preference for your partner's religious observance?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'religious_observance_preference', options: [{ value: 'actively_practicing', label: 'Actively practicing' }, { value: 'culturally_observant', label: 'Culturally observant' }, { value: 'spiritual', label: 'Spiritual but not religious' }, { value: 'not_religious', label: 'Not religious' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q91', questionNumber: 91, section: 'K', text: "What are your expectations for your partner's career after marriage?", type: 'select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_career_expectation_after_marriage', options: [{ value: 'both_continue', label: 'Both should work' }, { value: 'comfortable_either_way', label: 'Either way' }, { value: 'prefer_partner_home', label: 'Prefer homemaker' }, { value: 'open', label: 'Open to discussion' }] },
   { id: 'Q92', questionNumber: 92, section: 'K', text: 'Which career stages are acceptable for your partner?', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_career_stage', options: [{ value: 'student', label: 'MBBS Student' }, { value: 'intern', label: 'Intern' }, { value: 'pg_resident', label: 'PG Resident' }, { value: 'completed_pg', label: 'Completed PG' }, { value: 'established', label: 'Established Practitioner' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q93', questionNumber: 93, section: 'K', text: 'What qualities are you looking for in a partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_qualities', maxSelections: 7, helpText: 'Select up to 7 qualities.', options: PARTNER_QUALITY_OPTIONS },
+  { id: 'Q93', questionNumber: 93, section: 'K', text: 'What qualities are you looking for in a partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_qualities', maxSelections: 7, helpText: 'Select up to 7 qualities.', options: PARTNER_QUALITY_OPTIONS, optionGroups: PARTNER_QUALITY_GROUPS },
   { id: 'Q94', questionNumber: 94, section: 'K', text: 'Any other qualities you are looking for?', type: 'text', required: false, targetTable: 'partner_preferences', targetColumn: 'partner_qualities_other', placeholder: 'Describe any qualities not listed above' },
 ];
 

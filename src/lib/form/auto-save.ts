@@ -78,6 +78,12 @@ export class AutoSaveEngine {
       // Range inputs produce [min, max]
       existing[config.targetColumn] = value[0];
       existing[config.targetColumn2] = value[1];
+    } else if (config.type === 'dual_location' && config.targetColumn2 && config.targetColumn3) {
+      // Dual location inputs produce {states, countries, noPreference}
+      const loc = value as { states?: string[]; countries?: string[]; noPreference?: boolean } | null;
+      existing[config.targetColumn] = loc?.states ?? [];
+      existing[config.targetColumn2] = loc?.countries ?? [];
+      existing[config.targetColumn3] = loc?.noPreference ?? false;
     } else {
       // Convert string booleans to actual booleans for DB columns
       existing[config.targetColumn] = this.coerceValue(value, config);

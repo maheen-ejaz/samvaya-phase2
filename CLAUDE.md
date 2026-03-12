@@ -208,9 +208,9 @@ Applicant list, individual profile view, BGV tracker (13 checks), payment flag t
 
 ## Current Task
 
-> **YOU ARE HERE: Phase 2A, Part 1 — Day 12**
+> **YOU ARE HERE: Phase 2A, Part 1 — Day 13**
 >
-> **Task:** Section K (Q76–Q94) — Partner Preferences. Dual location selector, specialty checkboxes, quality tag grid.
+> **Task:** Section L (Q95–Q99) — Documents & Verification. File uploads (Supabase Storage). Photo blurring (Sharp, server-side, at upload). BGV consent screen.
 >
 > **When this day's work is done:** Update this block to show the next day number, date, and task. Do not change the plan above — only this block changes.
 

@@ -169,8 +169,10 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
       {/* Total selected summary */}
       <p className="mt-4 text-sm text-gray-500">
         {selected.length === 0
-          ? 'No hobbies selected yet'
-          : `${selected.length} ${selected.length === 1 ? 'hobby' : 'hobbies'} selected`}
+          ? 'No items selected yet'
+          : question.maxSelections
+            ? `${selected.length} / ${question.maxSelections} selected`
+            : `${selected.length} ${selected.length === 1 ? 'item' : 'items'} selected`}
       </p>
     </fieldset>
   );

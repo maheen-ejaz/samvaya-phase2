@@ -15,7 +15,8 @@ export type QuestionType =
   | 'range'
   | 'file_upload'
   | 'claude_chat'
-  | 'timeline';
+  | 'timeline'
+  | 'dual_location';
 
 export type TargetTable =
   | 'profiles'
@@ -51,7 +52,8 @@ export interface QuestionConfig {
   required: boolean;
   targetTable: TargetTable;
   targetColumn: string;
-  targetColumn2?: string;        // For range inputs (min/max pair)
+  targetColumn2?: string;        // For range inputs (min/max pair) or dual_location (preferred_countries)
+  targetColumn3?: string;        // For dual_location (no_location_preference boolean)
   placeholder?: string;
   helpText?: string;
   maxSelections?: number;
