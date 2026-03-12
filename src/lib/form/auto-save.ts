@@ -175,6 +175,11 @@ export class AutoSaveEngine {
 
   private resetTimer(): void {
     if (this.timer) clearTimeout(this.timer);
+    if (this.retryTimer) {
+      clearTimeout(this.retryTimer);
+      this.retryTimer = null;
+      this.retryCount = 0;
+    }
     this.timer = setTimeout(() => this.flush(), this.debounceMs);
   }
 

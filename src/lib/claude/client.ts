@@ -7,9 +7,11 @@ let client: Anthropic | null = null;
 
 function getClient(): Anthropic {
   if (!client) {
-    client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY environment variable is not set');
+    }
+    client = new Anthropic({ apiKey });
   }
   return client;
 }
@@ -70,9 +72,23 @@ export async function extractFromTranscript(
   }
 
   // Parse JSON from response — Claude may wrap it in markdown code blocks
-  const jsonMatch = textBlock.text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
+  // Find the outermost balanced JSON object (handles nested braces correctly)
+  const text = textBlock.text;
+  const start = text.indexOf('{');
+  if (start === -1) {
     throw new Error('No JSON found in extraction response');
   }
-  return JSON.parse(jsonMatch[0]);
+  let depth = 0;
+  let end = -1;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) { end = i + 1; break; }
+    }
+  }
+  if (end === -1) {
+    throw new Error('Unbalanced JSON in extraction response');
+  }
+  return JSON.parse(text.slice(start, end));
 }

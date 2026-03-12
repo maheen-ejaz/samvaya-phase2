@@ -33,10 +33,18 @@ export async function POST(request: NextRequest) {
 
   // Q100 has no extraction — store verbatim
   if (chatId === 'Q100') {
-    // Extract the user's single response from the transcript (handles multi-line messages)
-    const userIndex = transcript.lastIndexOf('User: ');
-    const freeformNote = userIndex !== -1
-      ? transcript.slice(userIndex + 6).trim()
+    // Extract the user's single response from the transcript
+    // Look for "User: " at the start of a line to avoid matching within message content
+    const lines = transcript.split('\n');
+    let userStartLine = -1;
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (lines[i].startsWith('User: ')) {
+        userStartLine = i;
+        break;
+      }
+    }
+    const freeformNote = userStartLine !== -1
+      ? [lines[userStartLine].slice(6), ...lines.slice(userStartLine + 1)].join('\n').trim()
       : transcript;
 
     await supabase

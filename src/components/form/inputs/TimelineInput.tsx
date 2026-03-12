@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { QuestionConfig, WorkExperienceEntry } from '@/lib/form/types';
 
 interface TimelineInputProps {
@@ -70,6 +70,7 @@ function isEndBeforeStart(entry: WorkExperienceEntry): boolean {
 
 export function TimelineInput({ value, onChange }: TimelineInputProps) {
   const [entries, setEntries] = useState<WorkExperienceEntry[]>(() => coerceEntries(value));
+  const newEntryIdRef = useRef<string | null>(null);
 
   const propagate = useCallback(
     (updated: WorkExperienceEntry[]) => {
@@ -97,7 +98,9 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
 
   const addEntry = useCallback(() => {
     if (entries.length >= MAX_ENTRIES) return;
-    propagate([...entries, createEmptyEntry()]);
+    const newEntry = createEmptyEntry();
+    newEntryIdRef.current = newEntry.id;
+    propagate([...entries, newEntry]);
   }, [entries, propagate]);
 
   const removeEntry = useCallback(
@@ -143,6 +146,12 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                 Organisation / Hospital
               </label>
               <input
+                ref={(el) => {
+                  if (el && newEntryIdRef.current === entry.id) {
+                    el.focus();
+                    newEntryIdRef.current = null;
+                  }
+                }}
                 id={`org_${entry.id}`}
                 type="text"
                 defaultValue={entry.org_name}

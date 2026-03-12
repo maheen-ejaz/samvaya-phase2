@@ -119,15 +119,15 @@ export function NavigationButtons() {
             setSubmitting(false);
           }}
           disabled={!groupComplete || submitting || submitted}
-          className="rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-300 disabled:text-gray-500"
+          className="rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-200 disabled:text-gray-600"
         >
-          {submitted ? 'Form Saved' : submitting ? 'Saving...' : 'Submit'}
+          <span aria-live="polite">{submitted ? 'Form Saved' : submitting ? 'Saving...' : 'Submit'}</span>
         </button>
       ) : (
         <button
           onClick={navigateNext}
           disabled={!groupComplete}
-          className="flex items-center gap-1 rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-300 disabled:text-gray-500"
+          className="flex items-center gap-1 rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-200 disabled:text-gray-600"
         >
           Next
           <svg

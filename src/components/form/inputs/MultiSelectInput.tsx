@@ -26,7 +26,8 @@ export function MultiSelectInput({ question, value, onChange }: MultiSelectInput
   }
 
   return (
-    <div>
+    <fieldset>
+      <legend className="sr-only">{question.text}</legend>
       {question.maxSelections && (
         <p className="mb-2 text-sm text-gray-500">
           {selected.length} / {question.maxSelections} selected
@@ -63,6 +64,6 @@ export function MultiSelectInput({ question, value, onChange }: MultiSelectInput
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 }

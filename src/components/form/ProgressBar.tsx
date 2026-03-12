@@ -34,7 +34,7 @@ export function ProgressBar() {
       </div>
 
       {/* Save status indicator */}
-      <div className="mt-1.5 flex justify-end">
+      <div className="mt-1.5 flex justify-end" aria-live="polite" aria-atomic="true">
         <SaveStatusBadge status={state.saveStatus} />
       </div>
     </div>

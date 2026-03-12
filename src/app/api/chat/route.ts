@@ -86,10 +86,15 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Regular message — count exchanges
-  // An "exchange" = 1 user response to an assistant message
-  const userMessages = messages.filter((m) => m.role === 'user');
-  const currentExchangeCount = userMessages.length;
+  // Regular message — count exchanges from SERVER state, not client-supplied messages
+  const { data: existingProfile } = await supabase
+    .from('compatibility_profiles')
+    .select('chat_state')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const serverChatState = (existingProfile?.chat_state as Record<string, unknown>)?.[chatId] as ChatState | undefined;
+  const currentExchangeCount = serverChatState?.exchangeCount ?? 0;
 
   if (currentExchangeCount >= config.maxExchanges) {
     return NextResponse.json({ error: 'Conversation already complete' }, { status: 400 });

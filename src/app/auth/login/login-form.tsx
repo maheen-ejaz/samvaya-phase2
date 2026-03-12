@@ -116,7 +116,7 @@ export function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
                 placeholder="you@example.com"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 focus:outline-none"
               />
             </div>
 
@@ -129,7 +129,7 @@ export function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Sending..." : "Send verification code"}
             </button>
@@ -157,7 +157,7 @@ export function LoginForm() {
                   setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))
                 }
                 placeholder="000000"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg tracking-widest text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg tracking-widest text-gray-900 placeholder-gray-400 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 focus:outline-none"
               />
             </div>
 
@@ -170,7 +170,7 @@ export function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Verifying..." : "Verify code"}
             </button>
@@ -183,7 +183,7 @@ export function LoginForm() {
                   setOtpCode("");
                   setError("");
                 }}
-                className="text-blue-600 hover:text-blue-500"
+                className="text-rose-600 hover:text-rose-500"
               >
                 Change email
               </button>
@@ -191,7 +191,7 @@ export function LoginForm() {
                 type="button"
                 onClick={handleResend}
                 disabled={resendCooldown > 0 || loading}
-                className="text-blue-600 hover:text-blue-500 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className="text-rose-600 hover:text-rose-500 disabled:text-gray-400 disabled:cursor-not-allowed"
               >
                 {resendCooldown > 0
                   ? `Resend in ${resendCooldown}s`
