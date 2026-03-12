@@ -7,6 +7,11 @@ const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: '□' },
   { href: '/admin/applicants', label: 'Applicants', icon: '▤' },
   { href: '/admin/verification', label: 'Verification', icon: '✓' },
+  { href: '/admin/matching', label: 'Matching', icon: '♡' },
+  { href: '/admin/analytics', label: 'Analytics', icon: '◈' },
+  { href: '/admin/communications', label: 'Communications', icon: '✉' },
+  { href: '/admin/activity', label: 'Activity Log', icon: '⏱' },
+  { href: '/admin/settings', label: 'Settings', icon: '⚙' },
 ] as const;
 
 export function AdminSidebar() {

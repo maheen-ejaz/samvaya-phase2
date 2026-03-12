@@ -51,14 +51,24 @@ export async function POST(request: NextRequest) {
       .download(storagePath);
 
     if (downloadError || !fileData) {
+      console.error('Failed to download photo:', downloadError);
       return NextResponse.json(
-        { error: `Failed to download original: ${downloadError?.message}` },
+        { error: 'Failed to download photo' },
         { status: 500 }
       );
     }
 
-    // Convert to buffer and apply Sharp blur (sigma 20)
+    // Convert to buffer and validate size (max 10MB)
     const originalBuffer = Buffer.from(await fileData.arrayBuffer());
+    const MAX_PHOTO_SIZE = 10 * 1024 * 1024; // 10MB
+    if (originalBuffer.length > MAX_PHOTO_SIZE) {
+      return NextResponse.json(
+        { error: 'Photo exceeds maximum size of 10MB' },
+        { status: 400 }
+      );
+    }
+
+    // Apply Sharp blur (sigma 20)
     const blurredBuffer = await sharp(originalBuffer).blur(20).toBuffer();
 
     // Build the blurred path by replacing /original/ with /blurred/
@@ -73,8 +83,9 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
+      console.error('Failed to upload blurred photo:', uploadError);
       return NextResponse.json(
-        { error: `Failed to upload blurred photo: ${uploadError.message}` },
+        { error: 'Failed to process photo' },
         { status: 500 }
       );
     }
@@ -95,15 +106,16 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       // Clean up blurred file on DB failure
       await supabase.storage.from('photos').remove([blurredPath]);
+      console.error('Failed to save photo record:', insertError);
       return NextResponse.json(
-        { error: `Failed to save photo record: ${insertError.message}` },
+        { error: 'Failed to save photo record' },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ success: true, photo: photoRow });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Photo processing failed:', err);
+    return NextResponse.json({ error: 'Failed to process photo' }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@ import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(
   request: NextRequest,
@@ -15,6 +16,12 @@ export async function POST(
   const { userId } = await params;
   const idError = validateUserId(userId);
   if (idError) return idError;
+
+  // Rate limit: max 100 individual emails per hour per admin
+  const { allowed } = checkRateLimit(`admin-email:${admin.id}`, 100, 3600_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Rate limit exceeded. Max 100 emails per hour.' }, { status: 429 });
+  }
 
   let body: { subject?: string; body?: string };
   try {

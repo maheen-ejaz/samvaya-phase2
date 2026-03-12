@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { PRICING } from '@/lib/constants';
 
 interface StatusManagementProps {
   userId: string;
@@ -41,7 +42,7 @@ export function StatusManagement({
     isBgvComplete;
 
   const CONFIRM_MESSAGES: Record<string, string> = {
-    mark_verification_paid: 'Mark verification fee (₹7,080) as paid? This moves the applicant to verification_pending.',
+    mark_verification_paid: `Mark verification fee (${PRICING.VERIFICATION_FEE_DISPLAY}) as paid? This moves the applicant to verification_pending.`,
     mark_goocampus_verified: 'Verify as GooCampus member? This moves them directly to the candidate pool (skips verification).',
     move_to_pool: 'Move to candidate pool? They will be eligible for matching. Ensure BGV is fully complete.',
   };
@@ -105,7 +106,7 @@ export function StatusManagement({
               disabled={loading}
               className="rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
             >
-              Mark Fee Paid (₹7,080)
+              Mark Fee Paid ({PRICING.VERIFICATION_FEE_DISPLAY})
             </button>
           )}
           {canMarkGooCampus && (

@@ -59,8 +59,9 @@ export async function POST(request: NextRequest) {
         .eq('user_id', user.id);
 
       if (deleteError) {
+        console.error('Failed to delete photo record:', deleteError);
         return NextResponse.json(
-          { error: `Failed to delete photo record: ${deleteError.message}` },
+          { error: 'Failed to delete photo record' },
           { status: 500 }
         );
       }
@@ -88,8 +89,9 @@ export async function POST(request: NextRequest) {
         .eq('user_id', user.id);
 
       if (deleteError) {
+        console.error('Failed to delete document record:', deleteError);
         return NextResponse.json(
-          { error: `Failed to delete document record: ${deleteError.message}` },
+          { error: 'Failed to delete document record' },
           { status: 500 }
         );
       }
@@ -99,7 +101,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Delete upload failed:', err);
+    return NextResponse.json({ error: 'Failed to delete record' }, { status: 500 });
   }
 }

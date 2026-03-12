@@ -55,15 +55,16 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
+      console.error('Failed to save document record:', insertError);
       return NextResponse.json(
-        { error: `Failed to save document record: ${insertError.message}` },
+        { error: 'Failed to save document record' },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ success: true, document: docRow });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Document registration failed:', err);
+    return NextResponse.json({ error: 'Failed to save document record' }, { status: 500 });
   }
 }

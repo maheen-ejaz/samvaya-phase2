@@ -53,3 +53,88 @@ export type ConflictApproachEnum = Database['public']['Enums']['conflict_approac
 export type PartnerRoleVisionEnum = Database['public']['Enums']['partner_role_vision_enum'];
 export type FinancialValuesEnum = Database['public']['Enums']['financial_values_enum'];
 export type InputModeEnum = Database['public']['Enums']['input_mode_enum'];
+
+// Phase 2B matching types
+export type {
+  CompatibilityReport,
+  DimensionScore,
+  ScoringDimension,
+  MatchAdminStatus,
+  MatchMemberResponse,
+  MatchPresentationStatus,
+  IntroductionStatus,
+  IntroductionOutcome,
+  MatchRecommendation,
+  MatchSuggestion,
+  MatchPresentation,
+  MatchFeedback,
+  Introduction,
+  MatchSuggestionWithProfiles,
+  MatchPresentationWithDetails,
+  IntroductionWithDetails,
+  MatchingWeights,
+  MatchingConfig,
+  PreFilterStats,
+  BatchScoreResult,
+} from './matching';
+
+export {
+  SCORING_DIMENSIONS,
+  DIMENSION_LABELS,
+} from './matching';
+
+// Part 3 table types (system config, email templates)
+// These use manual types since Supabase types may not be regenerated yet
+export interface SystemConfig {
+  key: string;
+  value: Record<string, unknown>;
+  description: string | null;
+  updated_by: string | null;
+  updated_at: string;
+}
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+  category: string;
+  variables: string[];
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EmailTemplateInsert {
+  name: string;
+  subject: string;
+  body: string;
+  category?: string;
+  variables?: string[];
+  created_by?: string;
+}
+
+export interface ActivityLogEntry {
+  id: string;
+  actor_id: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  actor_name?: string;
+}
+
+export interface CommunicationLogEntry {
+  id: string;
+  user_id: string;
+  sent_by: string;
+  channel: 'email' | 'sms';
+  subject: string | null;
+  body: string;
+  status: 'sent' | 'failed' | 'pending';
+  sent_at: string | null;
+  created_at: string;
+  scheduled_at: string | null;
+  batch_id: string | null;
+}

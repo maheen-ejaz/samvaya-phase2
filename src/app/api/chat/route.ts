@@ -36,6 +36,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing chatId or userMessage' }, { status: 400 });
   }
 
+  // Prevent oversized messages (memory/cost abuse)
+  if (typeof userMessage === 'string' && userMessage.length > 5000) {
+    return NextResponse.json({ error: 'Message too long' }, { status: 400 });
+  }
+  if (Array.isArray(messages) && messages.length > 20) {
+    return NextResponse.json({ error: 'Too many messages in history' }, { status: 400 });
+  }
+
   const config = getChatConfig(chatId);
   const isInitiation = userMessage === '[START_CONVERSATION]';
 
@@ -181,6 +189,12 @@ async function saveChatState(
 
     const currentChatState = (existing?.chat_state as Record<string, unknown>) || {};
     const updatedChatState = { ...currentChatState, [chatId]: chatState } as unknown as Record<string, never>;
+
+    // Prevent oversized chat state (100KB limit)
+    if (JSON.stringify(updatedChatState).length > 100_000) {
+      console.error('Chat state too large for user:', userId);
+      return;
+    }
 
     if (existing) {
       await supabase

@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { LogoutButton } from "@/components/ui/logout-button";
+import { UserStatusProvider } from "@/lib/app/user-context";
+import { AppHeader } from "@/components/app/AppHeader";
+import { BottomNav } from "@/components/app/BottomNav";
+import { ServiceWorkerRegistration } from "@/components/app/ServiceWorkerRegistration";
 
 export default async function ApplicantLayout({
   children,
@@ -17,30 +20,55 @@ export default async function ApplicantLayout({
     redirect("/auth/login");
   }
 
-  // Defense-in-depth: verify role is applicant
-  const { data: userData } = await supabase
+  // Fetch user data for status context
+  const { data: userDataRaw } = await supabase
     .from("users")
-    .select("role")
+    .select("role, payment_status, is_goocampus_member, onboarding_section")
     .eq("id", user.id)
     .single();
+  const userData = userDataRaw as Record<string, unknown> | null;
 
-  const role = userData?.role ?? "applicant";
+  const role = (userData?.role as string) ?? "applicant";
 
   if (role === "admin" || role === "super_admin") {
     redirect("/admin");
   }
 
+  // Fetch first name from profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("first_name")
+    .eq("user_id", user.id)
+    .single();
+
+  // Fetch membership dates from payments
+  const { data: paymentRaw } = await supabase
+    .from("payments")
+    .select("membership_start_date, membership_end_date")
+    .eq("user_id", user.id)
+    .single();
+  const payment = paymentRaw as Record<string, unknown> | null;
+
+  const onboardingComplete = (userData?.onboarding_section as string) === 'completed';
+
+  const userStatus = {
+    userId: user.id,
+    firstName: profile?.first_name ?? null,
+    paymentStatus: (userData?.payment_status as string) ?? 'unverified',
+    isGoocampusMember: (userData?.is_goocampus_member as boolean) ?? false,
+    onboardingComplete,
+    membershipStartDate: (payment?.membership_start_date as string) ?? null,
+    membershipEndDate: (payment?.membership_end_date as string) ?? null,
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white px-4 py-3">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <h1 className="text-lg font-semibold text-gray-900">
-            Samvaya Matrimony
-          </h1>
-          <LogoutButton />
-        </div>
-      </header>
-      <main className="mx-auto max-w-2xl px-4 py-6">{children}</main>
-    </div>
+    <UserStatusProvider value={userStatus}>
+      <div className="min-h-screen bg-samvaya-blush">
+        <AppHeader />
+        <main className="mx-auto max-w-lg px-4 py-6 pb-24">{children}</main>
+        {onboardingComplete && <BottomNav />}
+        <ServiceWorkerRegistration />
+      </div>
+    </UserStatusProvider>
   );
 }

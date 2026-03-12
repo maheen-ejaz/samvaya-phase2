@@ -5,7 +5,7 @@ const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 
 let client: Anthropic | null = null;
 
-function getClient(): Anthropic {
+export function getClient(): Anthropic {
   if (!client) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {

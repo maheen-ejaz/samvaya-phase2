@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { PRICING } from '@/lib/constants';
 
 type Action = 'mark_verification_paid' | 'mark_goocampus_verified' | 'move_to_pool';
 
@@ -77,13 +78,13 @@ export async function POST(
         verification_fee_paid: true,
         paid_at: new Date().toISOString(),
         status: 'captured' as never,
-        amount: 708000,
+        amount: PRICING.VERIFICATION_FEE_PAISE,
       }).eq('id', existingPayment.id);
     } else {
       await adminSupabase.from('payments').insert({
         user_id: userId,
         payment_type: 'verification_fee' as never,
-        amount: 708000,
+        amount: PRICING.VERIFICATION_FEE_PAISE,
         currency: 'INR',
         verification_fee_paid: true,
         paid_at: new Date().toISOString(),
@@ -93,7 +94,7 @@ export async function POST(
     }
 
     await adminSupabase.from('users').update({ payment_status: 'verification_pending' as never }).eq('id', userId);
-    await logActivity(admin.id, 'marked_verification_paid', 'user', userId, { amount: 708000 });
+    await logActivity(admin.id, 'marked_verification_paid', 'user', userId, { amount: PRICING.VERIFICATION_FEE_PAISE });
 
     return NextResponse.json({ success: true, newPaymentStatus: 'verification_pending' });
   }

@@ -1610,6 +1610,21 @@ Refunds are processed only in the case of a verified technical failure resulting
 ---
 
 ## 7. User-Facing PWA — Specification
+
+> **⚠️ Scope Note (March 2026) — Razorpay Removed from Phase 2C**
+>
+> Razorpay payment gateway integration is explicitly **OUT OF SCOPE** for Phase 2C. The founder confirmed that for v1, all payments (verification fee ₹7,080 and membership fee ₹41,300) will be collected manually — via phone, UPI, or bank transfer. The team will toggle payment status in the admin dashboard after confirming receipt. All payment CTAs in the PWA show "Contact us to complete payment" with WhatsApp/phone links instead of a payment button.
+>
+> **Why this decision was made:**
+> 1. **Razorpay Business KYC** can take days to weeks for approval — this would block the entire Phase 2C launch timeline.
+> 2. **Webhook signature verification and idempotency** adds significant complexity (retries, duplicate prevention, failure reconciliation).
+> 3. **GST invoice generation** is required for ₹7,080 and ₹41,300 transactions — building this correctly is a project in itself.
+> 4. **Refund handling** edge cases (partial refunds, failed captures, bank processing delays) add untested failure modes.
+> 5. **At Samvaya's current scale** (invite-only, curated, <100 users), manual payment collection provides more control and a human touchpoint that is consistent with the premium, concierge-style service positioning.
+> 6. **The founder explicitly confirmed** they are comfortable collecting payments outside the platform and manually updating payment status in the admin dashboard.
+>
+> Razorpay integration is deferred to a future phase when user volume justifies the automation investment. When that time comes, the payment state machine (`users.payment_status`) and manual flag infrastructure are already built and will serve as the foundation — Razorpay will simply automate the toggle that the team currently does manually.
+
 > ⚠️ **Phase 2C — Do not build during Phase 2A or 2B.** This section is reference only. The form runs in the browser as a web app during Phase 2A — this section describes the full installable PWA with match viewing, response interface, and member dashboard built last.
 
 ### 7.1 Purpose
@@ -1630,7 +1645,7 @@ A mobile-first progressive web app that serves as the applicant's interface with
 | Schedule introductions | Nice-to-have (v2) | Select availability for video calls |
 | Edit profile | Nice-to-have (v2) | Update responses, photos |
 | Notification preferences | Nice-to-have (v2) | Control what notifications they receive |
-| Payment (upgrade) | Nice-to-have (v2) | Razorpay integration within PWA |
+| Payment (upgrade) | **Deferred — manual collection for v1** | Razorpay removed from Phase 2C scope. All payments collected manually (phone/UPI/bank transfer). Team toggles status in admin dashboard. See scope note above. |
 
 ### 7.3 Design Principles
 
@@ -1830,6 +1845,16 @@ Built last.
 | 10 | Domain structure | ✅ Single domain, route-based. samvayamatrimony.com/app + /admin. No subdomains. |
 | 11 | SMS provider | ✅ MSG91. |
 | 12 | AI chat question positions | ✅ Q38 (family background, Section D), Q75 (goals & values, Section J), Q100 (closing, Section M). |
+
+### Pre-Deployment Action Items
+
+> **Review these at the start of every session until completed.**
+
+| # | Item | Status | Details |
+|---|------|--------|---------|
+| 1 | Set `NEXT_PUBLIC_WHATSAPP_NUMBER` env var | **DONE** (2026-03-12) | Set to `919742811599` in `.env.local` and `.env.local.example`. Vercel env var pending `vercel login`. |
+| 2 | Push `handle_match_response` RPC migration | **DONE** (2026-03-12) | Deployed via `supabase db push`. `handle_match_response()` RPC active in production database. |
+| 3 | Push user match RLS migration | **DONE** (2026-03-12) | Deployed (policies already existed; migration marked as applied). RLS active on `match_presentations`, `match_suggestions`, `match_feedback`. |
 
 ### Deferred to Future Phases
 

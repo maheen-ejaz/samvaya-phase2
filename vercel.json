@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/admin/communications/send-scheduled",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

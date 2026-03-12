@@ -18,7 +18,7 @@
 | Auth method | Email OTP via Supabase Auth — no passwords |
 | Photo blur | Sharp, sigma 20, server-side at upload time — never CSS |
 | BGV provider | OnGrid, 13 checks |
-| Current build phase | **Phase 2A, Part 1 — Form only** |
+| Current build phase | **Phase 2D — Complete. Ready for production deployment.** |
 
 ## Toolchain
 Read TOOLCHAIN.md before starting any session. Install anything listed there that is not yet installed before writing any code.
@@ -42,6 +42,7 @@ Phase 1 is live: waitlist landing page at `apply.samvayamatrimony.com`, waitlist
 | PRD v9.0 | `Samvaya_Phase2_PRD_v9.md` | Full product spec — every schema table, every form question, matching algorithm, admin dashboard, pricing, comms, profile cards. **This is the authority.** |
 | Claude Chat Prompts v1 | `Samvaya_Claude_Chat_Prompts_v1.md` | Full system prompts, branching logic, extraction JSON format, and exchange limits for all 3 AI conversations |
 | This file | `CLAUDE.md` | Build order, current task, locked decisions, gotchas |
+| Audit Log | `AUDIT.md` | All audit results across Parts 1–3: agents deployed, issue counts by severity, key fixes. Updated after each audit phase. |
 
 When in doubt about a spec detail, read the PRD. When in doubt about what to build next, read this file.
 
@@ -208,11 +209,13 @@ Applicant list, individual profile view, BGV tracker (13 checks), payment flag t
 
 ## Current Task
 
-> **YOU ARE HERE: Phase 2A, Part 2 — Admin Dashboard audit complete**
+> **Phase 2D — PWA Polish + Features: COMPLETE** (2026-03-12)
 >
-> **Completed:** Admin dashboard built and audited. 20 issues found (5 critical, 5 major, 6 moderate, 4 low). All fixes applied: duplicate API route removed, BGV consent check enforced, storage RLS fixed for super_admin, BGV race condition prevented via upsert, HTML injection in email fixed, UUID validation on all routes, formatEnum acronym handling, clickable social links, stable sort, aria-labels, action-specific confirmations. Migrations pushed to remote Supabase. Playwright E2E validated.
+> **Completed:** Phase 2A (form + admin dashboard + sync), Phase 2B (matching algorithm), Phase 2C (user-facing PWA), and Phase 2D (PWA polish + features) — all fully built, audited, and passing tests.
 >
-> **Next:** Phase 2A, Part 3 — Airtable sync, analytics, system config, activity log.
+> **Phase 2D delivered:** Full profile reveal (name, contact info, unblurred photos after mutual interest + payment), edit profile page (location, lifestyle, goals), functional pause/resume toggle, notification preferences (email + push toggles), service worker (offline caching, push notification handling), push subscription API, schedule introduction availability (14-day calendar with time slots).
+>
+> **Next:** Production deployment on Vercel and real user testing.
 
 ---
 
@@ -227,6 +230,9 @@ Add an entry here whenever a decision is made that isn't already in the PRD. Dat
 | Mar 2026 | 100 total base questions | Referral source Q6 was in schema but missing from form — added to Section A. All downstream Q numbers shifted +1 from Q6 onward. |
 | Mar 2026 | Email OTP only | No passwords. No phone OTP. Applicants are invited by the team and authenticate via email code. Simpler auth flow, no password reset logic needed. |
 | Mar 2026 | Single domain, route-based | `samvayamatrimony.com/app` + `/admin`. No subdomains. Simpler SSL, cookies, and Vercel config. |
+| Mar 2026 | Razorpay removed from Phase 2C | Founder confirmed manual payment collection for v1. PWA shows "Contact us to pay" CTAs with WhatsApp/phone links. Avoids Razorpay KYC delays, webhook complexity, GST invoice generation, and refund handling. Deferred to future phase when user volume justifies automation. |
+| Mar 2026 | Spider web chart: custom SVG, zero deps | 8-axis radar with 2 datasets is simple enough for pure SVG (~100 lines). Avoids Chart.js (78KB) or Recharts (120KB). |
+| Mar 2026 | No service worker for v1 | Web manifest enables installability. Offline support is stretch/v2. |
 
 ---
 

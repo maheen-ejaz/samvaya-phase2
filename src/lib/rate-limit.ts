@@ -1,6 +1,8 @@
 /**
  * Simple in-memory rate limiter.
- * For production, replace with Redis-based limiter.
+ * TODO: Replace with Vercel KV (Redis) for distributed rate limiting.
+ * In-memory store resets on cold starts and is per-instance on serverless.
+ * Acceptable for v1 with 3-5 users; prioritize for v1.1.
  */
 
 interface RateLimitEntry {
