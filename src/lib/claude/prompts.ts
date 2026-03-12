@@ -190,7 +190,7 @@ Ask the applicant: "Before we wrap up, is there anything else you'd like us to k
 
 That's it. One question. Accept their response. Do not follow up.`;
 
-const CONV3_CLOSING_MESSAGE = `Thank you — that's really helpful context. Your profile is complete, and our team will review everything carefully. We'll be in touch soon.`;
+const CONV3_CLOSING_MESSAGE = `Thank you for the care you've put into your answers. It genuinely helps us find the right person for you. We'll take it from here.`;
 
 const CONV3_EXTRACTION_PROMPT = `[No extraction needed for Conv 3 — response is stored verbatim as closing_freeform_note]`;
 

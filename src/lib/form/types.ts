@@ -60,6 +60,15 @@ export interface QuestionConfig {
   groupWith?: string[];          // Question IDs shown together on one screen
   autocompleteSource?: 'indian_cities' | 'countries'; // Enables autocomplete on text inputs
   optionGroups?: OptionGroup[]; // Groups options into collapsible categories (for multi_select)
+  fileUploadConfig?: {
+    accept: string;            // MIME types: 'image/jpeg,image/png,image/webp' or include 'application/pdf'
+    maxFiles: number;          // 1 for single upload, 6 for Q96
+    minFiles: number;          // 1 for most, 2 for Q96
+    maxSizeMB: number;         // Per-file size limit
+    requiresBlur: boolean;     // true for photos (Q95, Q96), false for docs (Q97, Q98)
+    documentType?: string;     // 'identity_document' | 'kundali' — for documents table
+    isPrimary?: boolean;       // true for Q95 passport photo
+  };
 }
 
 export interface SectionConfig {

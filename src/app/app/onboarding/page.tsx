@@ -20,7 +20,7 @@ export default async function OnboardingPage() {
   }
 
   // Fetch all relevant data in parallel
-  const [usersResult, profilesResult, medicalResult, partnerPrefsResult, compatResult] =
+  const [usersResult, profilesResult, medicalResult, partnerPrefsResult, compatResult, photosResult, documentsResult] =
     await Promise.all([
       supabase.from('users').select('*').eq('id', user.id).single(),
       supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
@@ -39,6 +39,15 @@ export default async function OnboardingPage() {
         .select('chat_state')
         .eq('user_id', user.id)
         .maybeSingle(),
+      supabase
+        .from('photos')
+        .select('id, is_primary')
+        .eq('user_id', user.id)
+        .order('display_order'),
+      supabase
+        .from('documents')
+        .select('id, document_type')
+        .eq('user_id', user.id),
     ]);
 
   // Users row must exist for authenticated users — fail loudly if missing
@@ -114,8 +123,29 @@ export default async function OnboardingPage() {
     answers[qId] = val;
   }
 
+  // Hydrate file upload answers (photo/document IDs for NavigationButtons validation)
+  const photos = photosResult.data || [];
+  const documents = documentsResult.data || [];
+
+  const primaryPhotoIds = photos.filter((p) => p.is_primary).map((p) => p.id);
+  if (primaryPhotoIds.length > 0) answers['Q95'] = primaryPhotoIds;
+
+  const profilePhotoIds = photos.filter((p) => !p.is_primary).map((p) => p.id);
+  if (profilePhotoIds.length > 0) answers['Q96'] = profilePhotoIds;
+
+  const identityDocIds = documents
+    .filter((d) => d.document_type === 'identity_document')
+    .map((d) => d.id);
+  if (identityDocIds.length > 0) answers['Q97'] = identityDocIds;
+
+  const kundaliDocIds = documents
+    .filter((d) => d.document_type === 'kundali')
+    .map((d) => d.id);
+  if (kundaliDocIds.length > 0) answers['Q98'] = kundaliDocIds;
+
   const resumeQuestion = userData?.onboarding_last_question || 1;
   const chatState = (compatResult.data?.chat_state as Record<string, unknown>) || {};
+  const isAlreadySubmitted = userData?.membership_status === 'onboarding_complete';
 
   return (
     <FormShell
@@ -124,6 +154,7 @@ export default async function OnboardingPage() {
       initialGateAnswers={gateAnswers}
       initialChatState={chatState}
       resumeQuestionNumber={resumeQuestion}
+      isAlreadySubmitted={isAlreadySubmitted}
     />
   );
 }

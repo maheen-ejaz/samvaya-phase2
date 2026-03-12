@@ -26,7 +26,7 @@ export function RangeInput({ question, value, onChange }: RangeInputProps) {
           className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
         />
       </div>
-      <span className="mt-6 text-gray-400">—</span>
+      <span className="mt-6 text-gray-500" aria-hidden="true">—</span>
       <div className="flex-1">
         <label className="mb-1 block text-sm text-gray-500">Max</label>
         <input

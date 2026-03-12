@@ -1,0 +1,69 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+
+const VALID_DOCUMENT_TYPES = ['identity_document', 'kundali', 'other'] as const;
+
+interface RegisterDocumentRequest {
+  storagePath: string;
+  documentType: string;
+}
+
+export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  let body: RegisterDocumentRequest;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const { storagePath, documentType } = body;
+
+  if (!storagePath || !documentType) {
+    return NextResponse.json({ error: 'Missing storagePath or documentType' }, { status: 400 });
+  }
+
+  // Validate document type
+  if (!VALID_DOCUMENT_TYPES.includes(documentType as typeof VALID_DOCUMENT_TYPES[number])) {
+    return NextResponse.json({ error: 'Invalid documentType' }, { status: 400 });
+  }
+
+  // Verify the path belongs to this user
+  if (!storagePath.startsWith(`${user.id}/`)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  try {
+    const { data: docRow, error: insertError } = await supabase
+      .from('documents')
+      .insert({
+        user_id: user.id,
+        document_type: documentType,
+        storage_path: storagePath,
+        verification_status: 'pending',
+      } as never)
+      .select()
+      .single();
+
+    if (insertError) {
+      return NextResponse.json(
+        { error: `Failed to save document record: ${insertError.message}` },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, document: docRow });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

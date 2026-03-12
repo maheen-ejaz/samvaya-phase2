@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { sendChatMessage } from '@/lib/claude/client';
 import { getChatConfig } from '@/lib/claude/prompts';
 import type { ChatMessage, ChatRequest, ChatState } from '@/lib/claude/types';
@@ -14,6 +15,12 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Rate limit: max 50 chat messages per hour per user
+  const { allowed } = checkRateLimit(`chat:${user.id}`, 50, 3600_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many messages. Please try again later.' }, { status: 429 });
   }
 
   let body: ChatRequest;

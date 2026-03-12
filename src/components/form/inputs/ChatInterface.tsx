@@ -8,10 +8,11 @@ import { CHAT_CONFIGS } from '@/lib/claude/prompts';
 interface ChatInterfaceProps {
   question: QuestionConfig;
   initialChatState?: ChatState | null;
-  onComplete: () => void;
+  onComplete: () => void | Promise<void> | Promise<boolean>;
+  completeButtonLabel?: string;
 }
 
-export function ChatInterface({ question, initialChatState, onComplete }: ChatInterfaceProps) {
+export function ChatInterface({ question, initialChatState, onComplete, completeButtonLabel }: ChatInterfaceProps) {
   const chatId = question.id as 'Q38' | 'Q75' | 'Q100';
   const config = CHAT_CONFIGS[chatId];
 
@@ -22,6 +23,7 @@ export function ChatInterface({ question, initialChatState, onComplete }: ChatIn
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [extractionWarning, setExtractionWarning] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -96,12 +98,12 @@ export function ChatInterface({ question, initialChatState, onComplete }: ChatIn
         body: JSON.stringify({ chatId, transcript }),
       });
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        console.error('Extraction API error:', res.status, errData);
+        console.error('Extraction API error:', res.status);
+        setExtractionWarning('Your conversation was saved, but data extraction encountered an issue. Our team will review it.');
       }
     } catch (err) {
-      // Non-critical — log but don't block the user
       console.error('Extraction failed:', err);
+      setExtractionWarning('Your conversation was saved, but data extraction encountered an issue. Our team will review it.');
     } finally {
       setIsExtracting(false);
     }
@@ -170,6 +172,21 @@ export function ChatInterface({ question, initialChatState, onComplete }: ChatIn
     }
   }
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleComplete = useCallback(async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await onComplete();
+    } catch {
+      setSubmitError('Submission failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [onComplete]);
+
   // Read-only mode for completed conversations
   if (isComplete && !isExtracting) {
     return (
@@ -180,11 +197,22 @@ export function ChatInterface({ question, initialChatState, onComplete }: ChatIn
             <MessageBubble key={msg.id} message={msg} />
           ))}
         </div>
+        {extractionWarning && (
+          <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
+            {extractionWarning}
+          </div>
+        )}
+        {submitError && (
+          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+            {submitError}
+          </div>
+        )}
         <button
-          onClick={onComplete}
-          className="w-full rounded-lg bg-rose-600 py-3 text-sm font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+          onClick={handleComplete}
+          disabled={isSubmitting}
+          className="w-full rounded-lg bg-rose-600 py-3 text-sm font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          Continue to next question
+          {isSubmitting ? 'Submitting...' : (completeButtonLabel || 'Continue to next question')}
         </button>
       </div>
     );
@@ -253,7 +281,7 @@ export function ChatInterface({ question, initialChatState, onComplete }: ChatIn
 
       {/* Nudge text */}
       {!isComplete && (
-        <p className="mt-2 text-center text-xs text-gray-400">
+        <p className="mt-2 text-center text-xs text-gray-500">
           {config.nudgeText}
         </p>
       )}
@@ -299,7 +327,12 @@ function ChatHeader({
           {title}
         </h3>
       </div>
-      <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+      <span
+        className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
+        role="status"
+        aria-live="polite"
+        aria-label={isComplete ? 'Conversation complete' : `Exchange ${exchangeCount} of ${maxExchanges}`}
+      >
         {isComplete ? 'Complete' : `${exchangeCount} of ${maxExchanges}`}
       </span>
     </div>

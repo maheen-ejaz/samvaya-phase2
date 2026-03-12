@@ -21,8 +21,9 @@ import type { QuestionConfig } from '@/lib/form/types';
 import type { ChatState } from '@/lib/claude/types';
 
 export function QuestionRenderer() {
-  const { state, chatState, setAnswer, navigateNext } = useForm();
+  const { state, chatState, setAnswer, navigateNext, submitForm } = useForm();
   const currentId = state.visibleQuestions[state.currentQuestionIndex];
+  const isLastQuestion = state.currentQuestionIndex === state.visibleQuestions.length - 1;
 
   if (!currentId) return null;
 
@@ -34,12 +35,15 @@ export function QuestionRenderer() {
         // Chat questions get their own full-width layout — no label wrapper
         if (question.type === 'claude_chat') {
           const savedChatState = chatState[question.id] as ChatState | undefined;
+          // For the last chat question (Q100), trigger form submission instead of navigateNext
+          const isLastChat = isLastQuestion;
           return (
             <ChatInterface
               key={question.id}
               question={question}
               initialChatState={savedChatState || null}
-              onComplete={navigateNext}
+              onComplete={isLastChat ? () => { submitForm(); } : navigateNext}
+              completeButtonLabel={isLastChat ? 'Submit your application' : undefined}
             />
           );
         }
@@ -69,7 +73,7 @@ function QuestionField({ question, value, onChange }: QuestionFieldProps) {
       <label className="mb-3 block text-lg font-medium text-gray-900">
         {question.text}
         {!question.required && (
-          <span className="ml-1 text-sm font-normal text-gray-400">(optional)</span>
+          <span className="ml-1 text-sm font-normal text-gray-500">(optional)</span>
         )}
       </label>
 
@@ -188,7 +192,7 @@ function InputSwitch({ question, value, onChange }: InputSwitchProps) {
       );
 
     case 'file_upload':
-      return <FileUploadInput question={question} />;
+      return <FileUploadInput question={question} value={value} onChange={onChange} />;
 
     case 'claude_chat':
       // Handled directly in QuestionRenderer — should not reach here

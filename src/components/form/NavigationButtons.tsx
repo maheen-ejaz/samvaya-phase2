@@ -6,7 +6,7 @@ import { getQuestion } from '@/lib/form/questions';
 import { isQuestionVisible } from '@/lib/form/conditional-rules';
 
 export function NavigationButtons() {
-  const { state, navigateNext, navigatePrev, flushNow } = useForm();
+  const { state, navigateNext, navigatePrev, submitForm } = useForm();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -34,9 +34,13 @@ export function NavigationButtons() {
     }
     if (Array.isArray(currentValue) && currentValue.length === 0) return false;
 
-    // TODO: When file_upload component is fully implemented, remove this bypass.
+    // File upload validation: check uploaded count against minimum
     if (currentQuestion.type === 'file_upload') {
-      return true;
+      const uploadConfig = currentQuestion.fileUploadConfig;
+      if (!uploadConfig) return false;
+      if (!currentQuestion.required) return true;
+      if (!Array.isArray(currentValue)) return false;
+      return currentValue.length >= uploadConfig.minFiles;
     }
 
     // Dual location: valid if "no preference" or at least one location selected
@@ -114,12 +118,14 @@ export function NavigationButtons() {
         <button
           onClick={async () => {
             setSubmitting(true);
-            await flushNow();
-            setSubmitted(true);
+            const success = await submitForm();
+            if (success) {
+              setSubmitted(true);
+            }
             setSubmitting(false);
           }}
           disabled={!groupComplete || submitting || submitted}
-          className="rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-200 disabled:text-gray-600"
+          className="rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-200 disabled:text-gray-500"
         >
           <span aria-live="polite">{submitted ? 'Form Saved' : submitting ? 'Saving...' : 'Submit'}</span>
         </button>
@@ -127,7 +133,7 @@ export function NavigationButtons() {
         <button
           onClick={navigateNext}
           disabled={!groupComplete}
-          className="flex items-center gap-1 rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-200 disabled:text-gray-600"
+          className="flex items-center gap-1 rounded-lg bg-rose-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-200 disabled:text-gray-500"
         >
           Next
           <svg

@@ -1,11 +1,12 @@
 'use client';
 
-import { FormProvider } from './FormProvider';
+import { FormProvider, useForm } from './FormProvider';
 import { ProgressBar } from './ProgressBar';
 import { WelcomeHeader } from './WelcomeHeader';
 import { ConfidentialityCallout } from './ConfidentialityCallout';
 import { QuestionRenderer } from './QuestionRenderer';
 import { NavigationButtons } from './NavigationButtons';
+import { CompletionScreen } from './CompletionScreen';
 import type { FormAnswers } from '@/lib/form/types';
 
 interface FormShellProps {
@@ -14,6 +15,7 @@ interface FormShellProps {
   initialGateAnswers: Record<string, string>;
   initialChatState: Record<string, unknown>;
   resumeQuestionNumber: number;
+  isAlreadySubmitted?: boolean;
 }
 
 export function FormShell({
@@ -22,7 +24,12 @@ export function FormShell({
   initialGateAnswers,
   initialChatState,
   resumeQuestionNumber,
+  isAlreadySubmitted,
 }: FormShellProps) {
+  if (isAlreadySubmitted) {
+    return <CompletionScreen />;
+  }
+
   return (
     <FormProvider
       userId={userId}
@@ -31,13 +38,25 @@ export function FormShell({
       initialChatState={initialChatState}
       resumeQuestionNumber={resumeQuestionNumber}
     >
-      <div className="mx-auto max-w-lg px-4 py-6">
-        <ProgressBar />
-        <WelcomeHeader />
-        <ConfidentialityCallout />
-        <QuestionRenderer />
-        <NavigationButtons />
-      </div>
+      <FormContent />
     </FormProvider>
+  );
+}
+
+function FormContent() {
+  const { formSubmitted } = useForm();
+
+  if (formSubmitted) {
+    return <CompletionScreen />;
+  }
+
+  return (
+    <div className="mx-auto max-w-lg px-4 py-6">
+      <ProgressBar />
+      <WelcomeHeader />
+      <ConfidentialityCallout />
+      <QuestionRenderer />
+      <NavigationButtons />
+    </div>
   );
 }

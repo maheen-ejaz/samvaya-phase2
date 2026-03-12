@@ -7,6 +7,7 @@ import {
   useEffect,
   useLayoutEffect,
   useRef,
+  useState,
   useCallback,
   type ReactNode,
 } from 'react';
@@ -27,11 +28,13 @@ interface FormContextValue {
   state: FormState;
   userId: string;
   chatState: Record<string, unknown>;
+  formSubmitted: boolean;
   setAnswer: (questionId: string, value: unknown) => void;
   navigateNext: () => void;
   navigatePrev: () => void;
   navigateTo: (index: number) => void;
   flushNow: () => Promise<void>;
+  submitForm: () => Promise<boolean>;
 }
 
 const FormContext = createContext<FormContextValue | null>(null);
@@ -234,9 +237,37 @@ export function FormProvider({
     await autoSaveRef.current?.flushNow();
   }, []);
 
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const submittingRef = useRef(false);
+
+  const submitForm = useCallback(async (): Promise<boolean> => {
+    // Prevent concurrent submissions
+    if (submittingRef.current || formSubmitted) return false;
+    submittingRef.current = true;
+
+    try {
+      await autoSaveRef.current?.flushNow();
+
+      const res = await fetch('/api/form/submit', { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        console.error('Form submission failed:', data.error);
+        submittingRef.current = false;
+        return false;
+      }
+
+      setFormSubmitted(true);
+      return true;
+    } catch (err) {
+      console.error('Form submission error:', err);
+      submittingRef.current = false;
+      return false;
+    }
+  }, [formSubmitted]);
+
   return (
     <FormContext.Provider
-      value={{ state, userId, chatState: initialChatState, setAnswer, navigateNext, navigatePrev, navigateTo, flushNow }}
+      value={{ state, userId, chatState: initialChatState, formSubmitted, setAnswer, navigateNext, navigatePrev, navigateTo, flushNow, submitForm }}
     >
       {children}
     </FormContext.Provider>

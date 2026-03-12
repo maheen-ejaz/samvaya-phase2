@@ -21,10 +21,10 @@ export function ProgressBar() {
         <span className="font-medium text-gray-700">
           Section {sectionNumber} of {SECTIONS.length}
           {section && (
-            <span className="text-gray-400"> — {section.label}</span>
+            <span className="text-gray-500"> — {section.label}</span>
           )}
         </span>
-        <span className="text-gray-400">{progress}%</span>
+        <span className="text-gray-500">{progress}%</span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
         <div
@@ -44,7 +44,7 @@ export function ProgressBar() {
 function SaveStatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'saving':
-      return <span className="text-xs text-gray-400">Saving...</span>;
+      return <span className="text-xs text-gray-500">Saving...</span>;
     case 'saved':
       return <span className="text-xs text-green-500">Saved</span>;
     case 'error':
