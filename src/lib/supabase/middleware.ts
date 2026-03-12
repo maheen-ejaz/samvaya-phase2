@@ -46,7 +46,7 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Unauthenticated user on a protected route → redirect to login
-  if (!user && !isPublicRoute(pathname)) {
+  if (!user && !isPublicRoute(pathname) && !pathname.startsWith('/api/')) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/auth/login";
     loginUrl.searchParams.set("next", pathname);

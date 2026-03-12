@@ -58,8 +58,9 @@ export class AutoSaveEngine {
     if (config.targetTable === 'local') {
       if (value === null || value === undefined) {
         // Clear gate answer when dependent field clearing removes it
-        const { [questionId]: _, ...rest } = this.gateAnswers;
-        this.gateAnswers = rest;
+        const updated = { ...this.gateAnswers };
+        delete updated[questionId];
+        this.gateAnswers = updated;
       } else {
         this.gateAnswers = { ...this.gateAnswers, [questionId]: String(value) };
       }
@@ -80,6 +81,40 @@ export class AutoSaveEngine {
     } else {
       // Convert string booleans to actual booleans for DB columns
       existing[config.targetColumn] = this.coerceValue(value, config);
+    }
+
+    // Q62: derive current_designation and total_experience_months from work_experience
+    if (questionId === 'Q62' && Array.isArray(value)) {
+      const entries = value as Array<{
+        designation?: string;
+        start_month?: number;
+        start_year?: number;
+        end_month?: number;
+        end_year?: number;
+        is_current?: boolean;
+      }>;
+
+      // Extract designation from most recent is_current entry
+      const currentEntry = entries.find((e) => e.is_current);
+      existing['current_designation'] = currentEntry?.designation || null;
+
+      // Calculate total experience in months across all entries
+      const now = new Date();
+      let totalMonths = 0;
+      for (const entry of entries) {
+        if (!entry.start_year || !entry.start_month) continue;
+        const startMonths = entry.start_year * 12 + entry.start_month;
+        let endMonths: number;
+        if (entry.is_current) {
+          endMonths = now.getFullYear() * 12 + (now.getMonth() + 1);
+        } else if (entry.end_year && entry.end_month) {
+          endMonths = entry.end_year * 12 + entry.end_month;
+        } else {
+          continue; // incomplete entry, skip
+        }
+        totalMonths += Math.max(0, endMonths - startMonths);
+      }
+      existing['total_experience_months'] = totalMonths;
     }
 
     this.dirtyFields.set(table, existing);

@@ -20,7 +20,7 @@ export default async function OnboardingPage() {
   }
 
   // Fetch all relevant data in parallel
-  const [usersResult, profilesResult, medicalResult, partnerPrefsResult] =
+  const [usersResult, profilesResult, medicalResult, partnerPrefsResult, compatResult] =
     await Promise.all([
       supabase.from('users').select('*').eq('id', user.id).single(),
       supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
@@ -32,6 +32,11 @@ export default async function OnboardingPage() {
       supabase
         .from('partner_preferences')
         .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('compatibility_profiles')
+        .select('chat_state')
         .eq('user_id', user.id)
         .maybeSingle(),
     ]);
@@ -98,12 +103,14 @@ export default async function OnboardingPage() {
   }
 
   const resumeQuestion = userData?.onboarding_last_question || 1;
+  const chatState = (compatResult.data?.chat_state as Record<string, unknown>) || {};
 
   return (
     <FormShell
       userId={user.id}
       initialAnswers={answers}
       initialGateAnswers={gateAnswers}
+      initialChatState={chatState}
       resumeQuestionNumber={resumeQuestion}
     />
   );

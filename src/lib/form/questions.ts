@@ -97,6 +97,9 @@ const ADDITIONAL_QUALIFICATION_OPTIONS = [
   { value: 'mba', label: 'MBA' },
   { value: 'mph', label: 'MPH' },
   { value: 'diploma', label: 'Diploma' },
+  { value: 'mrcp', label: 'MRCP' },
+  { value: 'usmle', label: 'USMLE' },
+  { value: 'plab', label: 'PLAB' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -420,10 +423,10 @@ const sectionC: QuestionConfig[] = [
 // ============================================================
 
 const sectionD: QuestionConfig[] = [
-  { id: 'Q32', questionNumber: 32, section: 'D', text: "What is your father's name?", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'father_name', placeholder: 'Full name' },
+  { id: 'Q32', questionNumber: 32, section: 'D', text: "What is your father's name?", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'father_name', placeholder: 'Full name', groupWith: ['Q33'] },
   { id: 'Q33', questionNumber: 33, section: 'D', text: "What is your father's occupation?", type: 'select', required: true, targetTable: 'profiles', targetColumn: 'father_occupation', options: OCCUPATION_OPTIONS },
   { id: 'Q34', questionNumber: 34, section: 'D', text: "Please describe your father's occupation", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'father_occupation_other', helpText: 'Since you selected "Other"' },
-  { id: 'Q35', questionNumber: 35, section: 'D', text: "What is your mother's name?", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'mother_name', placeholder: 'Full name' },
+  { id: 'Q35', questionNumber: 35, section: 'D', text: "What is your mother's name?", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'mother_name', placeholder: 'Full name', groupWith: ['Q36'] },
   { id: 'Q36', questionNumber: 36, section: 'D', text: "What is your mother's occupation?", type: 'select', required: true, targetTable: 'profiles', targetColumn: 'mother_occupation', options: OCCUPATION_OPTIONS },
   { id: 'Q37', questionNumber: 37, section: 'D', text: "Please describe your mother's occupation", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'mother_occupation_other', helpText: 'Since you selected "Other"' },
   { id: 'Q38', questionNumber: 38, section: 'D', text: 'Claude Chat: Family Background', type: 'claude_chat', required: true, targetTable: 'compatibility_profiles', targetColumn: 'raw_conversation_transcript' },
@@ -435,9 +438,14 @@ const sectionD: QuestionConfig[] = [
 // ============================================================
 
 const sectionE: QuestionConfig[] = [
-  { id: 'Q40', questionNumber: 40, section: 'E', text: 'What is your height (in cm)?', type: 'number', required: true, targetTable: 'profiles', targetColumn: 'height_cm', placeholder: 'e.g. 170' },
-  { id: 'Q41', questionNumber: 41, section: 'E', text: 'What is your weight (in kg)?', type: 'number', required: true, targetTable: 'profiles', targetColumn: 'weight_kg', placeholder: 'e.g. 65' },
-  { id: 'Q42', questionNumber: 42, section: 'E', text: 'How would you describe your skin tone?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'skin_tone', options: [{ value: 'fair', label: 'Fair' }, { value: 'wheatish', label: 'Wheatish' }, { value: 'dusky', label: 'Dusky' }, { value: 'dark', label: 'Dark' }] },
+  { id: 'Q40', questionNumber: 40, section: 'E', text: 'What is your height?', type: 'number', required: true, targetTable: 'profiles', targetColumn: 'height_cm', placeholder: 'e.g. 170', helpText: 'In centimetres', groupWith: ['Q41'] },
+  { id: 'Q41', questionNumber: 41, section: 'E', text: 'What is your weight?', type: 'number', required: true, targetTable: 'profiles', targetColumn: 'weight_kg', placeholder: 'e.g. 65', helpText: 'In kilograms', groupWith: ['Q40'] },
+  { id: 'Q42', questionNumber: 42, section: 'E', text: 'How would you describe your skin tone?', type: 'illustrated_mc', required: false, targetTable: 'profiles', targetColumn: 'skin_tone', options: [
+    { value: 'fair', label: 'Fair', icon: '🤍' },
+    { value: 'wheatish', label: 'Wheatish', icon: '🌾' },
+    { value: 'dusky', label: 'Dusky', icon: '🌰' },
+    { value: 'dark', label: 'Dark', icon: '🖤' },
+  ] },
 ];
 
 // ============================================================
@@ -445,13 +453,43 @@ const sectionE: QuestionConfig[] = [
 // ============================================================
 
 const sectionF: QuestionConfig[] = [
-  { id: 'Q43', questionNumber: 43, section: 'F', text: 'What are your dietary preferences?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'diet', options: [{ value: 'vegetarian', label: 'Vegetarian' }, { value: 'non_vegetarian', label: 'Non-Vegetarian' }, { value: 'eggetarian', label: 'Eggetarian' }, { value: 'vegan', label: 'Vegan' }, { value: 'jain', label: 'Jain' }, { value: 'other', label: 'Flexible / Other' }] },
-  { id: 'Q44', questionNumber: 44, section: 'F', text: 'What is your everyday attire preference?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'attire_preference', options: [{ value: 'modern_western', label: 'Western' }, { value: 'traditional', label: 'Traditional' }, { value: 'mix', label: 'Mix of both' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q45', questionNumber: 45, section: 'F', text: 'What are your fitness habits?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'fitness_habits', options: [{ value: 'regularly_exercises', label: 'Regular (4+ times/week)' }, { value: 'occasionally', label: 'Moderate (1-3 times/week)' }, { value: 'rarely', label: 'Occasional' }, { value: 'not_interested', label: 'Not active currently' }] },
-  { id: 'Q46', questionNumber: 46, section: 'F', text: 'Do you smoke?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'smoking', options: [{ value: 'never', label: 'No' }, { value: 'occasionally', label: 'Occasionally' }, { value: 'frequently', label: 'Yes, regularly' }] },
-  { id: 'Q47', questionNumber: 47, section: 'F', text: 'Do you drink alcohol?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'drinking', options: [{ value: 'never', label: 'No' }, { value: 'occasionally', label: 'Socially' }, { value: 'frequently', label: 'Regularly' }] },
-  { id: 'Q48', questionNumber: 48, section: 'F', text: 'Do you have tattoos or piercings?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'tattoos_piercings', options: [{ value: 'none', label: 'None' }, { value: 'tattoos_only', label: 'Tattoos' }, { value: 'piercings_only', label: 'Piercings' }, { value: 'both', label: 'Both' }] },
-  { id: 'Q49', questionNumber: 49, section: 'F', text: 'Do you have any disabilities or health conditions you would like to share?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'has_disability', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'prefer_not_to_disclose', label: 'Prefer not to disclose' }] },
+  { id: 'Q43', questionNumber: 43, section: 'F', text: 'What are your dietary preferences?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'diet', options: [
+    { value: 'vegetarian', label: 'Vegetarian', icon: '🥬' },
+    { value: 'non_vegetarian', label: 'Non-Vegetarian', icon: '🍗' },
+    { value: 'eggetarian', label: 'Eggetarian', icon: '🥚' },
+    { value: 'vegan', label: 'Vegan', icon: '🌱' },
+    { value: 'jain', label: 'Jain', icon: '🙏' },
+    { value: 'other', label: 'Flexible / Other', icon: '🍽️' },
+  ] },
+  { id: 'Q44', questionNumber: 44, section: 'F', text: 'What is your everyday attire preference?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'attire_preference', options: [
+    { value: 'modern_western', label: 'Western', icon: '👔' },
+    { value: 'traditional', label: 'Traditional', icon: '🪷' },
+    { value: 'mix', label: 'Mix of both', icon: '✨' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
+  { id: 'Q45', questionNumber: 45, section: 'F', text: 'How would you describe your fitness habits?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'fitness_habits', options: [
+    { value: 'regularly_exercises', label: 'Regular (4+ times/week)', icon: '💪' },
+    { value: 'occasionally', label: 'Moderate (1-3 times/week)', icon: '🏃' },
+    { value: 'rarely', label: 'Occasional', icon: '🚶' },
+    { value: 'not_interested', label: 'Not active currently', icon: '🛋️' },
+  ] },
+  { id: 'Q46', questionNumber: 46, section: 'F', text: 'Do you smoke?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'smoking', options: [
+    { value: 'never', label: 'No', icon: '🚭' },
+    { value: 'occasionally', label: 'Occasionally', icon: '🌫️' },
+    { value: 'frequently', label: 'Yes, regularly', icon: '🚬' },
+  ] },
+  { id: 'Q47', questionNumber: 47, section: 'F', text: 'Do you drink?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'drinking', options: [
+    { value: 'never', label: 'No', icon: '💧' },
+    { value: 'occasionally', label: 'Socially', icon: '🥂' },
+    { value: 'frequently', label: 'Regularly', icon: '🍷' },
+  ] },
+  { id: 'Q48', questionNumber: 48, section: 'F', text: 'Do you have tattoos or piercings?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'tattoos_piercings', options: [
+    { value: 'none', label: 'None', icon: '✋' },
+    { value: 'tattoos_only', label: 'Tattoos', icon: '🎨' },
+    { value: 'piercings_only', label: 'Piercings', icon: '💎' },
+    { value: 'both', label: 'Both', icon: '✨' },
+  ] },
+  { id: 'Q49', questionNumber: 49, section: 'F', text: 'Do you have any disabilities or health conditions?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'has_disability', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'prefer_not_to_disclose', label: 'Prefer not to disclose' }] },
   { id: 'Q50', questionNumber: 50, section: 'F', text: 'Please describe your disability or health condition', type: 'text', required: true, targetTable: 'profiles', targetColumn: 'disability_description', placeholder: 'Share what you are comfortable with' },
   { id: 'Q51', questionNumber: 51, section: 'F', text: 'Do you have any allergies?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'has_allergies', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
   { id: 'Q52', questionNumber: 52, section: 'F', text: 'Please describe your allergies', type: 'text', required: true, targetTable: 'profiles', targetColumn: 'allergy_description', placeholder: 'e.g. peanuts, dust, pollen' },
@@ -471,7 +509,18 @@ const sectionG: QuestionConfig[] = [
     required: true,
     targetTable: 'profiles',
     targetColumn: 'hobbies_interests',
-    helpText: 'Select all that apply.',
+    helpText: 'Select all that apply. Tap a category to expand it.',
+    optionGroups: [
+      { key: 'arts_creativity', label: 'Arts & Creativity', icon: '🎨', optionValues: ['drawing_painting', 'photography', 'writing', 'music_listening', 'music_playing', 'dance', 'theatre', 'poetry'] },
+      { key: 'sports_fitness', label: 'Sports & Fitness', icon: '⚽', optionValues: ['cricket', 'football', 'tennis', 'badminton', 'swimming', 'gym_weightlifting', 'yoga', 'cycling', 'trekking', 'running', 'martial_arts', 'chess'] },
+      { key: 'outdoors_travel', label: 'Outdoors & Travel', icon: '🌿', optionValues: ['hiking', 'camping', 'road_trips', 'wildlife_nature', 'backpacking', 'adventure_sports'] },
+      { key: 'food_lifestyle', label: 'Food & Lifestyle', icon: '🍳', optionValues: ['cooking', 'baking', 'coffee_culture', 'wine_cocktails', 'gardening', 'interior_design', 'fashion_style'] },
+      { key: 'tech_gaming', label: 'Tech & Gaming', icon: '💻', optionValues: ['video_games', 'board_games', 'coding', 'robotics', 'gadgets'] },
+      { key: 'reading_learning', label: 'Reading & Learning', icon: '📚', optionValues: ['fiction', 'non_fiction', 'philosophy', 'history', 'science', 'podcasts', 'documentaries', 'online_courses'] },
+      { key: 'social_community', label: 'Social & Community', icon: '🤝', optionValues: ['volunteering', 'social_work', 'activism', 'spirituality_meditation', 'environmentalism'] },
+      { key: 'entertainment', label: 'Entertainment', icon: '🎬', optionValues: ['movies', 'web_series', 'theatre_shows', 'standup_comedy', 'concerts_live_music'] },
+      { key: 'crafts_collecting', label: 'Crafts & Collecting', icon: '✂️', optionValues: ['diy_projects', 'knitting_crocheting', 'pottery', 'stamp_coin_collecting', 'origami'] },
+    ],
     options: [
       // Arts & Creativity
       { value: 'drawing_painting', label: 'Drawing / Painting' },
@@ -556,11 +605,11 @@ const sectionG: QuestionConfig[] = [
 // ============================================================
 
 const sectionH: QuestionConfig[] = [
-  { id: 'Q56', questionNumber: 56, section: 'H', text: 'What is your current medical status?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'current_status', options: [{ value: 'mbbs_student', label: 'MBBS Student' }, { value: 'intern', label: 'Intern' }, { value: 'mbbs_passed', label: 'MBBS Passed (not pursuing PG yet)' }, { value: 'pursuing_pg', label: 'Pursuing PG' }, { value: 'completed_pg', label: 'Completed PG / Practicing' }] },
-  { id: 'Q57', questionNumber: 57, section: 'H', text: 'Are you planning to pursue postgraduate studies?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'pg_plans', options: [{ value: 'yes_within_1_year', label: 'Yes, within 1 year' }, { value: 'yes_2_to_3_years', label: 'Yes, in 2-3 years' }, { value: 'no_plan_to_practice', label: 'No' }, { value: 'undecided', label: 'Undecided' }] },
+  { id: 'Q56', questionNumber: 56, section: 'H', text: 'What best describes your current status?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'current_status', options: [{ value: 'mbbs_student', label: 'In Medical School (MBBS)' }, { value: 'intern', label: 'Internship' }, { value: 'mbbs_passed', label: 'MBBS Passed' }, { value: 'pursuing_pg', label: 'Pursuing PG' }, { value: 'completed_pg', label: 'Completed PG' }] },
+  { id: 'Q57', questionNumber: 57, section: 'H', text: 'Are you planning to pursue postgraduate studies?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'pg_plans', options: [{ value: 'yes_within_1_year', label: 'Yes, within the next year' }, { value: 'yes_2_to_3_years', label: 'Yes, in 2-3 years' }, { value: 'no_plan_to_practice', label: 'No, I plan to practice as MBBS' }, { value: 'undecided', label: 'Undecided' }] },
   { id: 'Q58', questionNumber: 58, section: 'H', text: 'Do you have any additional qualifications?', type: 'multi_select', required: false, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS },
   { id: 'Q59', questionNumber: 59, section: 'H', text: 'What other qualifications do you have?', type: 'text', required: true, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications_other', placeholder: 'Please specify' },
-  { id: 'Q60', questionNumber: 60, section: 'H', text: 'What specialty are you pursuing or planning to pursue?', type: 'multi_select', required: false, targetTable: 'medical_credentials', targetColumn: 'specialty', options: MEDICAL_SPECIALTY_OPTIONS },
+  { id: 'Q60', questionNumber: 60, section: 'H', text: 'What specialty are you currently pursuing or planning to pursue?', type: 'multi_select', required: false, targetTable: 'medical_credentials', targetColumn: 'specialty', helpText: 'Select all that apply', options: MEDICAL_SPECIALTY_OPTIONS },
 ];
 
 // ============================================================

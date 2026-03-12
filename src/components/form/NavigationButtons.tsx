@@ -18,6 +18,11 @@ export function NavigationButtons() {
   const currentQuestion = currentId ? getQuestion(currentId) : undefined;
   const currentValue = currentId ? state.answers[currentId] : undefined;
 
+  // Hide navigation entirely for chat questions — ChatInterface handles its own flow
+  if (currentQuestion?.type === 'claude_chat') {
+    return null;
+  }
+
   const hasAnswer = (() => {
     if (!currentQuestion) return false;
     if (!currentQuestion.required) return true; // Optional questions can be skipped
@@ -29,10 +34,28 @@ export function NavigationButtons() {
     }
     if (Array.isArray(currentValue) && currentValue.length === 0) return false;
 
-    // TODO: When file_upload, timeline, and claude_chat components are fully
-    // implemented, remove this bypass so users must complete them before proceeding.
-    if (currentQuestion.type === 'file_upload' || currentQuestion.type === 'timeline' || currentQuestion.type === 'claude_chat') {
+    // TODO: When file_upload component is fully implemented, remove this bypass.
+    if (currentQuestion.type === 'file_upload') {
       return true;
+    }
+
+    // Timeline validation: at least one complete entry with valid dates
+    if (currentQuestion.type === 'timeline') {
+      if (!Array.isArray(currentValue) || currentValue.length === 0) return false;
+      return (currentValue as Array<Record<string, unknown>>).every((entry) => {
+        if (!entry.org_name || !entry.designation || !entry.start_month || !entry.start_year) {
+          return false;
+        }
+        if (!entry.is_current) {
+          if (!entry.end_month || !entry.end_year) return false;
+          // End date must not be before start date
+          const endYear = entry.end_year as number;
+          const startYear = entry.start_year as number;
+          if (endYear < startYear) return false;
+          if (endYear === startYear && (entry.end_month as number) < (entry.start_month as number)) return false;
+        }
+        return true;
+      });
     }
 
     return true;

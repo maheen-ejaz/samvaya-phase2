@@ -5,6 +5,7 @@ import {
   useContext,
   useReducer,
   useEffect,
+  useLayoutEffect,
   useRef,
   useCallback,
   type ReactNode,
@@ -24,6 +25,8 @@ import type { FormState, FormAction, FormAnswers } from '@/lib/form/types';
 
 interface FormContextValue {
   state: FormState;
+  userId: string;
+  chatState: Record<string, unknown>;
   setAnswer: (questionId: string, value: unknown) => void;
   navigateNext: () => void;
   navigatePrev: () => void;
@@ -122,6 +125,7 @@ interface FormProviderProps {
   userId: string;
   initialAnswers: FormAnswers;
   initialGateAnswers: Record<string, string>;
+  initialChatState: Record<string, unknown>;
   resumeQuestionNumber: number;
 }
 
@@ -130,10 +134,10 @@ export function FormProvider({
   userId,
   initialAnswers,
   initialGateAnswers,
+  initialChatState,
   resumeQuestionNumber,
 }: FormProviderProps) {
   const initialVisible = computeVisibleQuestions(initialAnswers);
-  const resumeId = `Q${resumeQuestionNumber || 1}`;
   const closestId = findClosestVisibleQuestion(initialVisible, resumeQuestionNumber || 1);
   const initialIndex = findQuestionIndex(initialVisible, closestId);
 
@@ -148,7 +152,9 @@ export function FormProvider({
   // Refs for accessing current state in callbacks
   const autoSaveRef = useRef<AutoSaveEngine | null>(null);
   const stateRef = useRef(state);
-  stateRef.current = state;
+  useLayoutEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -177,7 +183,7 @@ export function FormProvider({
       // promise will complete before GC.
       void engine.flushNow().finally(() => engine.destroy());
     };
-  }, [userId]);
+  }, [userId, initialGateAnswers]);
 
   // Track position changes for auto-save
   const currentQuestionId = state.visibleQuestions[state.currentQuestionIndex];
@@ -210,19 +216,19 @@ export function FormProvider({
     }
 
     prevVisibleRef.current = newVisibleSet;
-  }, []);
+  }, [dispatch]);
 
   const navigateNext = useCallback(() => {
     dispatch({ type: 'NAVIGATE_NEXT' });
-  }, []);
+  }, [dispatch]);
 
   const navigatePrev = useCallback(() => {
     dispatch({ type: 'NAVIGATE_PREV' });
-  }, []);
+  }, [dispatch]);
 
   const navigateTo = useCallback((index: number) => {
     dispatch({ type: 'NAVIGATE_TO', questionIndex: index });
-  }, []);
+  }, [dispatch]);
 
   const flushNow = useCallback(async () => {
     await autoSaveRef.current?.flushNow();
@@ -230,7 +236,7 @@ export function FormProvider({
 
   return (
     <FormContext.Provider
-      value={{ state, setAnswer, navigateNext, navigatePrev, navigateTo, flushNow }}
+      value={{ state, userId, chatState: initialChatState, setAnswer, navigateNext, navigatePrev, navigateTo, flushNow }}
     >
       {children}
     </FormContext.Provider>

@@ -12,6 +12,7 @@ interface FormShellProps {
   userId: string;
   initialAnswers: FormAnswers;
   initialGateAnswers: Record<string, string>;
+  initialChatState: Record<string, unknown>;
   resumeQuestionNumber: number;
 }
 
@@ -19,6 +20,7 @@ export function FormShell({
   userId,
   initialAnswers,
   initialGateAnswers,
+  initialChatState,
   resumeQuestionNumber,
 }: FormShellProps) {
   return (
@@ -26,6 +28,7 @@ export function FormShell({
       userId={userId}
       initialAnswers={initialAnswers}
       initialGateAnswers={initialGateAnswers}
+      initialChatState={initialChatState}
       resumeQuestionNumber={resumeQuestionNumber}
     >
       <div className="mx-auto max-w-lg px-4 py-6">

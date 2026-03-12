@@ -1,7 +1,6 @@
 'use client';
 
 import { useForm } from './FormProvider';
-import { getQuestion } from '@/lib/form/questions';
 import { SECTIONS } from '@/lib/form/sections';
 
 // Sections that show a confidentiality callout at their first question

@@ -194,7 +194,7 @@ Applicant list, individual profile view, BGV tracker (13 checks), payment flag t
 | 8 | Mar 20 | Sections E + F (Q40–Q52) — Physical + Lifestyle. Build illustrated MC component here — reused in Section K. |
 | 9 | Mar 21 | Section G (Q53–Q55) — Interests. Hobbies grid with category groupings and illustrations. |
 | 10 | Mar 24 | Sections H + I (Q56–Q62) — Education + Career. Work experience timeline (LinkedIn-style, multiple entries, add/remove). |
-| 11 | Mar 25 | Section J (Q63–Q75) + Claude Chat 2 (Q75). Budget extra time — richest conversation, extraction maps to multiple schema fields. |
+| 11 | Mar 25 | **⚠️ BEFORE STARTING: Review `Samvaya_Claude_Chat_Prompts_v1.md` with the founder. Conv 2 prompts are DRAFT v0.1 — confirm tone, branching, and extraction fields before building.** Section J (Q63–Q75) + Claude Chat 2 (Q75). Budget extra time — richest conversation, extraction maps to multiple schema fields. |
 | 12 | Mar 26 | Section K (Q76–Q94) — Partner Preferences. Dual location selector, specialty checkboxes, quality tag grid. |
 | 13 | Mar 27 | Section L (Q95–Q99) — Documents & Verification. File uploads (Supabase Storage). Photo blurring (Sharp, server-side, at upload). BGV consent screen. |
 | 14 | Mar 28 | Section M (Q100) + Claude Chat 3. Form submission flow. Completion email to applicant (Resend). Notification email to team. |
@@ -208,9 +208,9 @@ Applicant list, individual profile view, BGV tracker (13 checks), payment flag t
 
 ## Current Task
 
-> **YOU ARE HERE: Phase 2A, Part 1 — Day 1**
+> **YOU ARE HERE: Phase 2A, Part 1 — Day 11**
 >
-> **Task:** Project setup. Initialize Next.js 14 App Router + TypeScript + Tailwind. Confirm Vercel deployment pipeline is working. Install Supabase client. Create folder structure. No UI yet — foundation only.
+> **Task:** Section J (Q63–Q75) + Claude Chat 2 (Q75). Review `Samvaya_Claude_Chat_Prompts_v1.md` with founder first. Budget extra time — richest conversation, extraction maps to multiple schema fields.
 >
 > **When this day's work is done:** Update this block to show the next day number, date, and task. Do not change the plan above — only this block changes.
 

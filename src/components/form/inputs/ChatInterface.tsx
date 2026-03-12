@@ -1,0 +1,343 @@
+'use client';
+
+import { useState, useRef, useEffect, useCallback } from 'react';
+import type { QuestionConfig } from '@/lib/form/types';
+import type { ChatMessage, ChatResponse, ChatState } from '@/lib/claude/types';
+import { CHAT_CONFIGS } from '@/lib/claude/prompts';
+
+interface ChatInterfaceProps {
+  question: QuestionConfig;
+  initialChatState?: ChatState | null;
+  onComplete: () => void;
+}
+
+export function ChatInterface({ question, initialChatState, onComplete }: ChatInterfaceProps) {
+  const chatId = question.id as 'Q38' | 'Q75' | 'Q100';
+  const config = CHAT_CONFIGS[chatId];
+
+  const [messages, setMessages] = useState<ChatMessage[]>(initialChatState?.messages || []);
+  const [exchangeCount, setExchangeCount] = useState(initialChatState?.exchangeCount || 0);
+  const [isComplete, setIsComplete] = useState(initialChatState?.isComplete || false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isExtracting, setIsExtracting] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const hasInitialized = useRef(false);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }, [messages]);
+
+  // Send the opening message on first mount (if no existing messages)
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    if (messages.length === 0 && !isComplete) {
+      initiateConversation();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function initiateConversation() {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Send an empty "start" request — the system prompt tells Claude to open
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chatId,
+          messages: [],
+          userMessage: '[START_CONVERSATION]',
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to start conversation');
+      }
+
+      const data: ChatResponse = await res.json();
+
+      const openingMessage: ChatMessage = {
+        id: `assistant-${crypto.randomUUID()}`,
+        role: 'assistant',
+        content: data.assistantMessage,
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages([openingMessage]);
+    } catch {
+      setError('Failed to start the conversation. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const runExtraction = useCallback(async (finalMessages: ChatMessage[]) => {
+    setIsExtracting(true);
+
+    const transcript = finalMessages
+      .map((m) => `${m.role === 'assistant' ? 'Assistant' : 'User'}: ${m.content}`)
+      .join('\n\n');
+
+    try {
+      const res = await fetch('/api/chat/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chatId, transcript }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error('Extraction API error:', res.status, errData);
+      }
+    } catch (err) {
+      // Non-critical — log but don't block the user
+      console.error('Extraction failed:', err);
+    } finally {
+      setIsExtracting(false);
+    }
+  }, [chatId]);
+
+  const sendMessage = useCallback(async () => {
+    const text = inputValue.trim();
+    if (!text || isLoading || isComplete) return;
+
+    setInputValue('');
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chatId,
+          messages,
+          userMessage: text,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to send message');
+      }
+
+      const data: ChatResponse = await res.json();
+
+      const userMsg: ChatMessage = {
+        id: `user-${crypto.randomUUID()}`,
+        role: 'user',
+        content: text,
+        timestamp: new Date().toISOString(),
+      };
+
+      const assistantMsg: ChatMessage = {
+        id: `assistant-${crypto.randomUUID()}`,
+        role: 'assistant',
+        content: data.assistantMessage,
+        timestamp: new Date().toISOString(),
+      };
+
+      const updatedMessages = [...messages, userMsg, assistantMsg];
+      setMessages(updatedMessages);
+      setExchangeCount(data.exchangeCount);
+
+      if (data.isComplete) {
+        setIsComplete(true);
+        runExtraction(updatedMessages);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+      inputRef.current?.focus();
+    }
+  }, [inputValue, isLoading, isComplete, chatId, messages, runExtraction]);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  // Read-only mode for completed conversations
+  if (isComplete && !isExtracting) {
+    return (
+      <div className="flex flex-col">
+        <ChatHeader title={config.title} exchangeCount={config.maxExchanges} maxExchanges={config.maxExchanges} isComplete />
+        <div className="mb-4 max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+          {messages.map((msg) => (
+            <MessageBubble key={msg.id} message={msg} />
+          ))}
+        </div>
+        <button
+          onClick={onComplete}
+          className="w-full rounded-lg bg-rose-600 py-3 text-sm font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+        >
+          Continue to next question
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col">
+      <ChatHeader
+        title={config.title}
+        exchangeCount={exchangeCount}
+        maxExchanges={config.maxExchanges}
+        isComplete={false}
+      />
+
+      {/* Messages area */}
+      <div className="mb-4 max-h-96 min-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4">
+        {messages.map((msg) => (
+          <MessageBubble key={msg.id} message={msg} />
+        ))}
+
+        {isLoading && <TypingIndicator />}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          {error}
+          <button
+            onClick={() => setError(null)}
+            className="ml-2 font-medium underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Input area */}
+      {!isComplete && (
+        <div className="flex gap-2">
+          <textarea
+            ref={inputRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type your response..."
+            disabled={isLoading || messages.length === 0}
+            maxLength={2000}
+            rows={2}
+            aria-label="Your response"
+            className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-50"
+          />
+          <button
+            onClick={sendMessage}
+            disabled={isLoading || !inputValue.trim() || messages.length === 0}
+            aria-label="Send message"
+            className="shrink-0 rounded-lg bg-rose-600 px-4 py-3 text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Nudge text */}
+      {!isComplete && (
+        <p className="mt-2 text-center text-xs text-gray-400">
+          {config.nudgeText}
+        </p>
+      )}
+
+      {/* Extracting indicator */}
+      {isExtracting && (
+        <div className="mt-3 flex items-center justify-center gap-2 text-sm text-gray-500">
+          <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          Saving your conversation...
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// Sub-components
+// ============================================================
+
+function ChatHeader({
+  title,
+  exchangeCount,
+  maxExchanges,
+  isComplete,
+}: {
+  title: string;
+  exchangeCount: number;
+  maxExchanges: number;
+  isComplete: boolean;
+}) {
+  return (
+    <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100">
+          <svg className="h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-gray-900">
+          {title}
+        </h3>
+      </div>
+      <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+        {isComplete ? 'Complete' : `${exchangeCount} of ${maxExchanges}`}
+      </span>
+    </div>
+  );
+}
+
+function MessageBubble({ message }: { message: ChatMessage }) {
+  const isAssistant = message.role === 'assistant';
+
+  return (
+    <div
+      className={`mb-3 flex ${isAssistant ? 'justify-start' : 'justify-end'}`}
+      role="article"
+      aria-label={`${isAssistant ? 'Samvaya' : 'Your'} message`}
+    >
+      <div
+        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+          isAssistant
+            ? 'rounded-bl-md bg-gray-100 text-gray-800'
+            : 'rounded-br-md bg-rose-600 text-white'
+        }`}
+      >
+        {message.content}
+      </div>
+    </div>
+  );
+}
+
+function TypingIndicator() {
+  return (
+    <div className="mb-3 flex justify-start" role="status" aria-label="Typing...">
+      <div className="rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3">
+        <div className="flex gap-1">
+          <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '0ms' }} />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '150ms' }} />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '300ms' }} />
+        </div>
+      </div>
+    </div>
+  );
+}

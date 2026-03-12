@@ -46,6 +46,7 @@ export type Database = {
           ai_red_flags: string | null
           career_ambition_notes: string | null
           career_ambition_score: number | null
+          chat_state: Json | null
           closing_freeform_note: string | null
           communication_style:
             | Database["public"]["Enums"]["communication_style_enum"]
@@ -89,6 +90,7 @@ export type Database = {
           ai_red_flags?: string | null
           career_ambition_notes?: string | null
           career_ambition_score?: number | null
+          chat_state?: Json | null
           closing_freeform_note?: string | null
           communication_style?:
             | Database["public"]["Enums"]["communication_style_enum"]
@@ -132,6 +134,7 @@ export type Database = {
           ai_red_flags?: string | null
           career_ambition_notes?: string | null
           career_ambition_score?: number | null
+          chat_state?: Json | null
           closing_freeform_note?: string | null
           communication_style?:
             | Database["public"]["Enums"]["communication_style_enum"]

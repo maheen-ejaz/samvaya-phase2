@@ -8,6 +8,7 @@ export type QuestionType =
   | 'phone'
   | 'select'
   | 'multi_select'
+  | 'illustrated_mc'
   | 'date'
   | 'time'
   | 'number'
@@ -33,6 +34,13 @@ export interface QuestionOption {
   icon?: string;
 }
 
+export interface OptionGroup {
+  key: string;            // e.g. 'arts_creativity'
+  label: string;          // e.g. 'Arts & Creativity'
+  icon: string;           // e.g. '🎨'
+  optionValues: string[]; // references into question.options[].value
+}
+
 export interface QuestionConfig {
   id: string;                    // "Q1" through "Q100"
   questionNumber: number;
@@ -49,6 +57,7 @@ export interface QuestionConfig {
   maxSelections?: number;
   groupWith?: string[];          // Question IDs shown together on one screen
   autocompleteSource?: 'indian_cities' | 'countries'; // Enables autocomplete on text inputs
+  optionGroups?: OptionGroup[]; // Groups options into collapsible categories (for multi_select)
 }
 
 export interface SectionConfig {
@@ -87,6 +96,17 @@ export interface AutoSaveConfig {
   userId: string;
   debounceMs?: number;
   onStatusChange: (status: FormState['saveStatus'], error?: string) => void;
+}
+
+export interface WorkExperienceEntry {
+  id: string;
+  org_name: string;
+  designation: string;
+  start_month: number;
+  start_year: number;
+  end_month: number | null;
+  end_year: number | null;
+  is_current: boolean;
 }
 
 export interface HydratedFormData {

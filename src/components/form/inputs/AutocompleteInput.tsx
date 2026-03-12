@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useForm } from '@/components/form/FormProvider';
 import { getCitiesForState } from '@/lib/data/indian-cities';
@@ -30,9 +30,12 @@ export function AutocompleteInput({ question, value, onChange, disabled }: Autoc
 
   // Filter suggestions by current input value
   const query = (value || '').toLowerCase().trim();
-  const filtered = query.length > 0
-    ? suggestions.filter((s) => s.toLowerCase().includes(query)).slice(0, 10)
-    : [];
+  const filtered = useMemo(
+    () => query.length > 0
+      ? suggestions.filter((s) => s.toLowerCase().includes(query)).slice(0, 10)
+      : [],
+    [query, suggestions],
+  );
 
   // Don't show dropdown if the input exactly matches a suggestion
   const exactMatch = filtered.length === 1 && filtered[0].toLowerCase() === query;
