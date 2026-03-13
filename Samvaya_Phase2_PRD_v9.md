@@ -1730,7 +1730,7 @@ This is achieved through Supabase as the shared data layer with real-time subscr
 - **Vercel** for Next.js deployment (both admin and PWA routes)
 - Git-based deployment pipeline
 - Preview deployments for testing before production
-- **Domain structure: single domain, route-based (locked)** — `samvayamatrimony.com/app` for members, `samvayamatrimony.com/admin` for the team. No subdomains. Simpler SSL, cookies, and Vercel config.
+- **Domain structure: subdomain-based** — `app.samvayamatrimony.com/app` for members, `app.samvayamatrimony.com/admin` for the team. Root domain (`samvayamatrimony.com`) and `www` remain on Framer (marketing site). `apply.samvayamatrimony.com` remains on Netlify (Phase 1 waitlist).
 
 ### 9.2 Environments
 
@@ -1842,7 +1842,7 @@ Built last.
 | 7 | Profile cards | ✅ Two types fully specced: Admin card (Section 6.11A) + Member-facing match card (Section 6.11B). |
 | 8 | Pricing | ✅ Locked. Verification fee ₹7,080. Membership fee ₹41,300. GooCampus members skip verification fee. |
 | 9 | Razorpay integration | ✅ Deferred to v2. v1 uses manual payment flag. Team collects payment offline. |
-| 10 | Domain structure | ✅ Single domain, route-based. samvayamatrimony.com/app + /admin. No subdomains. |
+| 10 | Domain structure | ✅ Subdomain-based. app.samvayamatrimony.com/app + /admin. Root domain on Framer (marketing). |
 | 11 | SMS provider | ✅ MSG91. |
 | 12 | AI chat question positions | ✅ Q38 (family background, Section D), Q75 (goals & values, Section J), Q100 (closing, Section M). |
 
@@ -1903,10 +1903,10 @@ Legal documentation (Terms of Service, Privacy Policy, Refund Policy) will be dr
 
 | Document | URL | Status |
 |---|---|---|
-| Terms of Service | `samvayamatrimony.com/legal/terms` | Placeholder — awaiting legal draft |
-| Privacy Policy | `samvayamatrimony.com/legal/privacy` | Placeholder — awaiting legal draft |
-| Refund Policy | `samvayamatrimony.com/legal/refunds` | Placeholder — operational position in Section 6B.4 above |
-| Cookie Policy | `samvayamatrimony.com/legal/cookies` | Placeholder — awaiting legal draft |
+| Terms of Service | `app.samvayamatrimony.com/legal/terms` | Placeholder — awaiting legal draft |
+| Privacy Policy | `app.samvayamatrimony.com/legal/privacy` | Placeholder — awaiting legal draft |
+| Refund Policy | `app.samvayamatrimony.com/legal/refunds` | Placeholder — operational position in Section 6B.4 above |
+| Cookie Policy | `app.samvayamatrimony.com/legal/cookies` | Placeholder — awaiting legal draft |
 
 **Implementation note for Claude Code:** Build each of these as a simple static page that renders markdown content fetched from a CMS field or a plain `.md` file in the repo. When legal provides the final documents, they drop into the file — no code changes required.
 
@@ -1930,7 +1930,7 @@ All four URLs must be linked in:
 | Payments | Razorpay (v2) — deferred | v1 uses manual payment flag. Razorpay integration (UPI, cards, net banking via existing GooCampus account) is Phase 2 / v2. |
 | SMS / OTP | MSG91 | Best-in-class Indian SMS gateway. Documentation in process. |
 | Deployment | Vercel | Seamless Next.js deployment, edge functions, preview URLs |
-| Domain structure | Single domain, route-based | `samvayamatrimony.com/app` (members) + `/admin` (team). No subdomains. Simpler SSL, cookies, and Vercel config. |
+| Domain structure | Subdomain-based | `app.samvayamatrimony.com/app` (members) + `/admin` (team). Root domain on Framer (marketing), `apply` on Netlify (waitlist). |
 | BGV provider | OnGrid | Covers all 13 required checks. Cost passed through to applicant at ₹6,000 + GST. |
 
 

@@ -69,12 +69,16 @@ Do not introduce new dependencies or swap any of these without an explicit instr
 ## Architecture — Locked
 
 ```
-Single Next.js codebase, single Vercel deployment, single domain:
+Single Next.js codebase, single Vercel deployment, subdomain:
 
-samvayamatrimony.com/app/*     → User-facing (mobile-first)
-samvayamatrimony.com/admin/*   → Admin dashboard (desktop-first)
-samvayamatrimony.com/api/*     → API routes (server-side, Claude API calls, webhooks)
-samvayamatrimony.com/legal/*   → Static placeholder legal pages
+app.samvayamatrimony.com/app/*     → User-facing (mobile-first)
+app.samvayamatrimony.com/admin/*   → Admin dashboard (desktop-first)
+app.samvayamatrimony.com/api/*     → API routes (server-side, Claude API calls, webhooks)
+app.samvayamatrimony.com/legal/*   → Static placeholder legal pages
+
+Note: Root domain (samvayamatrimony.com) and www stay on Framer (marketing site).
+      apply.samvayamatrimony.com remains on Netlify (Phase 1 waitlist).
+      Vercel fallback URL: samvaya-phase2.vercel.app
 ```
 
 - Supabase = source of truth. Airtable = read-only team copy synced from Supabase. Never write primary data to Airtable.
@@ -229,7 +233,7 @@ Add an entry here whenever a decision is made that isn't already in the PRD. Dat
 | Mar 2026 | Form-first build order | Getting form live with real applicants is highest priority. Dashboard and matching are secondary. Team can use Supabase directly in the interim. |
 | Mar 2026 | 100 total base questions | Referral source Q6 was in schema but missing from form — added to Section A. All downstream Q numbers shifted +1 from Q6 onward. |
 | Mar 2026 | Email OTP only | No passwords. No phone OTP. Applicants are invited by the team and authenticate via email code. Simpler auth flow, no password reset logic needed. |
-| Mar 2026 | Single domain, route-based | `samvayamatrimony.com/app` + `/admin`. No subdomains. Simpler SSL, cookies, and Vercel config. |
+| Mar 2026 | Subdomain: `app.samvayamatrimony.com` | Root domain + www remain on Framer (marketing site), `apply` subdomain on Netlify (waitlist). Phase 2 app deployed to `app.samvayamatrimony.com` via Vercel CNAME. |
 | Mar 2026 | Razorpay removed from Phase 2C | Founder confirmed manual payment collection for v1. PWA shows "Contact us to pay" CTAs with WhatsApp/phone links. Avoids Razorpay KYC delays, webhook complexity, GST invoice generation, and refund handling. Deferred to future phase when user volume justifies automation. |
 | Mar 2026 | Spider web chart: custom SVG, zero deps | 8-axis radar with 2 datasets is simple enough for pure SVG (~100 lines). Avoids Chart.js (78KB) or Recharts (120KB). |
 | Mar 2026 | No service worker for v1 | Web manifest enables installability. Offline support is stretch/v2. |
