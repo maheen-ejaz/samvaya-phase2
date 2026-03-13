@@ -180,3 +180,19 @@ CREATE POLICY "Admins can view all communications"
 CREATE POLICY "Admins can insert communications"
   ON communication_log FOR INSERT
   WITH CHECK (is_admin());
+
+-- ============================================================
+-- Alter communication_log — add scheduled_at and batch_id
+-- (moved from part3_tables migration for correct ordering)
+-- ============================================================
+
+ALTER TABLE communication_log ADD COLUMN IF NOT EXISTS scheduled_at TIMESTAMPTZ;
+ALTER TABLE communication_log ADD COLUMN IF NOT EXISTS batch_id UUID;
+
+CREATE INDEX IF NOT EXISTS idx_communication_log_batch ON communication_log(batch_id);
+CREATE INDEX IF NOT EXISTS idx_communication_log_scheduled
+  ON communication_log(scheduled_at)
+  WHERE scheduled_at IS NOT NULL AND status = 'pending';
+
+-- Additional indexes
+CREATE INDEX IF NOT EXISTS idx_activity_log_action ON activity_log(action);

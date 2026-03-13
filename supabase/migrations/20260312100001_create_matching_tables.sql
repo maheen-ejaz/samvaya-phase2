@@ -316,39 +316,6 @@ CREATE POLICY "Users can view own introductions"
   );
 
 -- ============================================================
--- Seed system_config with matching weights and config
--- ============================================================
-
-INSERT INTO system_config (key, value, description) VALUES
-(
-  'matching_weights',
-  '{
-    "values_alignment": 1.5,
-    "career_alignment": 1.5,
-    "relocation_compatibility": 1.5,
-    "communication_compatibility": 1.5,
-    "lifestyle_compatibility": 1.0,
-    "family_orientation": 1.0,
-    "financial_alignment": 1.0,
-    "emotional_compatibility": 1.0,
-    "timeline_alignment": 1.0
-  }'::jsonb,
-  'Scoring dimension weights for matching algorithm. High-weight dimensions (1.5) are foundational; medium-weight (1.0) are important but more negotiable.'
-),
-(
-  'matching_config',
-  '{
-    "min_score_for_suggestion": 65,
-    "max_pairs_per_day": 50,
-    "presentation_expiry_days": 7,
-    "batch_concurrency": 3,
-    "scoring_model": "claude-sonnet-4-20250514"
-  }'::jsonb,
-  'Matching algorithm configuration: score thresholds, rate limits, expiry, model version.'
-)
-ON CONFLICT (key) DO NOTHING;
-
--- ============================================================
 -- Pre-filtering RPC function
 -- ============================================================
 

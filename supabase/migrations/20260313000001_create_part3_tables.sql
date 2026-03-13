@@ -39,6 +39,36 @@ INSERT INTO system_config (key, value, description) VALUES
   ('airtable_last_sync', '{"synced_at": null, "status": "never", "records_synced": 0}', 'Last Airtable sync status')
 ON CONFLICT (key) DO NOTHING;
 
+-- Seed: matching algorithm weights and config
+INSERT INTO system_config (key, value, description) VALUES
+(
+  'matching_weights',
+  '{
+    "values_alignment": 1.5,
+    "career_alignment": 1.5,
+    "relocation_compatibility": 1.5,
+    "communication_compatibility": 1.5,
+    "lifestyle_compatibility": 1.0,
+    "family_orientation": 1.0,
+    "financial_alignment": 1.0,
+    "emotional_compatibility": 1.0,
+    "timeline_alignment": 1.0
+  }'::jsonb,
+  'Scoring dimension weights for matching algorithm. High-weight dimensions (1.5) are foundational; medium-weight (1.0) are important but more negotiable.'
+),
+(
+  'matching_config',
+  '{
+    "min_score_for_suggestion": 65,
+    "max_pairs_per_day": 50,
+    "presentation_expiry_days": 7,
+    "batch_concurrency": 3,
+    "scoring_model": "claude-sonnet-4-20250514"
+  }'::jsonb,
+  'Matching algorithm configuration: score thresholds, rate limits, expiry, model version.'
+)
+ON CONFLICT (key) DO NOTHING;
+
 -- ============================================================
 -- 2. email_templates — Template library for bulk communications
 -- ============================================================
@@ -129,26 +159,11 @@ What happens next: Our matching process will identify compatible profiles for yo
   )
 ON CONFLICT (name) DO NOTHING;
 
--- ============================================================
--- 3. Alter communication_log — add scheduled_at and batch_id
--- ============================================================
-
-ALTER TABLE communication_log ADD COLUMN IF NOT EXISTS scheduled_at TIMESTAMPTZ;
-ALTER TABLE communication_log ADD COLUMN IF NOT EXISTS batch_id UUID;
-
-CREATE INDEX IF NOT EXISTS idx_communication_log_batch ON communication_log(batch_id);
-CREATE INDEX IF NOT EXISTS idx_communication_log_scheduled
-  ON communication_log(scheduled_at)
-  WHERE scheduled_at IS NOT NULL AND status = 'pending';
+-- NOTE: communication_log and activity_log alterations moved to
+-- 20260327000001_create_admin_tables.sql (where those tables are created)
 
 -- ============================================================
--- 4. Additional indexes for Part 3 queries
--- ============================================================
-
-CREATE INDEX IF NOT EXISTS idx_activity_log_action ON activity_log(action);
-
--- ============================================================
--- 5. Analytics RPC — specialty distribution (unnest)
+-- 3. Analytics RPC — specialty distribution (unnest)
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION get_specialty_distribution()
