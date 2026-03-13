@@ -27,7 +27,7 @@ export function DateInput({ question, value, onChange }: DateInputProps) {
       placeholder={question.placeholder}
       min={minDate}
       max={maxDate}
-      className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
     />
   );
 }

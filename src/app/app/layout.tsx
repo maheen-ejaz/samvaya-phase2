@@ -61,12 +61,22 @@ export default async function ApplicantLayout({
     membershipEndDate: (payment?.membership_end_date as string) ?? null,
   };
 
+  // During onboarding, render bare — FormShell owns its own full-viewport layout
+  if (!onboardingComplete) {
+    return (
+      <UserStatusProvider value={userStatus}>
+        {children}
+        <ServiceWorkerRegistration />
+      </UserStatusProvider>
+    );
+  }
+
   return (
     <UserStatusProvider value={userStatus}>
       <div className="min-h-screen bg-samvaya-blush">
         <AppHeader />
         <main className="mx-auto max-w-lg px-4 py-6 pb-24">{children}</main>
-        {onboardingComplete && <BottomNav />}
+        <BottomNav />
         <ServiceWorkerRegistration />
       </div>
     </UserStatusProvider>

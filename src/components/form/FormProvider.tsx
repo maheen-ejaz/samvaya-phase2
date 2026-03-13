@@ -18,7 +18,10 @@ import {
   findQuestionIndex,
   findClosestVisibleQuestion,
 } from '@/lib/form/navigation';
-import type { FormState, FormAction, FormAnswers } from '@/lib/form/types';
+import { getSectionForQuestion } from '@/lib/form/sections';
+import { getVisibleQuestionsForSection, getNextSectionId, getPrevSectionId } from '@/lib/form/section-navigation';
+import { getQuestion } from '@/lib/form/questions';
+import type { FormState, FormAction, FormAnswers, SectionId } from '@/lib/form/types';
 
 // ============================================================
 // Context
@@ -33,6 +36,9 @@ interface FormContextValue {
   navigateNext: () => void;
   navigatePrev: () => void;
   navigateTo: (index: number) => void;
+  navigateToSection: (sectionId: SectionId) => void;
+  navigateNextSection: () => void;
+  navigatePrevSection: () => void;
   flushNow: () => Promise<void>;
   submitForm: () => Promise<boolean>;
 }
@@ -56,8 +62,6 @@ function formReducer(state: FormState, action: FormAction): FormState {
       const newVisible = computeVisibleQuestions(newAnswers);
 
       // Clear answers for questions that just became hidden (data integrity).
-      // Prevents stale data when a parent answer changes — e.g. changing country
-      // from India hides state, and the old state value must not persist.
       const newVisibleSet = new Set(newVisible);
       for (const qId of state.visibleQuestions) {
         if (!newVisibleSet.has(qId) && newAnswers[qId] !== undefined) {
@@ -98,6 +102,19 @@ function formReducer(state: FormState, action: FormAction): FormState {
         Math.min(action.questionIndex, state.visibleQuestions.length - 1)
       );
       return { ...state, currentQuestionIndex: idx };
+    }
+
+    case 'NAVIGATE_TO_SECTION': {
+      const sectionId = action.sectionId;
+      // Find the first visible question in this section to update position tracking
+      const sectionQuestionIds = getVisibleQuestionsForSection(sectionId, state.answers);
+      const firstQId = sectionQuestionIds[0];
+      let newIndex = state.currentQuestionIndex;
+      if (firstQId) {
+        const idx = state.visibleQuestions.indexOf(firstQId);
+        if (idx >= 0) newIndex = idx;
+      }
+      return { ...state, currentSectionId: sectionId, currentQuestionIndex: newIndex };
     }
 
     case 'SET_SAVE_STATUS':
@@ -144,10 +161,15 @@ export function FormProvider({
   const closestId = findClosestVisibleQuestion(initialVisible, resumeQuestionNumber || 1);
   const initialIndex = findQuestionIndex(initialVisible, closestId);
 
+  // Derive initial section from resume question number
+  const resumeSection = getSectionForQuestion(resumeQuestionNumber || 1);
+  const initialSectionId: SectionId = (resumeSection?.id as SectionId) || 'A';
+
   const [state, dispatch] = useReducer(formReducer, {
     answers: initialAnswers,
     currentQuestionIndex: initialIndex,
     visibleQuestions: initialVisible,
+    currentSectionId: initialSectionId,
     saveStatus: 'idle',
     isLoaded: true,
   } satisfies FormState);
@@ -180,10 +202,6 @@ export function FormProvider({
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      // flushNow is async but React cleanup is sync — fire-and-forget is the best
-      // we can do here. The beforeunload listener above covers browser close.
-      // For in-app navigation, Next.js keeps the JS context alive so the
-      // promise will complete before GC.
       void engine.flushNow().finally(() => engine.destroy());
     };
   }, [userId, initialGateAnswers]);
@@ -207,7 +225,6 @@ export function FormProvider({
 
     // After dispatch, compute new visibility to find questions that became hidden.
     // Mark them dirty with null so auto-save clears them from the DB.
-    // We re-compute here because we need the result synchronously.
     const tempAnswers = { ...stateRef.current.answers, [questionId]: value };
     const newVisible = computeVisibleQuestions(tempAnswers);
     const newVisibleSet = new Set(newVisible);
@@ -231,6 +248,20 @@ export function FormProvider({
 
   const navigateTo = useCallback((index: number) => {
     dispatch({ type: 'NAVIGATE_TO', questionIndex: index });
+  }, [dispatch]);
+
+  const navigateToSection = useCallback((sectionId: SectionId) => {
+    dispatch({ type: 'NAVIGATE_TO_SECTION', sectionId });
+  }, [dispatch]);
+
+  const navigateNextSection = useCallback(() => {
+    const next = getNextSectionId(stateRef.current.currentSectionId);
+    if (next) dispatch({ type: 'NAVIGATE_TO_SECTION', sectionId: next });
+  }, [dispatch]);
+
+  const navigatePrevSection = useCallback(() => {
+    const prev = getPrevSectionId(stateRef.current.currentSectionId);
+    if (prev) dispatch({ type: 'NAVIGATE_TO_SECTION', sectionId: prev });
   }, [dispatch]);
 
   const flushNow = useCallback(async () => {
@@ -267,7 +298,21 @@ export function FormProvider({
 
   return (
     <FormContext.Provider
-      value={{ state, userId, chatState: initialChatState, formSubmitted, setAnswer, navigateNext, navigatePrev, navigateTo, flushNow, submitForm }}
+      value={{
+        state,
+        userId,
+        chatState: initialChatState,
+        formSubmitted,
+        setAnswer,
+        navigateNext,
+        navigatePrev,
+        navigateTo,
+        navigateToSection,
+        navigateNextSection,
+        navigatePrevSection,
+        flushNow,
+        submitForm,
+      }}
     >
       {children}
     </FormContext.Provider>

@@ -203,14 +203,14 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
           </div>
         )}
         {submitError && (
-          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-600">
             {submitError}
           </div>
         )}
         <button
           onClick={handleComplete}
           disabled={isSubmitting}
-          className="w-full rounded-lg bg-rose-600 py-3 text-sm font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="w-full rounded-lg bg-rose-600 py-3 text-sm font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-samvaya-red/30 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Submitting...' : (completeButtonLabel || 'Continue to next question')}
         </button>
@@ -228,7 +228,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
       />
 
       {/* Messages area */}
-      <div className="mb-4 max-h-96 min-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4">
+      <div className="mb-4 max-h-96 min-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
@@ -240,7 +240,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
 
       {/* Error */}
       {error && (
-        <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+        <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-600">
           {error}
           <button
             onClick={() => setError(null)}
@@ -264,13 +264,13 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
             maxLength={2000}
             rows={2}
             aria-label="Your response"
-            className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-50"
+            className="flex-1 resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-100 disabled:text-gray-400"
           />
           <button
             onClick={sendMessage}
             disabled={isLoading || !inputValue.trim() || messages.length === 0}
             aria-label="Send message"
-            className="shrink-0 rounded-lg bg-rose-600 px-4 py-3 text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="shrink-0 rounded-lg bg-rose-600 px-4 py-3 text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-samvaya-red/30 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
@@ -318,8 +318,8 @@ function ChatHeader({
   return (
     <div className="mb-4 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100">
-          <svg className="h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-samvaya-red/10">
+          <svg className="h-4 w-4 text-samvaya-red" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
           </svg>
         </div>
@@ -351,8 +351,8 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
           isAssistant
-            ? 'rounded-bl-md bg-gray-100 text-gray-800'
-            : 'rounded-br-md bg-rose-600 text-white'
+            ? 'rounded-bl-md bg-gray-100 text-gray-700'
+            : 'rounded-br-md bg-rose-50 text-gray-900 border border-rose-200'
         }`}
       >
         {message.content}

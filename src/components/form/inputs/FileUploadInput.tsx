@@ -366,8 +366,8 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
           onClick={() => fileInputRef.current?.click()}
           className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 ${
             dragOver
-              ? 'border-rose-400 bg-rose-50'
-              : 'border-gray-300 hover:border-rose-300 hover:bg-rose-50/30'
+              ? 'border-samvaya-red bg-samvaya-red/10'
+              : 'border-gray-300 hover:border-samvaya-red/40 hover:bg-gray-50'
           }`}
           role="button"
           tabIndex={0}
@@ -401,7 +401,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
               </svg>
               <p className="mt-2 text-sm text-gray-600">
                 Drag {isMulti ? 'files' : 'a file'} here or{' '}
-                <span className="font-medium text-rose-600">tap to browse</span>
+                <span className="font-medium text-samvaya-red">tap to browse</span>
               </p>
               <p className="mt-1 text-xs text-gray-500">
                 {isPhoto ? 'JPEG, PNG, or WebP' : 'JPEG, PNG, WebP, or PDF'} &middot; Max{' '}
@@ -511,7 +511,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
       {error && (
         <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
           <svg
-            className="h-4 w-4 shrink-0 text-red-500"
+            className="h-4 w-4 shrink-0 text-red-600"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
@@ -526,7 +526,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
           <p className="text-sm text-red-600">{error}</p>
           <button
             onClick={() => setError(null)}
-            className="ml-auto text-red-400 hover:text-red-600"
+            className="ml-auto text-red-600 hover:text-red-700"
             aria-label="Dismiss error"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">

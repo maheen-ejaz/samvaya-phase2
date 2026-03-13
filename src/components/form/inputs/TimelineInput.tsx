@@ -118,7 +118,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
         return (
           <div
             key={entry.id}
-            className="relative rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+            className="relative rounded-xl border border-gray-200 bg-gray-50 p-4 shadow-sm"
           >
             {/* Entry header with remove button */}
             <div className="mb-3 flex items-center justify-between">
@@ -129,7 +129,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                 <button
                   type="button"
                   onClick={() => removeEntry(index)}
-                  className="rounded-md p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                  className="rounded-md p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
                   aria-label={`Remove role ${index + 1}`}
                   title={`Remove role ${index + 1}`}
                 >
@@ -157,7 +157,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                 defaultValue={entry.org_name}
                 onBlur={(e) => updateEntry(index, 'org_name', e.target.value)}
                 placeholder="e.g. AIIMS New Delhi"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
               />
             </div>
 
@@ -172,7 +172,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                 defaultValue={entry.designation}
                 onBlur={(e) => updateEntry(index, 'designation', e.target.value)}
                 placeholder="e.g. Senior Resident"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
               />
             </div>
 
@@ -185,7 +185,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                   aria-label="Start month"
                   value={entry.start_month || ''}
                   onChange={(e) => updateEntry(index, 'start_month', Number(e.target.value))}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
                 >
                   <option value="">Month</option>
                   {MONTHS.map((m) => (
@@ -199,7 +199,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                   aria-label="Start year"
                   value={entry.start_year || ''}
                   onChange={(e) => updateEntry(index, 'start_year', Number(e.target.value))}
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
                 >
                   <option value="">Year</option>
                   {YEARS.map((y) => (
@@ -236,7 +236,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                     onChange={(e) =>
                       updateEntry(index, 'end_month', e.target.value ? Number(e.target.value) : null)
                     }
-                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
                   >
                     <option value="">Month</option>
                     {MONTHS.map((m) => (
@@ -252,7 +252,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                     onChange={(e) =>
                       updateEntry(index, 'end_year', e.target.value ? Number(e.target.value) : null)
                     }
-                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
                   >
                     <option value="">Year</option>
                     {YEARS.map((y) => (
@@ -263,7 +263,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                   </select>
                 </div>
                 {dateError && (
-                  <p className="mt-1 text-xs text-red-500">End date must be after start date</p>
+                  <p className="mt-1 text-xs text-red-600">End date must be after start date</p>
                 )}
               </fieldset>
             )}
@@ -276,7 +276,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
         <button
           type="button"
           onClick={addEntry}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 py-3 text-sm font-medium text-gray-500 transition-colors hover:border-rose-400 hover:text-rose-600"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 py-3 text-sm font-medium text-gray-500 transition-colors hover:border-samvaya-red/40 hover:text-samvaya-red"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

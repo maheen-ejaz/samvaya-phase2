@@ -8,8 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-apfel);
 
   /* Samvaya brand colors (PRD Section 13) */
   --color-samvaya-red: #A3171F;
@@ -22,7 +21,6 @@
   --color-samvaya-blush: #FFF4F4;
   --color-samvaya-blush-dark: #FFE8E8;
 }
-
 
 @keyframes fadeInUp {
   from {
@@ -42,5 +40,22 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-apfel), Arial, Helvetica, sans-serif;
+}
+
+/* Rich Samvaya red gradient — visible as the "wallpaper" behind the form card */
+.bg-samvaya-gradient {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(212, 70, 48, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 20%, rgba(139, 16, 24, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 70% at 50% 50%, rgba(192, 32, 42, 0.25) 0%, transparent 70%),
+    linear-gradient(145deg, #7D1118 0%, #A3171F 30%, #C4252F 55%, #8b1018 80%, #5a0c12 100%);
+}
+
+/* Glassmorphism — frosted panel over the red gradient */
+.glass {
+  background: rgba(100, 20, 25, 0.45);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }

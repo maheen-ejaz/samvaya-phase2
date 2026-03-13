@@ -77,12 +77,12 @@ export function DualLocationInput({ question, value, onChange }: DualLocationInp
         aria-pressed={current.noPreference}
         className={`mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-base font-medium transition-colors ${
           current.noPreference
-            ? 'border-rose-500 bg-rose-50 text-rose-900'
-            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+            ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
+            : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
         }`}
       >
         {current.noPreference && (
-          <svg className="h-5 w-5 text-rose-600" viewBox="0 0 20 20" fill="currentColor">
+          <svg className="h-5 w-5 text-samvaya-red" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
         )}
@@ -160,10 +160,10 @@ function LocationSection({
         aria-expanded={isExpanded}
         className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-left transition-colors hover:bg-gray-100"
       >
-        <span className="text-base font-medium text-gray-800">{title}</span>
+        <span className="text-base font-medium text-gray-900">{title}</span>
         <div className="flex items-center gap-2">
           {selected.length > 0 && (
-            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700">
+            <span className="rounded-full bg-samvaya-red/10 px-2 py-0.5 text-xs font-medium text-samvaya-red">
               {selected.length}
             </span>
           )}
@@ -188,7 +188,7 @@ function LocationSection({
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
-              className="mb-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 focus:outline-none"
+              className="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
             />
           )}
 
@@ -201,8 +201,8 @@ function LocationSection({
                   key={option.value}
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
                     isSelected
-                      ? 'border-rose-500 bg-rose-50 text-rose-900'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
+                      : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   <input

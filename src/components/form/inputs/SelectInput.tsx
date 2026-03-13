@@ -22,8 +22,8 @@ export function SelectInput({ question, value, onChange }: SelectInputProps) {
               key={option.value}
               className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${
                 value === option.value
-                  ? 'border-rose-500 bg-rose-50 text-rose-900'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
+                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               <input
@@ -47,7 +47,7 @@ export function SelectInput({ question, value, onChange }: SelectInputProps) {
     <select
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
     >
       <option value="">Select an option</option>
       {question.options.map((option) => (

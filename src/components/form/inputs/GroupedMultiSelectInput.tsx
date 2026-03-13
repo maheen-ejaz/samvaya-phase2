@@ -86,11 +86,11 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
               >
                 <div className="flex items-center gap-2.5">
                   <span className="text-xl" aria-hidden="true">{group.icon}</span>
-                  <span className="text-base font-medium text-gray-800">{group.label}</span>
+                  <span className="text-base font-medium text-gray-900">{group.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   {selectedCount > 0 && (
-                    <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700">
+                    <span className="rounded-full bg-samvaya-red/10 px-2 py-0.5 text-xs font-medium text-samvaya-red">
                       {selectedCount}
                     </span>
                   )}
@@ -118,10 +118,10 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
                         aria-pressed={isSelected}
                         className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${
                           isSelected
-                            ? 'border-rose-500 bg-rose-50 text-rose-900'
+                            ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
                             : isDisabled
-                              ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400'
-                              : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                              ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+                              : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                         }`}
                       >
                         <CheckIndicator checked={isSelected} />
@@ -151,10 +151,10 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
               aria-pressed={isOtherSelected}
               className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors ${
                 isOtherSelected
-                  ? 'border-rose-500 bg-rose-50 text-rose-900'
+                  ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
                   : isOtherDisabled
-                    ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               <span className="text-xl" aria-hidden="true">➕</span>
@@ -195,7 +195,7 @@ function ChevronIcon({ expanded }: { expanded: boolean }) {
 function CheckIndicator({ checked }: { checked: boolean }) {
   if (checked) {
     return (
-      <svg className="h-4 w-4 shrink-0 text-rose-600" viewBox="0 0 20 20" fill="currentColor">
+      <svg className="h-4 w-4 shrink-0 text-samvaya-red" viewBox="0 0 20 20" fill="currentColor">
         <path
           fillRule="evenodd"
           d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"

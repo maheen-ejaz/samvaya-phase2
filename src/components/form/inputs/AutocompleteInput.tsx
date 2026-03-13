@@ -93,7 +93,7 @@ export function AutocompleteInput({ question, value, onChange, disabled }: Autoc
         placeholder={question.placeholder}
         disabled={disabled}
         autoComplete="off"
-        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:bg-gray-100 disabled:text-gray-500"
+        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-100 disabled:text-gray-400"
       />
       {showDropdown && (
         <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
@@ -107,7 +107,7 @@ export function AutocompleteInput({ question, value, onChange, disabled }: Autoc
               onMouseEnter={() => setHighlightedIndex(idx)}
               className={`cursor-pointer px-4 py-2.5 text-base ${
                 idx === highlightedIndex
-                  ? 'bg-rose-50 text-rose-700'
+                  ? 'bg-samvaya-red/10 text-gray-900'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >

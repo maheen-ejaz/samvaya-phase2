@@ -42,6 +42,15 @@ export default defineConfig({
         viewport: { width: 390, height: 844 },
       },
     },
+    {
+      name: 'full-onboarding',
+      testMatch: /full-onboarding-flow\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 390, height: 844 },
+        baseURL: 'http://localhost:3000',
+      },
+    },
   ],
   webServer: {
     command: 'npm run dev',

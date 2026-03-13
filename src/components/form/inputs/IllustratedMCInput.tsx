@@ -28,8 +28,8 @@ export function IllustratedMCInput({ question, value, onChange }: IllustratedMCI
               onClick={() => onChange(option.value)}
               className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 px-3 py-4 transition-all ${
                 isSelected
-                  ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-500/20'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900 ring-2 ring-samvaya-red/30'
+                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               {option.icon && (

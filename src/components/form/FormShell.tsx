@@ -1,11 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { FormProvider, useForm } from './FormProvider';
-import { ProgressBar } from './ProgressBar';
-import { WelcomeHeader } from './WelcomeHeader';
-import { ConfidentialityCallout } from './ConfidentialityCallout';
-import { QuestionRenderer } from './QuestionRenderer';
-import { NavigationButtons } from './NavigationButtons';
+import { SectionSidebar, MobileDrawer } from './SectionSidebar';
+import { MobileSectionBar } from './MobileSectionBar';
+import { SectionPanel } from './SectionPanel';
+import { SectionNavigationButtons } from './SectionNavigationButtons';
 import { CompletionScreen } from './CompletionScreen';
 import type { FormAnswers } from '@/lib/form/types';
 
@@ -45,18 +45,34 @@ export function FormShell({
 
 function FormContent() {
   const { formSubmitted } = useForm();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Set<string>>(new Set());
 
   if (formSubmitted) {
     return <CompletionScreen />;
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-6">
-      <ProgressBar />
-      <WelcomeHeader />
-      <ConfidentialityCallout />
-      <QuestionRenderer />
-      <NavigationButtons />
+    <div className="bg-samvaya-gradient flex min-h-screen items-start justify-center lg:p-8">
+      {/* Contained panel — sidebar + content together */}
+      <div className="relative flex w-full min-h-screen lg:min-h-0 lg:h-[calc(100vh-4rem)] lg:max-w-[88%] lg:rounded-3xl lg:overflow-hidden lg:shadow-2xl">
+        {/* Desktop sidebar — sits on the gradient, glass effect shows red through */}
+        <SectionSidebar />
+
+        {/* Mobile drawer */}
+        <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+
+        {/* Mobile top bar */}
+        <MobileSectionBar onMenuOpen={() => setDrawerOpen(true)} />
+
+        {/* Main content — white background for clean form */}
+        <main className="flex-1 bg-white lg:overflow-y-auto">
+          <div className="mx-auto max-w-2xl px-4 py-6 pt-16 lg:px-10 lg:py-12 lg:pt-12">
+            <SectionPanel validationErrors={validationErrors} />
+            <SectionNavigationButtons onValidationErrors={setValidationErrors} />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

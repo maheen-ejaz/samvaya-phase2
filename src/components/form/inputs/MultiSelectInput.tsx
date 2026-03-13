@@ -46,10 +46,10 @@ export function MultiSelectInput({ question, value, onChange }: MultiSelectInput
               key={option.value}
               className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${
                 isSelected
-                  ? 'border-rose-500 bg-rose-50 text-rose-900'
+                  ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
                   : isDisabled
-                    ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-400'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
               <input

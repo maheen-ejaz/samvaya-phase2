@@ -88,8 +88,9 @@ export type FormAnswers = Record<string, unknown>;
 
 export interface FormState {
   answers: FormAnswers;
-  currentQuestionIndex: number;  // Index into visibleQuestions
+  currentQuestionIndex: number;  // Index into visibleQuestions (used for auto-save position tracking)
   visibleQuestions: string[];    // Ordered Q IDs after conditional filtering
+  currentSectionId: SectionId;  // Active section for section-level navigation
   saveStatus: 'idle' | 'saving' | 'saved' | 'error';
   saveError?: string;
   isLoaded: boolean;
@@ -100,6 +101,7 @@ export type FormAction =
   | { type: 'NAVIGATE_NEXT' }
   | { type: 'NAVIGATE_PREV' }
   | { type: 'NAVIGATE_TO'; questionIndex: number }
+  | { type: 'NAVIGATE_TO_SECTION'; sectionId: SectionId }
   | { type: 'SET_SAVE_STATUS'; status: FormState['saveStatus']; error?: string }
   | { type: 'RECALCULATE_VISIBLE' };
 
