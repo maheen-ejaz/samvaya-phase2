@@ -866,14 +866,68 @@ npx playwright test e2e/full-onboarding-flow.spec.ts --project=full-onboarding -
 
 ---
 
+## PWA Design Polish + Production E2E Tests
+
+| Field | Value |
+|-------|-------|
+| Commits | `3d40dd1`, `229cc20` |
+| Date | March 15, 2026 |
+| Audit type | PWA design polish (Tiers 1-3) + Production E2E via Playwright MCP |
+
+### Design Changes (15 files, 3 tiers)
+
+**Tier 1 — High Impact**
+- Login page: full redesign with Samvaya logo, blush background, 6-digit OTP boxes, legal footer
+- Error pages: new `error.tsx` (global error boundary) + `not-found.tsx` (branded 404)
+- Fixed `text-[10px]` → `text-xs` across 6 components (LifeSnapshot, SettingsPage, MatchCardHeader, ProfileView, MatchListItem)
+- FileUploadInput: delete button always visible on mobile (touch devices)
+- CompletionScreen: replaced disabled pay button with WhatsApp CTA card
+
+**Tier 2 — Medium Impact**
+- AppHeader: replaced text "Samvaya" with logo image (`samvaya-logo-red.png`)
+- StatusDashboard: blush greeting banner, colored icon backgrounds, rounded-2xl cards
+- Font verification: ApfelGrotezk correctly configured (4 weights, CSS variable, Tailwind `--font-sans`)
+
+**Tier 3 — Premium Polish**
+- OTP individual digit input (6 boxes with auto-focus, paste, backspace navigation)
+- Consistent card styling: `rounded-2xl`, `border-gray-100`, `shadow-sm` across all PWA cards
+- MatchListItem: tap feedback (`active:scale`), hover shadow transition
+- MatchCardHeader: matching rounded/shadow treatment
+
+### Bug Found During E2E Testing
+
+- **OTP boxes not rendering** — `padEnd(6, "")` with empty fill string returns original string unchanged; when OTP value is `""`, digits array was `[]` and zero inputs rendered. Fixed to `padEnd(6, " ")` in commit `229cc20`.
+
+### Production E2E Test Results (Playwright MCP)
+
+| Test | Result | Notes |
+|------|--------|-------|
+| manifest.json returns 200 | **PASS** | Correct PWA manifest with name, icons, start_url |
+| sw.js returns 200 | **PASS** | Full service worker with cache, push, offline fallback |
+| Login page design (375px mobile) | **PASS** | Logo, blush bg, tagline, email input, branded button |
+| Login page design (1280px desktop) | **PASS** | Centered card, proper spacing |
+| Auth redirect (/app → /auth/login) | **PASS** | Redirects with `?next=%2Fapp` query param |
+| 404 for unknown routes | **PASS** | Middleware redirects unauthenticated to login (expected) |
+| Legal: /legal/terms | **PASS** | Full terms page with correct pricing (₹7,080 / ₹41,300) |
+| Legal: /legal/privacy | **PASS** | Full privacy policy renders |
+| OTP flow: email → digit boxes | **PASS** | 6 individual digit boxes with aria-labels, first auto-focused |
+| OTP flow: change email + resend | **PASS** | Both buttons present, resend shows countdown |
+
+### Also Included
+
+- Admin account creation helper: `scripts/create-admin.mjs`
+- Logo files: `public/samvaya-logo-red.png`, `public/samvaya-logo-white.png`
+
+---
+
 ## Summary Across All Phases
 
-| Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Form UI Polish | Pre-Prod Audit | Total |
-|--------|--------|--------|--------|----------|----------|----------|------------|----------------|----------------|----------------|-------|
-| Agents deployed | 1 | 1 | 5 | 3 | 4 | 5 | 6 | 1 | — | 6 | 32 |
-| Issues found | 14 | 20 | ~87 | ~65 | ~30 | ~25 | 34 | 2 | — | 10 | ~287 |
-| Critical issues | 0 | 5 | — | ~9 | 6 | 3 | 0 | 0 | — | 2 | 25+ |
-| Major issues | 0 | 5 | — | ~10 | 6 | 5 | 0 | 0 | — | 6 | 32+ |
-| E2E tests | — | Validated | 16/16 | — | 12/12 | 15/15 | 13/13 HTTP | 1/1 (100 Qs) | — | 8/8 Playwright | 65+ |
-| Files changed | — | — | — | — | — | — | — | — | 22 | 40 | — |
-| Audit types | Code, Security, A11y | Code, Security, A11y, E2E | Code (3), UI/UX (2), E2E | Security, Error, Quality (3) | Security, UX/UI, Quality (3) | Code, UX/UI, Integration (3) + E2E | Flow, Security, UX/UI (6) | Full flow E2E | UI/UX polish | Full codebase, Security, Playwright MCP, PRD sync | All |
+| Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Form UI Polish | Pre-Prod Audit | PWA Polish + E2E | Total |
+|--------|--------|--------|--------|----------|----------|----------|------------|----------------|----------------|----------------|-----------------|-------|
+| Agents deployed | 1 | 1 | 5 | 3 | 4 | 5 | 6 | 1 | — | 6 | — | 32 |
+| Issues found | 14 | 20 | ~87 | ~65 | ~30 | ~25 | 34 | 2 | — | 10 | 1 | ~288 |
+| Critical issues | 0 | 5 | — | ~9 | 6 | 3 | 0 | 0 | — | 2 | 1 | 26+ |
+| Major issues | 0 | 5 | — | ~10 | 6 | 5 | 0 | 0 | — | 6 | 0 | 32+ |
+| E2E tests | — | Validated | 16/16 | — | 12/12 | 15/15 | 13/13 HTTP | 1/1 (100 Qs) | — | 8/8 Playwright | 10/10 Prod E2E | 75+ |
+| Files changed | — | — | — | — | — | — | — | — | 22 | 40 | 15 | — |
+| Audit types | Code, Security, A11y | Code, Security, A11y, E2E | Code (3), UI/UX (2), E2E | Security, Error, Quality (3) | Security, UX/UI, Quality (3) | Code, UX/UI, Integration (3) + E2E | Flow, Security, UX/UI (6) | Full flow E2E | UI/UX polish | Full codebase, Security, Playwright MCP, PRD sync | Design polish, Prod Playwright MCP | All |
