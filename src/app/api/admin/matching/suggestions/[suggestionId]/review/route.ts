@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendNotificationEmail } from '@/lib/email/notifications';
+import { matchPresentedEmail } from '@/lib/email/templates';
 import type { MatchingConfig } from '@/types/matching';
 
 export async function POST(
@@ -135,6 +137,19 @@ export async function POST(
           overall_score: s.overall_compatibility_score,
         }
       );
+
+      // Send notification emails to both users (fire-and-forget)
+      for (const userId of [profileAId, profileBId]) {
+        supabase
+          .from('profiles')
+          .select('first_name')
+          .eq('user_id', userId)
+          .single()
+          .then(({ data: profile }) => {
+            const name = (profile as Record<string, unknown>)?.first_name as string || 'there';
+            sendNotificationEmail(userId, 'new_match', () => matchPresentedEmail(name));
+          });
+      }
 
       return NextResponse.json({
         success: true,

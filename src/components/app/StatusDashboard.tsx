@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useUserStatus } from '@/lib/app/user-context';
 import { ContactPaymentCTA } from './ContactPaymentCTA';
 import { PRICING } from '@/lib/constants';
+import type { DashboardData } from '@/app/app/page';
 
-export function StatusDashboard() {
+export function StatusDashboard({ data }: { data: DashboardData }) {
   const {
     firstName,
     paymentStatus,
@@ -15,21 +16,259 @@ export function StatusDashboard() {
 
   const greeting = firstName ? `Hi ${firstName}` : 'Hi there';
 
+  // Determine which statuses qualify for match stats
+  const showMatchStats = ['in_pool', 'match_presented', 'awaiting_payment', 'active_member'].includes(paymentStatus);
+
+  // Membership countdown
+  const daysRemaining = membershipEndDate
+    ? Math.max(0, Math.ceil((new Date(membershipEndDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null;
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
+      {/* Greeting */}
       <div className="rounded-2xl bg-samvaya-blush px-5 py-4">
         <h2 className="text-xl font-semibold text-gray-900">{greeting}</h2>
         <p className="mt-0.5 text-sm text-gray-500">Here&apos;s your current status</p>
       </div>
 
+      {/* Profile Summary */}
+      <ProfileSummary data={data} />
+
+      {/* Status Card */}
       <StatusCard
         paymentStatus={paymentStatus}
         isGoocampusMember={isGoocampusMember}
         membershipEndDate={membershipEndDate}
       />
+
+      {/* Match Stats (conditional) */}
+      {showMatchStats && (
+        <MatchStats total={data.totalMatches} pending={data.pendingMatches} />
+      )}
+
+      {/* Membership Countdown (conditional) */}
+      {paymentStatus === 'active_member' && daysRemaining !== null && (
+        <MembershipCountdown daysRemaining={daysRemaining} />
+      )}
+
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* Activity Timeline */}
+      <ActivityTimeline
+        data={data}
+        paymentStatus={paymentStatus}
+      />
     </div>
   );
 }
+
+// --- Profile Summary Card ---
+
+function ProfileSummary({ data }: { data: DashboardData }) {
+  const name = [data.firstName, data.lastName].filter(Boolean).join(' ');
+  const specialty = data.specialty?.join(', ');
+  const location = [data.currentCity, data.currentState].filter(Boolean).join(', ');
+
+  return (
+    <div className="relative rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <Link
+        href="/app/profile/edit"
+        className="absolute right-4 top-4 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+        aria-label="Edit profile"
+      >
+        <PencilIcon />
+      </Link>
+      <div className="pr-8">
+        {name && (
+          <p className="text-base font-semibold text-gray-900">Dr. {name}</p>
+        )}
+        {(specialty || data.currentDesignation) && (
+          <p className="mt-0.5 text-sm text-gray-600">
+            {[specialty, data.currentDesignation].filter(Boolean).join(' · ')}
+          </p>
+        )}
+        {location && (
+          <p className="mt-0.5 text-sm text-gray-500">{location}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// --- Match Stats ---
+
+function MatchStats({ total, pending }: { total: number; pending: number }) {
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <h3 className="text-sm font-semibold text-gray-900">Matches</h3>
+      <div className="mt-2 flex items-baseline gap-4">
+        <div>
+          <span className="text-2xl font-bold text-gray-900">{total}</span>
+          <span className="ml-1 text-sm text-gray-500">total</span>
+        </div>
+        {pending > 0 && (
+          <div>
+            <span className="text-2xl font-bold text-samvaya-red">{pending}</span>
+            <span className="ml-1 text-sm text-gray-500">pending response</span>
+          </div>
+        )}
+      </div>
+      {total > 0 && (
+        <Link
+          href="/app/matches"
+          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-samvaya-red hover:text-samvaya-red-dark"
+        >
+          View Matches
+          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+          </svg>
+        </Link>
+      )}
+    </div>
+  );
+}
+
+// --- Membership Countdown ---
+
+function MembershipCountdown({ daysRemaining }: { daysRemaining: number }) {
+  const totalDays = 180; // 6 months
+  const elapsed = totalDays - daysRemaining;
+  const pct = Math.min(100, Math.round((elapsed / totalDays) * 100));
+
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="flex items-baseline justify-between">
+        <h3 className="text-sm font-semibold text-gray-900">Membership</h3>
+        <span className="text-sm font-medium text-gray-600">{daysRemaining} days remaining</span>
+      </div>
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+        <div
+          className="h-full rounded-full bg-samvaya-red transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// --- Quick Actions ---
+
+function QuickActions() {
+  return (
+    <div className="flex gap-3">
+      <Link
+        href="/app/profile/edit"
+        className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+      >
+        Edit Profile
+      </Link>
+      <Link
+        href="/app/settings"
+        className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+      >
+        Settings
+      </Link>
+    </div>
+  );
+}
+
+// --- Activity Timeline ---
+
+const STATUS_ORDER = [
+  'unverified',
+  'verification_pending',
+  'in_pool',
+  'match_presented',
+  'awaiting_payment',
+  'active_member',
+  'membership_expired',
+];
+
+function ActivityTimeline({
+  data,
+  paymentStatus,
+}: {
+  data: DashboardData;
+  paymentStatus: string;
+}) {
+  const statusIdx = STATUS_ORDER.indexOf(paymentStatus);
+
+  const milestones = [
+    {
+      label: 'Profile submitted',
+      date: data.createdAt,
+      done: true, // Always true — user has completed onboarding
+    },
+    {
+      label: 'Payment received',
+      date: data.paidAt,
+      done: !!data.paidAt,
+    },
+    {
+      label: 'Verification complete',
+      date: data.verifiedAt,
+      done: !!data.verifiedAt || statusIdx >= STATUS_ORDER.indexOf('in_pool'),
+    },
+    {
+      label: 'Added to candidate pool',
+      date: data.verifiedAt, // Same time as verification
+      done: statusIdx >= STATUS_ORDER.indexOf('in_pool'),
+    },
+  ];
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <h3 className="mb-4 text-sm font-semibold text-gray-900">Timeline</h3>
+      <div className="space-y-0">
+        {milestones.map((m, i) => (
+          <div key={i} className="flex gap-3">
+            {/* Dot + line */}
+            <div className="flex flex-col items-center">
+              <div
+                className={`h-3 w-3 flex-shrink-0 rounded-full ${
+                  m.done ? 'bg-green-500' : 'bg-gray-300'
+                }`}
+              />
+              {i < milestones.length - 1 && (
+                <div
+                  className={`w-0.5 flex-1 ${
+                    m.done && milestones[i + 1].done ? 'bg-green-300' : 'bg-gray-200'
+                  }`}
+                />
+              )}
+            </div>
+            {/* Label + date */}
+            <div className="pb-5">
+              <p
+                className={`text-sm ${
+                  m.done ? 'font-medium text-gray-900' : 'text-gray-400'
+                }`}
+              >
+                {m.label}
+              </p>
+              {m.done && m.date && (
+                <p className="text-xs text-gray-500">{formatDate(m.date)}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// --- Status Card (existing, unchanged) ---
 
 function StatusCard({
   paymentStatus,
@@ -42,7 +281,6 @@ function StatusCard({
 }) {
   switch (paymentStatus) {
     case 'unverified':
-      // GooCampus members never see the verification fee
       if (isGoocampusMember) {
         return (
           <Card
@@ -271,6 +509,14 @@ function ProgressSteps({
 }
 
 // --- Icons ---
+
+function PencilIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+    </svg>
+  );
+}
 
 function ClockIcon({ className }: { className?: string }) {
   return (

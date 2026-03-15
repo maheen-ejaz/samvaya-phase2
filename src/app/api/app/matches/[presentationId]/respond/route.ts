@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendNotificationEmail } from '@/lib/email/notifications';
+import { matchResponseReceivedEmail } from '@/lib/email/templates';
 
 export async function POST(
   request: NextRequest,
@@ -53,6 +55,61 @@ export async function POST(
         { status: (rpcResult.status_code as number) || 400 }
       );
     }
+
+    // Send notification emails (fire-and-forget)
+    const isMutual = rpcResult.is_mutual_interest === true;
+
+    // Find the other user from the match suggestion
+    (async () => {
+      try {
+        const { data: presentation } = await supabase
+          .from('match_presentations' as never)
+          .select('match_suggestion_id')
+          .eq('id', presentationId)
+          .single();
+
+        if (!presentation) return;
+        const suggestionId = (presentation as Record<string, unknown>).match_suggestion_id as string;
+
+        const { data: suggestion } = await supabase
+          .from('match_suggestions' as never)
+          .select('profile_a_id, profile_b_id')
+          .eq('id', suggestionId)
+          .single();
+
+        if (!suggestion) return;
+        const sg = suggestion as Record<string, unknown>;
+        const otherUserId = sg.profile_a_id === userId
+          ? sg.profile_b_id as string
+          : sg.profile_a_id as string;
+
+        // Notify the other user
+        const { data: otherProfile } = await supabase
+          .from('profiles')
+          .select('first_name')
+          .eq('user_id', otherUserId)
+          .single();
+        const otherName = otherProfile?.first_name || 'there';
+        await sendNotificationEmail(otherUserId, 'match_response', () =>
+          matchResponseReceivedEmail(otherName, isMutual)
+        );
+
+        // If mutual interest, also notify the responding user
+        if (isMutual) {
+          const { data: myProfile } = await supabase
+            .from('profiles')
+            .select('first_name')
+            .eq('user_id', userId)
+            .single();
+          const myName = myProfile?.first_name || 'there';
+          await sendNotificationEmail(userId, 'match_response', () =>
+            matchResponseReceivedEmail(myName, true)
+          );
+        }
+      } catch (notifErr) {
+        console.error('Match response notification failed:', notifErr);
+      }
+    })();
 
     return NextResponse.json({
       success: rpcResult.success,

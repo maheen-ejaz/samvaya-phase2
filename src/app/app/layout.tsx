@@ -49,7 +49,7 @@ export default async function ApplicantLayout({
     .single();
   const payment = paymentRaw as Record<string, unknown> | null;
 
-  const onboardingComplete = (userData?.onboarding_section as string) === 'completed';
+  const onboardingComplete = Number(userData?.onboarding_section) >= 13;
 
   const userStatus = {
     userId: user.id,

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendNotificationEmail } from '@/lib/email/notifications';
+import { statusUpdateEmail } from '@/lib/email/templates';
 import { PRICING } from '@/lib/constants';
 
 type Action = 'mark_verification_paid' | 'mark_goocampus_verified' | 'move_to_pool';
@@ -96,6 +98,7 @@ export async function POST(
     await adminSupabase.from('users').update({ payment_status: 'verification_pending' as never }).eq('id', userId);
     await logActivity(admin.id, 'marked_verification_paid', 'user', userId, { amount: PRICING.VERIFICATION_FEE_PAISE });
 
+    notifyStatusChange(adminSupabase, userId, 'verification_pending');
     return NextResponse.json({ success: true, newPaymentStatus: 'verification_pending' });
   }
 
@@ -111,6 +114,7 @@ export async function POST(
     await adminSupabase.from('users').update({ payment_status: 'in_pool' as never }).eq('id', userId);
     await logActivity(admin.id, 'marked_goocampus_verified', 'user', userId);
 
+    notifyStatusChange(adminSupabase, userId, 'in_pool');
     return NextResponse.json({ success: true, newPaymentStatus: 'in_pool' });
   }
 
@@ -129,8 +133,30 @@ export async function POST(
     await adminSupabase.from('users').update({ payment_status: 'in_pool' as never }).eq('id', userId);
     await logActivity(admin.id, 'moved_to_pool', 'user', userId);
 
+    notifyStatusChange(adminSupabase, userId, 'in_pool');
     return NextResponse.json({ success: true, newPaymentStatus: 'in_pool' });
   }
 
   return NextResponse.json({ error: 'Unhandled action' }, { status: 400 });
+}
+
+/** Fire-and-forget status change notification */
+function notifyStatusChange(
+  supabase: ReturnType<typeof createAdminClient>,
+  userId: string,
+  newStatus: string
+) {
+  (async () => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name')
+        .eq('user_id', userId)
+        .single();
+      const name = profile?.first_name || 'there';
+      await sendNotificationEmail(userId, 'status_update', () => statusUpdateEmail(name, newStatus));
+    } catch (err) {
+      console.error('Status notification failed:', err);
+    }
+  })();
 }

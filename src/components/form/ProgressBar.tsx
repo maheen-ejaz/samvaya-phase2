@@ -44,11 +44,26 @@ export function ProgressBar() {
 function SaveStatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'saving':
-      return <span className="text-xs text-gray-500">Saving...</span>;
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">
+          <svg className="h-3 w-3 animate-spin" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="8" /></svg>
+          Saving…
+        </span>
+      );
     case 'saved':
-      return <span className="text-xs text-green-500">Saved</span>;
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">
+          <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 8.5 6.5 11.5 12.5 5.5" /></svg>
+          Saved
+        </span>
+      );
     case 'error':
-      return <span className="text-xs text-red-500">Save failed — will retry</span>;
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-xs text-red-600">
+          <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M8 5v4M8 11h.01" /></svg>
+          Save failed — will retry
+        </span>
+      );
     default:
       return null;
   }
