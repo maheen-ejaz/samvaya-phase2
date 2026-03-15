@@ -619,7 +619,7 @@ export type Database = {
           height_cm: number | null
           hobbies_interests: string[] | null
           hobbies_other: string | null
-          hobbies_regular: string | null
+          hobbies_regular: string[] | null
           id: string
           languages_spoken: string[] | null
           last_name: string | null
@@ -717,7 +717,7 @@ export type Database = {
           height_cm?: number | null
           hobbies_interests?: string[] | null
           hobbies_other?: string | null
-          hobbies_regular?: string | null
+          hobbies_regular?: string[] | null
           id?: string
           languages_spoken?: string[] | null
           last_name?: string | null
@@ -815,7 +815,7 @@ export type Database = {
           height_cm?: number | null
           hobbies_interests?: string[] | null
           hobbies_other?: string | null
-          hobbies_regular?: string | null
+          hobbies_regular?: string[] | null
           id?: string
           languages_spoken?: string[] | null
           last_name?: string | null

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { chatId, messages, userMessage } = body;
+  const { chatId, userMessage } = body;
 
   if (!chatId || !userMessage) {
     return NextResponse.json({ error: 'Missing chatId or userMessage' }, { status: 400 });
@@ -39,9 +39,6 @@ export async function POST(request: NextRequest) {
   // Prevent oversized messages (memory/cost abuse)
   if (typeof userMessage === 'string' && userMessage.length > 5000) {
     return NextResponse.json({ error: 'Message too long' }, { status: 400 });
-  }
-  if (Array.isArray(messages) && messages.length > 20) {
-    return NextResponse.json({ error: 'Too many messages in history' }, { status: 400 });
   }
 
   const config = getChatConfig(chatId);
@@ -118,13 +115,17 @@ export async function POST(request: NextRequest) {
   const newExchangeCount = currentExchangeCount + 1;
   const isLastExchange = newExchangeCount >= config.maxExchanges;
 
-  // Build message history for Claude (exclude the init prompt if present)
-  const historyForClaude: ChatMessage[] = [...messages, {
+  // Build message history from SERVER state (never trust client-supplied messages)
+  const serverMessages = serverChatState?.messages ?? [];
+
+  const userMsg: ChatMessage = {
     id: `user-${crypto.randomUUID()}`,
     role: 'user',
     content: userMessage,
     timestamp: new Date().toISOString(),
-  }];
+  };
+
+  const historyForClaude: ChatMessage[] = [...serverMessages, userMsg];
 
   let assistantResponse: string;
 
@@ -143,13 +144,6 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const userMsg: ChatMessage = {
-    id: `user-${crypto.randomUUID()}`,
-    role: 'user',
-    content: userMessage,
-    timestamp: new Date().toISOString(),
-  };
-
   const assistantMsg: ChatMessage = {
     id: `assistant-${crypto.randomUUID()}`,
     role: 'assistant',
@@ -157,7 +151,7 @@ export async function POST(request: NextRequest) {
     timestamp: new Date().toISOString(),
   };
 
-  const allMessages = [...messages, userMsg, assistantMsg];
+  const allMessages = [...serverMessages, userMsg, assistantMsg];
 
   const chatState: ChatState = {
     messages: allMessages,

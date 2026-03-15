@@ -14,12 +14,15 @@ export async function POST(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
 
   const expectedValue = `Bearer ${cronSecret}`;
-  if (
-    !cronSecret ||
-    !authHeader ||
-    authHeader.length !== expectedValue.length ||
-    !timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedValue))
-  ) {
+  if (!cronSecret || !authHeader) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  // Use HMAC-based comparison to avoid timing oracle from length differences
+  const { createHmac } = await import('crypto');
+  const key = 'samvaya-cron-verify';
+  const a = createHmac('sha256', key).update(authHeader).digest();
+  const b = createHmac('sha256', key).update(expectedValue).digest();
+  if (!timingSafeEqual(a, b)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -60,8 +63,15 @@ export async function POST(request: NextRequest) {
       continue;
     }
 
-    // Wrap in HTML
-    const htmlBody = `<!DOCTYPE html><html><body style="font-family:-apple-system,sans-serif;color:#1a1a1a;max-width:600px;margin:0 auto;padding:24px;">${(email.body as string).replace(/\n/g, '<br/>')}</body></html>`;
+    // Escape HTML special characters to prevent injection, then wrap in HTML
+    const safeBody = (email.body as string)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/\n/g, '<br/>');
+    const htmlBody = `<!DOCTYPE html><html><body style="font-family:-apple-system,sans-serif;color:#1a1a1a;max-width:600px;margin:0 auto;padding:24px;">${safeBody}</body></html>`;
 
     const success = await sendEmail(recipientEmail, email.subject || '', htmlBody);
 

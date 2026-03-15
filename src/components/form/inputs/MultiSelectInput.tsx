@@ -1,6 +1,7 @@
 'use client';
 
 import type { QuestionConfig } from '@/lib/form/types';
+import { TagInput } from './TagInput';
 
 interface MultiSelectInputProps {
   question: QuestionConfig;
@@ -11,13 +12,17 @@ interface MultiSelectInputProps {
 export function MultiSelectInput({ question, value, onChange }: MultiSelectInputProps) {
   if (!question.options) return null;
 
+  // Searchable tag input for longer lists (>6 options)
+  if (question.options.length > 6) {
+    return <TagInput question={question} value={value} onChange={onChange} />;
+  }
+
   const selected = value || [];
 
   function toggle(optionValue: string) {
     if (selected.includes(optionValue)) {
       onChange(selected.filter((v) => v !== optionValue));
     } else {
-      // Enforce maxSelections if set
       if (question.maxSelections && selected.length >= question.maxSelections) {
         return;
       }
@@ -33,7 +38,7 @@ export function MultiSelectInput({ question, value, onChange }: MultiSelectInput
           {selected.length} / {question.maxSelections} selected
         </p>
       )}
-      <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
         {question.options.map((option) => {
           const isSelected = selected.includes(option.value);
           const isDisabled =
@@ -42,25 +47,27 @@ export function MultiSelectInput({ question, value, onChange }: MultiSelectInput
             selected.length >= question.maxSelections;
 
           return (
-            <label
+            <button
               key={option.value}
-              className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${
+              type="button"
+              onClick={() => toggle(option.value)}
+              disabled={isDisabled}
+              aria-pressed={isSelected}
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 isSelected
-                  ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
+                  ? 'bg-samvaya-red text-white'
                   : isDisabled
-                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
-                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'cursor-not-allowed bg-gray-100 text-gray-400 opacity-50'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => toggle(option.value)}
-                disabled={isDisabled}
-                className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500"
-              />
-              <span className="text-base">{option.label}</span>
-            </label>
+              {isSelected && (
+                <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              )}
+              {option.label}
+            </button>
           );
         })}
       </div>

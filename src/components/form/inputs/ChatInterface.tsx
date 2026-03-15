@@ -25,14 +25,17 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionWarning, setExtractionWarning] = useState<string | null>(null);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasInitialized = useRef(false);
 
-  // Scroll to bottom when messages change
+  // Scroll chat container to bottom when messages change (without moving the page)
   useEffect(() => {
     requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      const container = messagesContainerRef.current;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
     });
   }, [messages]);
 
@@ -228,14 +231,12 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
       />
 
       {/* Messages area */}
-      <div className="mb-4 max-h-96 min-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <div ref={messagesContainerRef} className="mb-4 max-h-96 min-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
 
         {isLoading && <TypingIndicator />}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Error */}

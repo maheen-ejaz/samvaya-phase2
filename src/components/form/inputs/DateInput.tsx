@@ -19,15 +19,33 @@ export function DateInput({ question, value, onChange }: DateInputProps) {
     ? `${today.getFullYear() - 22}-12-31`
     : undefined;
 
+  // Calculate age for date of birth
+  let age: number | null = null;
+  if (isDateOfBirth && value) {
+    const birth = new Date(value);
+    const diff = today.getFullYear() - birth.getFullYear();
+    const hadBirthday =
+      today.getMonth() > birth.getMonth() ||
+      (today.getMonth() === birth.getMonth() && today.getDate() >= birth.getDate());
+    age = hadBirthday ? diff : diff - 1;
+  }
+
   return (
-    <input
-      type="date"
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={question.placeholder}
-      min={minDate}
-      max={maxDate}
-      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
-    />
+    <div>
+      <input
+        type="date"
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={question.placeholder}
+        min={minDate}
+        max={maxDate}
+        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+      />
+      {age !== null && age > 0 && (
+        <p className="mt-2 text-sm text-gray-600">
+          Age: <span className="font-medium text-gray-900">{age} years</span>
+        </p>
+      )}
+    </div>
   );
 }

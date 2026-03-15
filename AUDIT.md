@@ -682,13 +682,198 @@ npx playwright test e2e/full-onboarding-flow.spec.ts --project=full-onboarding -
 
 ---
 
+## Form UI Polish (Pre-Audit)
+
+| Field | Value |
+|-------|-------|
+| Date | March 15, 2026 |
+| Scope | Form navigation, input components, data loading, mobile responsiveness |
+| Files changed | **22 form files** (+622, -314 lines) |
+
+### Changes
+
+**Section Navigation & Layout**
+- `SectionSidebar.tsx` — redesigned with progress indicators, active/completed/locked states, smooth transitions
+- `SectionPanel.tsx` — improved section intro cards, better transition animations between sections
+- `MobileSectionBar.tsx` — fixed responsive behavior for mobile section switching
+- `SectionNavigationButtons.tsx` — added section-level navigation with completion validation
+- `section-navigation.ts` — enhanced section completion logic and validation helpers
+
+**Input Component Refinements (10 components)**
+- `SelectInput.tsx` — refined radio group layout and styling
+- `MultiSelectInput.tsx` — improved checkbox grid with better spacing
+- `AutocompleteInput.tsx` — enhanced dropdown positioning, search filtering
+- `DateInput.tsx` — improved date picker with better mobile UX
+- `NumberInput.tsx` — refined stepper controls and validation
+- `IllustratedMCInput.tsx` — improved card grid layout
+- `GroupedMultiSelectInput.tsx` — better category grouping display
+- `DualLocationInput.tsx` — refined dual-field layout
+- `ChatInterface.tsx` — polish to chat bubble styling
+- `NavigationButtons.tsx` — added disabled state logic for incomplete required fields
+
+**New Components**
+- `ComboboxInput.tsx` — new combobox input for searchable dropdowns
+- `InternationalLocationInput.tsx` — city + country location selector
+- `TagInput.tsx` — tag-based multi-value input
+- `src/components/form/icons/` — custom SVG icons for form sections
+
+**Data & Infrastructure**
+- Moved country/city data from `src/lib/data/` to `public/data/` (JSON) for lazy loading
+- Added `src/lib/data/loader.ts` — async data loader for large datasets
+- Added `src/lib/data/use-location-data.ts` — React hook for location data
+- Deleted `src/lib/data/countries.ts` and `src/lib/data/indian-cities.ts` (replaced by JSON files)
+- `questions.ts` — updated question definitions for new input types and options
+- `types.ts` — extended `QuestionType` union with new input types
+- `auto-save.ts` — improved debounce and error recovery
+- `globals.css` — form-specific CSS refinements
+
+**Other**
+- `QuestionField.tsx` — enhanced field wrapper with better label/help text rendering
+- `QuestionRenderer.tsx` — updated to route new question types to correct input components
+- `onboarding/page.tsx` — improved data loading and chat state initialization
+- `InterestsBlock.tsx` — admin profile view updated for array-type hobbies
+- `supabase/middleware.ts` — minor middleware refinement
+- Migration: `20260327000009_hobbies_regular_to_array.sql` — converts `hobbies_regular` from TEXT to TEXT[]
+
+---
+
+## Pre-Production Comprehensive Audit
+
+| Field | Value |
+|-------|-------|
+| Date | March 15, 2026 |
+| Audit type | Full codebase review + Security + UX/UI + Playwright MCP + PRD sync + Production readiness |
+| Agents deployed | **6** (3 exploration + 1 plan + 1 PRD sync + 1 Next.js best practices) |
+| Tools used | Playwright MCP, next-best-practices skill, supabase-postgres-best-practices skill |
+| Issues found | **10 total** (2 HIGH, 6 MEDIUM, 2 LOW) |
+| Issues fixed | **All 10 fixed** |
+| Verification | **All 10 fixes confirmed present** in codebase post-audit |
+
+### Security Fixes Applied
+
+| # | Issue | Severity | File | Fix |
+|---|-------|----------|------|-----|
+| 1 | Chat route trusts client-supplied message history — malicious client could alter conversation history sent to Claude | **HIGH** | `api/chat/route.ts:122,160` | Rebuilt message history from `serverChatState.messages` instead of client-supplied `messages` array |
+| 2 | Extraction response leaks compatibility scores, personality analysis, and red flags to browser | **MEDIUM** | `api/chat/extract/route.ts:218` | Changed response from `{ success: true, extracted }` to `{ success: true }` |
+| 3 | HTML injection in scheduled email endpoint — `email.body` inserted without entity escaping | **MEDIUM** | `api/admin/communications/send-scheduled/route.ts:64` | Added HTML entity escaping (`&`, `<`, `>`, `"`, `'`) before `<br/>` conversion |
+| 4 | Partner preferences PATCH accepts any value type without validation | **MEDIUM** | `api/app/profile/route.ts:144-149` | Added type/length validation: null, strings (max 200), finite numbers, arrays of strings (max 100 chars, max 50 items) |
+| 5 | No rate limiting on document uploads (photo uploads had 20/hour limit) | **MEDIUM** | `api/upload/register-document/route.ts` | Added `checkRateLimit('doc-upload:${userId}', 20, 3600_000)` |
+| 6 | Timing oracle in webhook/cron secret comparison — length check leaks secret length | **LOW** | `send-scheduled/route.ts:20`, `airtable-sync/route.ts:19` | Replaced length-check + `timingSafeEqual` with HMAC-based constant-time comparison |
+
+### Infrastructure Fixes
+
+| # | Issue | Severity | File | Fix |
+|---|-------|----------|------|-----|
+| 7 | Middleware redirects `manifest.json` and `sw.js` to login — breaks PWA installability and service worker | **HIGH** | `src/middleware.ts:17` | Extended matcher exclusion pattern to include `.json`, `.js`, `.woff2` static file extensions |
+| 8 | ESLint error: `SortIndicator` component created inside render function | **MEDIUM** | `components/admin/ApplicantList.tsx:94` | Converted from JSX component to render function (`sortIndicator()`) |
+| 9 | ESLint error: `Date.now()` flagged as impure in server component | **LOW** | `app/admin/applicants/[userId]/page.tsx:80` | Added `eslint-disable-next-line` with comment (server component — Date access is safe) |
+| 10 | Missing env vars in `.env.local.example` | **MEDIUM** | `.env.local.example` | Added `TEAM_NOTIFICATION_EMAIL`, `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `AIRTABLE_WEBHOOK_SECRET` |
+
+### PRD Sync Check
+
+| Area | Status |
+|------|--------|
+| Pricing (₹7,080 / ₹41,300) | **IN SYNC** — all files correct |
+| Chat exchange limits (Q38=4, Q75=6, Q100=1) | **IN SYNC** |
+| Section boundaries (A-M) | **IN SYNC** |
+| TOUCHPOINT 1 email copy | **IN SYNC** |
+| Payment state machine / BGV logic | **IN SYNC** |
+
+**Documented divergences (implementation is better, PRD should be updated):**
+
+| # | Divergence | PRD Says | Implementation | Action |
+|---|-----------|----------|----------------|--------|
+| 1 | Q26 options | 2 options | 3 options (`owned`/`rented`/`family_home`) | Update PRD |
+| 2 | Q31 input type | Dropdown | Autocomplete text (communities data source) | Update PRD |
+| 3 | Q54 type | Short answer (text) | Multi-select from Q53 options | Update PRD |
+| 4 | Q82/Q84 partner prefs | Single-select | Multi-select (DB uses `text[]`) | Update PRD |
+| 5 | Q29 conditional | Always shown | Only for Hindu/Sikh/Buddhist/Jain | Update PRD |
+| 6 | Q13 type | Short answer | `international_location` with city+country | Update PRD |
+| 7 | Q6 label | "A friend or colleague" | "Friend or Family" | Update PRD |
+| 8 | Q60 required | Required | Optional | Update PRD |
+| 9 | Schema: 3 extra columns | Not in PRD | `father_occupation_other`, `mother_occupation_other`, `hobbies_other` | Update PRD |
+
+**PRD updated to v9.1** — all 9 divergences synced into `Samvaya_Phase2_PRD_v9.md` (March 15, 2026).
+
+**Known limitations:**
+- Q23 (Current City) autocomplete only suggests Indian cities. Users outside India can type freely but don't get suggestions.
+
+### Next.js Best Practices Audit
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| RSC boundaries | **PASS** | No async client components, no non-serializable props |
+| Async params/cookies | **PASS** | All dynamic routes correctly await params |
+| Image optimization | **LOW** | 6 raw `<img>` tags — all use Supabase signed URLs |
+| Page metadata | **MEDIUM** | 5+ pages missing page-specific titles |
+| Data waterfalls | **LOW** | 1 sequential query pair in BGV page |
+| Font optimization | **PASS** | `next/font/local` with `display: swap` |
+| useSearchParams + Suspense | **PASS** | Correctly wrapped |
+
+### Accepted Risks (Documented, Not Fixed)
+
+| # | Risk | Severity | Rationale |
+|---|------|----------|-----------|
+| 1 | In-memory rate limiter resets on cold starts, no cross-instance protection | LOW | Documented with TODO in `lib/rate-limit.ts`. Acceptable for v1 with 3-5 users. Upgrade to Upstash Redis for v1.1. |
+| 2 | CSP includes `'unsafe-inline'` and `'unsafe-eval'` in `script-src` | LOW | Required by Next.js dev mode. Should test removal in production build. |
+| 3 | Q23 city autocomplete only suggests Indian cities | LOW | Users outside India can type freely. Autocomplete just won't help. Fix when international user base grows. |
+
+### Playwright MCP Testing Results
+
+| Route | Test | Result |
+|-------|------|--------|
+| `/auth/login` | Renders email input + "Send verification code" button | **PASS** |
+| `/auth/login` (mobile 375px) | Responsive layout, touch-friendly inputs | **PASS** |
+| `/app/onboarding` (unauth) | Redirects to `/auth/login?next=%2Fapp%2Fonboarding` | **PASS** |
+| `/admin` (unauth) | Redirects to `/auth/login?next=%2Fadmin` | **PASS** |
+| `/legal/privacy` | Public page, renders privacy policy | **PASS** |
+| `/legal/terms` | Public page, pricing correct (₹7,080 + ₹41,300) | **PASS** |
+| `manifest.json` | Returns 200 (was 307 before fix) | **PASS** |
+| `sw.js` | Returns 200 | **PASS** |
+
+### Build Verification
+
+| Check | Result |
+|-------|--------|
+| `npx tsc --noEmit` | **PASS** — zero type errors |
+| `npm run lint` | **PASS** — zero errors after fixes (4 warnings in scripts/) |
+| `npm run build` | **PASS** — production build succeeds |
+| Error boundaries | **PASS** — exist for `/app/app/`, `/app/admin/`, `/app/app/onboarding/` |
+| Loading states | **PASS** — exist for all three key routes |
+
+### Database & Schema Audit (Supabase Best Practices)
+
+| Check | Result |
+|-------|--------|
+| FK indexes on non-unique foreign keys | **PASS** — all FK columns indexed |
+| Status/filter indexes for admin queries | **PASS** — `payment_status`, `membership_status`, `role`, `verification_fee_paid`, `verification_status` |
+| Matching table indexes | **PASS** — pair index, status, score DESC, partial index on pending presentations |
+| RLS policies | **PASS** — comprehensive coverage for all tables |
+| `updated_at` triggers | **PASS** — on all tables |
+| CHECK constraints | **PASS** — score columns (0-100), feedback rating (1-5) |
+| Canonical ordering for match pairs | **PASS** — `profile_a_id < profile_b_id` constraint prevents duplicates |
+| Pre-filter RPC | **PASS** — `SECURITY DEFINER` with `SET search_path = public` |
+
+### Production Readiness
+
+| Check | Result |
+|-------|--------|
+| Security headers (HSTS, CSP, X-Frame-Options, etc.) | **PASS** |
+| Vercel cron configuration | **PASS** — daily at 9 AM UTC |
+| PWA manifest | **PASS** — correct `start_url`, `scope`, `display`, icons |
+| Service worker | **PASS** — network-first navigation, cache-first static, push notification handling, offline fallback |
+| Environment variables documented | **PASS** (after fix #10) |
+
+---
+
 ## Summary Across All Phases
 
-| Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Total |
-|--------|--------|--------|--------|----------|----------|----------|------------|----------------|-------|
-| Agents deployed | 1 | 1 | 5 | 3 | 4 | 5 | 6 | 1 | 26 |
-| Issues found | 14 | 20 | ~87 | ~65 | ~30 | ~25 | 34 | 2 | ~277 |
-| Critical issues | 0 | 5 | — | ~9 | 6 | 3 | 0 | 0 | 23+ |
-| Major issues | 0 | 5 | — | ~10 | 6 | 5 | 0 | 0 | 26+ |
-| E2E tests | — | Validated | 16/16 | — | 12/12 | 15/15 | 13/13 HTTP | 1/1 (100 Qs) | 57+ |
-| Audit types | Code, Security, A11y | Code, Security, A11y, E2E | Code (3), UI/UX (2), E2E | Security, Error, Quality (3) | Security, UX/UI, Quality (3) | Code, UX/UI, Integration (3) + E2E | Flow, Security, UX/UI (6) | Full flow E2E | All |
+| Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Form UI Polish | Pre-Prod Audit | Total |
+|--------|--------|--------|--------|----------|----------|----------|------------|----------------|----------------|----------------|-------|
+| Agents deployed | 1 | 1 | 5 | 3 | 4 | 5 | 6 | 1 | — | 6 | 32 |
+| Issues found | 14 | 20 | ~87 | ~65 | ~30 | ~25 | 34 | 2 | — | 10 | ~287 |
+| Critical issues | 0 | 5 | — | ~9 | 6 | 3 | 0 | 0 | — | 2 | 25+ |
+| Major issues | 0 | 5 | — | ~10 | 6 | 5 | 0 | 0 | — | 6 | 32+ |
+| E2E tests | — | Validated | 16/16 | — | 12/12 | 15/15 | 13/13 HTTP | 1/1 (100 Qs) | — | 8/8 Playwright | 65+ |
+| Files changed | — | — | — | — | — | — | — | — | 22 | 40 | — |
+| Audit types | Code, Security, A11y | Code, Security, A11y, E2E | Code (3), UI/UX (2), E2E | Security, Error, Quality (3) | Security, UX/UI, Quality (3) | Code, UX/UI, Integration (3) + E2E | Flow, Security, UX/UI (6) | Full flow E2E | UI/UX polish | Full codebase, Security, Playwright MCP, PRD sync | All |

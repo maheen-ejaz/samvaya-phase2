@@ -215,5 +215,5 @@ export async function POST(request: NextRequest) {
     .update(updatePayload as never)
     .eq('user_id', user.id);
 
-  return NextResponse.json({ success: true, extracted });
+  return NextResponse.json({ success: true });
 }

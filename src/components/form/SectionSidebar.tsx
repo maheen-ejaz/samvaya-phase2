@@ -3,36 +3,69 @@
 import { SECTIONS } from '@/lib/form/sections';
 import { getSectionCompletionStatus, calculateOverallProgress } from '@/lib/form/section-navigation';
 import { useForm } from './FormProvider';
-import type { SectionConfig } from '@/lib/form/types';
 import type { SectionStatus } from '@/lib/form/section-navigation';
 
 // ============================================================
-// Completion indicator icon
+// Vertical stepper — line segment between items
 // ============================================================
 
-function CompletionIcon({ status }: { status: SectionStatus }) {
+function StepperLine({ status }: { status: SectionStatus; isActive: boolean }) {
+  if (status === 'complete') {
+    return <div className="h-full w-full bg-white/50" />;
+  }
+  // partial or active — gradient fade
+  if (status === 'partial') {
+    return <div className="h-full w-full bg-gradient-to-b from-white/40 to-white/15" />;
+  }
+  // empty — dashed
+  return (
+    <div
+      className="h-full w-full"
+      style={{
+        backgroundImage:
+          'repeating-linear-gradient(to bottom, rgba(255,255,255,0.2) 0px, rgba(255,255,255,0.2) 3px, transparent 3px, transparent 7px)',
+      }}
+    />
+  );
+}
+
+// ============================================================
+// Stepper node (dot / check)
+// ============================================================
+
+function StepperNode({ status, isActive }: { status: SectionStatus; isActive: boolean }) {
   if (status === 'complete') {
     return (
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-samvaya-red">
-        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
+        <svg className="h-3 w-3 text-[#5a1a1a]" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
         </svg>
       </div>
     );
   }
 
-  if (status === 'partial') {
+  if (isActive) {
     return (
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-samvaya-red/60">
-        <div className="h-2 w-2 rounded-full bg-samvaya-red" />
+      <div className="relative flex h-6 w-6 items-center justify-center">
+        <div className="absolute h-6 w-6 rounded-full bg-white/15 animate-ping" style={{ animationDuration: '2s' }} />
+        <div className="h-3.5 w-3.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.6)]" />
       </div>
     );
   }
 
+  if (status === 'partial') {
+    return (
+      <div
+        className="h-5 w-5 rounded-full border-[1.5px] border-white/40"
+        style={{
+          background: 'linear-gradient(to top, rgba(255,255,255,0.55) 50%, transparent 50%)',
+        }}
+      />
+    );
+  }
+
   // empty
-  return (
-    <div className="h-6 w-6 shrink-0 rounded-full border border-white/30" />
-  );
+  return <div className="h-2.5 w-2.5 rounded-full bg-white/30" />;
 }
 
 // ============================================================
@@ -53,39 +86,6 @@ function SaveStatusBadge({ status }: { status: string }) {
 }
 
 // ============================================================
-// Section list item
-// ============================================================
-
-interface SectionItemProps {
-  section: SectionConfig;
-  status: SectionStatus;
-  isActive: boolean;
-  onClick: () => void;
-}
-
-function SectionItem({ section, status, isActive, onClick }: SectionItemProps) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-200 ${
-        isActive
-          ? 'bg-white/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]'
-          : 'hover:bg-white/[0.04]'
-      }`}
-    >
-      <CompletionIcon status={status} />
-      <span
-        className={`text-sm leading-tight tracking-wide ${
-          isActive ? 'font-bold text-white' : 'font-medium text-white/60'
-        }`}
-      >
-        {section.label}
-      </span>
-    </button>
-  );
-}
-
-// ============================================================
 // Sidebar content (shared between desktop + mobile drawer)
 // ============================================================
 
@@ -98,7 +98,7 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
   const progress = calculateOverallProgress(state.answers);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       {/* Brand mark */}
       <div className="px-5 pt-6 pb-2">
         <h1 className="text-lg font-bold tracking-wider text-white">Samvaya</h1>
@@ -107,37 +107,64 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
       {/* Progress */}
       <div className="px-5 py-4">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-[11px] font-medium uppercase tracking-widest text-white/40">
+          <span className="text-[11px] font-medium uppercase tracking-widest text-white/50">
             Progress
           </span>
-          <span className="text-xs font-medium text-white/50">{progress}%</span>
+          <span className="text-xs font-semibold text-white/60">{progress}%</span>
         </div>
-        <div className="h-1 w-full overflow-hidden rounded-full bg-white/15">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/15">
           <div
-            className="h-full rounded-full bg-samvaya-red transition-all duration-500 ease-out"
+            className="h-full rounded-full bg-white/60 transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      {/* Section list */}
-      <nav className="flex-1 overflow-y-auto px-3 py-2" aria-label="Form sections">
-        <ul className="space-y-0.5">
-          {SECTIONS.map((section) => {
+      {/* Section list — vertical stepper */}
+      <nav className="flex-1 overflow-y-auto px-4 py-2" aria-label="Form sections">
+        <ul>
+          {SECTIONS.map((section, index) => {
             const status = getSectionCompletionStatus(section.id, state.answers);
             const isActive = state.currentSectionId === section.id;
+            const isLast = index === SECTIONS.length - 1;
 
             return (
-              <li key={section.id}>
-                <SectionItem
-                  section={section}
-                  status={status}
-                  isActive={isActive}
+              <li key={section.id} className="relative pb-8 last:pb-0">
+                {/* Vertical connecting line */}
+                {!isLast && (
+                  <div className="absolute left-3 top-7 bottom-0 w-px">
+                    <StepperLine status={status} isActive={isActive} />
+                  </div>
+                )}
+
+                {/* Clickable row */}
+                <button
                   onClick={() => {
                     navigateToSection(section.id);
                     onSectionClick?.();
                   }}
-                />
+                  className="relative z-10 flex w-full items-center text-left"
+                >
+                  {/* Node */}
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+                    <StepperNode status={status} isActive={isActive} />
+                  </div>
+
+                  {/* Label */}
+                  <span
+                    className={`ml-3 text-[13px] leading-6 ${
+                      status === 'complete'
+                        ? 'font-medium text-white/80'
+                        : isActive
+                          ? 'font-bold text-white'
+                          : status === 'partial'
+                            ? 'font-medium text-white/70'
+                            : 'text-white/55'
+                    }`}
+                  >
+                    {section.label}
+                  </span>
+                </button>
               </li>
             );
           })}
@@ -158,7 +185,7 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
 
 export function SectionSidebar() {
   return (
-    <aside className="hidden lg:flex lg:w-72 lg:shrink-0 lg:flex-col glass lg:overflow-y-auto">
+    <aside className="hidden lg:flex lg:w-72 lg:shrink-0 lg:flex-col lg:min-h-0 glass lg:overflow-hidden">
       <SidebarContent />
     </aside>
   );

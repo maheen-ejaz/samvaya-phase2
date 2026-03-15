@@ -104,6 +104,16 @@ export default async function OnboardingPage() {
           noPreference: noPreference === true,
         };
       }
+    } else if (q.type === 'international_location' && q.targetColumn2) {
+      // International location: reconstruct {city, country}
+      const city = (row as Record<string, unknown>)[q.targetColumn];
+      const country = (row as Record<string, unknown>)[q.targetColumn2];
+      if (city || country) {
+        answers[q.id] = {
+          city: (city as string) || '',
+          country: (country as string) || '',
+        };
+      }
     } else {
       const val = (row as Record<string, unknown>)[q.targetColumn];
       if (val !== null && val !== undefined) {

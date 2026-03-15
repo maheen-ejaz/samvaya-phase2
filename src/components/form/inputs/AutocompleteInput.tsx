@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useForm } from '@/components/form/FormProvider';
-import { getCitiesForState } from '@/lib/data/indian-cities';
-import { COUNTRIES } from '@/lib/data/countries';
+import { useCitiesForState, useCountries, useCommunities } from '@/lib/data/use-location-data';
 
 interface AutocompleteInputProps {
   question: QuestionConfig;
@@ -26,7 +25,7 @@ export function AutocompleteInput({ question, value, onChange, disabled }: Autoc
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Resolve the suggestions list based on autocompleteSource
-  const suggestions = useSuggestions(question.autocompleteSource, state.answers, question.id);
+  const suggestions = useAutocompleteSuggestions(question.autocompleteSource, state.answers, question.id);
 
   // Filter suggestions by current input value
   const query = (value || '').toLowerCase().trim();
@@ -122,28 +121,40 @@ export function AutocompleteInput({ question, value, onChange, disabled }: Autoc
 
 /**
  * Resolve the full list of suggestions based on the source type and current answers.
+ * Uses async hooks that lazy-load data from JSON files.
  */
-function useSuggestions(
+function useAutocompleteSuggestions(
   source: QuestionConfig['autocompleteSource'],
   answers: Record<string, unknown>,
   questionId: string
 ): string[] {
+  // Determine which state value to use for indian_cities filtering
+  const stateQuestionMap: Record<string, string> = {
+    'Q14': 'Q12',  // birth city → birth state
+    'Q23': 'Q22',  // current city → current state
+  };
+  const stateQuestionId = stateQuestionMap[questionId];
+  const stateValue = stateQuestionId ? (answers[stateQuestionId] as string) : undefined;
+
+  // Load data via hooks (these are no-ops when source doesn't match)
+  const indianCities = useCitiesForState(
+    source === 'indian_cities' ? stateValue : undefined
+  );
+  const countries = useCountries();
+  const communities = useCommunities();
+
   if (!source) return [];
 
   if (source === 'countries') {
-    return COUNTRIES.map((c) => c.label);
+    return countries.map((c) => c.label);
   }
 
   if (source === 'indian_cities') {
-    // Each city question maps to its corresponding state question
-    const stateQuestionMap: Record<string, string> = {
-      'Q14': 'Q12',  // birth city → birth state
-      'Q23': 'Q22',  // current city → current state
-    };
-    const stateQuestionId = stateQuestionMap[questionId];
-    const stateValue = stateQuestionId ? (answers[stateQuestionId] as string) : '';
-    if (!stateValue || stateValue === 'outside_india') return [];
-    return getCitiesForState(stateValue);
+    return indianCities;
+  }
+
+  if (source === 'communities') {
+    return communities;
   }
 
   return [];

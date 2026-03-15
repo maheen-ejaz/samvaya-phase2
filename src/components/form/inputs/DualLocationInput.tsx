@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { INDIAN_STATES } from '@/lib/data/indian-states';
-import { COUNTRIES } from '@/lib/data/countries';
+import { useCountries } from '@/lib/data/use-location-data';
 
 export interface DualLocationValue {
   states: string[];
@@ -21,11 +21,12 @@ export function DualLocationInput({ question, value, onChange }: DualLocationInp
   const current: DualLocationValue = value || { states: [], countries: [], noPreference: false };
   const [stateSearch, setStateSearch] = useState('');
   const [countrySearch, setCountrySearch] = useState('');
+  const allCountries = useCountries();
 
   // Countries list excluding India (handled by state selector)
   const countriesExcludingIndia = useMemo(
-    () => COUNTRIES.filter((c) => c.value !== 'india'),
-    []
+    () => allCountries.filter((c) => c.value !== 'india'),
+    [allCountries]
   );
 
   const filteredStates = useMemo(

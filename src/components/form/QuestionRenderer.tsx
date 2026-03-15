@@ -15,10 +15,15 @@ import { FileUploadInput } from './inputs/FileUploadInput';
 import { ChatInterface } from './inputs/ChatInterface';
 import { TimelineInput } from './inputs/TimelineInput';
 import { AutocompleteInput } from './inputs/AutocompleteInput';
+import { ComboboxInput } from './inputs/ComboboxInput';
+import { TagInput } from './inputs/TagInput';
 import { DualLocationInput } from './inputs/DualLocationInput';
 import type { DualLocationValue } from './inputs/DualLocationInput';
-import type { QuestionConfig } from '@/lib/form/types';
+import { InternationalLocationInput } from './inputs/InternationalLocationInput';
+import type { InternationalLocationValue } from './inputs/InternationalLocationInput';
+import type { QuestionConfig, QuestionOption } from '@/lib/form/types';
 import type { ChatState } from '@/lib/claude/types';
+import { getQuestion } from '@/lib/form/questions';
 
 export function QuestionRenderer() {
   const { state, chatState, setAnswer, navigateNext, submitForm } = useForm();
@@ -97,6 +102,29 @@ interface InputSwitchProps {
 }
 
 function InputSwitch({ question, value, onChange }: InputSwitchProps) {
+  const { state } = useForm();
+
+  // Dynamic options: derive from another question's selected answers
+  if (question.dynamicOptionsFrom) {
+    const sourceAnswer = state.answers[question.dynamicOptionsFrom] as string[] | undefined;
+    const sourceQuestion = getQuestion(question.dynamicOptionsFrom);
+    const derivedOptions: QuestionOption[] = (sourceAnswer || [])
+      .map((v) => sourceQuestion?.options?.find((o) => o.value === v))
+      .filter((o): o is QuestionOption => !!o);
+    const derived = { ...question, options: derivedOptions };
+    // Clean stale selections: remove any values no longer in source
+    const currentValue = (value as string[]) || [];
+    const validValues = new Set(derivedOptions.map((o) => o.value));
+    const cleanedValue = currentValue.filter((v) => validValues.has(v));
+    return (
+      <MultiSelectInput
+        question={derived}
+        value={cleanedValue}
+        onChange={onChange as (value: string[]) => void}
+      />
+    );
+  }
+
   switch (question.type) {
     case 'text':
     case 'email':
@@ -120,6 +148,15 @@ function InputSwitch({ question, value, onChange }: InputSwitchProps) {
       );
 
     case 'select':
+      if (question.searchable) {
+        return (
+          <ComboboxInput
+            question={question}
+            value={(value as string) || ''}
+            onChange={onChange}
+          />
+        );
+      }
       return (
         <SelectInput
           question={question}
@@ -141,6 +178,15 @@ function InputSwitch({ question, value, onChange }: InputSwitchProps) {
       if (question.optionGroups?.length) {
         return (
           <GroupedMultiSelectInput
+            question={question}
+            value={(value as string[]) || []}
+            onChange={onChange}
+          />
+        );
+      }
+      if (question.searchable) {
+        return (
+          <TagInput
             question={question}
             value={(value as string[]) || []}
             onChange={onChange}
@@ -206,6 +252,15 @@ function InputSwitch({ question, value, onChange }: InputSwitchProps) {
         <DualLocationInput
           question={question}
           value={(value as DualLocationValue | null) || null}
+          onChange={onChange}
+        />
+      );
+
+    case 'international_location':
+      return (
+        <InternationalLocationInput
+          question={question}
+          value={(value as InternationalLocationValue | string | null) || null}
           onChange={onChange}
         />
       );

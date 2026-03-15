@@ -91,10 +91,10 @@ export function ApplicantList({ applicants }: ApplicantListProps) {
     }
   }
 
-  function SortIndicator({ field }: { field: SortField }) {
+  const sortIndicator = (field: SortField) => {
     if (sortField !== field) return <span className="ml-1 text-gray-300">↕</span>;
     return <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>;
-  }
+  };
 
   return (
     <div>
@@ -157,7 +157,7 @@ export function ApplicantList({ applicants }: ApplicantListProps) {
                   className="cursor-pointer px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   onClick={() => toggleSort('name')}
                 >
-                  Name <SortIndicator field="name" />
+                  Name {sortIndicator('name')}
                 </th>
                 <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Email
@@ -167,21 +167,21 @@ export function ApplicantList({ applicants }: ApplicantListProps) {
                   className="cursor-pointer px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   onClick={() => toggleSort('specialty')}
                 >
-                  Specialty <SortIndicator field="specialty" />
+                  Specialty {sortIndicator('specialty')}
                 </th>
                 <th
                   scope="col"
                   className="cursor-pointer px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   onClick={() => toggleSort('submittedAt')}
                 >
-                  Submitted <SortIndicator field="submittedAt" />
+                  Submitted {sortIndicator('submittedAt')}
                 </th>
                 <th
                   scope="col"
                   className="cursor-pointer px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   onClick={() => toggleSort('paymentStatus')}
                 >
-                  Status <SortIndicator field="paymentStatus" />
+                  Status {sortIndicator('paymentStatus')}
                 </th>
                 <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   BGV Consent

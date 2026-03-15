@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import type { QuestionConfig, OptionGroup } from '@/lib/form/types';
+import { getCategoryIcon, ICON_PLUS } from '@/components/form/icons/line-icons';
 
 interface GroupedMultiSelectInputProps {
   question: QuestionConfig;
@@ -85,7 +86,9 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
                 className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-left transition-colors hover:bg-gray-100"
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-xl" aria-hidden="true">{group.icon}</span>
+                  <span aria-hidden="true">
+                    {getCategoryIcon(group.key) ?? <span className="text-xl">{group.icon}</span>}
+                  </span>
                   <span className="text-base font-medium text-gray-900">{group.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -98,9 +101,9 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
                 </div>
               </button>
 
-              {/* Options grid — visible when expanded */}
+              {/* Options as chips — visible when expanded */}
               {isExpanded && (
-                <div className="mt-2 grid grid-cols-2 gap-2 px-1">
+                <div className="mt-2 flex flex-wrap gap-2 px-1">
                   {group.optionValues.map((optValue) => {
                     const label = optionsMap.get(optValue) || optValue;
                     const isSelected = selected.includes(optValue);
@@ -116,15 +119,19 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
                         onClick={() => toggleOption(optValue)}
                         disabled={isDisabled}
                         aria-pressed={isSelected}
-                        className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors ${
                           isSelected
-                            ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
+                            ? 'bg-samvaya-red text-white'
                             : isDisabled
-                              ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
-                              : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                              ? 'cursor-not-allowed bg-gray-100 text-gray-400 opacity-50'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
-                        <CheckIndicator checked={isSelected} />
+                        {isSelected && (
+                          <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
                         <span>{label}</span>
                       </button>
                     );
@@ -135,7 +142,7 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
           );
         })}
 
-        {/* Standalone "Other" option */}
+        {/* Standalone "Other" option as chip */}
         {otherOption && (() => {
           const isOtherSelected = selected.includes(otherOption.value);
           const isOtherDisabled =
@@ -149,17 +156,22 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
               onClick={() => toggleOption(otherOption.value)}
               disabled={isOtherDisabled}
               aria-pressed={isOtherSelected}
-              className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors ${
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 isOtherSelected
-                  ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
+                  ? 'bg-samvaya-red text-white'
                   : isOtherDisabled
-                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
-                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'cursor-not-allowed bg-gray-100 text-gray-400 opacity-50'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              <span className="text-xl" aria-hidden="true">➕</span>
-              <CheckIndicator checked={isOtherSelected} />
-              <span className="text-base">{otherOption.label}</span>
+              {isOtherSelected ? (
+                <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <span aria-hidden="true">{ICON_PLUS}</span>
+              )}
+              <span>{otherOption.label}</span>
             </button>
           </div>
           );
@@ -190,19 +202,4 @@ function ChevronIcon({ expanded }: { expanded: boolean }) {
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
     </svg>
   );
-}
-
-function CheckIndicator({ checked }: { checked: boolean }) {
-  if (checked) {
-    return (
-      <svg className="h-4 w-4 shrink-0 text-samvaya-red" viewBox="0 0 20 20" fill="currentColor">
-        <path
-          fillRule="evenodd"
-          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-          clipRule="evenodd"
-        />
-      </svg>
-    );
-  }
-  return <span className="h-4 w-4 shrink-0 rounded border border-gray-300" />;
 }

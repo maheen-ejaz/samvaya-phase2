@@ -49,6 +49,13 @@ export function isQuestionAnswered(questionId: string, answers: FormAnswers): bo
     return value.length >= config.minFiles;
   }
 
+  // International location: valid if both city and country are filled
+  if (question.type === 'international_location') {
+    if (!value || typeof value !== 'object') return false;
+    const loc = value as { city?: string; country?: string };
+    return !!(loc.city?.trim() && loc.country?.trim());
+  }
+
   // Dual location: valid if "no preference" or at least one location
   if (question.type === 'dual_location') {
     if (!value || typeof value !== 'object') return false;
@@ -99,6 +106,17 @@ export function getSectionCompletionStatus(
 ): SectionStatus {
   const visibleIds = getVisibleQuestionsForSection(sectionId, answers);
   if (visibleIds.length === 0) return 'complete';
+
+  // Check if section only has claude_chat questions (e.g. Section M)
+  const chatOnlyIds = visibleIds.filter((id) => {
+    const q = getQuestion(id);
+    return q?.type === 'claude_chat';
+  });
+  if (chatOnlyIds.length === visibleIds.length) {
+    // Chat-only section: check if chat has been completed via answers
+    const allChatsAnswered = chatOnlyIds.every((id) => isQuestionAnswered(id, answers));
+    return allChatsAnswered ? 'complete' : 'empty';
+  }
 
   const requiredIds = visibleIds.filter((id) => {
     const q = getQuestion(id);
@@ -183,8 +201,8 @@ export interface SubGroup {
 const SECTION_SUBGROUPS: Partial<Record<SectionId, SubGroup[]>> = {
   A: [
     { label: 'Personal Info', questionRange: [1, 6] },
-    { label: 'Background', questionRange: [7, 12] },
-    { label: 'Languages', questionRange: [13, 17] },
+    { label: 'Background', questionRange: [7, 15] },
+    { label: 'Languages', questionRange: [16, 17] },
   ],
   B: [
     { label: 'Citizenship & Visa', questionRange: [18, 20] },
@@ -200,10 +218,12 @@ const SECTION_SUBGROUPS: Partial<Record<SectionId, SubGroup[]>> = {
     { label: 'Relationship Values', questionRange: [69, 75] },
   ],
   K: [
-    { label: 'Location Preferences', questionRange: [76, 77] },
-    { label: 'Professional Preferences', questionRange: [78, 82] },
-    { label: 'Age & Physical', questionRange: [83, 88] },
-    { label: 'Personal Qualities', questionRange: [89, 94] },
+    { label: 'Age & Physical', questionRange: [76, 77] },
+    { label: 'Professional', questionRange: [78, 79] },
+    { label: 'Location & Language', questionRange: [80, 81] },
+    { label: 'Lifestyle & Appearance', questionRange: [82, 88] },
+    { label: 'Family & Values', questionRange: [89, 92] },
+    { label: 'Personal Qualities', questionRange: [93, 94] },
   ],
 };
 

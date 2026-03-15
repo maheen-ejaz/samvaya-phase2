@@ -144,7 +144,16 @@ export async function PATCH(request: NextRequest) {
   if (body.partnerPreferences && typeof body.partnerPreferences === 'object') {
     for (const [key, value] of Object.entries(body.partnerPreferences)) {
       if (EDITABLE_PARTNER_PREF_FIELDS.has(key)) {
-        partnerPrefUpdates[key] = value;
+        // Validate value types: null, strings (max 200 chars), numbers, or arrays of strings
+        if (value === null) {
+          partnerPrefUpdates[key] = value;
+        } else if (typeof value === 'string' && value.length <= 200) {
+          partnerPrefUpdates[key] = value;
+        } else if (typeof value === 'number' && Number.isFinite(value)) {
+          partnerPrefUpdates[key] = value;
+        } else if (Array.isArray(value)) {
+          partnerPrefUpdates[key] = (value as unknown[]).filter((v) => typeof v === 'string' && v.length <= 100).slice(0, 50);
+        }
       }
     }
   }

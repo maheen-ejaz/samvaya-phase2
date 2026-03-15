@@ -1,6 +1,7 @@
 'use client';
 
 import type { QuestionConfig } from '@/lib/form/types';
+import { ComboboxInput } from './ComboboxInput';
 
 interface SelectInputProps {
   question: QuestionConfig;
@@ -11,50 +12,40 @@ interface SelectInputProps {
 export function SelectInput({ question, value, onChange }: SelectInputProps) {
   if (!question.options) return null;
 
-  // Use radio buttons for short option lists (≤ 6), dropdown for longer ones
-  if (question.options.length <= 6) {
-    return (
-      <fieldset>
-        <legend className="sr-only">{question.text}</legend>
-        <div className="space-y-2">
-          {question.options.map((option) => (
-            <label
-              key={option.value}
-              className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${
-                value === option.value
-                  ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
-                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <input
-                type="radio"
-                name={question.id}
-                value={option.value}
-                checked={value === option.value}
-                onChange={() => onChange(option.value)}
-                className="h-4 w-4 border-gray-300 text-rose-600 focus:ring-rose-500"
-              />
-              <span className="text-base">{option.label}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-    );
+  // Searchable combobox for longer lists (>6 options)
+  if (question.options.length > 6) {
+    return <ComboboxInput question={question} value={value} onChange={onChange} />;
   }
 
-  // Dropdown for longer lists
+  // Chips for short option lists (≤ 6)
   return (
-    <select
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
-    >
-      <option value="">Select an option</option>
-      {question.options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+    <fieldset>
+      <legend className="sr-only">{question.text}</legend>
+      <div className="flex flex-wrap gap-2">
+        {question.options.map((option) => {
+          const isSelected = value === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(option.value)}
+              aria-pressed={isSelected}
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                isSelected
+                  ? 'bg-samvaya-red text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {isSelected && (
+                <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              )}
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }

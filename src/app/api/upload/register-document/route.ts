@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 const VALID_DOCUMENT_TYPES = ['identity_document', 'kundali', 'other'] as const;
 
@@ -17,6 +18,12 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Rate limit: max 20 document uploads per hour per user
+  const { allowed } = checkRateLimit(`doc-upload:${user.id}`, 20, 3600_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many uploads. Please try again later.' }, { status: 429 });
   }
 
   let body: RegisterDocumentRequest;

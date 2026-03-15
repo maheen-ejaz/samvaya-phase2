@@ -34,12 +34,16 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
     }
     onValidationErrors(new Set());
     navigateNextSection();
+    const main = document.querySelector('main');
+    if (main) main.scrollTop = 0;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handlePrev = () => {
     onValidationErrors(new Set());
     navigatePrevSection();
+    const main = document.querySelector('main');
+    if (main) main.scrollTop = 0;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

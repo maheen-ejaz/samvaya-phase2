@@ -75,8 +75,9 @@ export default async function ApplicantDetailPage({
     photoUrl = signedData?.signedUrl || null;
   }
 
-  // Calculate age from DOB
+  // Calculate age from DOB (server component — Date access is safe here)
   const dob = profile?.date_of_birth;
+  // eslint-disable-next-line react-hooks/purity
   const age = dob ? Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null;
 
   // Parse work experience

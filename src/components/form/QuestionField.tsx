@@ -12,8 +12,12 @@ import { IllustratedMCInput } from './inputs/IllustratedMCInput';
 import { FileUploadInput } from './inputs/FileUploadInput';
 import { TimelineInput } from './inputs/TimelineInput';
 import { AutocompleteInput } from './inputs/AutocompleteInput';
+import { ComboboxInput } from './inputs/ComboboxInput';
+import { TagInput } from './inputs/TagInput';
 import { DualLocationInput } from './inputs/DualLocationInput';
 import type { DualLocationValue } from './inputs/DualLocationInput';
+import { InternationalLocationInput } from './inputs/InternationalLocationInput';
+import type { InternationalLocationValue } from './inputs/InternationalLocationInput';
 import type { QuestionConfig } from '@/lib/form/types';
 
 interface QuestionFieldProps {
@@ -80,6 +84,15 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
       );
 
     case 'select':
+      if (question.searchable || question.optionsSource) {
+        return (
+          <ComboboxInput
+            question={question}
+            value={(value as string) || ''}
+            onChange={onChange}
+          />
+        );
+      }
       return (
         <SelectInput
           question={question}
@@ -101,6 +114,15 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
       if (question.optionGroups?.length) {
         return (
           <GroupedMultiSelectInput
+            question={question}
+            value={(value as string[]) || []}
+            onChange={onChange}
+          />
+        );
+      }
+      if (question.searchable || question.optionsSource) {
+        return (
+          <TagInput
             question={question}
             value={(value as string[]) || []}
             onChange={onChange}
@@ -166,6 +188,15 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
         <DualLocationInput
           question={question}
           value={(value as DualLocationValue | null) || null}
+          onChange={onChange}
+        />
+      );
+
+    case 'international_location':
+      return (
+        <InternationalLocationInput
+          question={question}
+          value={(value as InternationalLocationValue | string | null) || null}
           onChange={onChange}
         />
       );

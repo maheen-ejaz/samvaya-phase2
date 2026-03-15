@@ -84,6 +84,11 @@ export class AutoSaveEngine {
       existing[config.targetColumn] = loc?.states ?? [];
       existing[config.targetColumn2] = loc?.countries ?? [];
       existing[config.targetColumn3] = loc?.noPreference ?? false;
+    } else if (config.type === 'international_location' && config.targetColumn2) {
+      // International location inputs produce {city, country}
+      const loc = value as { city?: string; country?: string } | null;
+      existing[config.targetColumn] = loc?.city ?? '';
+      existing[config.targetColumn2] = loc?.country ?? '';
     } else {
       // Convert string booleans to actual booleans for DB columns
       existing[config.targetColumn] = this.coerceValue(value, config);

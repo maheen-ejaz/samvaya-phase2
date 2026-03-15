@@ -42,7 +42,7 @@ export function MobileSectionBar({ onMenuOpen }: MobileSectionBarProps) {
       {/* Thin progress bar */}
       <div className="h-0.5 w-full bg-white/10">
         <div
-          className="h-full bg-samvaya-red transition-all duration-500 ease-out"
+          className="h-full bg-white/60 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>

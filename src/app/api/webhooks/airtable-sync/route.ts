@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { timingSafeEqual } from 'crypto';
+import { timingSafeEqual, createHmac } from 'crypto';
 import { syncSingleUser } from '@/lib/airtable/sync';
 import { createAdminClient } from '@/lib/supabase/admin';
 
@@ -13,12 +13,14 @@ export async function POST(request: NextRequest) {
   const secret = request.headers.get('x-webhook-secret');
   const expectedSecret = process.env.AIRTABLE_WEBHOOK_SECRET;
 
-  if (
-    !expectedSecret ||
-    !secret ||
-    secret.length !== expectedSecret.length ||
-    !timingSafeEqual(Buffer.from(secret), Buffer.from(expectedSecret))
-  ) {
+  if (!expectedSecret || !secret) {
+    return NextResponse.json({ error: 'Invalid webhook secret' }, { status: 401 });
+  }
+  // Use HMAC-based comparison to avoid timing oracle from length differences
+  const key = 'samvaya-webhook-verify';
+  const a = createHmac('sha256', key).update(secret).digest();
+  const b = createHmac('sha256', key).update(expectedSecret).digest();
+  if (!timingSafeEqual(a, b)) {
     return NextResponse.json({ error: 'Invalid webhook secret' }, { status: 401 });
   }
 

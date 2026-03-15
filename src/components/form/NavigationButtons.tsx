@@ -43,6 +43,13 @@ export function NavigationButtons() {
       return currentValue.length >= uploadConfig.minFiles;
     }
 
+    // International location: valid if both city and country are filled
+    if (currentQuestion.type === 'international_location') {
+      if (!currentValue || typeof currentValue !== 'object') return false;
+      const loc = currentValue as { city?: string; country?: string };
+      return !!(loc.city?.trim() && loc.country?.trim());
+    }
+
     // Dual location: valid if "no preference" or at least one location selected
     if (currentQuestion.type === 'dual_location') {
       if (!currentValue || typeof currentValue !== 'object') return false;

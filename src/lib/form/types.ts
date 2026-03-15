@@ -16,7 +16,8 @@ export type QuestionType =
   | 'file_upload'
   | 'claude_chat'
   | 'timeline'
-  | 'dual_location';
+  | 'dual_location'
+  | 'international_location';
 
 export type TargetTable =
   | 'profiles'
@@ -58,7 +59,10 @@ export interface QuestionConfig {
   helpText?: string;
   maxSelections?: number;
   groupWith?: string[];          // Question IDs shown together on one screen
-  autocompleteSource?: 'indian_cities' | 'countries'; // Enables autocomplete on text inputs
+  autocompleteSource?: 'indian_cities' | 'countries' | 'international_cities' | 'communities'; // Enables autocomplete on text inputs
+  searchable?: boolean;          // Renders combobox (select) or tag input (multi_select) instead of default
+  optionsSource?: 'countries';   // Lazy-loads options from JSON instead of using inline options array
+  dynamicOptionsFrom?: string;  // Derive options at runtime from another question's selected answers
   optionGroups?: OptionGroup[]; // Groups options into collapsible categories (for multi_select)
   fileUploadConfig?: {
     accept: string;            // MIME types: 'image/jpeg,image/png,image/webp' or include 'application/pdf'

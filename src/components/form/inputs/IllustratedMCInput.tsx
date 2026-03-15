@@ -1,6 +1,7 @@
 'use client';
 
 import type { QuestionConfig } from '@/lib/form/types';
+import { getLineIcon } from '@/components/form/icons/line-icons';
 
 interface IllustratedMCInputProps {
   question: QuestionConfig;
@@ -20,6 +21,8 @@ export function IllustratedMCInput({ question, value, onChange }: IllustratedMCI
       <div className={`grid ${gridCols} gap-3`}>
         {question.options.map((option) => {
           const isSelected = value === option.value;
+          const svgIcon = getLineIcon(question.id, option.value);
+
           return (
             <button
               key={option.value}
@@ -32,11 +35,13 @@ export function IllustratedMCInput({ question, value, onChange }: IllustratedMCI
                   : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
-              {option.icon && (
+              {svgIcon ? (
+                <span role="img" aria-hidden="true">{svgIcon}</span>
+              ) : option.icon ? (
                 <span className="text-3xl" role="img" aria-hidden="true">
                   {option.icon}
                 </span>
-              )}
+              ) : null}
               <span className="text-center text-sm font-medium">{option.label}</span>
             </button>
           );

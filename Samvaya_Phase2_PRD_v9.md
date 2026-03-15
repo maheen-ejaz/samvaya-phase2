@@ -1,9 +1,10 @@
 # Samvaya Phase 2 — Product Requirements Document (PRD)
 
-**Version:** 9.0
+**Version:** 9.1
 **Date:** March 2026
 **Status:** Confidential — GooCampus / Samvaya
 **Scope:** Onboarding Form + Admin Dashboard + Matching Algorithm + User PWA
+**Changelog v9.1:** Updated March 15, 2026: Synced 9 form question specs with implementation (Q6, Q13, Q26, Q29, Q31, Q54, Q60, Q82, Q84) and added 3 missing schema columns.
 **Changelog v9.0:** Comprehensive two-pass audit for Claude Code readiness. Pass 1 fixes: (1) bgv_consent annotation corrected to Q99. (2) profiles table description updated to 100-question form. (3) partner_preferences range annotation corrected to Q76–Q94. (4) closing_freeform_note annotation corrected to Q100. (5) Section 4.3 intro corrected to 100 base questions. (6) SMS stack locked to MSG91. (7) BGV trigger corrected from "Premium membership" to "verification fee payment". (8) Auth corrected to email OTP only. (9) Deployment locked to single domain. (10) Section 10 Build Plan replaced with locked day-by-day plan. (11) Section 12 Open Questions fully replaced with resolved decisions table. (12) Section 7 given proper header. (13) Terminology cleaned: "basic/deep" and wrong "Premium" tier labels removed. (14) Razorpay entries in Tech Log annotated as v2 deferred. (15) Refund policy given section header 6B.4. Pass 2 fixes: (16) Section 4.6 critical architectural error corrected — AI chats are embedded mid-form at Q38/Q75/Q100, not a separate post-form screen; explicit Claude Code implementation note added. (17) documents table enum corrected to match what the form actually collects (identity_document, kundali, other); note added distinguishing from photos table. (18) profiles table annotated to show Q3/Q4 (email/phone) are stored in auth.users, not duplicated. (19) Phase 2B and 2C warning banners added to Sections 5 and 7. (20) Section ordering fixed — 6B moved to follow Section 6; duplicate Sections 8 and 9 renumbered to 14 and 15. (21) Section 2.1 stack table Razorpay entry updated to note v1 manual flag / v2 deferral. (22) membership_tier table cell fixed — pipe character removed to prevent Markdown table break. (23) Section 14 Refund Policy cross-reference corrected from "Section 7" to "Section 6B.4".
 
 ---
@@ -190,8 +191,10 @@ Core profile data collected through the onboarding form. Each column maps to a s
 | — **Family** — | | |
 | father_name | text | Q32 |
 | father_occupation | text | Q33 |
+| father_occupation_other | text | Q34 — conditional on Q33 = Other |
 | mother_name | text | Q35 |
 | mother_occupation | text | Q36 |
+| mother_occupation_other | text | Q37 — conditional on Q36 = Other |
 | siblings_count | integer | Q39 |
 | — **Physical** — | | |
 | height_cm | integer | Q40 |
@@ -210,7 +213,8 @@ Core profile data collected through the onboarding form. Each column maps to a s
 | allergy_description | text | Q52 — conditional |
 | — **Interests** — | | |
 | hobbies_interests | text[] | Array of selected hobby categories and items — Q53 |
-| hobbies_regular | text | Free text — which 2–3 they actually do regularly — Q54 |
+| hobbies_regular | text[] | Array — which 2–3 they actually do regularly (multi-select from Q53 selections, max 3) — Q54 |
+| hobbies_other | text | Q55 — conditional on "Other" selected in Q53 |
 | — **Goals & Values** — | | |
 | marriage_timeline | enum | within_6_months, 6_to_12_months, 1_to_2_years, no_fixed_timeline — Q63 |
 | long_distance_comfort | enum | yes_absolutely, open_to_it, prefer_same_location — Q64 |
@@ -538,14 +542,14 @@ Three questions are handled via **Claude chat** (marked 💬) rather than tradit
 | 3 | Email | Email | — |
 | 4 | Phone Number | Phone | — |
 | 5 | Gender | MC: Male / Female | — |
-| 6 | How did you hear about Samvaya? | MC: Instagram / LinkedIn / A friend or colleague / GooCampus / Google / Other | — |
+| 6 | How did you hear about Samvaya? | MC: Instagram / LinkedIn / Friend or Family / GooCampus / Google / Other | — |
 | 7 | Have you been married before? | MC: No, this will be my first marriage / Yes, I am divorced / Yes, I am widowed | — |
 | 8 | Do you have children from your previous marriage? | MC: Yes / No | ↳ if Q7 = divorced or widowed |
 | 9 | Date of Birth | Date Picker | — |
 | 10 | Do you know your time of birth? | MC: Yes / No | — |
 | 11 | Time of Birth | Time Picker | ↳ if Q10 = Yes |
 | 12 | Place of Birth | Dropdown: Outside India / All Indian states | — |
-| 13 | City and country of birth | Short Answer | ↳ if Q12 = Outside India |
+| 13 | City and country of birth | International location input (city + country) | ↳ if Q12 = Outside India |
 | 14 | City of birth | Autocomplete (cities by state) | ↳ if Q12 = Indian state |
 | 15 | Blood Group | Dropdown: A+ / A- / B+ / B- / AB+ / AB- / O+ / O- / Don't Know | Optional |
 | 16 | Mother Tongue | Dropdown | — |
@@ -565,7 +569,7 @@ Three questions are handled via **Claude chat** (marked 💬) rather than tradit
 | 23 | City of current residence | Autocomplete search (cities by country/state) | — |
 | 24 | Is your permanent address the same as your present address? | MC: Yes / No | — |
 | 25 | City and state/country of permanent address | Short Answer | ↳ if Q24 = No |
-| 26 | Is your permanent home owned by family or rented? | MC: Owned by self or family / Rental or leased unit | ↳ if Q24 = No |
+| 26 | Is your permanent home owned by family or rented? | MC: Owned by self or family / Rental or leased unit / Family home (not owned by self) | ↳ if Q24 = No |
 
 ---
 
@@ -576,9 +580,9 @@ Three questions are handled via **Claude chat** (marked 💬) rather than tradit
 |---|----------|------|-------------|
 | 27 | What is your religion? | Dropdown | — |
 | 28 | How would you describe your level of religious observance? | MC: Actively practicing / Culturally observant / Spiritual but not religious / Not particularly religious | — |
-| 29 | Do you believe in Kundali/horoscope matching? | MC: Yes / No | — |
+| 29 | Do you believe in Kundali/horoscope matching? | MC: Yes / No | ↳ Only shown for Hindu, Sikh, Buddhist, Jain religions |
 | 30 | Would you be comfortable sharing your caste or community? | MC: Yes / No, I'd rather not say | — |
-| 31 | What is your caste or community? | Dropdown (full list) | ↳ if Q30 = Yes |
+| 31 | What is your caste or community? | Autocomplete text input (communities data source) | ↳ if Q30 = Yes |
 
 ---
 
@@ -637,7 +641,7 @@ Three questions are handled via **Claude chat** (marked 💬) rather than tradit
 | # | Question | Type | Conditional |
 |---|----------|------|-------------|
 | 53 | What are your hobbies and interests? *(select all that apply)* | Checkboxes grouped into ~10 categories, each with a category illustration | — |
-| 54 | Out of everything you selected, which 2 or 3 do you actually spend time on most regularly? | Short Answer | — |
+| 54 | Out of everything you selected, which 2 or 3 do you actually spend time on most regularly? | Multi-select (from Q53 selections, max 3) | — |
 | 55 | Any other hobbies or interests not listed? | Short Answer | ↳ if "Other" selected in Q53 |
 
 **Q53 Categories** (each category shown with one illustration, not per-item):
@@ -662,7 +666,7 @@ Three questions are handled via **Claude chat** (marked 💬) rather than tradit
 | 57 | ↳ Are you planning to pursue postgraduate studies? | MC: Yes, within the next year / Yes, in 2–3 years / No, I plan to practice as MBBS / Undecided | ↳ if Q56 = MBBS Passed |
 | 58 | Do you have any additional qualifications? | Checkboxes: MD / MS / DNB / DM / MCh / MBA / MPH / PhD / Fellowship / MRCP / USMLE / PLAB / Other | — |
 | 59 | What other qualifications do you have? | Short Answer | ↳ if Other selected in Q58 |
-| 60 | What specialty are you currently pursuing or planning to pursue? | Checkboxes (full specialty list) | — |
+| 60 | What specialty are you currently pursuing or planning to pursue? | Checkboxes (full specialty list) | Optional |
 
 ---
 
@@ -711,9 +715,9 @@ Three questions are handled via **Claude chat** (marked 💬) rather than tradit
 | 79 | Preferred specialties | Checkboxes (full specialty list) | ↳ if Q78 = Yes |
 | 80 | Where would you prefer your partner to currently be based? | Two selectors: (1) Multi-select Indian states; (2) Multi-select countries outside India. "No location preference" clears both. | — |
 | 81 | Mother tongue preferences | Multi-select (or "No preference") | — |
-| 82 | Body type preference | MC: Slim / Athletic / Average / Full-figured / No preference | — |
+| 82 | Body type preference | Multi-select: Slim / Athletic / Average / Full-figured / No preference | — |
 | 83 | Attire preference | MC: Modern/Western / Traditional / Mix of both / No preference | — |
-| 84 | Dietary preference | MC: Vegetarian / Non-Veg / Eggetarian / Vegan / Jain / No preference | — |
+| 84 | Dietary preference | Multi-select: Vegetarian / Non-Veg / Eggetarian / Vegan / Jain / No preference | — |
 | 85 | Fitness habit preference | MC: Regularly exercises / Occasionally / Rarely / No preference | — |
 | 86 | Smoking preference | MC: Never / Occasionally / Frequently / No preference | — |
 | 87 | Drinking preference | MC: Never / Occasionally / Frequently / No preference | — |
