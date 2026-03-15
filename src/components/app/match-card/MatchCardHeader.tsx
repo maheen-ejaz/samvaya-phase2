@@ -28,7 +28,7 @@ export function MatchCardHeader({ profile, canSeeOriginal }: MatchCardHeaderProp
   const height = formatHeightShort(profile.heightCm);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       {/* Photo */}
       <div className="relative aspect-[4/3] bg-gray-100">
         {primaryPhoto ? (
@@ -45,7 +45,7 @@ export function MatchCardHeader({ profile, canSeeOriginal }: MatchCardHeaderProp
           </div>
         )}
         {!canSeeOriginal && primaryPhoto && (
-          <div className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] text-white">
+          <div className="absolute bottom-2 left-2 rounded-full bg-black/50 px-2 py-0.5 text-xs text-white">
             Photo will be revealed after mutual interest
           </div>
         )}

@@ -485,7 +485,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
                   e.stopPropagation();
                   handleDelete(upload.id);
                 }}
-                className="absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
+                className="absolute right-1 top-1 rounded-full bg-black/50 p-1.5 text-white opacity-100 sm:opacity-0 transition-opacity hover:bg-black/70 sm:group-hover:opacity-100"
                 aria-label="Remove file"
               >
                 <svg

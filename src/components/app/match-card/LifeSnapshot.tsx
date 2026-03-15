@@ -40,7 +40,7 @@ export function LifeSnapshot({ profile }: LifeSnapshotProps) {
       <div className="mt-3 grid grid-cols-2 gap-3">
         {items.map((item) => (
           <div key={item.label}>
-            <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
               {item.label}
             </p>
             <p className="mt-0.5 text-sm text-gray-700">

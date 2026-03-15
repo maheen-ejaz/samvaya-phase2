@@ -171,7 +171,7 @@ export function ProfileView() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
+    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
       <div className="mt-3">{children}</div>
     </div>
@@ -186,7 +186,7 @@ function InfoGrid({ items }: { items: Array<{ label: string; value: string | nul
     <div className="grid grid-cols-2 gap-3">
       {filtered.map((item) => (
         <div key={item.label}>
-          <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
             {item.label}
           </p>
           <p className="mt-0.5 text-sm text-gray-700">{item.value}</p>

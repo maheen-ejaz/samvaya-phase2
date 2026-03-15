@@ -16,10 +16,10 @@ export function StatusDashboard() {
   const greeting = firstName ? `Hi ${firstName}` : 'Hi there';
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-5">
+      <div className="rounded-2xl bg-samvaya-blush px-5 py-4">
         <h2 className="text-xl font-semibold text-gray-900">{greeting}</h2>
-        <p className="mt-1 text-sm text-gray-500">Here&apos;s your current status</p>
+        <p className="mt-0.5 text-sm text-gray-500">Here&apos;s your current status</p>
       </div>
 
       <StatusCard
@@ -191,12 +191,23 @@ function Card({
     gray: 'bg-gray-100 text-gray-600',
   };
 
+  const iconBgColors: Record<string, string> = {
+    green: 'bg-green-50',
+    amber: 'bg-amber-50',
+    blue: 'bg-blue-50',
+    rose: 'bg-samvaya-blush',
+    indigo: 'bg-indigo-50',
+    gray: 'bg-gray-50',
+  };
+
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="flex items-start gap-4">
-        <div className="flex-shrink-0">{icon}</div>
+        <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${iconBgColors[badge.color] ?? iconBgColors.gray}`}>
+          {icon}
+        </div>
         <div className="flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-base font-semibold text-gray-900">{title}</h3>
             <span
               className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeColors[badge.color] ?? badgeColors.gray}`}

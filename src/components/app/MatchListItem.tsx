@@ -33,10 +33,10 @@ export function MatchListItem({
   return (
     <Link
       href={`/app/matches/${id}`}
-      className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-shadow hover:shadow-sm"
+      className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md active:scale-[0.99]"
     >
       {/* Blurred photo thumbnail */}
-      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
         {otherProfile.blurredPhotoUrl ? (
           <img
             src={otherProfile.blurredPhotoUrl}
@@ -60,7 +60,7 @@ export function MatchListItem({
             {otherProfile.state && `, ${otherProfile.state}`}
           </p>
           <span
-            className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${statusBadge.color}`}
+            className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${statusBadge.color}`}
           >
             {statusBadge.label}
           </span>

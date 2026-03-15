@@ -91,7 +91,7 @@ export function SettingsPage({ email }: SettingsPageProps) {
       <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
 
       {/* Account Info */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="text-sm font-semibold text-gray-900">Account</h3>
         <div className="mt-3 space-y-2">
           <div className="flex items-center justify-between">
@@ -116,7 +116,7 @@ export function SettingsPage({ email }: SettingsPageProps) {
       </div>
 
       {/* Pause Profile */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-900">Pause Profile</h3>
@@ -152,14 +152,14 @@ export function SettingsPage({ email }: SettingsPageProps) {
 
       {/* Notification Preferences */}
       {settingsLoaded && notifPrefs && (
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-900">
             Notifications
             {notifSaving && <span className="ml-2 text-xs font-normal text-gray-400">Saving...</span>}
           </h3>
 
           <div className="mt-3 space-y-1">
-            <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400">Email</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Email</p>
             <NotifToggle
               label="New match presented"
               checked={notifPrefs.email_new_match}
@@ -183,7 +183,7 @@ export function SettingsPage({ email }: SettingsPageProps) {
           </div>
 
           <div className="mt-4 space-y-1">
-            <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400">Push</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Push</p>
             <NotifToggle
               label="New match presented"
               checked={notifPrefs.push_new_match}
@@ -204,7 +204,7 @@ export function SettingsPage({ email }: SettingsPageProps) {
       )}
 
       {/* Contact Support */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="text-sm font-semibold text-gray-900">Support</h3>
         <div className="mt-3 space-y-2">
           {WHATSAPP_NUMBER ? (
@@ -233,7 +233,7 @@ export function SettingsPage({ email }: SettingsPageProps) {
       </div>
 
       {/* Legal */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="text-sm font-semibold text-gray-900">Legal</h3>
         <div className="mt-3 space-y-2">
           <a href="/legal/privacy" className="block text-sm text-gray-600 hover:text-gray-800">
@@ -246,7 +246,7 @@ export function SettingsPage({ email }: SettingsPageProps) {
       </div>
 
       {/* Logout & Delete */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-4">
         <LogoutButton />
         <div className="border-t border-gray-100 pt-3">
           {WHATSAPP_NUMBER ? (
