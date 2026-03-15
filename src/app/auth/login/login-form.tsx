@@ -17,7 +17,7 @@ function OtpInput({
   disabled: boolean;
 }) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const digits = value.padEnd(6, "").split("").slice(0, 6);
+  const digits = value.padEnd(6, " ").split("").slice(0, 6);
 
   const handleChange = (index: number, char: string) => {
     const cleaned = char.replace(/\D/g, "");
