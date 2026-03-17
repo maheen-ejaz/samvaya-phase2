@@ -5,6 +5,11 @@ import type { ConditionalRule, FormAnswers } from './types';
  * A question is visible if it has no rule here, or if its condition returns true.
  */
 export const CONDITIONAL_RULES: ConditionalRule[] = [
+  // Q96: Hidden — GuidedPhotoUpload (Q95) handles all photo uploads
+  {
+    questionId: 'Q96',
+    condition: () => false,
+  },
   // Q8: Do you have children? → only if divorced or widowed
   {
     questionId: 'Q8',
@@ -37,6 +42,15 @@ export const CONDITIONAL_RULES: ConditionalRule[] = [
     questionId: 'Q22',
     condition: (a: FormAnswers) => a['Q21'] === 'india',
   },
+  // Q23: Current city → only after country answered (and state if India)
+  {
+    questionId: 'Q23',
+    condition: (a: FormAnswers) => {
+      if (!a['Q21']) return false;
+      if (a['Q21'] === 'india' && !a['Q22']) return false;
+      return true;
+    },
+  },
   // Q25: Permanent address city → only if different from current
   {
     questionId: 'Q25',
@@ -47,12 +61,22 @@ export const CONDITIONAL_RULES: ConditionalRule[] = [
     questionId: 'Q26',
     condition: (a: FormAnswers) => a['Q24'] === 'no',
   },
+  // Q28: Religious observance → only after religion is answered
+  {
+    questionId: 'Q28',
+    condition: (a: FormAnswers) => !!a['Q27'],
+  },
+  // Q30: Comfortable sharing caste → only after religion is answered
+  {
+    questionId: 'Q30',
+    condition: (a: FormAnswers) => !!a['Q27'],
+  },
   // Q29: Kundali → only for religions where kundali/horoscope is relevant
   {
     questionId: 'Q29',
     condition: (a: FormAnswers) => {
       const religion = a['Q27'] as string | undefined;
-      if (!religion) return true; // Show by default if religion not yet answered
+      if (!religion) return false; // Hide until religion is answered
       const kundaliReligions = ['hindu', 'sikh', 'buddhist', 'jain'];
       return kundaliReligions.includes(religion);
     },
@@ -82,6 +106,14 @@ export const CONDITIONAL_RULES: ConditionalRule[] = [
     questionId: 'Q52',
     condition: (a: FormAnswers) => a['Q51'] === 'true',
   },
+  // Q54: Top hobbies → only after hobbies selected in Q53
+  {
+    questionId: 'Q54',
+    condition: (a: FormAnswers) => {
+      const hobbies = a['Q53'];
+      return Array.isArray(hobbies) && hobbies.length > 0;
+    },
+  },
   // Q55: Other hobbies → only if "other" selected in Q53
   {
     questionId: 'Q55',
@@ -89,6 +121,11 @@ export const CONDITIONAL_RULES: ConditionalRule[] = [
       const hobbies = a['Q53'];
       return Array.isArray(hobbies) && hobbies.includes('other');
     },
+  },
+  // Q56b: PG degree type → only if Q56 = completed_pg or pursuing_pg
+  {
+    questionId: 'Q56b',
+    condition: (a: FormAnswers) => a['Q56'] === 'completed_pg' || a['Q56'] === 'pursuing_pg',
   },
   // Q57: PG plans → only if Q56 = mbbs_passed
   {

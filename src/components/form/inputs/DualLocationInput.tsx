@@ -90,6 +90,54 @@ export function DualLocationInput({ question, value, onChange }: DualLocationInp
         No location preference
       </button>
 
+      {/* Selected tags — always visible */}
+      {!current.noPreference && (current.states.length > 0 || current.countries.length > 0) && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {current.states.map((sv) => {
+            const label = INDIAN_STATES.find((s) => s.value === sv)?.label || sv;
+            return (
+              <span
+                key={`s-${sv}`}
+                className="inline-flex items-center gap-1 rounded-full border border-samvaya-red/20 bg-samvaya-red/10 px-3 py-1 text-sm text-gray-900"
+              >
+                {label}
+                <button
+                  type="button"
+                  onClick={() => toggleState(sv)}
+                  className="ml-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-samvaya-red hover:bg-samvaya-red/20"
+                  aria-label={`Remove ${label}`}
+                >
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            );
+          })}
+          {current.countries.map((cv) => {
+            const label = allCountries.find((c) => c.value === cv)?.label || cv;
+            return (
+              <span
+                key={`c-${cv}`}
+                className="inline-flex items-center gap-1 rounded-full border border-samvaya-red/20 bg-samvaya-red/10 px-3 py-1 text-sm text-gray-900"
+              >
+                {label}
+                <button
+                  type="button"
+                  onClick={() => toggleCountry(cv)}
+                  className="ml-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-samvaya-red hover:bg-samvaya-red/20"
+                  aria-label={`Remove ${label}`}
+                >
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      )}
+
       {!current.noPreference && (
         <div className="space-y-6">
           {/* Indian States section */}

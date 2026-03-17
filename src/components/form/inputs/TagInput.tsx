@@ -49,7 +49,12 @@ export function TagInput({ question, value, onChange }: TagInputProps) {
     onChange([...value, optionValue]);
     setInputValue('');
     setHighlightedIndex(-1);
-    inputRef.current?.focus();
+    // Re-assert dropdown open after React re-render and any browser click events
+    // that may fire on the now-removed <li>, triggering the outside-click handler.
+    requestAnimationFrame(() => {
+      setIsOpen(true);
+      inputRef.current?.focus();
+    });
   }, [value, onChange, atMax]);
 
   const removeOption = useCallback((optionValue: string) => {

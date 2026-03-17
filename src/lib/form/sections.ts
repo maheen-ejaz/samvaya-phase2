@@ -64,7 +64,7 @@ export const SECTIONS: SectionConfig[] = [
   {
     id: 'J',
     label: 'Goals & Values',
-    questionRange: [63, 75],
+    questionRange: [63, 74],
     showConfidentialityCallout: false,
   },
   {
@@ -83,8 +83,8 @@ export const SECTIONS: SectionConfig[] = [
   },
   {
     id: 'M',
-    label: 'Closing',
-    questionRange: [100, 100],
+    label: 'Conversations',
+    questionRange: [101, 103],
     showConfidentialityCallout: false,
   },
 ];

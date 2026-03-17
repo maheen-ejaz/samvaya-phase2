@@ -34,12 +34,6 @@ export function ConsentBadge({ consent }: { consent: string }) {
   if (consent === 'consented') {
     return <span className="text-xs font-medium text-green-700">Consented</span>;
   }
-  if (consent === 'consented_wants_call') {
-    return <span className="text-xs font-medium text-amber-700">Wants call first</span>;
-  }
-  if (consent === 'refused') {
-    return <span className="text-xs font-medium text-red-600">Refused</span>;
-  }
   return <span className="text-xs text-gray-400">Not given</span>;
 }
 

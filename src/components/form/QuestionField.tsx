@@ -1,6 +1,8 @@
 'use client';
 
+import { BgvConsentInput } from './inputs/BgvConsentInput';
 import { TextInput } from './inputs/TextInput';
+import { PhoneInput } from './inputs/PhoneInput';
 import { SelectInput } from './inputs/SelectInput';
 import { MultiSelectInput } from './inputs/MultiSelectInput';
 import { GroupedMultiSelectInput } from './inputs/GroupedMultiSelectInput';
@@ -10,6 +12,7 @@ import { NumberInput } from './inputs/NumberInput';
 import { RangeInput } from './inputs/RangeInput';
 import { IllustratedMCInput } from './inputs/IllustratedMCInput';
 import { FileUploadInput } from './inputs/FileUploadInput';
+import { GuidedPhotoUpload } from './inputs/GuidedPhotoUpload';
 import { TimelineInput } from './inputs/TimelineInput';
 import { AutocompleteInput } from './inputs/AutocompleteInput';
 import { ComboboxInput } from './inputs/ComboboxInput';
@@ -18,7 +21,9 @@ import { DualLocationInput } from './inputs/DualLocationInput';
 import type { DualLocationValue } from './inputs/DualLocationInput';
 import { InternationalLocationInput } from './inputs/InternationalLocationInput';
 import type { InternationalLocationValue } from './inputs/InternationalLocationInput';
-import type { QuestionConfig } from '@/lib/form/types';
+import { useForm } from './FormProvider';
+import { getQuestion } from '@/lib/form/questions';
+import type { QuestionConfig, QuestionOption } from '@/lib/form/types';
 
 interface QuestionFieldProps {
   question: QuestionConfig;
@@ -61,10 +66,31 @@ interface InputSwitchProps {
 }
 
 export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
+  const { state } = useForm();
+
+  // Dynamic options: derive from another question's selected answers
+  if (question.dynamicOptionsFrom) {
+    const sourceAnswer = state.answers[question.dynamicOptionsFrom] as string[] | undefined;
+    const sourceQuestion = getQuestion(question.dynamicOptionsFrom);
+    const derivedOptions: QuestionOption[] = (sourceAnswer || [])
+      .map((v) => sourceQuestion?.options?.find((o) => o.value === v))
+      .filter((o): o is QuestionOption => !!o);
+    const derived = { ...question, options: derivedOptions };
+    const currentValue = (value as string[]) || [];
+    const validValues = new Set(derivedOptions.map((o) => o.value));
+    const cleanedValue = currentValue.filter((v) => validValues.has(v));
+    return (
+      <MultiSelectInput
+        question={derived}
+        value={cleanedValue}
+        onChange={onChange as (value: string[]) => void}
+      />
+    );
+  }
+
   switch (question.type) {
     case 'text':
     case 'email':
-    case 'phone':
       if (question.type === 'text' && question.autocompleteSource) {
         return (
           <AutocompleteInput
@@ -80,6 +106,15 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           value={(value as string) || ''}
           onChange={onChange}
           disabled={question.type === 'email' && question.targetTable === 'auth_users'}
+        />
+      );
+
+    case 'phone':
+      return (
+        <PhoneInput
+          question={question}
+          value={(value as string) || ''}
+          onChange={onChange}
         />
       );
 
@@ -176,9 +211,21 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
     case 'file_upload':
       return <FileUploadInput question={question} value={value} onChange={onChange} />;
 
+    case 'guided_photo_upload':
+      return <GuidedPhotoUpload question={question} value={value} onChange={onChange} />;
+
     case 'claude_chat':
       // Handled separately — should not reach here
       return null;
+
+    case 'bgv_consent':
+      return (
+        <BgvConsentInput
+          question={question}
+          value={(value as string) || ''}
+          onChange={onChange as (value: string) => void}
+        />
+      );
 
     case 'timeline':
       return <TimelineInput question={question} value={value} onChange={onChange} />;

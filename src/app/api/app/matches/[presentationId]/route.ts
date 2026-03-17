@@ -149,9 +149,10 @@ export async function GET(
 
   const { data: photos } = await supabase
     .from('photos')
-    .select('storage_path, blurred_path, is_primary')
+    .select('storage_path, blurred_path, is_primary, display_order')
     .eq('user_id', otherUserId)
-    .order('is_primary', { ascending: false });
+    .order('is_primary', { ascending: false })
+    .order('display_order', { ascending: true });
 
   const photoUrls: string[] = [];
   if (photos && (photos as Array<Record<string, unknown>>).length > 0) {

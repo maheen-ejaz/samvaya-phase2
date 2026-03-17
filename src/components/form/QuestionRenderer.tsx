@@ -3,6 +3,7 @@
 import { getQuestionsForStep } from '@/lib/form/navigation';
 import { useForm } from './FormProvider';
 import { TextInput } from './inputs/TextInput';
+import { PhoneInput } from './inputs/PhoneInput';
 import { SelectInput } from './inputs/SelectInput';
 import { MultiSelectInput } from './inputs/MultiSelectInput';
 import { GroupedMultiSelectInput } from './inputs/GroupedMultiSelectInput';
@@ -12,11 +13,13 @@ import { NumberInput } from './inputs/NumberInput';
 import { RangeInput } from './inputs/RangeInput';
 import { IllustratedMCInput } from './inputs/IllustratedMCInput';
 import { FileUploadInput } from './inputs/FileUploadInput';
+import { GuidedPhotoUpload } from './inputs/GuidedPhotoUpload';
 import { ChatInterface } from './inputs/ChatInterface';
 import { TimelineInput } from './inputs/TimelineInput';
 import { AutocompleteInput } from './inputs/AutocompleteInput';
 import { ComboboxInput } from './inputs/ComboboxInput';
 import { TagInput } from './inputs/TagInput';
+import { BgvConsentInput } from './inputs/BgvConsentInput';
 import { DualLocationInput } from './inputs/DualLocationInput';
 import type { DualLocationValue } from './inputs/DualLocationInput';
 import { InternationalLocationInput } from './inputs/InternationalLocationInput';
@@ -40,8 +43,8 @@ export function QuestionRenderer() {
         // Chat questions get their own full-width layout — no label wrapper
         if (question.type === 'claude_chat') {
           const savedChatState = chatState[question.id] as ChatState | undefined;
-          // For the last chat question (Q100), trigger form submission instead of navigateNext
-          const isLastChat = isLastQuestion;
+          // Only Q100 (the closing chat) triggers form submission
+          const isLastChat = question.id === 'Q100';
           return (
             <ChatInterface
               key={question.id}
@@ -49,6 +52,18 @@ export function QuestionRenderer() {
               initialChatState={savedChatState || null}
               onComplete={isLastChat ? () => { submitForm(); } : navigateNext}
               completeButtonLabel={isLastChat ? 'Submit your application' : undefined}
+            />
+          );
+        }
+
+        // BGV consent gets its own rich layout — bypass QuestionField wrapper
+        if (question.type === 'bgv_consent') {
+          return (
+            <BgvConsentInput
+              key={question.id}
+              question={question}
+              value={(state.answers[question.id] as string) || ''}
+              onChange={(value) => setAnswer(question.id, value)}
             />
           );
         }
@@ -128,7 +143,6 @@ function InputSwitch({ question, value, onChange }: InputSwitchProps) {
   switch (question.type) {
     case 'text':
     case 'email':
-    case 'phone':
       if (question.type === 'text' && question.autocompleteSource) {
         return (
           <AutocompleteInput
@@ -144,6 +158,15 @@ function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           value={(value as string) || ''}
           onChange={onChange}
           disabled={question.type === 'email' && question.targetTable === 'auth_users'}
+        />
+      );
+
+    case 'phone':
+      return (
+        <PhoneInput
+          question={question}
+          value={(value as string) || ''}
+          onChange={onChange}
         />
       );
 
@@ -240,9 +263,21 @@ function InputSwitch({ question, value, onChange }: InputSwitchProps) {
     case 'file_upload':
       return <FileUploadInput question={question} value={value} onChange={onChange} />;
 
+    case 'guided_photo_upload':
+      return <GuidedPhotoUpload question={question} value={value} onChange={onChange} />;
+
     case 'claude_chat':
       // Handled directly in QuestionRenderer — should not reach here
       return null;
+
+    case 'bgv_consent':
+      return (
+        <BgvConsentInput
+          question={question}
+          value={(value as string) || ''}
+          onChange={onChange as (value: string) => void}
+        />
+      );
 
     case 'timeline':
       return <TimelineInput question={question} value={value} onChange={onChange} />;

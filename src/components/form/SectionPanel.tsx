@@ -3,6 +3,7 @@
 import { useForm } from './FormProvider';
 import { QuestionField } from './QuestionField';
 import { ChatInterface } from './inputs/ChatInterface';
+import { BgvConsentInput } from './inputs/BgvConsentInput';
 import { SECTIONS, getSectionIndex } from '@/lib/form/sections';
 import { getVisibleQuestionsForSection, getSubGroupForQuestion } from '@/lib/form/section-navigation';
 import { getQuestion } from '@/lib/form/questions';
@@ -153,9 +154,9 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
           if (item.kind === 'chat') {
             const question = getQuestion(item.qId)!;
             const savedChatState = chatState[item.qId] as ChatState | undefined;
-            const isLastChat = isLastSection;
+            const isLastChat = isLastSection && item.qId === 'Q100';
             return (
-              <div key={item.qId}>
+              <div key={item.qId} id={`q-${item.qId}`}>
                 {item.dividerLabel && <SubGroupDivider label={item.dividerLabel} />}
                 <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                   <ChatInterface
@@ -171,7 +172,7 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
 
           if (item.kind === 'group') {
             return (
-              <div key={item.qIds.join('-')}>
+              <div key={item.qIds.join('-')} id={`q-${item.qIds[0]}`}>
                 {item.dividerLabel && <SubGroupDivider label={item.dividerLabel} />}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
                   {item.qIds.map((qId) => {
@@ -193,8 +194,23 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
 
           // single
           const question = getQuestion(item.qId)!;
+
+          // BGV consent gets its own rich layout — bypass QuestionField wrapper
+          if (question.type === 'bgv_consent') {
+            return (
+              <div key={item.qId} id={`q-${item.qId}`}>
+                {item.dividerLabel && <SubGroupDivider label={item.dividerLabel} />}
+                <BgvConsentInput
+                  question={question}
+                  value={(answers[item.qId] as string) || ''}
+                  onChange={(value) => setAnswer(item.qId, value)}
+                />
+              </div>
+            );
+          }
+
           return (
-            <div key={item.qId}>
+            <div key={item.qId} id={`q-${item.qId}`}>
               {item.dividerLabel && <SubGroupDivider label={item.dividerLabel} />}
               <QuestionField
                 question={question}

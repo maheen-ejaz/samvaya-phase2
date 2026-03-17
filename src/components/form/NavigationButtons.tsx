@@ -34,6 +34,14 @@ export function NavigationButtons() {
     }
     if (Array.isArray(currentValue) && currentValue.length === 0) return false;
 
+    // Guided photo upload validation: check uploaded count against minimum
+    if (currentQuestion.type === 'guided_photo_upload') {
+      const uploadConfig = currentQuestion.fileUploadConfig;
+      if (!uploadConfig) return false;
+      if (!Array.isArray(currentValue)) return false;
+      return currentValue.length >= uploadConfig.minFiles;
+    }
+
     // File upload validation: check uploaded count against minimum
     if (currentQuestion.type === 'file_upload') {
       const uploadConfig = currentQuestion.fileUploadConfig;

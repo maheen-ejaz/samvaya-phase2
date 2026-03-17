@@ -1,9 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { SECTIONS } from '@/lib/form/sections';
-import { getSectionCompletionStatus, calculateOverallProgress } from '@/lib/form/section-navigation';
+import { getSectionCompletionStatus, calculateOverallProgress, getSubGroups } from '@/lib/form/section-navigation';
+import { getQuestion } from '@/lib/form/questions';
 import { useForm } from './FormProvider';
-import type { SectionStatus } from '@/lib/form/section-navigation';
+import type { SectionStatus, SubGroup } from '@/lib/form/section-navigation';
 
 // ============================================================
 // Vertical stepper — line segment between items
@@ -94,14 +96,18 @@ interface SidebarContentProps {
 }
 
 export function SidebarContent({ onSectionClick }: SidebarContentProps) {
-  const { state, navigateToSection } = useForm();
+  const { state, navigateToSection, navigateTo } = useForm();
   const progress = calculateOverallProgress(state.answers);
+
+  // Current question number for active sub-group detection
+  const currentQId = state.visibleQuestions[state.currentQuestionIndex];
+  const currentQNum = getQuestion(currentQId)?.questionNumber ?? 0;
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* Brand mark */}
       <div className="px-5 pt-6 pb-2">
-        <h1 className="text-lg font-bold tracking-wider text-white">Samvaya</h1>
+        <Image src="/samvaya-logo-white.png" alt="Samvaya" width={140} height={32} priority />
       </div>
 
       {/* Progress */}
@@ -127,6 +133,9 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
             const status = getSectionCompletionStatus(section.id, state.answers);
             const isActive = state.currentSectionId === section.id;
             const isLast = index === SECTIONS.length - 1;
+
+            const subGroups = getSubGroups(section.id);
+            const showSubGroups = isActive && subGroups && subGroups.length >= 2;
 
             return (
               <li key={section.id} className="relative pb-8 last:pb-0">
@@ -165,6 +174,58 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
                     {section.label}
                   </span>
                 </button>
+
+                {/* Sub-group labels — active section only */}
+                <div
+                  className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                  style={{ gridTemplateRows: showSubGroups ? '1fr' : '0fr' }}
+                >
+                  <div className="overflow-hidden">
+                    {subGroups && subGroups.length >= 2 && (
+                      <ul className="ml-9 mt-2 space-y-1 border-l border-white/15 pl-3">
+                        {subGroups.map((sg) => {
+                          const isActiveSub =
+                            isActive &&
+                            currentQNum >= sg.questionRange[0] &&
+                            currentQNum <= sg.questionRange[1];
+
+                          return (
+                            <li key={sg.label}>
+                              <button
+                                onClick={() => {
+                                  const targetQId = state.visibleQuestions.find((qId) => {
+                                    const q = getQuestion(qId);
+                                    return (
+                                      q &&
+                                      q.questionNumber >= sg.questionRange[0] &&
+                                      q.questionNumber <= sg.questionRange[1]
+                                    );
+                                  });
+                                  if (targetQId) {
+                                    const targetIdx = state.visibleQuestions.indexOf(targetQId);
+                                    if (targetIdx >= 0) navigateTo(targetIdx);
+                                    // Scroll to the question element after a brief delay for state to settle
+                                    setTimeout(() => {
+                                      document.getElementById(`q-${targetQId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }, 50);
+                                  }
+                                  onSectionClick?.();
+                                }}
+                                className={`block w-full py-1 text-left text-[11px] transition-colors ${
+                                  isActiveSub
+                                    ? 'font-medium text-white/90'
+                                    : 'text-white/40 hover:text-white/60'
+                                }`}
+                              >
+                                {sg.label}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                </div>
               </li>
             );
           })}

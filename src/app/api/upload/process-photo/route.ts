@@ -5,8 +5,9 @@ import sharp from 'sharp';
 
 interface ProcessPhotoRequest {
   storagePath: string;
-  isPrimary: boolean;
-  displayOrder: number;
+  isPrimary?: boolean;
+  displayOrder?: number;
+  photoType?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { storagePath, isPrimary, displayOrder } = body;
+  const { storagePath, isPrimary, displayOrder, photoType } = body;
 
   if (!storagePath) {
     return NextResponse.json({ error: 'Missing storagePath' }, { status: 400 });
@@ -58,18 +59,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert to buffer and validate size (max 10MB)
+    // Convert to buffer and validate size (max 25MB — client compresses before upload)
     const originalBuffer = Buffer.from(await fileData.arrayBuffer());
-    const MAX_PHOTO_SIZE = 10 * 1024 * 1024; // 10MB
+    const MAX_PHOTO_SIZE = 25 * 1024 * 1024; // 25MB
     if (originalBuffer.length > MAX_PHOTO_SIZE) {
       return NextResponse.json(
-        { error: 'Photo exceeds maximum size of 10MB' },
+        { error: 'Photo exceeds maximum size of 25MB' },
         { status: 400 }
       );
     }
 
-    // Apply Sharp blur (sigma 20)
-    const blurredBuffer = await sharp(originalBuffer).blur(20).toBuffer();
+    // Safety resize to max 2048px on longest edge (client usually handles this, but just in case)
+    const resizedBuffer = await sharp(originalBuffer)
+      .resize({ width: 2048, height: 2048, fit: 'inside', withoutEnlargement: true })
+      .toBuffer();
+
+    // If resize reduced the file, overwrite the original in storage
+    if (resizedBuffer.length < originalBuffer.length) {
+      await supabase.storage
+        .from('photos')
+        .update(storagePath, resizedBuffer, {
+          contentType: fileData.type || 'image/jpeg',
+          upsert: true,
+        });
+    }
+
+    // Apply Sharp blur (sigma 20) on the resized version
+    const blurredBuffer = await sharp(resizedBuffer).blur(20).toBuffer();
 
     // Build the blurred path by replacing /original/ with /blurred/
     const blurredPath = storagePath.replace('/original/', '/blurred/');
@@ -90,6 +106,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Determine is_primary: face_closeup type is always primary
+    const resolvedIsPrimary = photoType === 'face_closeup' ? true : (isPrimary ?? false);
+
     // Insert into photos table
     const { data: photoRow, error: insertError } = await supabase
       .from('photos')
@@ -97,8 +116,9 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         storage_path: storagePath,
         blurred_path: blurredPath,
-        is_primary: isPrimary,
+        is_primary: resolvedIsPrimary,
         display_order: displayOrder ?? 0,
+        photo_type: photoType || null,
       } as never)
       .select()
       .single();
@@ -106,9 +126,9 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       // Clean up blurred file on DB failure
       await supabase.storage.from('photos').remove([blurredPath]);
-      console.error('Failed to save photo record:', insertError);
+      console.error('Failed to save photo record:', insertError.message, insertError.details, insertError.hint);
       return NextResponse.json(
-        { error: 'Failed to save photo record' },
+        { error: `Failed to save photo record: ${insertError.message}` },
         { status: 500 }
       );
     }

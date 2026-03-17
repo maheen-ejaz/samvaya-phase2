@@ -74,19 +74,30 @@ export function ProfileView() {
 
       {/* Photos */}
       {data.photos.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {data.photos.map((photo) => (
-            <div
-              key={photo.id}
-              className="h-28 w-28 flex-shrink-0 overflow-hidden rounded-lg"
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-gray-900">Photos</h3>
+            <Link
+              href="/app/profile/photos"
+              className="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
             >
-              <img
-                src={photo.url}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            </div>
-          ))}
+              Manage Photos
+            </Link>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {data.photos.map((photo) => (
+              <div
+                key={photo.id}
+                className="h-28 w-28 flex-shrink-0 overflow-hidden rounded-lg"
+              >
+                <img
+                  src={photo.url}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

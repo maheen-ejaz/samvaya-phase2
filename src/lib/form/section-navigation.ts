@@ -209,13 +209,25 @@ const SECTION_SUBGROUPS: Partial<Record<SectionId, SubGroup[]>> = {
     { label: 'Current Location', questionRange: [21, 23] },
     { label: 'Permanent Address', questionRange: [24, 26] },
   ],
+  C: [
+    { label: 'Religion', questionRange: [27, 29] },
+    { label: 'Caste & Community', questionRange: [30, 31] },
+  ],
+  D: [
+    { label: "Parents' Details", questionRange: [32, 37] },
+    { label: 'Siblings', questionRange: [39, 39] },
+  ],
   F: [
     { label: 'Diet & Habits', questionRange: [43, 48] },
     { label: 'Health', questionRange: [49, 52] },
   ],
+  H: [
+    { label: 'Medical Status', questionRange: [56, 57] },
+    { label: 'Qualifications', questionRange: [58, 60] },
+  ],
   J: [
     { label: 'Life Goals', questionRange: [63, 68] },
-    { label: 'Relationship Values', questionRange: [69, 75] },
+    { label: 'Relationship Values', questionRange: [69, 74] },
   ],
   K: [
     { label: 'Age & Physical', questionRange: [76, 77] },
@@ -224,6 +236,16 @@ const SECTION_SUBGROUPS: Partial<Record<SectionId, SubGroup[]>> = {
     { label: 'Lifestyle & Appearance', questionRange: [82, 88] },
     { label: 'Family & Values', questionRange: [89, 92] },
     { label: 'Personal Qualities', questionRange: [93, 94] },
+  ],
+  L: [
+    { label: 'Photos', questionRange: [95, 96] },
+    { label: 'Documents', questionRange: [97, 98] },
+    { label: 'BGV Consent', questionRange: [99, 99] },
+  ],
+  M: [
+    { label: 'Family Background', questionRange: [101, 101] },
+    { label: 'Goals & Values', questionRange: [102, 102] },
+    { label: 'Closing', questionRange: [103, 103] },
   ],
 };
 

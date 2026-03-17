@@ -209,7 +209,7 @@ export function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
                   placeholder="you@example.com"
-                  className="mt-1.5 block w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-samvaya-red focus:bg-white focus:ring-1 focus:ring-samvaya-red focus:outline-none"
+                  className="mt-1.5 block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-samvaya-red focus:bg-white focus:ring-1 focus:ring-samvaya-red focus:outline-none"
                 />
               </div>
 

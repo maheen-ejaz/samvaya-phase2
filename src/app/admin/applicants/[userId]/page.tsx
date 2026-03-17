@@ -65,15 +65,22 @@ export default async function ApplicantDetailPage({
   const rawNotes = (notesResult as { data: Array<{ id: string; note_text: string; admin_user_id: string; created_at: string }> | null }).data || [];
   const authUser = authUserResult.data?.user;
 
-  // Get primary photo original URL (admin sees unblurred)
-  const primaryPhoto = photos.find((p) => p.is_primary) || photos[0];
-  let photoUrl: string | null = null;
-  if (primaryPhoto?.storage_path) {
+  // Get signed URLs for all photos (admin sees originals/unblurred)
+  const allPhotoUrls: Array<{ id: string; url: string; photoType: string; isPrimary: boolean }> = [];
+  for (const photo of photos) {
+    if (!photo.storage_path) continue;
     const { data: signedData } = await adminSupabase.storage
       .from('photos')
-      .createSignedUrl(primaryPhoto.storage_path, 86400); // 24 hours
-    photoUrl = signedData?.signedUrl || null;
+      .createSignedUrl(photo.storage_path, 86400); // 24 hours
+    const rowAny = photo as typeof photo & { photo_type?: string | null };
+    allPhotoUrls.push({
+      id: photo.id,
+      url: signedData?.signedUrl || '',
+      photoType: rowAny.photo_type || 'additional',
+      isPrimary: photo.is_primary,
+    });
   }
+  const photoUrl = allPhotoUrls.find((p) => p.isPrimary)?.url || allPhotoUrls[0]?.url || null;
 
   // Calculate age from DOB (server component — Date access is safe here)
   const dob = profile?.date_of_birth;
@@ -135,6 +142,26 @@ export default async function ApplicantDetailPage({
           email={authUser?.email || ''}
           phone={authUser?.phone || ''}
         />
+
+        {/* All Photos Gallery */}
+        {allPhotoUrls.length > 1 && (
+          <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-gray-900">All Photos ({allPhotoUrls.length})</h3>
+            <div className="mt-3 grid grid-cols-4 gap-3">
+              {allPhotoUrls.map((photo) => (
+                <div key={photo.id} className="space-y-1">
+                  <div className="overflow-hidden rounded-lg border border-gray-200">
+                    <img src={photo.url} alt="" className="aspect-[3/4] w-full object-cover" />
+                  </div>
+                  <p className="text-center text-xs capitalize text-gray-500">
+                    {photo.photoType.replace(/_/g, ' ')}
+                    {photo.isPrimary && <span className="ml-1 text-rose-500">(Primary)</span>}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <IdentitySnapshot
           religion={profile?.religion || null}

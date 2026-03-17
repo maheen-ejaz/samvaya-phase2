@@ -37,7 +37,12 @@ const MOTHER_TONGUE_OPTIONS = [
   { value: 'punjabi', label: 'Punjabi' },
   { value: 'assamese', label: 'Assamese' },
   { value: 'maithili', label: 'Maithili' },
-  { value: 'sanskrit', label: 'Sanskrit' },
+  { value: 'bhojpuri', label: 'Bhojpuri' },
+  { value: 'rajasthani', label: 'Rajasthani' },
+  { value: 'chhattisgarhi', label: 'Chhattisgarhi' },
+  { value: 'marwari', label: 'Marwari' },
+  { value: 'haryanvi', label: 'Haryanvi' },
+  { value: 'tulu', label: 'Tulu' },
   { value: 'konkani', label: 'Konkani' },
   { value: 'nepali', label: 'Nepali' },
   { value: 'sindhi', label: 'Sindhi' },
@@ -46,59 +51,135 @@ const MOTHER_TONGUE_OPTIONS = [
   { value: 'manipuri', label: 'Manipuri' },
   { value: 'bodo', label: 'Bodo' },
   { value: 'santali', label: 'Santali' },
+  { value: 'khasi', label: 'Khasi' },
+  { value: 'mizo', label: 'Mizo' },
+  { value: 'kodava', label: 'Kodava' },
+  { value: 'sanskrit', label: 'Sanskrit' },
   { value: 'english', label: 'English' },
   { value: 'other', label: 'Other' },
 ];
 
 const MEDICAL_SPECIALTY_OPTIONS = [
+  // Clinical / broad specialties
   { value: 'general_medicine', label: 'General Medicine' },
   { value: 'general_surgery', label: 'General Surgery' },
-  { value: 'pediatrics', label: 'Pediatrics' },
-  { value: 'obstetrics_gynecology', label: 'Obstetrics & Gynecology' },
-  { value: 'orthopedics', label: 'Orthopedics' },
+  { value: 'family_medicine', label: 'Family Medicine' },
+  { value: 'emergency_medicine', label: 'Emergency Medicine' },
+  { value: 'critical_care', label: 'Critical Care Medicine' },
+  { value: 'internal_medicine', label: 'Internal Medicine' },
+
+  // Medical specialties
   { value: 'cardiology', label: 'Cardiology' },
-  { value: 'dermatology', label: 'Dermatology' },
-  { value: 'psychiatry', label: 'Psychiatry' },
+  { value: 'pulmonology', label: 'Pulmonology' },
+  { value: 'gastroenterology', label: 'Gastroenterology' },
+  { value: 'hepatology', label: 'Hepatology' },
+  { value: 'nephrology', label: 'Nephrology' },
+  { value: 'neurology', label: 'Neurology' },
+  { value: 'endocrinology', label: 'Endocrinology' },
+  { value: 'rheumatology', label: 'Rheumatology' },
+  { value: 'hematology', label: 'Clinical Hematology' },
+  { value: 'clinical_immunology', label: 'Clinical Immunology' },
+  { value: 'infectious_diseases', label: 'Infectious Diseases' },
+  { value: 'geriatric_medicine', label: 'Geriatric Medicine' },
+  { value: 'palliative_medicine', label: 'Palliative Medicine' },
+
+  // Oncology
+  { value: 'medical_oncology', label: 'Medical Oncology' },
+  { value: 'surgical_oncology', label: 'Surgical Oncology' },
+  { value: 'radiation_oncology', label: 'Radiation Oncology' },
+
+  // Surgical specialties
+  { value: 'orthopedics', label: 'Orthopedics' },
+  { value: 'neurosurgery', label: 'Neurosurgery' },
+  { value: 'cardiothoracic_surgery', label: 'Cardiothoracic Surgery' },
+  { value: 'vascular_surgery', label: 'Vascular Surgery' },
+  { value: 'urology', label: 'Urology' },
+  { value: 'plastic_surgery', label: 'Plastic & Reconstructive Surgery' },
+  { value: 'pediatric_surgery', label: 'Pediatric Surgery' },
+  { value: 'surgical_gastroenterology', label: 'Surgical Gastroenterology' },
+  { value: 'hepatobiliary_surgery', label: 'Hepatobiliary Surgery' },
+  { value: 'trauma_surgery', label: 'Trauma Surgery' },
+
+  // Women & children
+  { value: 'obstetrics_gynecology', label: 'Obstetrics & Gynecology' },
+  { value: 'reproductive_medicine', label: 'Reproductive Medicine & IVF' },
+  { value: 'pediatrics', label: 'Pediatrics' },
+  { value: 'neonatology', label: 'Neonatology' },
+
+  // Sensory & skin
+  { value: 'dermatology', label: 'Dermatology, Venereology & Leprosy' },
   { value: 'ophthalmology', label: 'Ophthalmology' },
   { value: 'ent', label: 'ENT (Otorhinolaryngology)' },
-  { value: 'radiology', label: 'Radiology' },
+
+  // Mental health
+  { value: 'psychiatry', label: 'Psychiatry' },
+
+  // Anesthesia & pain
   { value: 'anesthesiology', label: 'Anesthesiology' },
+  { value: 'cardiac_anesthesiology', label: 'Cardiac Anesthesiology' },
+  { value: 'pain_medicine', label: 'Pain Medicine' },
+
+  // Diagnostics & imaging
+  { value: 'radiology', label: 'Radiology' },
+  { value: 'interventional_radiology', label: 'Interventional Radiology' },
+  { value: 'nuclear_medicine', label: 'Nuclear Medicine' },
   { value: 'pathology', label: 'Pathology' },
+
+  // Laboratory / pre-clinical
   { value: 'microbiology', label: 'Microbiology' },
   { value: 'biochemistry', label: 'Biochemistry' },
   { value: 'pharmacology', label: 'Pharmacology' },
-  { value: 'forensic_medicine', label: 'Forensic Medicine' },
+  { value: 'physiology', label: 'Physiology' },
+  { value: 'anatomy', label: 'Anatomy' },
+  { value: 'virology', label: 'Virology' },
+  { value: 'medical_genetics', label: 'Medical Genetics' },
+
+  // Public health & community
   { value: 'community_medicine', label: 'Community Medicine' },
-  { value: 'pulmonology', label: 'Pulmonology' },
-  { value: 'nephrology', label: 'Nephrology' },
-  { value: 'gastroenterology', label: 'Gastroenterology' },
-  { value: 'neurology', label: 'Neurology' },
-  { value: 'neurosurgery', label: 'Neurosurgery' },
-  { value: 'urology', label: 'Urology' },
-  { value: 'plastic_surgery', label: 'Plastic Surgery' },
-  { value: 'oncology', label: 'Oncology' },
-  { value: 'endocrinology', label: 'Endocrinology' },
-  { value: 'rheumatology', label: 'Rheumatology' },
-  { value: 'emergency_medicine', label: 'Emergency Medicine' },
-  { value: 'sports_medicine', label: 'Sports Medicine' },
+  { value: 'public_health', label: 'Public Health' },
+  { value: 'forensic_medicine', label: 'Forensic Medicine & Toxicology' },
+  { value: 'transfusion_medicine', label: 'Transfusion Medicine & Blood Banking' },
+
+  // Rehabilitation & sports
   { value: 'physical_medicine_rehabilitation', label: 'Physical Medicine & Rehabilitation' },
+  { value: 'sports_medicine', label: 'Sports Medicine' },
+
+  // Specialised / niche
+  { value: 'aerospace_medicine', label: 'Aerospace Medicine' },
+  { value: 'hospital_administration', label: 'Hospital Administration' },
+
+  // Dental
+  { value: 'dental_surgery', label: 'Dental Surgery' },
+
+  // AYUSH (MBBS doctors who cross-practice)
+  { value: 'ayush', label: 'AYUSH (Ayurveda / Homeopathy / Unani)' },
+
   { value: 'other', label: 'Other' },
 ];
 
-const ADDITIONAL_QUALIFICATION_OPTIONS = [
+const PG_DEGREE_OPTIONS = [
   { value: 'md', label: 'MD' },
   { value: 'ms', label: 'MS' },
   { value: 'mch', label: 'MCh' },
   { value: 'dm', label: 'DM' },
   { value: 'dnb', label: 'DNB' },
+];
+
+const ADDITIONAL_QUALIFICATION_OPTIONS = [
   { value: 'fellowship', label: 'Fellowship' },
   { value: 'phd', label: 'PhD' },
   { value: 'mba', label: 'MBA' },
   { value: 'mph', label: 'MPH' },
-  { value: 'diploma', label: 'Diploma' },
+  { value: 'diploma', label: 'Diploma (Post-MBBS)' },
   { value: 'mrcp', label: 'MRCP' },
+  { value: 'frcs', label: 'FRCS' },
+  { value: 'fcps', label: 'FCPS' },
   { value: 'usmle', label: 'USMLE' },
   { value: 'plab', label: 'PLAB' },
+  { value: 'dgo', label: 'DGO' },
+  { value: 'dch', label: 'DCH' },
+  { value: 'da', label: 'DA' },
+  { value: 'pgdm', label: 'PGDM' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -233,7 +314,7 @@ const sectionA: QuestionConfig[] = [
     required: true,
     targetTable: 'auth_users',
     targetColumn: 'phone',
-    placeholder: '+91 98765 43210',
+    placeholder: '98765 43210',
     groupWith: ['Q3'],
   },
   {
@@ -417,19 +498,7 @@ const sectionA: QuestionConfig[] = [
     targetTable: 'profiles',
     targetColumn: 'languages_spoken',
     options: [
-      { value: 'hindi', label: 'Hindi' },
-      { value: 'english', label: 'English' },
-      { value: 'bengali', label: 'Bengali' },
-      { value: 'telugu', label: 'Telugu' },
-      { value: 'marathi', label: 'Marathi' },
-      { value: 'tamil', label: 'Tamil' },
-      { value: 'urdu', label: 'Urdu' },
-      { value: 'gujarati', label: 'Gujarati' },
-      { value: 'kannada', label: 'Kannada' },
-      { value: 'odia', label: 'Odia' },
-      { value: 'malayalam', label: 'Malayalam' },
-      { value: 'punjabi', label: 'Punjabi' },
-      { value: 'assamese', label: 'Assamese' },
+      ...MOTHER_TONGUE_OPTIONS.filter(o => o.value !== 'other'),
       { value: 'french', label: 'French' },
       { value: 'german', label: 'German' },
       { value: 'spanish', label: 'Spanish' },
@@ -447,7 +516,7 @@ const sectionA: QuestionConfig[] = [
 
 const sectionB: QuestionConfig[] = [
   { id: 'Q18', questionNumber: 18, section: 'B', text: 'Citizenship', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'citizenship_country', optionsSource: 'countries', searchable: true },
-  { id: 'Q19', questionNumber: 19, section: 'B', text: 'Employment visa outside India?', type: 'select', required: true, targetTable: 'local', targetColumn: 'has_employment_visa', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
+  { id: 'Q19', questionNumber: 19, section: 'B', text: 'Do you possess an employment visa outside India?', type: 'select', required: true, targetTable: 'local', targetColumn: 'has_employment_visa', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
   { id: 'Q20', questionNumber: 20, section: 'B', text: 'Visa country', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'employment_visa_country', optionsSource: 'countries', searchable: true },
   { id: 'Q21', questionNumber: 21, section: 'B', text: 'Country of residence', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'current_country', optionsSource: 'countries', searchable: true },
   { id: 'Q22', questionNumber: 22, section: 'B', text: 'Current state', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'current_state', options: INDIAN_STATES, searchable: true },
@@ -480,7 +549,6 @@ const sectionD: QuestionConfig[] = [
   { id: 'Q35', questionNumber: 35, section: 'D', text: "Mother's name", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'mother_name', placeholder: 'Full name', groupWith: ['Q36'] },
   { id: 'Q36', questionNumber: 36, section: 'D', text: "Mother's occupation", type: 'select', required: true, targetTable: 'profiles', targetColumn: 'mother_occupation', options: OCCUPATION_OPTIONS, groupWith: ['Q35'], searchable: true },
   { id: 'Q37', questionNumber: 37, section: 'D', text: "Mother's occupation (other)", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'mother_occupation_other', helpText: 'Since you selected "Other"' },
-  { id: 'Q38', questionNumber: 38, section: 'D', text: 'Claude Chat: Family Background', type: 'claude_chat', required: true, targetTable: 'compatibility_profiles', targetColumn: 'raw_conversation_transcript' },
   { id: 'Q39', questionNumber: 39, section: 'D', text: 'Number of siblings', type: 'number', required: true, targetTable: 'profiles', targetColumn: 'siblings_count', placeholder: '0' },
 ];
 
@@ -657,8 +725,9 @@ const sectionG: QuestionConfig[] = [
 
 const sectionH: QuestionConfig[] = [
   { id: 'Q56', questionNumber: 56, section: 'H', text: 'What best describes your current status?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'current_status', options: [{ value: 'mbbs_student', label: 'In Medical School (MBBS)' }, { value: 'intern', label: 'Internship' }, { value: 'mbbs_passed', label: 'MBBS Passed' }, { value: 'pursuing_pg', label: 'Pursuing PG' }, { value: 'completed_pg', label: 'Completed PG' }] },
+  { id: 'Q56b', questionNumber: 57, section: 'H', text: 'What is your PG degree?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'pg_degree', options: PG_DEGREE_OPTIONS },
   { id: 'Q57', questionNumber: 57, section: 'H', text: 'Planning to pursue PG?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'pg_plans', options: [{ value: 'yes_within_1_year', label: 'Yes, within the next year' }, { value: 'yes_2_to_3_years', label: 'Yes, in 2-3 years' }, { value: 'no_plan_to_practice', label: 'No, I plan to practice as MBBS' }, { value: 'undecided', label: 'Undecided' }] },
-  { id: 'Q58', questionNumber: 58, section: 'H', text: 'Additional qualifications', type: 'multi_select', required: false, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS, searchable: true },
+  { id: 'Q58', questionNumber: 58, section: 'H', text: 'Any additional qualifications or certifications?', type: 'multi_select', required: false, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS, searchable: true, helpText: 'Beyond your primary medical degree' },
   { id: 'Q59', questionNumber: 59, section: 'H', text: 'What other qualifications do you have?', type: 'text', required: true, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications_other', placeholder: 'Please specify' },
   { id: 'Q60', questionNumber: 60, section: 'H', text: 'Specialty (current or planned)', type: 'multi_select', required: false, targetTable: 'medical_credentials', targetColumn: 'specialty', helpText: 'Select all that apply', options: MEDICAL_SPECIALTY_OPTIONS, searchable: true },
 ];
@@ -668,7 +737,7 @@ const sectionH: QuestionConfig[] = [
 // ============================================================
 
 const sectionI: QuestionConfig[] = [
-  { id: 'Q61', questionNumber: 61, section: 'I', text: 'Any work experience?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'has_work_experience', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
+  { id: 'Q61', questionNumber: 61, section: 'I', text: 'Do you have any full-time work experience?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'has_work_experience', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
   { id: 'Q62', questionNumber: 62, section: 'I', text: 'Add your work experience', type: 'timeline', required: true, targetTable: 'medical_credentials', targetColumn: 'work_experience', helpText: 'Add your work experience entries, starting with the most recent.' },
 ];
 
@@ -677,11 +746,26 @@ const sectionI: QuestionConfig[] = [
 // ============================================================
 
 const sectionJ: QuestionConfig[] = [
-  { id: 'Q63', questionNumber: 63, section: 'J', text: 'Marriage timeline', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'marriage_timeline', options: [{ value: 'within_6_months', label: 'Within 6 months' }, { value: '6_to_12_months', label: '6-12 months' }, { value: '1_to_2_years', label: '1-2 years' }, { value: 'no_fixed_timeline', label: 'No fixed timeline' }] },
-  { id: 'Q64', questionNumber: 64, section: 'J', text: 'Open to long-distance?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'long_distance_comfort', options: [{ value: 'yes_absolutely', label: 'Yes' }, { value: 'open_to_it', label: 'Open to it' }, { value: 'prefer_same_location', label: 'Prefer same city' }] },
-  { id: 'Q65', questionNumber: 65, section: 'J', text: 'Preferred family arrangement after marriage', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'post_marriage_family_arrangement', options: [{ value: 'nuclear', label: 'Nuclear family' }, { value: 'joint', label: 'Joint family' }, { value: 'flexible', label: 'Flexible' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q66', questionNumber: 66, section: 'J', text: 'Should both partners work after marriage?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'both_partners_working_expectation', options: [{ value: 'both_continue', label: 'Yes, both should work' }, { value: 'comfortable_either_way', label: 'Either way is fine' }, { value: 'i_prefer_home', label: 'I prefer to be home' }, { value: 'prefer_partner_home', label: 'I prefer partner to be home' }, { value: 'open', label: 'Open to discussion' }] },
-  { id: 'Q67', questionNumber: 67, section: 'J', text: 'Do you want children?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'wants_children', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'open', label: 'Open to it' }] },
+  { id: 'Q63', questionNumber: 63, section: 'J', text: 'What is your preferred marriage timeline?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'marriage_timeline', options: [{ value: 'within_6_months', label: 'Within 6 months' }, { value: '6_to_12_months', label: '6-12 months' }, { value: '1_to_2_years', label: '1-2 years' }, { value: 'no_fixed_timeline', label: 'No fixed timeline' }] },
+  { id: 'Q64', questionNumber: 64, section: 'J', text: 'Are you open to a long-distance relationship?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'long_distance_comfort', helpText: 'This means being in different cities or countries during the initial phase of the relationship.', options: [{ value: 'yes_absolutely', label: 'Yes' }, { value: 'open_to_it', label: 'Open to it' }, { value: 'prefer_same_location', label: 'Prefer same city' }] },
+  { id: 'Q65', questionNumber: 65, section: 'J', text: 'Preferred family arrangement after marriage', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'post_marriage_family_arrangement', options: [
+    { value: 'nuclear', label: 'Nuclear family', icon: '🏠' },
+    { value: 'joint', label: 'Joint family', icon: '👨‍👩‍👧‍👦' },
+    { value: 'flexible', label: 'Flexible', icon: '🔄' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
+  { id: 'Q66', questionNumber: 66, section: 'J', text: 'Should both partners work after marriage?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'both_partners_working_expectation', options: [
+    { value: 'both_continue', label: 'Yes, both should work', icon: '💼' },
+    { value: 'comfortable_either_way', label: 'Either way is fine', icon: '⚖️' },
+    { value: 'i_prefer_home', label: 'I prefer to be home', icon: '🏡' },
+    { value: 'prefer_partner_home', label: 'I prefer partner to be home', icon: '👤' },
+    { value: 'open', label: 'Open to discussion', icon: '💬' },
+  ] },
+  { id: 'Q67', questionNumber: 67, section: 'J', text: 'Do you want children?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'wants_children', options: [
+    { value: 'yes', label: 'Yes', icon: '👶' },
+    { value: 'no', label: 'No', icon: '✋' },
+    { value: 'open', label: 'Open to it', icon: '🤔' },
+  ] },
   { id: 'Q68', questionNumber: 68, section: 'J', text: 'Preferred number of children', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'children_count_preference', options: [{ value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3_or_more', label: '3+' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q69', questionNumber: 69, section: 'J', text: 'Preferred timing for children', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'children_timing_preference', options: [{ value: 'within_1_2_years', label: '1-2 years after marriage' }, { value: 'after_3_5_years', label: '3-5 years' }, { value: 'after_milestones', label: 'After career milestones' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q70', questionNumber: 70, section: 'J', text: 'Open to a partner with children?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'open_to_partner_with_children', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'open', label: 'Open to it' }] },
@@ -689,7 +773,6 @@ const sectionJ: QuestionConfig[] = [
   { id: 'Q72', questionNumber: 72, section: 'J', text: 'Open to relocating for partner?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'open_to_immediate_relocation', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'open', label: 'Open to it' }] },
   { id: 'Q73', questionNumber: 73, section: 'J', text: 'Do you have plans to study or work outside India in the next 3 years?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'plans_to_go_abroad', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
   { id: 'Q74', questionNumber: 74, section: 'J', text: 'Which countries are you exploring?', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'abroad_countries', optionsSource: 'countries', searchable: true },
-  { id: 'Q75', questionNumber: 75, section: 'J', text: 'Claude Chat: Goals & Values', type: 'claude_chat', required: true, targetTable: 'compatibility_profiles', targetColumn: 'raw_conversation_transcript' },
 ];
 
 // ============================================================
@@ -704,15 +787,57 @@ const sectionK: QuestionConfig[] = [
   { id: 'Q80', questionNumber: 80, section: 'K', text: 'Preferred partner location', type: 'dual_location', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_indian_states', targetColumn2: 'preferred_countries', targetColumn3: 'no_location_preference' },
   { id: 'Q81', questionNumber: 81, section: 'K', text: "Partner's mother tongue preference", type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_mother_tongue', options: MOTHER_TONGUE_OPTIONS, searchable: true },
   { id: 'Q82', questionNumber: 82, section: 'K', text: 'Body type preference', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'body_type_preference', options: BODY_TYPE_OPTIONS },
-  { id: 'Q83', questionNumber: 83, section: 'K', text: "Partner's attire preference", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'attire_preference', options: [{ value: 'modern_western', label: 'Western' }, { value: 'traditional', label: 'Traditional' }, { value: 'mix', label: 'Mix of both' }, { value: 'no_preference', label: 'No preference' }] },
+  { id: 'Q83', questionNumber: 83, section: 'K', text: "Partner's attire preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'attire_preference', options: [
+    { value: 'modern_western', label: 'Western', icon: '👔' },
+    { value: 'traditional', label: 'Traditional', icon: '🪷' },
+    { value: 'mix', label: 'Mix of both', icon: '✨' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
   { id: 'Q84', questionNumber: 84, section: 'K', text: "Partner's diet preference", type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'diet_preference', options: DIET_PREFERENCE_OPTIONS },
-  { id: 'Q85', questionNumber: 85, section: 'K', text: "Partner's fitness preference", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'fitness_preference', options: [{ value: 'regularly_exercises', label: 'Regular' }, { value: 'occasionally', label: 'Moderate' }, { value: 'rarely', label: 'Any level' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q86', questionNumber: 86, section: 'K', text: "Partner's smoking preference", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'smoking_preference', options: [{ value: 'never', label: 'Non-smoker only' }, { value: 'occasionally', label: 'Occasional is fine' }, { value: 'frequently', label: 'Frequent is fine' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q87', questionNumber: 87, section: 'K', text: "Partner's drinking preference", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'drinking_preference', options: [{ value: 'never', label: 'Non-drinker only' }, { value: 'occasionally', label: 'Social drinking is fine' }, { value: 'frequently', label: 'Frequent is fine' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q88', questionNumber: 88, section: 'K', text: "Partner's tattoo/piercing preference", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'tattoo_preference', options: [{ value: 'none', label: 'None preferred' }, { value: 'tattoos_only', label: 'Tattoos are fine' }, { value: 'piercings_only', label: 'Piercings are fine' }, { value: 'both', label: 'Both are fine' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q89', questionNumber: 89, section: 'K', text: 'What is your preference for family type?', type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'family_type_preference', options: [{ value: 'nuclear', label: 'Nuclear' }, { value: 'joint', label: 'Joint' }, { value: 'flexible', label: 'Flexible' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q90', questionNumber: 90, section: 'K', text: "What is your preference for your partner's religious observance?", type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'religious_observance_preference', options: [{ value: 'actively_practicing', label: 'Actively practicing' }, { value: 'culturally_observant', label: 'Culturally observant' }, { value: 'spiritual', label: 'Spiritual but not religious' }, { value: 'not_religious', label: 'Not religious' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q91', questionNumber: 91, section: 'K', text: "What are your expectations for your partner's career after marriage?", type: 'select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_career_expectation_after_marriage', options: [{ value: 'both_continue', label: 'Both should work' }, { value: 'comfortable_either_way', label: 'Either way' }, { value: 'prefer_partner_home', label: 'Prefer homemaker' }, { value: 'open', label: 'Open to discussion' }] },
+  { id: 'Q85', questionNumber: 85, section: 'K', text: "Partner's fitness preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'fitness_preference', options: [
+    { value: 'regularly_exercises', label: 'Regular', icon: '💪' },
+    { value: 'occasionally', label: 'Moderate', icon: '🏃' },
+    { value: 'rarely', label: 'Any level', icon: '🚶' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
+  { id: 'Q86', questionNumber: 86, section: 'K', text: "Partner's smoking preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'smoking_preference', options: [
+    { value: 'never', label: 'Non-smoker only', icon: '🚭' },
+    { value: 'occasionally', label: 'Occasional is fine', icon: '🌫️' },
+    { value: 'frequently', label: 'Frequent is fine', icon: '🚬' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
+  { id: 'Q87', questionNumber: 87, section: 'K', text: "Partner's drinking preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'drinking_preference', options: [
+    { value: 'never', label: 'Non-drinker only', icon: '💧' },
+    { value: 'occasionally', label: 'Social drinking is fine', icon: '🥂' },
+    { value: 'frequently', label: 'Frequent is fine', icon: '🍷' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
+  { id: 'Q88', questionNumber: 88, section: 'K', text: "Partner's tattoo/piercing preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'tattoo_preference', options: [
+    { value: 'none', label: 'None preferred', icon: '✋' },
+    { value: 'tattoos_only', label: 'Tattoos are fine', icon: '🎨' },
+    { value: 'piercings_only', label: 'Piercings are fine', icon: '💎' },
+    { value: 'both', label: 'Both are fine', icon: '✨' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
+  { id: 'Q89', questionNumber: 89, section: 'K', text: 'What is your preference for family type?', type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'family_type_preference', options: [
+    { value: 'nuclear', label: 'Nuclear', icon: '🏠' },
+    { value: 'joint', label: 'Joint', icon: '👨‍👩‍👧‍👦' },
+    { value: 'flexible', label: 'Flexible', icon: '🔄' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
+  { id: 'Q90', questionNumber: 90, section: 'K', text: "What is your preference for your partner's religious observance?", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'religious_observance_preference', options: [
+    { value: 'actively_practicing', label: 'Actively practicing', icon: '🙏' },
+    { value: 'culturally_observant', label: 'Culturally observant', icon: '🪔' },
+    { value: 'spiritual', label: 'Spiritual', icon: '🧘' },
+    { value: 'not_religious', label: 'Not religious', icon: '🌐' },
+    { value: 'no_preference', label: 'No preference', icon: '🤷' },
+  ] },
+  { id: 'Q91', questionNumber: 91, section: 'K', text: "What are your expectations for your partner's career after marriage?", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_career_expectation_after_marriage', options: [
+    { value: 'both_continue', label: 'Both should work', icon: '💼' },
+    { value: 'comfortable_either_way', label: 'Either way', icon: '⚖️' },
+    { value: 'prefer_partner_home', label: 'Prefer homemaker', icon: '🏡' },
+    { value: 'open', label: 'Open to discussion', icon: '💬' },
+  ] },
   { id: 'Q92', questionNumber: 92, section: 'K', text: 'Which career stages are acceptable for your partner?', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_career_stage', options: [{ value: 'mbbs_student', label: 'MBBS Student' }, { value: 'intern', label: 'Intern' }, { value: 'mbbs_passed', label: 'MBBS Passed' }, { value: 'pursuing_pg', label: 'PG Resident' }, { value: 'completed_pg', label: 'Completed PG' }, { value: 'established', label: 'Established Practitioner' }, { value: 'no_preference', label: 'No preference' }], searchable: true },
   { id: 'Q93', questionNumber: 93, section: 'K', text: 'What qualities are you looking for in a partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_qualities', maxSelections: 7, helpText: 'Select up to 7 qualities.', options: PARTNER_QUALITY_OPTIONS, optionGroups: PARTNER_QUALITY_GROUPS },
   { id: 'Q94', questionNumber: 94, section: 'K', text: 'Any other qualities you are looking for?', type: 'text', required: false, targetTable: 'partner_preferences', targetColumn: 'partner_qualities_other', placeholder: 'Describe any qualities not listed above' },
@@ -723,19 +848,21 @@ const sectionK: QuestionConfig[] = [
 // ============================================================
 
 const sectionL: QuestionConfig[] = [
-  { id: 'Q95', questionNumber: 95, section: 'L', text: 'Upload a passport-size photo', type: 'file_upload', required: true, targetTable: 'photos', targetColumn: 'storage_path', helpText: 'A clear, recent passport-size photo with a plain background. JPEG, PNG, or WebP, max 10 MB.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp', maxFiles: 1, minFiles: 1, maxSizeMB: 10, requiresBlur: true, isPrimary: true } },
-  { id: 'Q96', questionNumber: 96, section: 'L', text: 'Upload profile photos', type: 'file_upload', required: true, targetTable: 'photos', targetColumn: 'storage_path', helpText: 'Upload 2 to 6 clear photos of yourself. These will be shown to potential matches (blurred until mutual interest). JPEG, PNG, or WebP, max 10 MB each.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp', maxFiles: 6, minFiles: 2, maxSizeMB: 10, requiresBlur: true } },
+  { id: 'Q95', questionNumber: 95, section: 'L', text: 'Upload your photos', type: 'guided_photo_upload', required: true, targetTable: 'photos', targetColumn: 'storage_path', helpText: 'Your photos are shown to potential matches (blurred until mutual interest). Upload at least 3 photos from different angles to give yourself the best chance.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp', maxFiles: 10, minFiles: 3, maxSizeMB: 25, requiresBlur: true } },
+  { id: 'Q96', questionNumber: 96, section: 'L', text: 'Upload profile photos', type: 'file_upload', required: false, targetTable: 'photos', targetColumn: 'storage_path', helpText: 'Grouped into Q95 — this question does not render separately.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp', maxFiles: 6, minFiles: 2, maxSizeMB: 25, requiresBlur: true } },
   { id: 'Q97', questionNumber: 97, section: 'L', text: 'Upload an identity document (Aadhaar or Passport)', type: 'file_upload', required: true, targetTable: 'documents', targetColumn: 'storage_path', helpText: 'A clear scan or photo of your Aadhaar card or passport. This is used for background verification only and is never shared. JPEG, PNG, WebP, or PDF, max 15 MB.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp,application/pdf', maxFiles: 1, minFiles: 1, maxSizeMB: 15, requiresBlur: false, documentType: 'identity_document' } },
   { id: 'Q98', questionNumber: 98, section: 'L', text: 'Upload your Kundali', type: 'file_upload', required: false, targetTable: 'documents', targetColumn: 'storage_path', helpText: 'Upload a scan or photo of your Kundali. JPEG, PNG, WebP, or PDF, max 15 MB.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp,application/pdf', maxFiles: 1, minFiles: 1, maxSizeMB: 15, requiresBlur: false, documentType: 'kundali' } },
-  { id: 'Q99', questionNumber: 99, section: 'L', text: 'Background Verification Consent', type: 'select', required: true, targetTable: 'users', targetColumn: 'bgv_consent', helpText: 'As part of our commitment to the safety of every Samvaya member, all applicants undergo a comprehensive background verification. This covers identity, employment history, education, financial standing, address, court and criminal records, and a social media check. All results are strictly confidential and are never shared with other members or third parties. Your verification will only begin after your consent below and after your verification fee has been processed.', options: [{ value: 'consented', label: '\u2705 I consent to a background check. Samvaya may proceed once my verification fee is paid.' }, { value: 'consented_wants_call', label: '\uD83D\uDD14 I consent, but I would like to speak with the Samvaya team before you proceed.' }, { value: 'refused', label: '\u274C I do not consent. (Selecting this places your application on hold. Our team will reach out.)' }] },
+  { id: 'Q99', questionNumber: 99, section: 'L', text: 'Background Verification Consent', type: 'bgv_consent', required: true, targetTable: 'users', targetColumn: 'bgv_consent' },
 ];
 
 // ============================================================
-// SECTION M — Closing (Q100) — Skeleton
+// SECTION M — Conversations (AI Chats moved to end of form)
 // ============================================================
 
 const sectionM: QuestionConfig[] = [
-  { id: 'Q100', questionNumber: 100, section: 'M', text: 'Claude Chat: Anything else you would like to share?', type: 'claude_chat', required: true, targetTable: 'compatibility_profiles', targetColumn: 'closing_freeform_note' },
+  { id: 'Q38', questionNumber: 101, section: 'M', text: 'Claude Chat: Family Background', type: 'claude_chat', required: true, targetTable: 'compatibility_profiles', targetColumn: 'raw_conversation_transcript' },
+  { id: 'Q75', questionNumber: 102, section: 'M', text: 'Claude Chat: Goals & Values', type: 'claude_chat', required: true, targetTable: 'compatibility_profiles', targetColumn: 'raw_conversation_transcript' },
+  { id: 'Q100', questionNumber: 103, section: 'M', text: 'Claude Chat: Anything else you would like to share?', type: 'claude_chat', required: true, targetTable: 'compatibility_profiles', targetColumn: 'closing_freeform_note' },
 ];
 
 // ============================================================

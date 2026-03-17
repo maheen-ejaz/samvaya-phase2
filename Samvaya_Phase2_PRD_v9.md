@@ -1,9 +1,10 @@
 # Samvaya Phase 2 — Product Requirements Document (PRD)
 
-**Version:** 9.1
+**Version:** 9.2
 **Date:** March 2026
 **Status:** Confidential — GooCampus / Samvaya
 **Scope:** Onboarding Form + Admin Dashboard + Matching Algorithm + User PWA
+**Changelog v9.2:** Updated March 16, 2026: Full PRD audit to sync with codebase reality. Added 9 missing table schemas (bgv_checks, communication_log, email_templates, notification_preferences, push_subscriptions, introduction_availability + missing columns on users, compatibility_profiles, match_suggestions). Added 2 RPC function specs (get_prefiltered_candidates, handle_match_response). Updated all phase banners to COMPLETE. Added Phase 2D to phased delivery table. Updated feature status for 5 features built in Phase 2D. Added event-driven notification email documentation. Updated guided photo upload system (Q95 slots, client-side compression). Version bump reflects all Phases 2A–2D complete and ready for production deployment.
 **Changelog v9.1:** Updated March 15, 2026: Synced 9 form question specs with implementation (Q6, Q13, Q26, Q29, Q31, Q54, Q60, Q82, Q84) and added 3 missing schema columns.
 **Changelog v9.0:** Comprehensive two-pass audit for Claude Code readiness. Pass 1 fixes: (1) bgv_consent annotation corrected to Q99. (2) profiles table description updated to 100-question form. (3) partner_preferences range annotation corrected to Q76–Q94. (4) closing_freeform_note annotation corrected to Q100. (5) Section 4.3 intro corrected to 100 base questions. (6) SMS stack locked to MSG91. (7) BGV trigger corrected from "Premium membership" to "verification fee payment". (8) Auth corrected to email OTP only. (9) Deployment locked to single domain. (10) Section 10 Build Plan replaced with locked day-by-day plan. (11) Section 12 Open Questions fully replaced with resolved decisions table. (12) Section 7 given proper header. (13) Terminology cleaned: "basic/deep" and wrong "Premium" tier labels removed. (14) Razorpay entries in Tech Log annotated as v2 deferred. (15) Refund policy given section header 6B.4. Pass 2 fixes: (16) Section 4.6 critical architectural error corrected — AI chats are embedded mid-form at Q38/Q75/Q100, not a separate post-form screen; explicit Claude Code implementation note added. (17) documents table enum corrected to match what the form actually collects (identity_document, kundali, other); note added distinguishing from photos table. (18) profiles table annotated to show Q3/Q4 (email/phone) are stored in auth.users, not duplicated. (19) Phase 2B and 2C warning banners added to Sections 5 and 7. (20) Section ordering fixed — 6B moved to follow Section 6; duplicate Sections 8 and 9 renumbered to 14 and 15. (21) Section 2.1 stack table Razorpay entry updated to note v1 manual flag / v2 deferral. (22) membership_tier table cell fixed — pipe character removed to prevent Markdown table break. (23) Section 14 Refund Policy cross-reference corrected from "Section 7" to "Section 6B.4".
 
@@ -37,13 +38,14 @@ Phase 2 transitions Samvaya from "collecting interest" to "operating as a matchm
 
 Phase 2 is delivered in sub-phases:
 
-| Sub-Phase | Scope | Priority |
-|-----------|-------|----------|
-| **2A** | Onboarding form (structured + AI chat) + Database schema + Admin dashboard (internal tool) | Build first |
-| **2B** | Matching algorithm (AI-powered scoring + feedback loop) | Build second |
-| **2C** | User-facing PWA (mobile-first interface) | Build third |
+| Sub-Phase | Scope | Status |
+|-----------|-------|--------|
+| **2A** | Onboarding form (structured + AI chat) + Database schema + Admin dashboard (internal tool) | **COMPLETE** |
+| **2B** | Matching algorithm (AI-powered scoring + feedback loop) | **COMPLETE** |
+| **2C** | User-facing PWA (mobile-first interface) | **COMPLETE** |
+| **2D** | PWA polish + features: pause/resume, notification preferences, edit profile, push notifications, service worker, introduction scheduling, photo management | **COMPLETE** |
 
-**Phase 2A is the immediate focus.** The user-facing PWA (2C) comes later. Until the PWA exists, the team operates manually — inviting users to fill the form, managing data through the admin dashboard, and presenting matches through direct communication.
+**All sub-phases (2A through 2D) are complete as of March 2026.** The platform is ready for production deployment and real user testing.
 
 ---
 
@@ -53,8 +55,8 @@ Phase 2 is delivered in sub-phases:
 
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
-| Frontend (Admin) | Next.js 14+ (App Router), TypeScript, Tailwind CSS | Desktop-first, data-dense views, charts, tables |
-| Frontend (User PWA) | Next.js 14+ (App Router), TypeScript, Tailwind CSS | Mobile-first, installable as PWA, shared codebase with admin |
+| Frontend (Admin) | Next.js 16 (App Router), TypeScript, Tailwind CSS | Desktop-first, data-dense views, charts, tables |
+| Frontend (User PWA) | Next.js 16 (App Router), TypeScript, Tailwind CSS | Mobile-first, installable as PWA, shared codebase with admin |
 | Backend / API | Next.js API Routes | Server-side logic, webhook handlers, AI API calls |
 | Database (Source of Truth) | Supabase (PostgreSQL) | Relational data, RLS, real-time subscriptions, auth |
 | Database (Team Working Copy) | Airtable (synced from Supabase) | Team-friendly interface for data manipulation without touching source of truth |
@@ -146,10 +148,13 @@ Linked to Supabase `auth.users`. Created when a waitlist member is invited and b
 | onboarding_last_question | integer | Last answered question number — for save-and-resume to exact position |
 | ai_conversation_status | enum | not_started, conv1_in_progress, conv1_complete, conv2_in_progress, conv2_complete, conv3_in_progress, all_complete |
 | profile_completion_pct | integer | 0–100, computed |
-| bgv_consent | enum | not_given, consented, consented_wants_call, refused | Mirrors Q99 response (BGV Consent, Section L) |
+| bgv_consent | enum | not_given, consented | Mirrors Q99 consent toggle (BGV Consent, Section L). DB enum retains `consented_wants_call` and `refused` for backward compatibility but only `not_given` and `consented` are used. |
 | is_bgv_complete | boolean | True when all 13 checks are verified |
 | bgv_flagged | boolean | True if any check returned a flag |
 | verified_at | timestamp | When BGV completed |
+| gate_answers | jsonb | Stores gate question answers (Q10, Q19, Q24) as `{"Q10": "yes", "Q19": "no", "Q24": "yes"}`. These control conditional visibility but do not map to dedicated DB columns. |
+| is_paused | boolean | Default false. When true, user is excluded from matching pool via `get_prefiltered_candidates()`. Toggled from `/app/settings`. |
+| paused_at | timestamp | When user last paused their profile. Null if never paused. |
 
 #### `profiles`
 Core profile data collected through the onboarding form. Each column maps to a specific finalized question in the 100-question form.
@@ -331,6 +336,7 @@ Structured output from the AI onboarding conversations. Stores both the raw tran
 | ai_red_flags | text | Any concerns the extraction model flagged for team review |
 | extraction_model_version | text | Claude model ID and system prompt version used to produce this extraction (e.g., "claude-sonnet-4-20250514 / prompt-v1.2"). Critical for tracking quality improvements over time and re-running extraction on old transcripts with newer models. |
 | closing_freeform_note | text | Verbatim response to Q100 (closing single-exchange prompt) — stored as-is, not summarised |
+| chat_state | jsonb | Stores in-progress conversation state for save-and-resume. Structure: `{ "Q38": { messages: [...], exchangeCount: N, isComplete: bool }, "Q75": {...}, "Q100": {...} }`. Allows applicants to return mid-chat across sessions. |
 
 #### `photos`
 
@@ -338,11 +344,14 @@ Structured output from the AI onboarding conversations. Stores both the raw tran
 |--------|------|-------------|
 | id | UUID | Primary key |
 | user_id | UUID | FK to users |
-| storage_path | text | Supabase Storage path |
-| blurred_path | text | Server-generated blurred version |
-| is_primary | boolean | |
-| display_order | integer | |
+| storage_path | text | Supabase Storage path (compressed original, max 2048px) |
+| blurred_path | text | Server-generated blurred version (Sharp, sigma 20) |
+| is_primary | boolean | `true` for the face close-up slot |
+| display_order | integer | Slot order: 0=face_closeup, 1=full_length, 2=professional, 3=casual, 4+=additional |
+| photo_type | text | `face_closeup`, `full_length`, `professional`, `casual`, `additional` |
 | uploaded_at | timestamp | |
+| created_at | timestamp | |
+| updated_at | timestamp | |
 
 #### `documents`
 Verification documents uploaded by applicants during Section L of the onboarding form.
@@ -358,8 +367,10 @@ Verification documents uploaded by applicants during Section L of the onboarding
 | verified_by | UUID | FK to users (admin) |
 | verified_at | timestamp | |
 | rejection_reason | text | |
+| created_at | timestamp | |
+| updated_at | timestamp | |
 
-*Note: Passport size photo (Q95) and profile photos (Q96) are stored in the `photos` table, not here.*
+*Note: All applicant photos (Q95 guided upload) are stored in the `photos` table, not here. Q96 is grouped into Q95 and does not render separately.*
 
 ### 3.3 Matching & Introduction Tables
 
@@ -376,10 +387,16 @@ AI-generated match suggestions awaiting team review.
 | match_narrative | text | AI-generated 1-paragraph explanation of why this match was suggested |
 | ai_model_version | text | For tracking which model version produced the score |
 | — **Review** — | | |
+| recommendation | enum | strongly_recommend, recommend, worth_considering, not_recommended |
 | admin_status | enum | pending_review, approved, rejected, expired |
 | reviewed_by | UUID | FK to users (admin) |
 | reviewed_at | timestamp | |
 | admin_notes | text | |
+| is_stale | boolean | Default false. Set true if either profile has been updated since scoring. |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+*Constraints: `UNIQUE (profile_a_id, profile_b_id)` and `CHECK (profile_a_id < profile_b_id)` for canonical pair ordering.*
 
 #### `match_presentations`
 Approved matches sent to applicants.
@@ -398,6 +415,8 @@ Approved matches sent to applicants.
 | status | enum | pending, mutual_interest, one_sided, expired, declined |
 | presented_at | timestamp | |
 | expires_at | timestamp | Default: 7 days from presented_at |
+| created_at | timestamp | |
+| updated_at | timestamp | |
 
 #### `match_feedback`
 Feedback from applicants on presented matches. This feeds back into the algorithm.
@@ -415,6 +434,9 @@ Feedback from applicants on presented matches. This feeds back into the algorith
 | what_didnt_work | text[] | Array of aspects that didn't fit |
 | would_like_more_like_this | boolean | |
 | specific_concern | text | |
+| created_at | timestamp | |
+
+*Constraint: `UNIQUE (match_presentation_id, user_id)` — one feedback per user per presentation.*
 
 #### `introductions`
 Tracks video introductions between matched applicants.
@@ -433,6 +455,8 @@ Tracks video introductions between matched applicants.
 | outcome_member_a | enum | want_to_continue, not_a_match, need_more_time |
 | outcome_member_b | enum | same |
 | team_feedback_notes | text | |
+| created_at | timestamp | |
+| updated_at | timestamp | |
 
 ### 3.4 Payment Tables
 
@@ -492,6 +516,131 @@ Key-value store for configurable settings.
 | value | jsonb | |
 | description | text | Human-readable explanation |
 | updated_by | UUID | FK to users |
+
+#### `bgv_checks`
+Tracks the 13 OnGrid background verification checks per applicant. Each check has its own row.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| user_id | UUID | FK to users |
+| check_type | enum | aadhaar, pan, bank_account, credit_check, employment, education, professional_reference, court_records, criminal_records, global_database, address_digital, address_physical, social_media |
+| status | enum | pending, in_progress, verified, flagged |
+| document_path | text | Optional path to supporting document |
+| notes | text | Admin notes for this check |
+| updated_by | UUID | FK to users (admin who last updated) |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+*Constraint: `UNIQUE (user_id, check_type)` — one row per check per applicant.*
+
+#### `communication_log`
+Tracks all emails and SMS sent to applicants — both manual and automated.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| user_id | UUID | FK to users (recipient) |
+| sent_by | UUID | FK to users (sender admin, or system) |
+| channel | enum | email, sms |
+| subject | text | Email subject (nullable for SMS) |
+| body | text | Message body |
+| status | enum | sent, failed, pending |
+| sent_at | timestamp | |
+| scheduled_at | timestamp | For scheduled/bulk sends |
+| batch_id | UUID | Groups messages from a single bulk send operation |
+| created_at | timestamp | |
+
+#### `email_templates`
+Reusable email templates for bulk and triggered communications.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| name | text | UNIQUE template name |
+| subject | text | Email subject (supports `{{variable}}` interpolation) |
+| body | text | Email body (supports `{{variable}}` interpolation) |
+| category | text | Default 'general'. Others: payment, verification, matching |
+| variables | text[] | List of variable names used in this template |
+| created_by | UUID | FK to users (admin) |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+*Pre-seeded templates: "Verification Fee Reminder", "BGV Initiated", "BGV Complete — Welcome to the Pool".*
+
+### 3.6 PWA Feature Tables
+
+#### `notification_preferences`
+Per-user notification toggles. Created with defaults when user first visits settings.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| user_id | UUID | FK to users (UNIQUE) |
+| email_new_match | boolean | Default true |
+| email_match_response | boolean | Default true |
+| email_status_update | boolean | Default true |
+| email_promotions | boolean | Default false |
+| push_new_match | boolean | Default true |
+| push_match_response | boolean | Default true |
+| push_status_update | boolean | Default true |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+#### `push_subscriptions`
+Web Push API subscription records. One user may have multiple devices.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| user_id | UUID | FK to users |
+| endpoint | text | Push service endpoint URL |
+| p256dh | text | Public key for encryption |
+| auth | text | Auth secret |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+*Constraint: `UNIQUE (user_id, endpoint)` — one subscription per device per user.*
+
+#### `introduction_availability`
+Applicant-submitted availability for video introductions. 14-day rolling calendar with time slots.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | UUID | Primary key |
+| user_id | UUID | FK to users |
+| match_presentation_id | UUID | FK to match_presentations |
+| available_date | date | Specific date within the 14-day window |
+| time_slot | text | morning, afternoon, evening |
+| notes | text | Optional notes (e.g., "prefer after 5pm") |
+| created_at | timestamp | |
+| updated_at | timestamp | |
+
+*Constraint: `UNIQUE (user_id, match_presentation_id, available_date, time_slot)`.*
+
+### 3.7 RPC Functions
+
+#### `get_prefiltered_candidates(target_user_id UUID)`
+Returns `TABLE(candidate_id UUID)`. Pre-filters the matching pool using hard constraints before Claude API scoring.
+
+**Filters applied:**
+- Opposite gender
+- Bidirectional age range overlap (both users' min/max preferences)
+- Location overlap (preferred states/countries or no_location_preference)
+- Smoking/drinking preference compatibility
+- Excludes: self, paused users (`is_paused = true`), existing match_suggestions
+- Requires: `is_bgv_complete = true` AND `payment_status IN ('in_pool', 'match_presented')`
+
+#### `handle_match_response(p_presentation_id UUID, p_user_id UUID, p_response TEXT)`
+Returns JSONB. Atomically processes a match response with row-level locking (`FOR UPDATE`).
+
+**Logic:**
+1. Validates the presentation exists and belongs to this user
+2. Checks expiry (rejects if past `expires_at`)
+3. Prevents double-response
+4. Records the response (interested / not_interested)
+5. If both users have now responded: computes `is_mutual_interest`
+6. On mutual interest: sets `payment_status = 'awaiting_payment'` for both users and records `membership_start_date = NOW()` on the presentation
 
 ---
 
@@ -744,23 +893,29 @@ Three questions are handled via **Claude chat** (marked 💬) rather than tradit
 
 | # | Question | Type | Conditional |
 |---|----------|------|-------------|
-| 95 | Passport size photo | File Upload | — |
-| 96 | Profile photos *(minimum 2, maximum 6)* | File Upload | — |
+| 95 | Upload your photos *(guided slots: face close-up, full-length, professional, casual, + additional; minimum 3, maximum 10; client-side compression for large files)* | Guided Photo Upload | — |
+| 96 | *(Grouped into Q95 — does not render separately)* | — | — |
 | 97 | Identity document *(Aadhaar or Passport)* | File Upload | — |
 | 98 | Upload your Kundali | File Upload | ↳ if Q29 = Yes (believes in Kundali) |
-| 99 | Background Verification Consent | MC — mandatory (see below) | — |
+| 99 | Background Verification Consent | Single consent toggle — mandatory (see below) | — |
 
 **Q99 — Background Verification Consent**
 
-Consent display text:
-> *"As part of our commitment to the safety of every Samvaya member, all applicants undergo a comprehensive background verification. This covers identity, employment history, education, financial standing, address, court and criminal records, and a social media check. All results are strictly confidential and are never shared with other members or third parties. Your verification will only begin after your consent below and after your verification fee has been processed."*
+Custom `bgv_consent` question type with a rich visual layout (bypasses the standard QuestionField wrapper). The screen includes:
 
-Consent options (mandatory — form cannot be submitted without selecting one):
-- ✅ I consent to a background check. Samvaya may proceed once my verification fee is paid.
-- 🔔 I consent, but I would like to speak with the Samvaya team before you proceed.
-- ❌ I do not consent. *(Selecting this places the application on hold. The team will reach out.)*
+1. **Shield icon** — centered emerald verification icon
+2. **Title** — "Background Verification"
+3. **Why we verify** — "At Samvaya, every member undergoes the same comprehensive verification. This ensures every profile is genuine and every match is between two verified individuals. No exceptions."
+4. **What we verify** — icon-labeled checklist: identity, employment history, education credentials, financial standing, address, court & criminal records, social media
+5. **Safety notes** (amber callout):
+   - Verification will only begin after consent is given AND the verification fee (₹7,080) has been processed
+   - If consent is not provided, the applicant's profile will be deleted within 30 working days
+6. **Confidentiality note** — "All verification results are strictly confidential and are never shared with other members or third parties."
+7. **Single consent toggle** — "I consent to a comprehensive background verification"
 
-**Critical rule**: No BGV may be initiated until both conditions are met: (1) consent given, and (2) verification fee (₹6,000 + GST) confirmed as paid in Supabase — either via Razorpay capture (future) or manual flag (`verification_fee_paid = true`) set by the team (v1).
+Toggle value: `consented` when on, empty when off (blocks form progression via required-field validation).
+
+**Critical rule**: No BGV may be initiated until both conditions are met: (1) consent given (`bgv_consent = 'consented'`), and (2) verification fee (₹6,000 + GST) confirmed as paid in Supabase — either via Razorpay capture (future) or manual flag (`verification_fee_paid = true`) set by the team (v1).
 
 ---
 
@@ -891,12 +1046,10 @@ Every Samvaya applicant who completes the **verification fee payment** (₹7,080
 
 BGV is never initiated automatically. Both of the following conditions must be satisfied before any check may begin:
 
-1. **Consent confirmed**: Applicant has selected a consent option in Q99 of the onboarding form (Background Verification Consent, Section L).
+1. **Consent confirmed**: Applicant has toggled the consent switch in Q99 of the onboarding form (`bgv_consent = 'consented'`).
 2. **Payment confirmed**: Verification fee (₹6,000 + GST) has been paid and confirmed — either via Razorpay capture (future) or manually marked as paid by the team (`verification_fee_paid = true`) in the admin dashboard (v1).
 
-If consent is "I'd like to speak with the team first," the team must have that conversation and update `users.bgv_consent` before BGV begins.
-
-If consent is "I do not consent," the application is placed on hold and no BGV may be initiated until consent is updated.
+If consent is not given, the applicant's profile will be deleted within 30 working days. The consent screen clearly communicates this.
 
 ### 4B.4 BGV Status Tracker (Admin Dashboard)
 
@@ -926,7 +1079,7 @@ Each applicant's internal profile in the admin dashboard includes a BGV tracker.
 ---
 
 ## 5. Matching Algorithm — Specification
-> ⚠️ **Phase 2B — Do not build during Phase 2A.** This section is reference only until the form and admin dashboard are live and stable.
+> ✅ **Phase 2B — COMPLETE** (March 2026). Pre-filtering SQL, Claude API compatibility scoring, match suggestions, match presentations, feedback collection, and introduction tracking are all built and operational.
 
 ### 5.1 Architecture
 
@@ -1386,29 +1539,49 @@ Below the buttons, in smaller text: *"This match expires in X days."*
 
 ---
 
-#### 6.11C — Photo Blurring — Implementation Note for Claude Code
+#### 6.11C — Photo Upload & Blurring — Implementation Note for Claude Code
 
-Blurred photo generation happens **once, at upload time** — not on the fly.
+**Guided Photo Upload (Q95):** Applicants upload photos into named slots that guide diverse angles:
+
+| Slot | Photo Type | Required | is_primary |
+|------|-----------|----------|------------|
+| 1 | `face_closeup` | Yes | Yes |
+| 2 | `full_length` | Yes | No |
+| 3 | `professional` | Yes | No |
+| 4 | `casual` | No | No |
+| 5–10 | `additional` | No | No |
+
+Minimum 3, maximum 10 photos. Q96 is grouped into Q95 via `groupWith` and never renders as a separate form step (Q-numbers are locked at 100).
+
+**Client-side compression:** Uses `browser-image-compression` (~30 KB). Files larger than 3 MB are compressed in the browser to ~3 MB / max 2048px before upload. A toast notification shows "Optimized from X MB to Y MB". The original uncompressed file never reaches the server — only the compressed version is uploaded. Upload accept limit is 25 MB (safety margin). If the applicant is unhappy with the compression, they can compress externally and re-upload.
+
+**Server-side processing:**
 
 ```
-On photo upload:
-1. Original stored at: storage/photos/{user_id}/original/{filename}
-2. Sharp generates a blurred copy (Gaussian blur, sigma 20)
-3. Blurred copy stored at: storage/photos/{user_id}/blurred/{filename}
-4. Both paths written to the photos table (storage_path + blurred_path)
+On photo upload (after client-side compression):
+1. Compressed file uploaded to: storage/photos/{user_id}/original/{filename}
+2. Sharp safety resize to max 2048px (withoutEnlargement: true) — overwrites if smaller
+3. Sharp generates blurred copy (Gaussian blur, sigma 20)
+4. Blurred copy stored at: storage/photos/{user_id}/blurred/{filename}
+5. Both paths + photo_type written to photos table
+
+Storage per photo: compressed original (~1–3 MB) + blurred copy (~0.5–1 MB)
+No full-size original is stored — only the compressed version.
 
 On member card render:
 - If match_presentations.is_mutual_interest = false OR payment not captured:
     → serve blurred_path
 - If is_mutual_interest = true AND payment status = captured:
-    → serve storage_path (original)
+    → serve storage_path (compressed original)
 
 Both paths are in private Supabase Storage buckets.
 Signed URLs are generated server-side per request — never exposed directly.
 The blur is not CSS. It cannot be removed by inspecting the DOM.
 ```
 
-This approach is clean, secure, and fully buildable in v1. No real-time image processing. No additional service dependency.
+**Post-onboarding photo management:** Applicants can manage photos at `/app/profile/photos` — add, delete, replace, reorder. Minimum 3 enforced. Same compression + blur pipeline. PATCH API at `/api/app/photos` for reorder/set-primary.
+
+**Admin view:** All photos displayed in a gallery grid with photo_type labels. Admin always sees unblurred originals.
 
 ---
 
@@ -1560,6 +1733,16 @@ Every time a payment is relevant, Samvaya must communicate it clearly — what i
 >
 > — The Samvaya Team
 
+#### Event-Driven Notification Emails
+
+Beyond the 5 core touchpoints above, the system also sends event-driven notification emails that respect user preferences in the `notification_preferences` table:
+
+- **New match presented** (`email_new_match`): Sent when a match presentation is created for this user.
+- **Match response received** (`email_match_response`): Sent when the other party responds (interested or not interested).
+- **Status update** (`email_status_update`): Sent on payment_status transitions (verification_pending → in_pool → active_member, etc.).
+
+These are implemented in `src/lib/email/notifications.ts` and check the user's preferences before sending.
+
 ---
 
 ### 6B.3 Implementation Notes for Claude Code
@@ -1581,7 +1764,7 @@ membership_expired  → 6-month window closed, no active membership
 Every communication touchpoint above maps to a state transition. The dashboard UI must reflect the current state clearly at all times, with the next action always visible.
 
 **Critical payment rules (must be enforced in code):**
-1. BGV must not be initiated until `payments.verification_fee_paid = true` (v1: set manually by team) AND `users.bgv_consent` is `consented` or `consented_wants_call` (and team has confirmed the latter)
+1. BGV must not be initiated until `payments.verification_fee_paid = true` (v1: set manually by team) AND `users.bgv_consent = 'consented'`
 2. Membership fee must not be requested until `is_mutual_interest = true` on the `match_presentations` record
 3. `membership_start_date` on the payment record must be set to the date of mutual interest confirmation — not the payment date
 4. `membership_expiry_date` = `membership_start_date` + 6 months
@@ -1629,7 +1812,7 @@ Refunds are processed only in the case of a verified technical failure resulting
 >
 > Razorpay integration is deferred to a future phase when user volume justifies the automation investment. When that time comes, the payment state machine (`users.payment_status`) and manual flag infrastructure are already built and will serve as the foundation — Razorpay will simply automate the toggle that the team currently does manually.
 
-> ⚠️ **Phase 2C — Do not build during Phase 2A or 2B.** This section is reference only. The form runs in the browser as a web app during Phase 2A — this section describes the full installable PWA with match viewing, response interface, and member dashboard built last.
+> ✅ **Phase 2C — COMPLETE** (March 2026). The full PWA is built: member dashboard, match card view with spider chart, response interface, profile reveal after mutual interest, feedback forms. Phase 2D added: pause/resume, notification preferences, push notifications, service worker, edit profile, photo management, introduction scheduling.
 
 ### 7.1 Purpose
 
@@ -1646,9 +1829,12 @@ A mobile-first progressive web app that serves as the applicant's interface with
 | Accept/reject matches | Must-have (v1) | Express interest or decline |
 | Give feedback on matches | Must-have (v1) | Structured feedback form after each match |
 | View full profile after mutual interest | Must-have (v1) | Unblurred photos, full details |
-| Schedule introductions | Nice-to-have (v2) | Select availability for video calls |
-| Edit profile | Nice-to-have (v2) | Update responses, photos |
-| Notification preferences | Nice-to-have (v2) | Control what notifications they receive |
+| Schedule introductions | Must-have (v1) — **built** | 14-day calendar with time slots (morning/afternoon/evening) at `/app/settings`. Stored in `introduction_availability` table. |
+| Edit profile | Must-have (v1) — **built** | Update location, lifestyle, goals at `/app/profile/edit`. Manage photos (add, delete, replace, reorder) at `/app/profile/photos`. |
+| Notification preferences | Must-have (v1) — **built** | Email + push toggles (new match, match response, status update, promotions) at `/app/settings`. Stored in `notification_preferences` table. |
+| Pause/resume profile | Must-have (v1) — **built** | Toggle at `/app/settings`. Sets `users.is_paused`. Paused users excluded from matching via `get_prefiltered_candidates()`. |
+| Push notifications | Must-have (v1) — **built** | Service worker handles push events. Subscriptions stored in `push_subscriptions` table. API at `/api/app/push-subscription`. |
+| Photo management | Must-have (v1) — **built** | Add, delete, replace, reorder photos at `/app/profile/photos`. Same compression + blur pipeline as onboarding. Min 3, max 10. |
 | Payment (upgrade) | **Deferred — manual collection for v1** | Razorpay removed from Phase 2C scope. All payments collected manually (phone/UPI/bank transfer). Team toggles status in admin dashboard. See scope note above. |
 
 ### 7.3 Design Principles
@@ -1657,7 +1843,7 @@ A mobile-first progressive web app that serves as the applicant's interface with
 - **Minimal and warm**: Clean UI consistent with Samvaya brand. Not cluttered.
 - **Progress-oriented**: Always show the user where they are and what's next
 - **Instant feedback**: Every action confirms immediately (form saved, response recorded, etc.)
-- **Offline-capable** (stretch): Service worker for basic offline access to their profile
+- **Offline-capable** (built): Service worker caches core assets, handles push notification events, and provides offline fallback page
 
 ### 7.4 User Screens
 
@@ -1665,12 +1851,12 @@ A mobile-first progressive web app that serves as the applicant's interface with
 2. **Home / Status**: Current status card, progress bar, next action prompt
 3. **Onboarding Form**: Multi-step wizard (same form as described in Section 4)
 4. **AI Conversation**: Chat interface
-5. **My Profile**: View/edit their profile data
-6. **My Matches**: List of presented matches with anonymized summaries
-7. **Match Detail**: Full compatibility summary, blurred photo, interest buttons
-8. **Full Profile Reveal**: After mutual interest — unblurred, full details
-9. **Feedback Form**: Post-match feedback
-10. **Settings**: Notification preferences, pause profile, delete account
+5. **My Profile** (`/app/profile`): View profile, edit location/lifestyle/goals (`/app/profile/edit`), manage photos (`/app/profile/photos`)
+6. **My Matches** (`/app/matches`): List of presented matches with anonymized summaries
+7. **Match Detail** (`/app/matches/[id]`): Full compatibility summary, blurred photo, spider chart, interest buttons
+8. **Full Profile Reveal**: After mutual interest — unblurred photos, name, email, phone, full details
+9. **Feedback Form** (`/app/matches/[id]/feedback`): Post-match feedback (rating, what worked, what didn't)
+10. **Settings** (`/app/settings`): Notification preferences (email + push toggles), pause/resume profile, schedule introduction availability (14-day calendar)
 
 ### 7.5 Connection to Admin Dashboard
 
@@ -1707,9 +1893,11 @@ This is achieved through Supabase as the shared data layer with real-time subscr
 
 ### 8.3 Photo Privacy
 
-- Server-side blurring for anonymized match presentations
-- Full photos only served after mutual interest is confirmed
-- Original photos in private Supabase Storage bucket
+- Client-side compression before upload — original uncompressed files never reach the server
+- Server-side blurring (Sharp, sigma 20) for anonymized match presentations
+- Full (compressed) photos only served after mutual interest is confirmed
+- All photos in private Supabase Storage bucket with signed URLs (short expiry)
+- Storage per user: ~2–4 MB per photo (compressed + blurred). No full-size originals retained.
 
 ### 8.4 Document Security
 
@@ -1722,7 +1910,7 @@ This is achieved through Supabase as the shared data layer with real-time subscr
 - Data collected only for matchmaking and verification purposes
 - No advertising, no third-party data sharing
 - Applicants can pause, delete, and export their data at any time
-- Background verification is optional (not mandatory for basic membership)
+- Background verification consent is required to proceed. If consent is not given (`bgv_consent = 'not_given'`), the applicant's profile is deleted within 30 working days. BGV completion is required to enter the matching pool (`is_bgv_complete = true` needed for `in_pool` status).
 - Transparency about what data is collected and why
 
 ---
@@ -1757,45 +1945,48 @@ The full detailed day-by-day build plan is maintained in `CLAUDE.md` (the Claude
 
 ---
 
-### Phase 2A — Form + Dashboard + Sync
+### Phase 2A — Form + Dashboard + Sync ✅ COMPLETE
 
-**Part 1: Form Only (18 working days, target April 4)**
-Priority: get the form live with real applicants as fast as possible. Team reads data in Supabase/Airtable while dashboard is built.
+**Part 1: Form Only** — 100-question form across 13 sections (A–M), 3 embedded Claude AI chats (Q38, Q75, Q100), auto-save, save-and-resume, conditional logic, photo upload with guided slots + Sharp blur, document upload, BGV consent, form submission with completion email.
 
-Tables needed for form-only: `users`, `profiles`, `medical_credentials`, `partner_preferences`, `photos`, `documents`, `payments` (manual flag only, no Razorpay).
+**Part 2: Admin Dashboard** — Applicant list with filters, individual profile view (all form data + chat transcripts), BGV tracker (13 checks), manual payment flag toggle, team notes, status management, communication tools (individual + bulk email), email templates, dashboard home with metrics.
 
-Day-by-day: see `CLAUDE.md` for full breakdown (Days 1–17, with buffer days Mar 15, Apr 2, Apr 3).
-
-**Part 2: Admin Dashboard**
-Built after ≥5–10 applicants have filled the form and data quality is confirmed.
-Scope: applicant list, individual profile view, BGV tracker (13 checks), manual payment flag toggle, team notes, admin profile card (6.11A), match suggestions queue, match presentations tracker, communication tools, dashboard home.
-
-**Part 3: Airtable Sync + Dashboard Completion**
-Supabase → Airtable sync (via webhook or n8n). Analytics views. System configuration UI. Activity log.
+**Part 3: Airtable Sync + Dashboard Completion** — Supabase → Airtable read-only sync, analytics dashboard (funnel, specialty/geo distribution, stage timing), system configuration UI, activity log.
 
 ---
 
-### Phase 2B — Matching Algorithm
+### Phase 2B — Matching Algorithm ✅ COMPLETE
 
-Built after admin dashboard is stable.
-- Pre-filtering SQL queries (hard constraints)
-- Claude API compatibility scoring (structured JSON output)
-- Match suggestion queue in dashboard
-- Match presentation to applicants (anonymous)
-- Member-facing match card (PWA — PRD 6.11B)
-- Feedback collection and feedback loop
+- Pre-filtering SQL via `get_prefiltered_candidates()` RPC (hard constraints: gender, age, location, lifestyle)
+- Claude API compatibility scoring (structured JSON output, 9 dimensions)
+- Match suggestion queue in admin dashboard
+- Match presentation to applicants (anonymized, blurred photos)
+- Member-facing match card with 8-axis spider chart (custom SVG)
+- Atomic match response handling via `handle_match_response()` RPC
+- Feedback collection with structured form
 
 ---
 
-### Phase 2C — User-Facing PWA
+### Phase 2C — User-Facing PWA ✅ COMPLETE
 
-Built last.
-- Mobile-first PWA shell (installable)
-- Member dashboard — profile status, match history, membership status
-- Match card view (6.11B fully implemented)
-- Response interface (interested / not for me, countdown timer)
-- Introduction scheduling
-- Full Razorpay payment flow (v2 — replaces manual flag)
+- Mobile-first PWA shell (installable via web manifest)
+- Member dashboard — payment/verification status, pending matches count, next actions
+- Match card view with spider chart, rationale, life snapshot, interest section
+- Response interface (interested / not interested, with feedback form)
+- Full profile reveal after mutual interest + payment (unblurred photos, name, contact info)
+- Manual payment collection (Razorpay deferred to future phase)
+
+---
+
+### Phase 2D — PWA Polish + Features ✅ COMPLETE
+
+- Edit profile (location, lifestyle, goals) at `/app/profile/edit`
+- Photo management (add, delete, replace, reorder) at `/app/profile/photos`
+- Pause/resume profile toggle (`users.is_paused`, excluded from matching)
+- Notification preferences (email + push toggles) stored in `notification_preferences`
+- Service worker (offline caching, push notification handling) at `public/sw.js`
+- Push subscription API at `/api/app/push-subscription`
+- Schedule introduction availability (14-day calendar with time slots) at `/app/settings`
 
 ---
 
@@ -1926,7 +2117,7 @@ All four URLs must be linked in:
 
 | Decision | Choice | Rationale |
 |---|---|---|
-| Frontend framework | Next.js 14+ (App Router) | SSR, file-based routing, excellent Vercel integration |
+| Frontend framework | Next.js 16 (App Router) | SSR, file-based routing, excellent Vercel integration |
 | Language | TypeScript | Type safety critical for complex form logic and schema |
 | Styling | Tailwind CSS | Utility-first, fast to build with, consistent design system |
 | Backend / database | Supabase | Postgres + Auth + Storage + Realtime in one. Row-level security for privacy. |
@@ -1938,4 +2129,4 @@ All four URLs must be linked in:
 | BGV provider | OnGrid | Covers all 13 required checks. Cost passed through to applicant at ₹6,000 + GST. |
 
 
-*Samvaya Phase 2 PRD v9.0 — March 2026 — Confidential*
+*Samvaya Phase 2 PRD v9.2 — March 2026 — Confidential*

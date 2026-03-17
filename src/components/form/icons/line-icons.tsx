@@ -381,6 +381,174 @@ const catSocialCultural = (
   </IcoSm>
 );
 
+// ── Q65 — Family arrangement ─────────────────────────────────────────────────
+
+const familyNuclear = (
+  <Ico>
+    <circle cx="12" cy="10" r="3" fill="none" stroke={C} strokeWidth="1.5" />
+    <circle cx="22" cy="10" r="3" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M6 24C6 20 8 18 12 18C14 18 15 18.5 16 19.5" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M26 24C26 20 24 18 22 18C20 18 19 18.5 18 19.5" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M4 28L16 18L28 28H4Z" fill="none" stroke={C} strokeWidth="1.5" strokeLinejoin="round" />
+  </Ico>
+);
+
+const familyJoint = (
+  <Ico>
+    <circle cx="10" cy="8" r="2.5" fill="none" stroke={C} strokeWidth="1.5" />
+    <circle cx="22" cy="8" r="2.5" fill="none" stroke={C} strokeWidth="1.5" />
+    <circle cx="16" cy="14" r="2.5" fill="none" stroke={C} strokeWidth="1.5" />
+    <circle cx="8" cy="20" r="2" fill="none" stroke={C} strokeWidth="1.5" />
+    <circle cx="24" cy="20" r="2" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M6 28C6 25 7 24 8 22M26 28C26 25 25 24 24 22M14 28C14 25 15 24 16 17M18 28C18 25 17 24 16 17" fill="none" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+  </Ico>
+);
+
+const familyFlexible = (
+  <Ico>
+    <path d="M8 10C8 10 12 6 16 10C20 14 24 10 24 10" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M8 18C8 18 12 14 16 18C20 22 24 18 24 18" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M8 26C8 26 12 22 16 26C20 30 24 26 24 26" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
+const familyNoPref = (
+  <Ico>
+    <circle cx="16" cy="12" r="4" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M8 28C8 22 12 18 16 18C20 18 24 22 24 28" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M13 12H19" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
+// ── Q66 — Both partners work ────────────────────────────────────────────────
+
+const workBoth = (
+  <Ico>
+    <rect x="4" y="8" width="10" height="14" rx="1.5" fill="none" stroke={C} strokeWidth="1.5" />
+    <rect x="18" y="8" width="10" height="14" rx="1.5" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M7 12H11M21 12H25" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M7 15H11M21 15H25" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M14 14H18" stroke={C} strokeWidth="1.5" strokeLinecap="round" strokeDasharray="1 2" />
+  </Ico>
+);
+
+const workEitherWay = (
+  <Ico>
+    <path d="M10 8V24M22 8V24" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M10 16H22" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="10" cy="8" r="2" fill="none" stroke={C} strokeWidth="1.5" />
+    <circle cx="22" cy="8" r="2" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M7 24H13M19 24H25" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
+const workIPreferHome = (
+  <Ico>
+    <path d="M4 16L16 6L28 16" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7 14V26H25V14" fill="none" stroke={C} strokeWidth="1.5" strokeLinejoin="round" />
+    <circle cx="16" cy="18" r="3" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M16 21V24" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
+const workPartnerHome = (
+  <Ico>
+    <path d="M4 18L12 10L20 18" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M6 16V26H18V16" fill="none" stroke={C} strokeWidth="1.5" strokeLinejoin="round" />
+    <circle cx="26" cy="10" r="3" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M26 13V18M23 18H29" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M23 26C23 22 24 20 26 20C28 20 29 22 29 26" fill="none" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+  </Ico>
+);
+
+const workOpenDiscussion = (
+  <Ico>
+    <path d="M6 8H20V18H12L8 22V18H6V8Z" fill="none" stroke={C} strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M12 14H26V24H24L20 28V24H12V18" fill="none" stroke={C} strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M10 12H16" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M16 18H22" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+  </Ico>
+);
+
+// ── Q67 — Do you want children ──────────────────────────────────────────────
+
+const childrenYes = (
+  <Ico>
+    <circle cx="16" cy="8" r="4" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M16 12V20" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 16H20" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 28L16 20L20 28" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="10" cy="22" r="2" fill="none" stroke={C} strokeWidth="1.2" />
+    <circle cx="22" cy="22" r="2" fill="none" stroke={C} strokeWidth="1.2" />
+  </Ico>
+);
+
+const childrenNo = (
+  <Ico>
+    <circle cx="16" cy="16" r="11" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M8.2 23.8L23.8 8.2" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
+const childrenOpen = (
+  <Ico>
+    <circle cx="16" cy="14" r="6" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M14 12.5C14.5 12 15.5 12 16 12.5C16.5 12 17.5 12 18 12.5" fill="none" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+    <circle cx="13.5" cy="14" r="0.8" fill={C} />
+    <circle cx="18.5" cy="14" r="0.8" fill={C} />
+    <path d="M16 20V24" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M13 27H19" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
+// ── Q90 — Religious observance preference ───────────────────────────────────
+
+const religionActive = (
+  <Ico>
+    <path d="M16 4V12" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 8H20" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M10 16C10 16 12 14 16 14C20 14 22 16 22 16" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M8 28C8 28 8 20 16 20C24 20 24 28 24 28" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
+const religionCultural = (
+  <Ico>
+    <path d="M16 6C16 6 10 12 10 18C10 22 12.7 26 16 26C19.3 26 22 22 22 18C22 12 16 6 16 6Z" fill="none" stroke={C} strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M16 14V20" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+    <circle cx="16" cy="22" r="1" fill={C} />
+  </Ico>
+);
+
+const religionSpiritual = (
+  <Ico>
+    <circle cx="16" cy="12" r="6" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M16 18V28" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 22H20" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M10 6L12 8M22 6L20 8" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M16 2V4" stroke={C} strokeWidth="1.2" strokeLinecap="round" />
+  </Ico>
+);
+
+const religionNotReligious = (
+  <Ico>
+    <circle cx="16" cy="16" r="10" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M12 14H20" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 18H20" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
+// ── Shared — No preference icon ─────────────────────────────────────────────
+
+const noPreference = (
+  <Ico>
+    <circle cx="16" cy="10" r="4" fill="none" stroke={C} strokeWidth="1.5" />
+    <path d="M8 28C8 22 12 18 16 18C20 18 24 22 24 28" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M6 16L10 18" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M26 16L22 18" stroke={C} strokeWidth="1.5" strokeLinecap="round" />
+  </Ico>
+);
+
 // ── "Other" / "Add" icon ───────────────────────────────────────────────────────
 
 const iconPlus = (
@@ -455,6 +623,75 @@ export const SCOPED_ICONS: Record<string, Record<string, ReactNode>> = {
     never: drinkingNever,
     occasionally: drinkingSocially,
     frequently: drinkingRegularly,
+  },
+  Q65: {
+    nuclear: familyNuclear,
+    joint: familyJoint,
+    flexible: familyFlexible,
+    no_preference: familyNoPref,
+  },
+  Q66: {
+    both_continue: workBoth,
+    comfortable_either_way: workEitherWay,
+    i_prefer_home: workIPreferHome,
+    prefer_partner_home: workPartnerHome,
+    open: workOpenDiscussion,
+  },
+  Q67: {
+    yes: childrenYes,
+    no: childrenNo,
+    open: childrenOpen,
+  },
+  // Partner Preferences — reuse lifestyle icons
+  Q83: {
+    modern_western: attireWestern,
+    traditional: attireTraditional,
+    mix: attireMix,
+    no_preference: noPreference,
+  },
+  Q85: {
+    regularly_exercises: fitnessRegular,
+    occasionally: fitnessModerate,
+    rarely: fitnessOccasional,
+    no_preference: noPreference,
+  },
+  Q86: {
+    never: smokingNever,
+    occasionally: smokingOccasionally,
+    frequently: smokingFrequently,
+    no_preference: noPreference,
+  },
+  Q87: {
+    never: drinkingNever,
+    occasionally: drinkingSocially,
+    frequently: drinkingRegularly,
+    no_preference: noPreference,
+  },
+  Q88: {
+    none: tattooNone,
+    tattoos_only: tattooOnly,
+    piercings_only: piercingOnly,
+    both: tattooBoth,
+    no_preference: noPreference,
+  },
+  Q89: {
+    nuclear: familyNuclear,
+    joint: familyJoint,
+    flexible: familyFlexible,
+    no_preference: noPreference,
+  },
+  Q90: {
+    actively_practicing: religionActive,
+    culturally_observant: religionCultural,
+    spiritual: religionSpiritual,
+    not_religious: religionNotReligious,
+    no_preference: noPreference,
+  },
+  Q91: {
+    both_continue: workBoth,
+    comfortable_either_way: workEitherWay,
+    prefer_partner_home: workPartnerHome,
+    open: workOpenDiscussion,
   },
 };
 

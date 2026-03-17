@@ -136,12 +136,15 @@ function useAutocompleteSuggestions(
   const stateQuestionId = stateQuestionMap[questionId];
   const stateValue = stateQuestionId ? (answers[stateQuestionId] as string) : undefined;
 
+  // Resolve religion for community filtering
+  const religionValue = source === 'communities' ? (answers['Q27'] as string | undefined) : undefined;
+
   // Load data via hooks (these are no-ops when source doesn't match)
   const indianCities = useCitiesForState(
     source === 'indian_cities' ? stateValue : undefined
   );
   const countries = useCountries();
-  const communities = useCommunities();
+  const communities = useCommunities(religionValue);
 
   if (!source) return [];
 

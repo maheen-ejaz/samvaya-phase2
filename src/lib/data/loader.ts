@@ -8,7 +8,7 @@ import type { QuestionOption } from '@/lib/form/types';
 let countriesCache: QuestionOption[] | null = null;
 let indianCitiesCache: Record<string, string[]> | null = null;
 let internationalCitiesCache: Record<string, string[]> | null = null;
-let communitiesCache: string[] | null = null;
+let communitiesCache: Record<string, string[]> | null = null;
 
 export async function loadCountries(): Promise<QuestionOption[]> {
   if (!countriesCache) {
@@ -34,12 +34,17 @@ export async function loadInternationalCities(): Promise<Record<string, string[]
   return internationalCitiesCache!;
 }
 
-export async function loadCommunities(): Promise<string[]> {
+export async function loadCommunities(): Promise<Record<string, string[]>> {
   if (!communitiesCache) {
     const res = await fetch('/data/communities.json');
     communitiesCache = await res.json();
   }
   return communitiesCache!;
+}
+
+export async function getCommunitiesForReligion(religion: string): Promise<string[]> {
+  const all = await loadCommunities();
+  return all[religion] ?? [];
 }
 
 export async function getCitiesForStateAsync(stateValue: string): Promise<string[]> {

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import type { QuestionOption } from '@/lib/form/types';
 import {
   loadCountries,
-  loadCommunities,
+  getCommunitiesForReligion,
   getCitiesForStateAsync,
   getCitiesForCountryAsync,
 } from './loader';
@@ -33,12 +33,16 @@ export function useCitiesForState(stateValue: string | undefined): string[] {
   return cities;
 }
 
-export function useCommunities(): string[] {
+export function useCommunities(religion?: string): string[] {
   const [communities, setCommunities] = useState<string[]>([]);
 
   useEffect(() => {
-    loadCommunities().then(setCommunities);
-  }, []);
+    if (!religion) {
+      setCommunities([]);
+      return;
+    }
+    getCommunitiesForReligion(religion).then(setCommunities);
+  }, [religion]);
 
   return communities;
 }

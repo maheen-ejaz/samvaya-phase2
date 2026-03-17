@@ -14,10 +14,12 @@ export type QuestionType =
   | 'number'
   | 'range'
   | 'file_upload'
+  | 'guided_photo_upload'
   | 'claude_chat'
   | 'timeline'
   | 'dual_location'
-  | 'international_location';
+  | 'international_location'
+  | 'bgv_consent';
 
 export type TargetTable =
   | 'profiles'
