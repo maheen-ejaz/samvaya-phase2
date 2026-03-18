@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 interface DeleteUploadRequest {
   type: 'photo' | 'document';
@@ -15,6 +16,12 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Rate limit: 30 deletes per hour per user
+  const { allowed } = checkRateLimit(`delete:${user.id}`, 30, 3600_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many delete attempts. Please try again later.' }, { status: 429 });
   }
 
   let body: DeleteUploadRequest;

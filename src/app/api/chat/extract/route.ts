@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { extractFromTranscript } from '@/lib/claude/client';
 import { getChatConfig } from '@/lib/claude/prompts';
+import { checkRateLimit } from '@/lib/rate-limit';
 import type { ExtractionRequest } from '@/lib/claude/types';
 
 export async function POST(request: NextRequest) {
@@ -16,6 +17,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Rate limit: 20 extractions per hour per user
+  const { allowed } = checkRateLimit(`extract:${user.id}`, 20, 3600_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many extraction attempts. Please try again later.' }, { status: 429 });
+  }
+
   let body: ExtractionRequest;
   try {
     body = await request.json();
@@ -25,8 +32,18 @@ export async function POST(request: NextRequest) {
 
   const { chatId, transcript } = body;
 
+  const VALID_CHAT_IDS = ['Q38', 'Q75', 'Q100'] as const;
+
   if (!chatId || !transcript) {
     return NextResponse.json({ error: 'Missing chatId or transcript' }, { status: 400 });
+  }
+
+  if (!VALID_CHAT_IDS.includes(chatId as typeof VALID_CHAT_IDS[number])) {
+    return NextResponse.json({ error: 'Invalid chatId' }, { status: 400 });
+  }
+
+  if (transcript.length > 100_000) {
+    return NextResponse.json({ error: 'Transcript exceeds 100,000 character limit' }, { status: 400 });
   }
 
   const config = getChatConfig(chatId);

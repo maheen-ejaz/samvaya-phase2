@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendEmail } from '@/lib/email/client';
 import { applicantCompletionEmail, teamNotificationEmail } from '@/lib/email/templates';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 const TEAM_EMAIL = process.env.TEAM_NOTIFICATION_EMAIL || 'team@samvayamatrimony.com';
 
@@ -15,6 +16,12 @@ export async function POST() {
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Rate limit: 3 submissions per user per 10 minutes
+  const { allowed } = checkRateLimit(`submit:${user.id}`, 3, 10 * 60 * 1000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many attempts. Please wait before trying again.' }, { status: 429 });
   }
 
   // Check if already submitted (idempotency guard)

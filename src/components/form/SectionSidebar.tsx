@@ -113,7 +113,7 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
       {/* Progress */}
       <div className="px-5 py-4">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-[11px] font-medium uppercase tracking-widest text-white/50">
+          <span className="text-xs font-medium uppercase tracking-widest text-white/50">
             Progress
           </span>
           <span className="text-xs font-semibold text-white/60">{progress}%</span>
@@ -161,7 +161,7 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
 
                   {/* Label */}
                   <span
-                    className={`ml-3 text-[13px] leading-6 ${
+                    className={`ml-3 text-xs leading-6 ${
                       status === 'complete'
                         ? 'font-medium text-white/80'
                         : isActive
@@ -211,7 +211,7 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
                                   }
                                   onSectionClick?.();
                                 }}
-                                className={`block w-full py-1 text-left text-[11px] transition-colors ${
+                                className={`block w-full py-1 text-left text-xs transition-colors ${
                                   isActiveSub
                                     ? 'font-medium text-white/90'
                                     : 'text-white/40 hover:text-white/60'

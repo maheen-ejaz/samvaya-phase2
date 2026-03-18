@@ -115,7 +115,7 @@ function SpiderWebChart({ dimensions }: { dimensions: Dimension[] }) {
         y={p.y}
         textAnchor="middle"
         dominantBaseline="middle"
-        className="fill-gray-500 text-[10px]"
+        className="fill-gray-500 text-xs"
       >
         {d.label}
       </text>

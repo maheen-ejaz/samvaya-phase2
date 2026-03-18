@@ -1,3 +1,5 @@
+import 'server-only';
+
 /**
  * Simple in-memory rate limiter.
  * TODO: Replace with Vercel KV (Redis) for distributed rate limiting.

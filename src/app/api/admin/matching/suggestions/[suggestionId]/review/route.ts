@@ -28,6 +28,20 @@ export async function POST(
       );
     }
 
+    if (narrative && narrative.length > 5_000) {
+      return NextResponse.json(
+        { error: 'Narrative exceeds 5,000 character limit' },
+        { status: 400 }
+      );
+    }
+
+    if (notes && notes.length > 2_000) {
+      return NextResponse.json(
+        { error: 'Notes exceed 2,000 character limit' },
+        { status: 400 }
+      );
+    }
+
     if (action === 'reject' && !notes?.trim()) {
       return NextResponse.json(
         { error: 'Rejection reason (notes) is required' },

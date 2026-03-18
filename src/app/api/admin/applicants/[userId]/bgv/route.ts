@@ -116,6 +116,10 @@ export async function POST(
 
   const { checkType, status, notes } = body;
 
+  if (notes && notes.length > 2_000) {
+    return NextResponse.json({ error: 'Notes exceed 2,000 character limit' }, { status: 400 });
+  }
+
   if (!checkType || !BGV_CHECK_TYPES.includes(checkType as typeof BGV_CHECK_TYPES[number])) {
     return NextResponse.json({ error: 'Invalid check type' }, { status: 400 });
   }

@@ -112,6 +112,9 @@ export async function POST(request: NextRequest) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(slot.date) || isNaN(Date.parse(slot.date))) {
       return NextResponse.json({ error: 'Invalid date format' }, { status: 400 });
     }
+    if (slot.notes && slot.notes.length > 500) {
+      return NextResponse.json({ error: 'Notes must be 500 characters or fewer' }, { status: 400 });
+    }
   }
 
   // Verify presentation and mutual interest

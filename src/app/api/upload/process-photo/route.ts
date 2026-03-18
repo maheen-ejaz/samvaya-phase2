@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rate-limit';
 import sharp from 'sharp';
 
+const VALID_PHOTO_TYPES = ['face_closeup', 'full_length', 'professional', 'casual', 'additional'] as const;
+
 interface ProcessPhotoRequest {
   storagePath: string;
   isPrimary?: boolean;
@@ -45,6 +47,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  // Validate photoType against allowed enum
+  if (photoType && !VALID_PHOTO_TYPES.includes(photoType as typeof VALID_PHOTO_TYPES[number])) {
+    return NextResponse.json({ error: 'Invalid photo type' }, { status: 400 });
+  }
+
   try {
     // Download the original from Supabase Storage
     const { data: fileData, error: downloadError } = await supabase.storage
@@ -63,8 +70,27 @@ export async function POST(request: NextRequest) {
     const originalBuffer = Buffer.from(await fileData.arrayBuffer());
     const MAX_PHOTO_SIZE = 25 * 1024 * 1024; // 25MB
     if (originalBuffer.length > MAX_PHOTO_SIZE) {
+      await supabase.storage.from('photos').remove([storagePath]);
       return NextResponse.json(
         { error: 'Photo exceeds maximum size of 25MB' },
+        { status: 400 }
+      );
+    }
+
+    // SEC-10: Server-side MIME validation — detect actual format via Sharp metadata
+    // Prevents polyglot file attacks (e.g., HTML disguised as .png)
+    const ALLOWED_FORMATS = ['jpeg', 'png', 'webp', 'heif', 'avif'];
+    try {
+      const metadata = await sharp(originalBuffer).metadata();
+      if (!metadata.format || !ALLOWED_FORMATS.includes(metadata.format)) {
+        return NextResponse.json(
+          { error: `Invalid image format: ${metadata.format || 'unknown'}. Allowed: JPEG, PNG, WebP, HEIF.` },
+          { status: 400 }
+        );
+      }
+    } catch {
+      return NextResponse.json(
+        { error: 'File is not a valid image.' },
         { status: 400 }
       );
     }

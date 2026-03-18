@@ -83,7 +83,7 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
         <button
           onClick={handleSubmit}
           disabled={submitting || submitted}
-          className="rounded-lg bg-samvaya-red px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-samvaya-red-dark focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+          className="rounded-lg bg-samvaya-red px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-samvaya-red-dark focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-200 disabled:text-gray-600 disabled:cursor-not-allowed"
         >
           <span aria-live="polite">
             {submitted ? 'Submitted' : submitting ? 'Submitting...' : 'Submit'}

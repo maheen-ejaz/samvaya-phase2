@@ -26,6 +26,9 @@ export async function POST(
   if (!noteText) {
     return NextResponse.json({ error: 'Note text is required' }, { status: 400 });
   }
+  if (noteText.length > 10_000) {
+    return NextResponse.json({ error: 'Note text exceeds 10,000 character limit' }, { status: 400 });
+  }
 
   const adminSupabase = createAdminClient();
 

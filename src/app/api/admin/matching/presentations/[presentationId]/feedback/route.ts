@@ -34,6 +34,20 @@ export async function POST(
       );
     }
 
+    if (feedbackText && feedbackText.length > 2_000) {
+      return NextResponse.json(
+        { error: 'Feedback text exceeds 2,000 character limit' },
+        { status: 400 }
+      );
+    }
+
+    if (specificConcern && specificConcern.length > 500) {
+      return NextResponse.json(
+        { error: 'Specific concern exceeds 500 character limit' },
+        { status: 400 }
+      );
+    }
+
     const userValidation = validateUserId(userId);
     if (userValidation) return userValidation;
 

@@ -83,7 +83,7 @@ export function SpiderWebChart({ myScores, theirScores }: SpiderWebChartProps) {
                 y={labelY}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className="fill-gray-500 text-[11px]"
+                className="fill-gray-500 text-xs"
               >
                 {axis.label}
               </text>

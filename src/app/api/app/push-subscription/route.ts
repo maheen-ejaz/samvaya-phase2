@@ -18,6 +18,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid subscription data' }, { status: 400 });
   }
 
+  // Validate field lengths
+  const endpoint = body.endpoint as string;
+  const keys = body.keys as Record<string, string>;
+  if (typeof endpoint !== 'string' || endpoint.length > 2048) {
+    return NextResponse.json({ error: 'Endpoint URL too long (max 2048 chars)' }, { status: 400 });
+  }
+  if (typeof keys.p256dh !== 'string' || keys.p256dh.length > 512 || typeof keys.auth !== 'string' || keys.auth.length > 512) {
+    return NextResponse.json({ error: 'Invalid key data' }, { status: 400 });
+  }
+
   const supabase = createAdminClient();
 
   // Upsert subscription (replace if same endpoint exists)

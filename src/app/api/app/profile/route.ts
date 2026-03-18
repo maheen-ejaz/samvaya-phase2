@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 // Fields users are allowed to edit on their own profile
 const EDITABLE_PROFILE_FIELDS = new Set([
@@ -114,6 +115,13 @@ export async function PATCH(request: NextRequest) {
   if (result.error) return result.error;
 
   const userId = result.user.id;
+
+  // Rate limit: 30 profile updates per hour per user
+  const { allowed } = checkRateLimit(`profile-patch:${userId}`, 30, 3600_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many updates. Please try again later.' }, { status: 429 });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();
