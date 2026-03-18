@@ -1994,7 +1994,17 @@ The full detailed day-by-day build plan is maintained in `CLAUDE.md` (the Claude
 
 ### Phase 2E — Code Hardening & Production Readiness 🔧 IN PROGRESS
 
-A dedicated hardening phase focused on security, accessibility, UX polish, test coverage, and production deployment. Each day targets a specific hardening category.
+A dedicated hardening phase that takes the fully-built codebase (Phases 2A–2D) and systematically hardens it for production. Each day targets a specific category. The workflow for each day is:
+
+1. **Build** — implement the day's hardening scope
+2. **Audit** — deploy multiple agents (security, code review, UX) to review changes
+3. **Fix** — address all audit findings
+4. **Verify** — `tsc --noEmit` + `npm run build` must pass
+5. **Commit** — push to remote
+
+All audit results are logged in `AUDIT.md` under `Phase 2E, Day N`.
+
+#### Day-by-Day Schedule
 
 | Day | Date | Focus | Status |
 |-----|------|-------|--------|
@@ -2004,11 +2014,75 @@ A dedicated hardening phase focused on security, accessibility, UX polish, test 
 | 5 | Mar 17 | Section intro cards with descriptions + time estimates, MC card animations, chat bubble redesign, save status indicator | ✅ COMPLETE |
 | 6 | Mar 18 | E2E testing expansion: critical flows (payment toggle, GooCampus, save-and-resume, double-submit), accessibility audits (axe-core), API security tests | ✅ COMPLETE |
 | 7 | Mar 18 | API security sweep: rate limiting on all 40 routes, shared validation utility, input validation gaps (UUID, length caps, enum checks), server page error handling (6 pages) | ✅ COMPLETE |
-| 8 | TBD | Admin dashboard UX: loading skeletons, empty states, retry buttons, component error boundaries, table pagination polish | PLANNED |
-| 9 | TBD | PWA UX polish: offline fallback UI, push notification testing, install prompt, photo upload error cases, service worker validation | PLANNED |
-| 10 | TBD | E2E test expansion: admin matching flow, bulk messaging, photo upload failures, BGV consent flow, profile edit persistence | PLANNED |
-| 11 | TBD | Performance audit: bundle analysis, image optimization, lazy loading, API response time benchmarks, Lighthouse score targets | PLANNED |
-| 12 | TBD | Production deployment: Vercel prod config, environment variables, domain CNAME (`app.samvayamatrimony.com`), smoke tests with real data | PLANNED |
+| 8 | TBD | Admin dashboard UX (see details below) | PLANNED |
+| 9 | TBD | PWA UX polish (see details below) | PLANNED |
+| 10 | TBD | E2E test expansion (see details below) | PLANNED |
+| 11 | TBD | Performance audit (see details below) | PLANNED |
+| 12 | TBD | Production deployment (see details below) | PLANNED |
+
+#### Day 8 — Admin Dashboard UX
+
+Focus: Make the admin dashboard resilient and polished for daily team use.
+
+**Scope:**
+- **Loading skeletons** — Add shimmer/skeleton states to all admin pages that fetch data (applicant list, applicant detail, dashboard metrics, verification tracker). Use the existing skeleton CSS classes from `globals.css`.
+- **Empty states** — When tables have zero rows (no applicants, no matches, no activity), show a helpful empty state instead of a blank table. Include context-appropriate message (e.g., "No applicants yet. Invite users from the waitlist to get started.").
+- **Component error boundaries** — Fix `TeamNotes` silent error swallowing (P0 from Day 7 UX audit): show inline error when POST to notes endpoint fails. Fix `SuggestionQueue` approve/reject unhandled promise rejection: wrap in try/catch with user feedback.
+- **SettingsPage silent revert** — When pause toggle or notification preference PATCH fails, show an error message instead of silently reverting the toggle (P2 from Day 7 UX audit).
+- **Table pagination polish** — Ensure applicant list, activity log, and communication history have consistent pagination controls with proper disabled states.
+
+**Key files:** `src/components/admin/` (all admin components), `src/components/app/SettingsPage.tsx`, `src/app/admin/` (page files)
+
+#### Day 9 — PWA UX Polish
+
+Focus: Polish the user-facing PWA for mobile reliability and installability.
+
+**Scope:**
+- **Offline fallback UI** — When the service worker detects no network, show a branded offline page instead of the browser's default. Register a fallback route in `public/sw.js`.
+- **Push notification testing** — Verify end-to-end push flow: subscription → server stores endpoint → server sends notification → service worker displays. Test with real browser.
+- **Install prompt** — Add a dismissible "Add to Home Screen" banner on the user dashboard (`/app`) that triggers the browser's install prompt. Store dismissal in localStorage.
+- **Photo upload error cases** — Improve error UX when photo upload fails: MIME rejection ("This file type isn't supported. Please upload a JPEG, PNG, or WebP image."), oversized file, storage quota exceeded, network timeout.
+- **Service worker validation** — Verify caching strategies (cache-first for static assets, network-first for API), ensure sw.js updates propagate, test skipWaiting + clients.claim flow.
+
+**Key files:** `public/sw.js`, `src/lib/app/use-service-worker.ts`, `src/components/form/inputs/GuidedPhotoUpload.tsx`, `src/app/app/page.tsx`
+
+#### Day 10 — E2E Test Expansion
+
+Focus: Close test coverage gaps for critical admin and user workflows.
+
+**Scope:**
+- **Admin matching flow** — E2E test covering: pre-filter → score → create suggestion → review suggestion → create presentation → user responds → mutual interest → introduction scheduling. This is the core business flow.
+- **Bulk messaging** — Test template creation, variable substitution, recipient filtering, send confirmation.
+- **Photo upload failures** — Test MIME rejection (upload a .txt file), oversized file handling, Sharp blur verification (upload succeeds and blurred copy exists).
+- **BGV consent flow** — Test all 3 consent states: `consented`, `consented_wants_call`, `declined`. Verify BGV cannot start without both fee paid AND consent.
+- **Profile edit persistence** — Test edit → save → reload → verify changes persisted. Test concurrent edit detection if applicable.
+
+**Key files:** `e2e/` directory, `playwright.config.ts`
+
+#### Day 11 — Performance Audit
+
+Focus: Measure and optimize for production-grade performance.
+
+**Scope:**
+- **Bundle analysis** — Run `@next/bundle-analyzer` to identify oversized chunks. Target: no single page JS bundle > 200KB gzipped. Check if `@anthropic-ai/sdk` is being tree-shaken (should only be in API routes, never in client bundles).
+- **Image optimization** — Verify all user-uploaded photos serve optimized formats via Supabase Storage. Check if Next.js `<Image>` component is used where appropriate.
+- **Lazy loading** — Ensure below-the-fold admin dashboard components (charts, activity log) use dynamic imports. Verify form sections load on-demand, not all at once.
+- **API response times** — Benchmark key endpoints: form auto-save (<200ms), chat message (<3s), photo upload (<5s), admin applicant list (<1s). Log any that exceed targets.
+- **Lighthouse scores** — Run Lighthouse on `/auth/login`, `/app`, `/admin` pages. Target: Performance ≥80, Accessibility ≥90, Best Practices ≥90.
+
+**Key files:** `next.config.ts`, `package.json` (add bundle-analyzer), all page files
+
+#### Day 12 — Production Deployment
+
+Focus: Deploy to production on Vercel and validate with real data.
+
+**Scope:**
+- **Vercel production config** — Set up production environment on Vercel dashboard. Configure build settings, Node.js version, region (Mumbai for India-first).
+- **Environment variables** — Set all production env vars on Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `AIRTABLE_WEBHOOK_SECRET`, `TEAM_NOTIFICATION_EMAIL`.
+- **Domain CNAME** — Configure `app.samvayamatrimony.com` CNAME to point to Vercel. Verify SSL certificate auto-provisioning. Test that root domain (`samvayamatrimony.com`) still serves Framer marketing site.
+- **Smoke tests** — Run through the full user flow on production: login via OTP → fill form (first 5 questions minimum) → auto-save → logout → re-login → resume. Verify data in Supabase dashboard.
+- **Admin smoke test** — Login as admin → view applicant list → open detail page → toggle payment status → add team note. Verify all admin pages load without errors.
+- **Invite first users** — Send invites to 3-5 people from the waitlist that the founders know personally. Monitor for errors in Vercel logs.
 
 ---
 

@@ -920,7 +920,104 @@ npx playwright test e2e/full-onboarding-flow.spec.ts --project=full-onboarding -
 
 ---
 
-## Phase 2E, Day 7 — API Security Sweep + Page Reliability
+## Phase 2E — Code Hardening & Production Readiness
+
+> Phase 2E is a dedicated hardening phase that takes the fully-built codebase (Phases 2A–2D) and systematically hardens it for production. Each day targets a specific category. Full schedule is in `Samvaya_Phase2_PRD_v9.md` Section 10.
+
+### Phase 2E, Days 1-2 — Security Hardening + Design System Foundation
+
+| Field | Value |
+|-------|-------|
+| Commit | `8ae50d1` |
+| Date | March 16, 2026 |
+| Files changed | 28 |
+
+**Security:**
+- CSP policy hardening: removed `unsafe-eval`, added `object-src`, `base-uri`, `form-action`, `frame-src`, `upgrade-insecure-requests`, `worker-src`, `media-src`
+- `server-only` guards on 6 modules (admin auth, app auth, Claude client, email client, rate-limit, admin Supabase)
+- Rate limiting on 5 API routes (OTP 5/15min, form submit 3/10min, extraction 20/hr, upload delete 30/hr, profile PATCH 30/hr)
+- Input validation: length limits on 5 routes, chatId enum check, photoType enum check
+- MIME validation: Sharp format detection (photos), magic byte validation (documents)
+- OTP hardening: plus-addressing bypass prevention
+- Next.js 16.1.6 → 16.1.7 (5 CVEs fixed)
+
+**Design system:**
+- Design tokens: radius scale, shadow scale, transitions
+- 9 keyframe animations + stagger delays
+- 3 glassmorphism variants
+- Skeleton loader + shimmer
+- Typography audit: `text-[10px]/[11px]` → `text-xs`
+
+---
+
+### Phase 2E, Day 3 — Login Page Redesign + Security
+
+| Field | Value |
+|-------|-------|
+| Commit | `046e863` |
+| Date | March 17, 2026 |
+| Files changed | 3 |
+| Issues found & fixed | 11 |
+
+**UI/UX:** Brand gradient login background, decorative dot pattern, logo + tagline entrance animations, OTP micro-interactions (shake on error, green success, animated checkmark, digit pop-in), button loading states with spinner + celebration.
+
+**Security fixes:** CRITICAL: open redirect prevention via strict `nextPath` allowlist. CRITICAL: footer contrast `white/40` → `white/80` (WCAG AA). HIGH: race condition guard in `handleVerifyOtp`. HIGH: OTP rate limiting 5 attempts/15min.
+
+---
+
+### Phase 2E, Day 4 — Form Input Animations + Accessibility
+
+| Field | Value |
+|-------|-------|
+| Commit | `4a3325b` |
+| Date | March 17, 2026 |
+| Files changed | 17 |
+| Issues found & fixed | 6 |
+
+**UX:** Input focus glow (transition-all + shadow) on 15 input types. Progress bar: gradient fill (samvaya-red → rose-400), shimmer overlay, height increase, smoother transitions.
+
+**Accessibility fixes:** CRITICAL: Reverted ChatInterface key remount (was destroying chat mid-conversation). CRITICAL: `@media (prefers-reduced-motion: reduce)` for motion sensitivity (WCAG 2.1 SC 2.3.3). CRITICAL: Focus indicator contrast bump `0.1` → `0.25`.
+
+---
+
+### Phase 2E, Day 5 — Section Intro Cards + MC Animations + Chat Polish
+
+| Field | Value |
+|-------|-------|
+| Commit | `b5ae716` |
+| Date | March 17, 2026 |
+| Files changed | 6 |
+
+**UX improvements:**
+- Section intro cards: description + time estimate, gradient bg (rose-50 tint)
+- MC card animations: checkmark badge on select, press feedback (`active:scale-[0.97]`), ring highlight
+- Chat bubble redesign: avatar for assistant, rose-tinted user bubbles, typing indicator, fade-in-up animations
+- Save status indicator: larger badges, distinct saved/error/saving states, error shake animation
+
+---
+
+### Phase 2E, Day 6 — E2E Testing Expansion
+
+| Field | Value |
+|-------|-------|
+| Commit | `8fbc8b2` |
+| Date | March 18, 2026 |
+| Files changed | 4 |
+| Tests added | 13 |
+
+**Test coverage added:**
+- Admin payment status toggle + applicant detail page
+- GooCampus member flow (direct to `in_pool`, bypass verification)
+- Save-and-resume persistence
+- Double-submission prevention (idempotency)
+- Accessibility audit (axe-core) for login, legal pages, admin dashboard
+- API security tests: auth enforcement, action validation, UUID format validation
+
+**Infrastructure:** Added `@axe-core/playwright` for WCAG compliance, `critical-flows` project in playwright.config.ts.
+
+---
+
+### Phase 2E, Day 7 — API Security Sweep + Page Reliability
 
 | Field | Value |
 |-------|-------|
@@ -965,12 +1062,12 @@ npx playwright test e2e/full-onboarding-flow.spec.ts --project=full-onboarding -
 
 ## Summary Across All Phases
 
-| Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Form UI Polish | Pre-Prod Audit | PWA Polish + E2E | Total |
-|--------|--------|--------|--------|----------|----------|----------|------------|----------------|----------------|----------------|-----------------|-------|
-| Agents deployed | 1 | 1 | 5 | 3 | 4 | 5 | 6 | 1 | — | 6 | — | 32 |
-| Issues found | 14 | 20 | ~87 | ~65 | ~30 | ~25 | 34 | 2 | — | 10 | 1 | ~288 |
-| Critical issues | 0 | 5 | — | ~9 | 6 | 3 | 0 | 0 | — | 2 | 1 | 26+ |
-| Major issues | 0 | 5 | — | ~10 | 6 | 5 | 0 | 0 | — | 6 | 0 | 32+ |
-| E2E tests | — | Validated | 16/16 | — | 12/12 | 15/15 | 13/13 HTTP | 1/1 (100 Qs) | — | 8/8 Playwright | 10/10 Prod E2E | 75+ |
-| Files changed | — | — | — | — | — | — | — | — | 22 | 40 | 15 | — |
-| Audit types | Code, Security, A11y | Code, Security, A11y, E2E | Code (3), UI/UX (2), E2E | Security, Error, Quality (3) | Security, UX/UI, Quality (3) | Code, UX/UI, Integration (3) + E2E | Flow, Security, UX/UI (6) | Full flow E2E | UI/UX polish | Full codebase, Security, Playwright MCP, PRD sync | Design polish, Prod Playwright MCP | All |
+| Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Form UI Polish | Pre-Prod Audit | PWA Polish + E2E | Phase 2E (Days 1-7) | Total |
+|--------|--------|--------|--------|----------|----------|----------|------------|----------------|----------------|----------------|-----------------|---------------------|-------|
+| Agents deployed | 1 | 1 | 5 | 3 | 4 | 5 | 6 | 1 | — | 6 | — | 8 | 40 |
+| Issues found | 14 | 20 | ~87 | ~65 | ~30 | ~25 | 34 | 2 | — | 10 | 1 | 46 | ~334 |
+| Critical issues | 0 | 5 | — | ~9 | 6 | 3 | 0 | 0 | — | 2 | 1 | 0 | 26+ |
+| HIGH/Major issues | 0 | 5 | — | ~10 | 6 | 5 | 0 | 0 | — | 6 | 0 | 2 | 34+ |
+| E2E tests | — | Validated | 16/16 | — | 12/12 | 15/15 | 13/13 HTTP | 1/1 (100 Qs) | — | 8/8 Playwright | 10/10 Prod E2E | — | 75+ |
+| Files changed | — | — | — | — | — | — | — | — | 22 | 40 | 15 | 43 | — |
+| Audit types | Code, Security, A11y | Code, Security, A11y, E2E | Code (3), UI/UX (2), E2E | Security, Error, Quality (3) | Security, UX/UI, Quality (3) | Code, UX/UI, Integration (3) + E2E | Flow, Security, UX/UI (6) | Full flow E2E | UI/UX polish | Full codebase, Security, Playwright MCP, PRD sync | Design polish, Prod Playwright MCP | Security, Code Review, UX (3) | All |
