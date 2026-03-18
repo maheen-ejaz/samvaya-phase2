@@ -43,6 +43,15 @@ export default defineConfig({
       },
     },
     {
+      name: 'critical-flows',
+      testMatch: /critical-flows\.spec\.ts/,
+      timeout: 60000,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+      dependencies: ['setup'],
+    },
+    {
       name: 'full-onboarding',
       testMatch: /full-onboarding-flow\.spec\.ts/,
       use: {
