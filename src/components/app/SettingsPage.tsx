@@ -28,6 +28,7 @@ export function SettingsPage({ email }: SettingsPageProps) {
   const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs | null>(null);
   const [notifSaving, setNotifSaving] = useState(false);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
 
   const statusLabel = getStatusLabel(paymentStatus);
   const statusColor = getStatusColor(paymentStatus);
@@ -41,7 +42,11 @@ export function SettingsPage({ email }: SettingsPageProps) {
           const data = await res.json();
           setIsPaused(data.isPaused);
           setNotifPrefs(data.notificationPreferences as NotificationPrefs);
+        } else {
+          setSettingsError('Failed to load settings. Please refresh the page.');
         }
+      } catch {
+        setSettingsError('Network error. Please check your connection.');
       } finally {
         setSettingsLoaded(true);
       }
@@ -53,15 +58,20 @@ export function SettingsPage({ email }: SettingsPageProps) {
     const previous = isPaused;
     setIsPaused(!isPaused);
     setPauseLoading(true);
+    setSettingsError(null);
     try {
       const res = await fetch('/api/app/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isPaused: !previous }),
       });
-      if (!res.ok) setIsPaused(previous);
+      if (!res.ok) {
+        setIsPaused(previous);
+        setSettingsError('Failed to update pause status. Please try again.');
+      }
     } catch {
       setIsPaused(previous);
+      setSettingsError('Network error. Please check your connection.');
     } finally {
       setPauseLoading(false);
     }
@@ -72,15 +82,20 @@ export function SettingsPage({ email }: SettingsPageProps) {
     const previous = { ...notifPrefs };
     setNotifPrefs({ ...notifPrefs, [key]: value });
     setNotifSaving(true);
+    setSettingsError(null);
     try {
       const res = await fetch('/api/app/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notificationPreferences: { [key]: value } }),
       });
-      if (!res.ok) setNotifPrefs(previous);
+      if (!res.ok) {
+        setNotifPrefs(previous);
+        setSettingsError('Failed to update notification preference. Please try again.');
+      }
     } catch {
       setNotifPrefs(previous);
+      setSettingsError('Network error. Please check your connection.');
     } finally {
       setNotifSaving(false);
     }
@@ -89,6 +104,22 @@ export function SettingsPage({ email }: SettingsPageProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
+
+      {/* Error banner */}
+      {settingsError && (
+        <div className="flex items-center justify-between rounded-xl bg-red-50 px-4 py-3" role="alert">
+          <p className="text-sm text-red-700">{settingsError}</p>
+          <button
+            onClick={() => setSettingsError(null)}
+            className="ml-3 text-red-500 hover:text-red-700"
+            aria-label="Dismiss error"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Account Info */}
       <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">

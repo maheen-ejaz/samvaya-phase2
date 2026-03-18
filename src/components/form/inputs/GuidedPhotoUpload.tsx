@@ -229,11 +229,11 @@ export function GuidedPhotoUpload({ question, value, onChange }: GuidedPhotoUplo
   // --- Validate file type ---
   const validateFileType = useCallback((file: File): string | null => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      return 'File must be JPEG, PNG, or WebP';
+      return 'This file type isn\u2019t supported. Please upload a JPEG, PNG, or WebP image.';
     }
     const maxBytes = 25 * 1024 * 1024;
     if (file.size > maxBytes) {
-      return 'File must be under 25 MB. Please compress your photo and try again.';
+      return 'Photo must be under 25 MB. Please resize or compress your photo and try again.';
     }
     return null;
   }, []);
@@ -364,6 +364,7 @@ export function GuidedPhotoUpload({ question, value, onChange }: GuidedPhotoUplo
           });
         }, 1200);
       } catch (err) {
+        URL.revokeObjectURL(localPreviewUrl);
         updateSlotUploadingFile(slotKey, {
           ...uploadInfo,
           stage: 'error',
@@ -469,6 +470,7 @@ export function GuidedPhotoUpload({ question, value, onChange }: GuidedPhotoUplo
           setAdditionalUploadingFile(null);
         }, 1200);
       } catch (err) {
+        URL.revokeObjectURL(localPreviewUrl);
         setAdditionalUploadingFile({
           ...uploadInfo,
           stage: 'error',
@@ -772,7 +774,7 @@ export function GuidedPhotoUpload({ question, value, onChange }: GuidedPhotoUplo
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2" role="alert">
           <svg className="h-4 w-4 shrink-0 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
           </svg>

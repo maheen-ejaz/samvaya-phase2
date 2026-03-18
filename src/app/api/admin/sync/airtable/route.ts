@@ -75,13 +75,13 @@ export async function POST() {
         value: {
           synced_at: new Date().toISOString(),
           status: 'failed',
-          error: err instanceof Error ? err.message : 'Unknown error',
+          error: 'Sync failed',
         },
       } as never)
       .eq('key' as never, 'airtable_last_sync');
 
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Sync failed' },
+      { error: 'Sync failed' },
       { status: 500 }
     );
   }

@@ -20,10 +20,12 @@ export function TeamNotes({ userId, aiRedFlags, notes }: TeamNotesProps) {
   const router = useRouter();
   const [newNote, setNewNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleAddNote() {
     if (!newNote.trim()) return;
     setSaving(true);
+    setError(null);
     try {
       const res = await fetch(`/api/admin/applicants/${userId}/notes`, {
         method: 'POST',
@@ -33,7 +35,11 @@ export function TeamNotes({ userId, aiRedFlags, notes }: TeamNotesProps) {
       if (res.ok) {
         setNewNote('');
         router.refresh();
+      } else {
+        setError('Failed to save note. Please try again.');
       }
+    } catch {
+      setError('Network error. Please check your connection.');
     } finally {
       setSaving(false);
     }
@@ -69,11 +75,18 @@ export function TeamNotes({ userId, aiRedFlags, notes }: TeamNotesProps) {
         !aiRedFlags && <p className="mb-4 text-sm text-gray-400">No notes yet.</p>
       )}
 
+      {/* Error */}
+      {error && (
+        <div className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          {error}
+        </div>
+      )}
+
       {/* Add Note */}
       <div className="flex gap-2">
         <textarea
           value={newNote}
-          onChange={(e) => setNewNote(e.target.value)}
+          onChange={(e) => { setNewNote(e.target.value); setError(null); }}
           placeholder="Add a note..."
           aria-label="New team note"
           rows={2}

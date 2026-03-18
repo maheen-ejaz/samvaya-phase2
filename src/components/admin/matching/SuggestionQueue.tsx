@@ -10,7 +10,7 @@ export function SuggestionQueue() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('pending_review');
   const [pipelineLoading, setPipelineLoading] = useState(false);
-  const [pipelineResult, setPipelineResult] = useState<string | null>(null);
+  const [pipelineResult, setPipelineResult] = useState<{ message: string; isError: boolean } | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
@@ -62,20 +62,23 @@ export function SuggestionQueue() {
       const data = await res.json();
 
       if (mode === 'pre-filter') {
-        setPipelineResult(
-          `Pre-filter complete: ${data.stats.total_in_pool} in pool, ${data.stats.pairs_after_filter} pairs found (${data.stats.reduction_pct}% reduction)`
-        );
+        setPipelineResult({
+          message: `Pre-filter complete: ${data.stats.total_in_pool} in pool, ${data.stats.pairs_after_filter} pairs found (${data.stats.reduction_pct}% reduction)`,
+          isError: false,
+        });
       } else {
-        setPipelineResult(
-          `Batch scoring complete: ${data.scoring.scored} scored, ${data.scoring.skipped_cached} cached, ${data.scoring.failed} failed${data.scoring.daily_limit_reached ? ' (daily limit reached)' : ''}`
-        );
+        setPipelineResult({
+          message: `Batch scoring complete: ${data.scoring.scored} scored, ${data.scoring.skipped_cached} cached, ${data.scoring.failed} failed${data.scoring.daily_limit_reached ? ' (daily limit reached)' : ''}`,
+          isError: false,
+        });
       }
 
       fetchSuggestions();
     } catch (err) {
-      setPipelineResult(
-        `Error: ${err instanceof Error ? err.message : 'Pipeline failed'}`
-      );
+      setPipelineResult({
+        message: err instanceof Error ? err.message : 'Pipeline failed',
+        isError: true,
+      });
     } finally {
       setPipelineLoading(false);
     }
@@ -89,8 +92,8 @@ export function SuggestionQueue() {
     });
 
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || 'Approval failed');
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Approval failed. Please try again.');
     }
 
     fetchSuggestions();
@@ -104,8 +107,8 @@ export function SuggestionQueue() {
     });
 
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || 'Rejection failed');
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Rejection failed. Please try again.');
     }
 
     fetchSuggestions();
@@ -136,10 +139,10 @@ export function SuggestionQueue() {
         </div>
         {pipelineResult && (
           <p
-            className={`mt-3 text-sm ${pipelineResult.startsWith('Error') ? 'text-red-600' : 'text-green-600'}`}
-            role={pipelineResult.startsWith('Error') ? 'alert' : 'status'}
+            className={`mt-3 text-sm ${pipelineResult.isError ? 'text-red-600' : 'text-green-600'}`}
+            role={pipelineResult.isError ? 'alert' : 'status'}
           >
-            {pipelineResult}
+            {pipelineResult.message}
           </p>
         )}
       </div>

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import type { ChatMessage, ChatResponse, ChatState } from '@/lib/claude/types';
-import { CHAT_CONFIGS } from '@/lib/claude/prompts';
+import { CHAT_METADATA } from '@/lib/claude/chat-metadata';
 
 interface ChatInterfaceProps {
   question: QuestionConfig;
@@ -14,7 +14,7 @@ interface ChatInterfaceProps {
 
 export function ChatInterface({ question, initialChatState, onComplete, completeButtonLabel }: ChatInterfaceProps) {
   const chatId = question.id as 'Q38' | 'Q75' | 'Q100';
-  const config = CHAT_CONFIGS[chatId];
+  const config = CHAT_METADATA[chatId];
 
   const [messages, setMessages] = useState<ChatMessage[]>(initialChatState?.messages || []);
   const [exchangeCount, setExchangeCount] = useState(initialChatState?.exchangeCount || 0);

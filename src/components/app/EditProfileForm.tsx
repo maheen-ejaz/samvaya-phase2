@@ -191,8 +191,8 @@ export function EditProfileForm() {
       {/* Save Button */}
       <button
         onClick={handleSave}
-        disabled={saving}
-        className="w-full rounded-lg bg-samvaya-red px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-samvaya-red-dark disabled:opacity-50"
+        disabled={saving || !hasChanges}
+        className="w-full rounded-lg bg-samvaya-red px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-samvaya-red-dark disabled:cursor-not-allowed disabled:opacity-50"
       >
         {saving ? 'Saving...' : 'Save Changes'}
       </button>

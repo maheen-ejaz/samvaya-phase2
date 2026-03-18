@@ -22,6 +22,11 @@ export async function GET(
   const result = await requireAdmin();
   if (result.error) return result.error;
 
+  const { allowed } = checkRateLimit(`bgv-get:${result.admin.id}`, 60, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
+  }
+
   const { userId } = await params;
   const idError = validateUserId(userId);
   if (idError) return idError;

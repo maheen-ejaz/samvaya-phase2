@@ -4,6 +4,7 @@ import { UserStatusProvider } from "@/lib/app/user-context";
 import { AppHeader } from "@/components/app/AppHeader";
 import { BottomNav } from "@/components/app/BottomNav";
 import { ServiceWorkerRegistration } from "@/components/app/ServiceWorkerRegistration";
+import { InstallPromptBanner } from "@/components/app/InstallPromptBanner";
 
 export default async function ApplicantLayout({
   children,
@@ -77,6 +78,7 @@ export default async function ApplicantLayout({
         <AppHeader />
         <main className="mx-auto max-w-lg px-4 py-6 pb-24">{children}</main>
         <BottomNav />
+        <InstallPromptBanner />
         <ServiceWorkerRegistration />
       </div>
     </UserStatusProvider>

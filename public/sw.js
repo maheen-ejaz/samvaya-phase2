@@ -1,8 +1,9 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = 'samvaya-v1';
+const CACHE_NAME = 'samvaya-v2';
 const STATIC_ASSETS = [
   '/manifest.json',
+  '/offline.html',
 ];
 
 // Install: cache app shell
@@ -47,7 +48,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || new Response('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Offline - Samvaya</title><style>body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;color:#1a1a1a;text-align:center;padding:24px}h1{font-size:1.25rem;margin-bottom:8px}p{color:#6b7280;font-size:0.875rem}</style></head><body><div><h1>You\'re offline</h1><p>Please check your internet connection and try again.</p></div></body></html>', { status: 503, headers: { 'Content-Type': 'text/html' } })))
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('/offline.html')))
     );
     return;
   }

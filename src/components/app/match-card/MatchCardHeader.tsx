@@ -34,7 +34,8 @@ export function MatchCardHeader({ profile, canSeeOriginal }: MatchCardHeaderProp
         {primaryPhoto ? (
           <img
             src={primaryPhoto}
-            alt=""
+            alt="Match profile photo"
+            loading="lazy"
             className="h-full w-full object-cover"
           />
         ) : (

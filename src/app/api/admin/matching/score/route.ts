@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('Scoring error:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Scoring failed' },
+      { error: 'Scoring failed' },
       { status: 500 }
     );
   }

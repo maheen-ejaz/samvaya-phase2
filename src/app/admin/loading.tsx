@@ -1,6 +1,6 @@
 export default function AdminLoading() {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8">
+    <div className="mx-auto max-w-7xl px-6 py-8" role="status" aria-label="Loading admin dashboard">
       <div className="mb-6">
         <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
         <div className="mt-2 h-4 w-48 animate-pulse rounded bg-gray-100" />

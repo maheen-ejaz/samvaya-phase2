@@ -41,6 +41,8 @@ export function SuggestionCard({ suggestion, onApprove, onReject }: SuggestionCa
     setLoading(true);
     try {
       await onApprove(suggestion.id, narrative, notes);
+    } catch (err) {
+      setValidationError(err instanceof Error ? err.message : 'Approval failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -55,6 +57,8 @@ export function SuggestionCard({ suggestion, onApprove, onReject }: SuggestionCa
     setLoading(true);
     try {
       await onReject(suggestion.id, notes);
+    } catch (err) {
+      setValidationError(err instanceof Error ? err.message : 'Rejection failed. Please try again.');
     } finally {
       setLoading(false);
     }

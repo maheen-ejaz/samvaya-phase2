@@ -60,6 +60,24 @@ export default defineConfig({
         baseURL: 'http://localhost:3000',
       },
     },
+    {
+      name: 'admin-matching',
+      testMatch: /admin-matching\.spec\.ts/,
+      timeout: 90000,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'bulk-messaging',
+      testMatch: /bulk-messaging\.spec\.ts/,
+      timeout: 60000,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+      dependencies: ['setup'],
+    },
   ],
   webServer: {
     command: 'npm run dev',

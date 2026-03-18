@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('Batch scoring error:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Batch scoring failed' },
+      { error: 'Batch scoring failed' },
       { status: 500 }
     );
   }

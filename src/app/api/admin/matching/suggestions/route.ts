@@ -38,7 +38,8 @@ export async function GET(request: NextRequest) {
     const { data, count, error } = await query;
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('Failed to fetch suggestions:', error.message);
+      return NextResponse.json({ error: 'Failed to fetch suggestions' }, { status: 500 });
     }
 
     // Enrich with profile data for both members
@@ -117,7 +118,7 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     console.error('List suggestions error:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to list suggestions' },
+      { error: 'Failed to list suggestions' },
       { status: 500 }
     );
   }

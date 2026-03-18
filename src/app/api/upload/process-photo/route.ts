@@ -42,8 +42,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing storagePath' }, { status: 400 });
   }
 
-  // Verify the path belongs to this user
-  if (!storagePath.startsWith(`${user.id}/`)) {
+  // Verify the path belongs to this user and block path traversal
+  if (!storagePath.startsWith(`${user.id}/`) || storagePath.includes('..')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       await supabase.storage.from('photos').remove([blurredPath]);
       console.error('Failed to save photo record:', insertError.message, insertError.details, insertError.hint);
       return NextResponse.json(
-        { error: `Failed to save photo record: ${insertError.message}` },
+        { error: 'Failed to save photo record. Please try again.' },
         { status: 500 }
       );
     }

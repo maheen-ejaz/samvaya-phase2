@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
     const { data, count, error } = await query;
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('Failed to fetch presentations:', error.message);
+      return NextResponse.json({ error: 'Failed to fetch presentations' }, { status: 500 });
     }
 
     // Enrich with profile names
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     console.error('List presentations error:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to list presentations' },
+      { error: 'Failed to list presentations' },
       { status: 500 }
     );
   }

@@ -92,7 +92,8 @@ export function ProfileView() {
               >
                 <img
                   src={photo.url}
-                  alt=""
+                  alt="Profile photo"
+                  loading="lazy"
                   className="h-full w-full object-cover"
                 />
               </div>

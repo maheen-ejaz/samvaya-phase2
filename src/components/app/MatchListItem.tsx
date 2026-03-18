@@ -40,7 +40,8 @@ export function MatchListItem({
         {otherProfile.blurredPhotoUrl ? (
           <img
             src={otherProfile.blurredPhotoUrl}
-            alt=""
+            alt="Match photo"
+            loading="lazy"
             className="h-full w-full object-cover"
           />
         ) : (

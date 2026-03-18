@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('Pre-filter error:', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Pre-filter failed' },
+      { error: 'Pre-filter failed' },
       { status: 500 }
     );
   }

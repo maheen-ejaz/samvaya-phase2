@@ -1,6 +1,19 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { ActivityLogViewer } from '@/components/admin/activity/ActivityLogViewer';
+import dynamic from 'next/dynamic';
+
+const ActivityLogViewer = dynamic(
+  () => import('@/components/admin/activity/ActivityLogViewer').then((m) => m.ActivityLogViewer),
+  {
+    loading: () => (
+      <div className="space-y-3" role="status" aria-label="Loading activity log">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-100" />
+        ))}
+      </div>
+    ),
+  }
+);
 
 export default async function ActivityLogPage() {
   const supabase = await createClient();

@@ -357,7 +357,7 @@ export function PhotoManager() {
 
             {photo ? (
               <div className="group relative overflow-hidden rounded-lg border border-gray-200">
-                <img src={photo.signedUrl} alt={slot.label} className="aspect-[3/4] w-full object-cover" />
+                <img src={photo.signedUrl} alt={slot.label} loading="lazy" className="aspect-[3/4] w-full object-cover" />
                 <div className="absolute right-2 top-2 flex gap-1.5">
                   <button
                     onClick={() => fileInputRefs.current[slot.key]?.click()}
@@ -435,7 +435,7 @@ export function PhotoManager() {
       <div className="grid grid-cols-3 gap-3">
         {additionalPhotos.map((photo) => (
           <div key={photo.id} className="group relative overflow-hidden rounded-lg border border-gray-200">
-            <img src={photo.signedUrl} alt="Additional" className="aspect-square w-full object-cover" />
+            <img src={photo.signedUrl} alt="Additional photo" loading="lazy" className="aspect-square w-full object-cover" />
             <button
               onClick={() => handleAdditionalDelete(photo.id)}
               className="absolute right-1 top-1 rounded-full bg-black/50 p-1.5 text-white opacity-100 hover:bg-black/70 sm:opacity-0 sm:group-hover:opacity-100"
