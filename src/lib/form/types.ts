@@ -80,6 +80,8 @@ export interface QuestionConfig {
 export interface SectionConfig {
   id: SectionId;
   label: string;
+  description?: string;
+  estimatedMinutes?: number;
   questionRange: [number, number];
   showConfidentialityCallout: boolean;
   confidentialityText?: string;

@@ -97,14 +97,25 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
 
   return (
     <div>
-      {/* Section header */}
-      <div className="mb-8">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+      {/* Section intro card */}
+      <div className="mb-8 rounded-xl border border-rose-100/60 bg-gradient-to-r from-rose-50/50 to-white px-5 py-5">
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-samvaya-red/60">
           Section {sectionIndex + 1} of {SECTIONS.length}
         </p>
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
           {section.label}
         </h2>
+        {section.description && (
+          <p className="mt-1.5 text-sm text-gray-500">{section.description}</p>
+        )}
+        {section.estimatedMinutes && (
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            ~{section.estimatedMinutes} min
+          </div>
+        )}
       </div>
 
       {/* Confidentiality callout */}

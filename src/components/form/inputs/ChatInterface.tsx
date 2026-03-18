@@ -345,15 +345,22 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div
-      className={`mb-3 flex ${isAssistant ? 'justify-start' : 'justify-end'}`}
+      className={`animate-fade-in-up mb-3 flex ${isAssistant ? 'justify-start' : 'justify-end'}`}
       role="article"
       aria-label={`${isAssistant ? 'Samvaya' : 'Your'} message`}
     >
+      {isAssistant && (
+        <div className="mr-2 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-samvaya-red/10" aria-hidden="true">
+          <svg className="h-3 w-3 text-samvaya-red" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+          </svg>
+        </div>
+      )}
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+        className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[80%] ${
           isAssistant
-            ? 'rounded-bl-md bg-gray-100 text-gray-700'
-            : 'rounded-br-md bg-rose-50 text-gray-900 border border-rose-200'
+            ? 'rounded-bl-md bg-white text-gray-700 border border-gray-100'
+            : 'rounded-br-md bg-samvaya-red/10 text-gray-900 border border-samvaya-red/20'
         }`}
       >
         {message.content}
@@ -364,12 +371,17 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
 function TypingIndicator() {
   return (
-    <div className="mb-3 flex justify-start" role="status" aria-label="Typing...">
-      <div className="rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3">
-        <div className="flex gap-1">
-          <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '0ms' }} />
-          <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '150ms' }} />
-          <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '300ms' }} />
+    <div className="animate-fade-in mb-3 flex items-start justify-start" role="status" aria-label="Samvaya is thinking...">
+      <div className="mr-2 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-samvaya-red/10" aria-hidden="true">
+        <svg className="h-3 w-3 text-samvaya-red" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+        </svg>
+      </div>
+      <div className="rounded-2xl rounded-bl-md bg-white px-4 py-3 border border-gray-100 shadow-sm">
+        <div className="flex gap-1.5">
+          <span className="h-2 w-2 animate-bounce rounded-full bg-samvaya-red/60" style={{ animationDelay: '0ms' }} />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-samvaya-red/60" style={{ animationDelay: '150ms' }} />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-samvaya-red/60" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     </div>
