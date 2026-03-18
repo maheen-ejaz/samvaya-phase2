@@ -2014,11 +2014,11 @@ All audit results are logged in `AUDIT.md` under `Phase 2E, Day N`.
 | 5 | Mar 17 | Section intro cards with descriptions + time estimates, MC card animations, chat bubble redesign, save status indicator | ✅ COMPLETE |
 | 6 | Mar 18 | E2E testing expansion: critical flows (payment toggle, GooCampus, save-and-resume, double-submit), accessibility audits (axe-core), API security tests | ✅ COMPLETE |
 | 7 | Mar 18 | API security sweep: rate limiting on all 40 routes, shared validation utility, input validation gaps (UUID, length caps, enum checks), server page error handling (6 pages) | ✅ COMPLETE |
-| 8 | TBD | Admin dashboard UX (see details below) | PLANNED |
-| 9 | TBD | PWA UX polish (see details below) | PLANNED |
-| 10 | TBD | E2E test expansion (see details below) | PLANNED |
-| 11 | TBD | Performance audit (see details below) | PLANNED |
-| 12 | TBD | Production deployment (see details below) | PLANNED |
+| 8 | Mar 18 | Admin dashboard UX: 9 loading skeletons, error boundaries (TeamNotes, SuggestionQueue, SettingsPage), ApplicantList pagination, keyboard-accessible sort | ✅ COMPLETE |
+| 9 | Mar 18 | PWA UX polish: branded offline page, install prompt banner, SW v2 cache bump, photo upload error UX | ✅ COMPLETE |
+| 10 | Mar 18 | E2E test expansion: admin-matching.spec.ts (7 tests), bulk-messaging.spec.ts (5 tests), BGV consent, profile edit | ✅ COMPLETE |
+| 11 | Mar 18 | Performance: @next/bundle-analyzer, dynamic imports (ActivityLogViewer), image lazy loading + alt text (5 components) | ✅ COMPLETE |
+| 12 | Mar 18 | Production config: Vercel Mumbai region (bom1). 3-agent audit: 38 issues found, 18 fixed. Commit `104b64f` | ✅ COMPLETE |
 
 #### Day 8 — Admin Dashboard UX
 
@@ -2083,6 +2083,52 @@ Focus: Deploy to production on Vercel and validate with real data.
 - **Smoke tests** — Run through the full user flow on production: login via OTP → fill form (first 5 questions minimum) → auto-save → logout → re-login → resume. Verify data in Supabase dashboard.
 - **Admin smoke test** — Login as admin → view applicant list → open detail page → toggle payment status → add team note. Verify all admin pages load without errors.
 - **Invite first users** — Send invites to 3-5 people from the waitlist that the founders know personally. Monitor for errors in Vercel logs.
+
+---
+
+### 10.1 Phase 2F — Premium Design Overhaul & Launch Prep (March 19 – April 3, 2026)
+
+**Goal:** Elevate the visual design from "production-ready functional" to "premium Apple-like" with glassmorphism, subtle animations, generous whitespace, and polished micro-interactions across ALL pages (user-facing + admin). Fix remaining bugs. Prepare for April 4 launch.
+
+**Design Principles:**
+- **Glassmorphism:** Frosted glass panels (backdrop-blur, semi-transparent backgrounds, subtle borders) on all card-based components
+- **Animations:** Every interaction should feel smooth — hover lifts, fade transitions, loading shimmers, success celebrations
+- **Whitespace:** Generous padding, breathing room between elements, elegant density
+- **Depth:** Layered shadows, elevation changes on hover/focus, contextual shadow intensity
+- **Consistency:** Unified button system (primary gradient, secondary glass), card system (glass panels), badge system across all pages
+
+**Design infrastructure already built (in `globals.css`):**
+- 4 glass variants (`.glass`, `.glass-light`, `.glass-medium`, `.glass-dark`) — only ~10% deployed
+- 9 animation keyframes (fadeIn, fadeInUp, slideInRight, scaleIn, pulseSoft, shake, checkmarkDraw, shimmer) — only ~30% deployed
+- Shadow scale, radius scale, transition tokens — partially used
+- Brand colors (samvaya-red, gold, charcoal, mist, blush) — well established
+- `prefers-reduced-motion` respected — accessibility built in
+
+**Day-by-day plan:**
+
+| Day | Date | Focus | Deliverables |
+|-----|------|-------|--------------|
+| 1 | Mar 19 | Design system expansion | Enhanced glass utilities, unified button system (primary gradient, secondary glass, ghost), card component system, animation helpers, spacing tokens |
+| 2 | Mar 20 | Dashboard + App Home | Glassmorphic status cards, hover lifts, gradient accents on stats, timeline glow on active step, badge polish with border + soft glow |
+| 3 | Mar 21 | Match Cards + Profile | Card hover lift + deepened shadow, glassmorphic "Photo will be revealed" badge, smooth image fade-in, response button gradients, profile photo gallery polish |
+| 4 | Mar 24 | Form Shell + Inputs | Section fade transitions, glassmorphic progress bar, input focus enhanced glow, select chip hover animations, illustrated MC card shine effect |
+| 5 | Mar 25 | Navigation + Login | Glassmorphic header + bottom nav, animated active indicator (sliding underline), login card frosted glass, OTP input premium feel, button glow system |
+| 6 | Mar 26 | Admin Dashboard | Metric cards glassmorphic, table row hover + stripe pattern, admin action buttons, loading skeleton shimmer with glass, sidebar polish |
+| 7 | Mar 27 | Admin Detail Pages | Applicant profile sections as glass cards, matching pipeline controls, communications hub tabs, settings page toggle polish |
+| 8 | Mar 28 | Bug Fixes | Spider chart overlap fix, delete account confirmation dialog, save status WCAG contrast, NumberInput bounds, RangeInput validation, form submission error feedback, match card photo alt text |
+| 9 | Mar 31 | E2E + Lighthouse | Full Playwright suite, Lighthouse audit (Performance ≥80, Accessibility ≥90, Best Practices ≥90), bundle size check (<200KB/page), mobile responsive spot-check all pages |
+| 10 | Apr 1 | Final Polish | Edge case error states, empty state illustrations, completion screen celebration animation, email template visual check |
+| Buffer | Apr 2-3 | Launch Prep | Env vars verified on Vercel, domain CNAME configured, SSL cert, admin + user smoke tests on production |
+| **Launch** | **Apr 4** | **First Real Users** | **Invite 3-5 waitlist members the founders know personally** |
+
+**Remaining bug fixes (from Phase 2E audit):**
+- Spider chart axis labels overlap on narrow viewports (U-M5)
+- Delete account lacks confirmation dialog (U-M6)
+- Save status "Saved" green fails WCAG AA contrast (U-L15)
+- NumberInput allows negative/unbounded values (U-L3)
+- RangeInput has no min<=max validation (U-L4)
+- Match card photo lacks meaningful alt text when revealed (U-H3)
+- Form submission failure has no error feedback to user (U-M3)
 
 ---
 

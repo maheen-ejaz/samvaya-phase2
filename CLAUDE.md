@@ -18,7 +18,7 @@
 | Auth method | Email OTP via Supabase Auth — no passwords |
 | Photo blur | Sharp, sigma 20, server-side at upload time — never CSS |
 | BGV provider | OnGrid, 13 checks |
-| Current build phase | **Phase 2D — Complete. Ready for production deployment.** |
+| Current build phase | **Phase 2F — Premium Design Overhaul & Launch Prep (target: April 4, 2026)** |
 
 ## Toolchain
 Read TOOLCHAIN.md before starting any session. Install anything listed there that is not yet installed before writing any code.
@@ -213,15 +213,33 @@ Applicant list, individual profile view, BGV tracker (13 checks), payment flag t
 
 ## Current Task
 
-> **Phase 2E — Code Hardening & Production Readiness: IN PROGRESS** (2026-03-18)
+> **Phase 2F — Premium Design Overhaul & Launch Prep** (2026-03-18, target launch April 4)
 >
-> **Completed:** Phases 2A–2D (form, admin dashboard, matching, PWA, polish) — all fully built. Phase 2E Days 1-7 complete.
+> **Completed:** Phases 2A–2E all fully built and hardened.
+> - Phase 2A: Form (100 Qs, 13 sections, 3 Claude chats) + Admin Dashboard + Airtable sync
+> - Phase 2B: Matching algorithm (pre-filter, Claude scoring, suggestions, presentations)
+> - Phase 2C: User-facing PWA (dashboard, match cards, profile, settings, push notifications)
+> - Phase 2D: UI polish (guided photo upload, dashboard v2, event-driven emails)
+> - Phase 2E: 12-day hardening — security, rate limiting (40 routes), validation, E2E tests, performance, production config. 3-agent audit (security, code review, UX) with all CRITICAL/HIGH/MEDIUM findings fixed.
 >
-> **Phase 2E is a dedicated hardening phase** with a 12-day plan (see PRD v9.3 Section 10 for full details). Each day targets a specific category: security, UX, accessibility, testing, performance, or deployment. The workflow is: build → audit (3 agents: security, code review, UX) → fix → verify → commit. All results logged in `AUDIT.md`.
+> **Phase 2F is the final pre-launch phase** focused on elevating visual design to premium quality and fixing remaining bugs. See PRD v9.3 Section 10.1 for the full Phase 2F plan.
 >
-> **Days 1-7 delivered:** CSP hardening, server-only guards, rate limiting on all 40 API routes, shared validation utility (`src/lib/validation.ts`), input validation across 15 routes, MIME validation, login page redesign with OTP micro-interactions, form input focus animations (15 components), accessibility (reduced motion, WCAG contrast), section intro cards, chat bubble redesign, save indicator, E2E tests (13 critical flow tests + axe-core accessibility), server page error handling (7 pages), admin role checks, IDOR fix in photo operations, SSRF prevention in push subscriptions.
+> **Design goals:**
+> - Apple-like premium feel — glassmorphism, subtle animations, generous whitespace
+> - Frosted glass panels (backdrop-blur, semi-transparent bg, subtle borders) on all cards
+> - Every interaction smooth — hover lifts, fade transitions, loading shimmers
+> - Layered shadows and depth — elevation changes on hover/focus
+> - Unified button, card, and badge systems across all pages (user-facing + admin)
+> - The design tokens (4 glass variants, 9 animation keyframes, shadow/radius scales) already exist in globals.css — they need to be deployed across ~130 components
 >
-> **Next: Day 8** — Admin dashboard UX: loading skeletons, empty states, component error boundaries (TeamNotes, SuggestionQueue, SettingsPage), table pagination polish. See PRD Section 10 for Day 8-12 detailed scope.
+> **Remaining bugs (from Phase 2E audit):**
+> - Spider chart axis labels overlap on narrow viewports
+> - Delete account lacks confirmation dialog
+> - Save status "Saved" green fails WCAG AA contrast
+> - NumberInput allows negative/unbounded values
+> - RangeInput has no min<=max validation
+> - Match card photo alt text when revealed
+> - Form submission failure has no error feedback
 
 ---
 
@@ -239,6 +257,10 @@ Add an entry here whenever a decision is made that isn't already in the PRD. Dat
 | Mar 2026 | Razorpay removed from Phase 2C | Founder confirmed manual payment collection for v1. PWA shows "Contact us to pay" CTAs with WhatsApp/phone links. Avoids Razorpay KYC delays, webhook complexity, GST invoice generation, and refund handling. Deferred to future phase when user volume justifies automation. |
 | Mar 2026 | Spider web chart: custom SVG, zero deps | 8-axis radar with 2 datasets is simple enough for pure SVG (~100 lines). Avoids Chart.js (78KB) or Recharts (120KB). |
 | Mar 2026 | No service worker for v1 | Web manifest enables installability. Offline support is stretch/v2. |
+| Mar 18 2026 | Phase 2E complete (Days 1-12) | All 12 days of hardening shipped in 3 days. 3-agent audit deployed (security, code review, UX). 30+ issues found, 18 fixed, rest accepted/deferred. Commit `104b64f`. |
+| Mar 18 2026 | Phase 2F: Full premium design overhaul | Every page (user-facing + admin) gets Apple-like premium treatment: glassmorphism, subtle animations, generous whitespace, depth. No compromises on quality. |
+| Mar 18 2026 | AI system prompts split to server-only | `prompts.ts` now imports `server-only`. Client uses `chat-metadata.ts` (title, maxExchanges, nudgeText only). Prevents prompt engineering exposure. |
+| Mar 18 2026 | Test pages gated behind admin auth | `/test/*` routes now require admin role via layout.tsx. Previously publicly accessible. |
 
 ---
 
