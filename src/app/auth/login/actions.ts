@@ -44,10 +44,18 @@ export async function verifyOtp(email: string, token: string) {
     return { error: "Please enter a valid 6-digit code." };
   }
 
+  const normalizedEmail = email?.trim().toLowerCase();
+
+  // Rate limit OTP verification: 5 attempts per email per 15 minutes
+  const { allowed } = checkRateLimit(`otp-verify:${normalizedEmail}`, 5, 15 * 60 * 1000);
+  if (!allowed) {
+    return { error: "Too many verification attempts. Please request a new code." };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase.auth.verifyOtp({
-    email,
+    email: normalizedEmail,
     token,
     type: "email",
   });
