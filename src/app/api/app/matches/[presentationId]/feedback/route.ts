@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { isValidUUID } from '@/lib/validation';
 
 export async function POST(
   request: NextRequest,
@@ -9,8 +11,18 @@ export async function POST(
   const result = await requireApplicant();
   if (result.error) return result.error;
 
-  const { presentationId } = await params;
   const userId = result.user.id;
+
+  const { allowed } = checkRateLimit(`match-feedback:${userId}`, 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
+  const { presentationId } = await params;
+
+  if (!isValidUUID(presentationId)) {
+    return NextResponse.json({ error: 'Invalid presentation ID format' }, { status: 400 });
+  }
 
   try {
     const body = await request.json();
@@ -28,6 +40,27 @@ export async function POST(
         { error: 'Rating must be between 1 and 5' },
         { status: 400 }
       );
+    }
+
+    // Validate array fields
+    if (Array.isArray(whatWorked) && (whatWorked.length > 20 || whatWorked.some((w: unknown) => typeof w !== 'string' || w.length > 200))) {
+      return NextResponse.json(
+        { error: 'whatWorked must be at most 20 items, each under 200 chars' },
+        { status: 400 }
+      );
+    }
+    if (Array.isArray(whatDidntWork) && (whatDidntWork.length > 20 || whatDidntWork.some((w: unknown) => typeof w !== 'string' || w.length > 200))) {
+      return NextResponse.json(
+        { error: 'whatDidntWork must be at most 20 items, each under 200 chars' },
+        { status: 400 }
+      );
+    }
+
+    if (whatWorked !== undefined && whatWorked !== null && !Array.isArray(whatWorked)) {
+      return NextResponse.json({ error: 'whatWorked must be an array' }, { status: 400 });
+    }
+    if (whatDidntWork !== undefined && whatDidntWork !== null && !Array.isArray(whatDidntWork)) {
+      return NextResponse.json({ error: 'whatDidntWork must be an array' }, { status: 400 });
     }
 
     // Use user's own session — RLS INSERT policy exists for match_feedback

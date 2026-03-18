@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendNotificationEmail } from '@/lib/email/notifications';
 import { matchPresentedEmail } from '@/lib/email/templates';
@@ -12,6 +13,11 @@ export async function POST(
 ) {
   const result = await requireAdmin();
   if (result.error) return result.error;
+
+  const { allowed } = checkRateLimit(`match-review:${result.admin.id}`, 20, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   const { suggestionId } = await params;
   const validation = validateUserId(suggestionId);

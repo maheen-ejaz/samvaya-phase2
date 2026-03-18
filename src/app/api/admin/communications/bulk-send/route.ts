@@ -6,6 +6,7 @@ import { sendEmail } from '@/lib/email/client';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { PRICING } from '@/lib/constants';
 import { randomUUID } from 'crypto';
+import { validateString } from '@/lib/validation';
 
 function escapeHtml(str: string): string {
   return str
@@ -157,6 +158,10 @@ export async function POST(request: NextRequest) {
     emailSubject = (template as Record<string, string>).subject;
     emailBody = (template as Record<string, string>).body;
   } else if (body.subject && body.body) {
+    const subjectError = validateString(body.subject, 'subject', { maxLength: 255 });
+    if (subjectError) return NextResponse.json({ error: subjectError }, { status: 400 });
+    const bodyError = validateString(body.body, 'body', { maxLength: 10000 });
+    if (bodyError) return NextResponse.json({ error: bodyError }, { status: 400 });
     emailSubject = body.subject;
     emailBody = body.body;
   } else {

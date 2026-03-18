@@ -25,110 +25,123 @@ export default async function AdminDashboard() {
     redirect('/app/onboarding');
   }
 
-  const adminSupabase = createAdminClient();
+  try {
+    const adminSupabase = createAdminClient();
 
-  // Fetch aggregate metrics in parallel
-  const [
-    totalUsersResult,
-    onboardingCompleteResult,
-    verificationPendingResult,
-    inPoolResult,
-    pendingDocsResult,
-  ] = await Promise.all([
-    adminSupabase
+    // Fetch aggregate metrics in parallel
+    const [
+      totalUsersResult,
+      onboardingCompleteResult,
+      verificationPendingResult,
+      inPoolResult,
+      pendingDocsResult,
+    ] = await Promise.all([
+      adminSupabase
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .eq('role', 'applicant' as never),
+      adminSupabase
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .eq('membership_status', 'onboarding_complete' as never),
+      adminSupabase
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .eq('payment_status', 'verification_pending' as never),
+      adminSupabase
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .eq('payment_status', 'in_pool' as never),
+      adminSupabase
+        .from('documents')
+        .select('id', { count: 'exact', head: true })
+        .eq('verification_status', 'pending' as never),
+    ]);
+
+    const totalApplicants = totalUsersResult.count ?? 0;
+    const formComplete = onboardingCompleteResult.count ?? 0;
+    const verificationPending = verificationPendingResult.count ?? 0;
+    const inPool = inPoolResult.count ?? 0;
+    const pendingDocs = pendingDocsResult.count ?? 0;
+
+    // Fetch recent unverified applicants for action items
+    const { data: recentUnverified } = await adminSupabase
       .from('users')
-      .select('id', { count: 'exact', head: true })
-      .eq('role', 'applicant' as never),
-    adminSupabase
-      .from('users')
-      .select('id', { count: 'exact', head: true })
-      .eq('membership_status', 'onboarding_complete' as never),
-    adminSupabase
-      .from('users')
-      .select('id', { count: 'exact', head: true })
-      .eq('payment_status', 'verification_pending' as never),
-    adminSupabase
-      .from('users')
-      .select('id', { count: 'exact', head: true })
-      .eq('payment_status', 'in_pool' as never),
-    adminSupabase
-      .from('documents')
-      .select('id', { count: 'exact', head: true })
-      .eq('verification_status', 'pending' as never),
-  ]);
+      .select('id, payment_status, is_goocampus_member, updated_at')
+      .eq('membership_status', 'onboarding_complete' as never)
+      .eq('payment_status', 'unverified' as never)
+      .order('updated_at', { ascending: false })
+      .limit(5);
 
-  const totalApplicants = totalUsersResult.count ?? 0;
-  const formComplete = onboardingCompleteResult.count ?? 0;
-  const verificationPending = verificationPendingResult.count ?? 0;
-  const inPool = inPoolResult.count ?? 0;
-  const pendingDocs = pendingDocsResult.count ?? 0;
+    // Get names for action items
+    const actionUserIds = (recentUnverified || []).map((u) => u.id);
+    const { data: actionProfiles } = actionUserIds.length > 0
+      ? await adminSupabase
+          .from('profiles')
+          .select('user_id, first_name, last_name')
+          .in('user_id', actionUserIds)
+      : { data: [] };
 
-  // Fetch recent unverified applicants for action items
-  const { data: recentUnverified } = await adminSupabase
-    .from('users')
-    .select('id, payment_status, is_goocampus_member, updated_at')
-    .eq('membership_status', 'onboarding_complete' as never)
-    .eq('payment_status', 'unverified' as never)
-    .order('updated_at', { ascending: false })
-    .limit(5);
+    const profileMap = new Map(
+      (actionProfiles || []).map((p) => [p.user_id, p])
+    );
 
-  // Get names for action items
-  const actionUserIds = (recentUnverified || []).map((u) => u.id);
-  const { data: actionProfiles } = actionUserIds.length > 0
-    ? await adminSupabase
-        .from('profiles')
-        .select('user_id, first_name, last_name')
-        .in('user_id', actionUserIds)
-    : { data: [] };
+    return (
+      <div className="mx-auto max-w-7xl">
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
 
-  const profileMap = new Map(
-    (actionProfiles || []).map((p) => [p.user_id, p])
-  );
+        {/* Metrics */}
+        <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
+          <MetricCard label="Total Applicants" value={totalApplicants} />
+          <MetricCard label="Form Complete" value={formComplete} />
+          <MetricCard label="Verification Pending" value={verificationPending} />
+          <MetricCard label="In Pool" value={inPool} />
+          <MetricCard label="Pending Documents" value={pendingDocs} />
+        </div>
 
-  return (
-    <div className="mx-auto max-w-7xl">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-
-      {/* Metrics */}
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <MetricCard label="Total Applicants" value={totalApplicants} />
-        <MetricCard label="Form Complete" value={formComplete} />
-        <MetricCard label="Verification Pending" value={verificationPending} />
-        <MetricCard label="In Pool" value={inPool} />
-        <MetricCard label="Pending Documents" value={pendingDocs} />
+        {/* Action Items */}
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-gray-900">Action Items</h2>
+          {(!recentUnverified || recentUnverified.length === 0) ? (
+            <p className="mt-3 text-sm text-gray-500">No pending actions.</p>
+          ) : (
+            <div className="mt-3 space-y-2">
+              {recentUnverified.map((u) => {
+                const profile = profileMap.get(u.id);
+                const name = profile
+                  ? `${profile.first_name} ${profile.last_name}`.trim()
+                  : 'Unknown';
+                return (
+                  <a
+                    key={u.id}
+                    href={`/admin/applicants/${u.id}`}
+                    className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm hover:bg-gray-50"
+                  >
+                    <div>
+                      <span className="font-medium text-gray-900">{name}</span>
+                      <span className="ml-2 text-gray-500">
+                        — awaiting {u.is_goocampus_member ? 'GooCampus verification' : 'fee confirmation'}
+                      </span>
+                    </div>
+                    <span className="text-gray-400">&rarr;</span>
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Action Items */}
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-900">Action Items</h2>
-        {(!recentUnverified || recentUnverified.length === 0) ? (
-          <p className="mt-3 text-sm text-gray-500">No pending actions.</p>
-        ) : (
-          <div className="mt-3 space-y-2">
-            {recentUnverified.map((u) => {
-              const profile = profileMap.get(u.id);
-              const name = profile
-                ? `${profile.first_name} ${profile.last_name}`.trim()
-                : 'Unknown';
-              return (
-                <a
-                  key={u.id}
-                  href={`/admin/applicants/${u.id}`}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm hover:bg-gray-50"
-                >
-                  <div>
-                    <span className="font-medium text-gray-900">{name}</span>
-                    <span className="ml-2 text-gray-500">
-                      — awaiting {u.is_goocampus_member ? 'GooCampus verification' : 'fee confirmation'}
-                    </span>
-                  </div>
-                  <span className="text-gray-400">&rarr;</span>
-                </a>
-              );
-            })}
-          </div>
-        )}
+    );
+  } catch (err) {
+    console.error('Dashboard load error:', err);
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8" role="alert">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load data</h2>
+        <p className="text-gray-500 mb-4">Something went wrong while loading this page.</p>
+        <a href="" className="text-rose-600 hover:text-rose-700 font-medium">
+          Refresh page
+        </a>
       </div>
-    </div>
-  );
+    );
+  }
 }

@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { validateDateString, validateString } from '@/lib/validation';
 
 export async function GET(request: NextRequest) {
   const result = await requireAdmin();
   if (result.error) return result.error;
+
+  const { allowed } = checkRateLimit(`intros-read:${result.admin.id}`, 60, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   try {
     const { searchParams } = new URL(request.url);
@@ -55,6 +62,11 @@ export async function POST(request: NextRequest) {
   const result = await requireAdmin();
   if (result.error) return result.error;
 
+  const { allowed } = checkRateLimit(`intro-create:${result.admin.id}`, 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { presentationId, scheduledAt, meetingLink, facilitatorId } = body;
@@ -68,6 +80,12 @@ export async function POST(request: NextRequest) {
 
     const presentationValidation = validateUserId(presentationId);
     if (presentationValidation) return presentationValidation;
+
+    if (scheduledAt && !validateDateString(scheduledAt)) {
+      return NextResponse.json({ error: 'Invalid date format for scheduledAt' }, { status: 400 });
+    }
+    const linkError = validateString(meetingLink, 'meetingLink', { maxLength: 2000 });
+    if (linkError) return NextResponse.json({ error: linkError }, { status: 400 });
 
     if (facilitatorId) {
       const facilValidation = validateUserId(facilitatorId);

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { validateString } from '@/lib/validation';
 
 const KNOWN_VARIABLES = ['first_name', 'last_name', 'email', 'payment_status', 'next_step', 'verification_fee', 'membership_fee'];
 
@@ -38,6 +40,11 @@ export async function PATCH(
   if (result.error) return result.error;
   const { admin } = result;
 
+  const { allowed } = checkRateLimit(`template-edit:${admin.id}`, 20, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   const { templateId } = await params;
   const idError = validateUserId(templateId);
   if (idError) return idError;
@@ -52,18 +59,18 @@ export async function PATCH(
   const updates: Record<string, unknown> = {};
 
   if (body.name !== undefined) {
-    if (!body.name.trim()) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-    if (body.name.length > 100) return NextResponse.json({ error: 'Name must be ≤100 characters' }, { status: 400 });
+    const nameError = validateString(body.name, 'name', { required: true, maxLength: 100 });
+    if (nameError) return NextResponse.json({ error: nameError }, { status: 400 });
     updates.name = body.name.trim();
   }
   if (body.subject !== undefined) {
-    if (!body.subject.trim()) return NextResponse.json({ error: 'Subject is required' }, { status: 400 });
-    if (body.subject.length > 255) return NextResponse.json({ error: 'Subject must be ≤255 characters' }, { status: 400 });
+    const subjectError = validateString(body.subject, 'subject', { required: true, maxLength: 255 });
+    if (subjectError) return NextResponse.json({ error: subjectError }, { status: 400 });
     updates.subject = body.subject.trim();
   }
   if (body.body !== undefined) {
-    if (!body.body.trim()) return NextResponse.json({ error: 'Body is required' }, { status: 400 });
-    if (body.body.length > 10000) return NextResponse.json({ error: 'Body must be ≤10,000 characters' }, { status: 400 });
+    const bodyError = validateString(body.body, 'body', { required: true, maxLength: 50000 });
+    if (bodyError) return NextResponse.json({ error: bodyError }, { status: 400 });
     // Validate variables
     const usedVars = body.body.match(/\{\{(\w+)\}\}/g)?.map((v: string) => v.replace(/[{}]/g, '')) || [];
     const unknownVars = usedVars.filter((v: string) => !KNOWN_VARIABLES.includes(v));
@@ -111,6 +118,11 @@ export async function DELETE(
   const result = await requireAdmin();
   if (result.error) return result.error;
   const { admin } = result;
+
+  const { allowed } = checkRateLimit(`template-edit:${admin.id}`, 20, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   const { templateId } = await params;
   const idError = validateUserId(templateId);

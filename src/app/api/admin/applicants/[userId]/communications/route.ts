@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET(
@@ -8,6 +9,12 @@ export async function GET(
 ) {
   const result = await requireAdmin();
   if (result.error) return result.error;
+  const { admin } = result;
+
+  const { allowed } = checkRateLimit(`comms-read:${admin.id}`, 60, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   const { userId } = await params;
   const idError = validateUserId(userId);

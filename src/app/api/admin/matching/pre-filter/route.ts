@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
+import { checkRateLimit } from '@/lib/rate-limit';
 import {
   preFilterForUser,
   preFilterAllPairs,
@@ -10,6 +11,11 @@ import {
 export async function POST(request: NextRequest) {
   const result = await requireAdmin();
   if (result.error) return result.error;
+
+  const { allowed } = checkRateLimit(`pre-filter:${result.admin.id}`, 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   try {
     const body = await request.json().catch(() => ({}));

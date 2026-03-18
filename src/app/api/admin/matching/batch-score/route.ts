@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { runMatchingPipeline } from '@/lib/matching/batch';
 
 export async function POST(request: NextRequest) {
   const result = await requireAdmin();
   if (result.error) return result.error;
+
+  const { allowed } = checkRateLimit(`batch-score:${result.admin.id}`, 5, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   try {
     const body = await request.json().catch(() => ({}));

@@ -3,6 +3,8 @@ import { requireApplicant } from '@/lib/app/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendNotificationEmail } from '@/lib/email/notifications';
 import { matchResponseReceivedEmail } from '@/lib/email/templates';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { isValidUUID } from '@/lib/validation';
 
 export async function POST(
   request: NextRequest,
@@ -11,8 +13,18 @@ export async function POST(
   const result = await requireApplicant();
   if (result.error) return result.error;
 
-  const { presentationId } = await params;
   const userId = result.user.id;
+
+  const { allowed } = checkRateLimit(`match-respond:${userId}`, 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
+  const { presentationId } = await params;
+
+  if (!isValidUUID(presentationId)) {
+    return NextResponse.json({ error: 'Invalid presentation ID format' }, { status: 400 });
+  }
 
   try {
     const body = await request.json();

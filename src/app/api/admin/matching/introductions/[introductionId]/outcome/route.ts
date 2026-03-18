@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { validateString } from '@/lib/validation';
 
 const VALID_OUTCOMES = ['want_to_continue', 'not_a_match', 'need_more_time'];
 
@@ -11,6 +13,11 @@ export async function POST(
 ) {
   const result = await requireAdmin();
   if (result.error) return result.error;
+
+  const { allowed } = checkRateLimit(`intro-outcome:${result.admin.id}`, 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   const { introductionId } = await params;
   const validation = validateUserId(introductionId);
@@ -33,6 +40,9 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    const notesError = validateString(teamFeedbackNotes, 'teamFeedbackNotes', { maxLength: 5000 });
+    if (notesError) return NextResponse.json({ error: notesError }, { status: 400 });
 
     const supabase = createAdminClient();
 

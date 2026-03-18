@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { validateString } from '@/lib/validation';
 
 const LOCKED_KEYS = ['verification_fee', 'membership_fee'];
 
@@ -27,6 +29,11 @@ export async function PATCH(request: NextRequest) {
   if (result.error) return result.error;
   const { admin } = result;
 
+  const { allowed } = checkRateLimit(`admin-settings:${admin.id}`, 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   let body: { key?: string; value?: unknown };
   try {
     body = await request.json();
@@ -40,8 +47,19 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Missing or invalid key' }, { status: 400 });
   }
 
+  const keyError = validateString(key, 'key', { required: true, maxLength: 100 });
+  if (keyError) return NextResponse.json({ error: keyError }, { status: 400 });
+
   if (value === undefined || value === null) {
     return NextResponse.json({ error: 'Missing value' }, { status: 400 });
+  }
+
+  try {
+    if (JSON.stringify(value).length > 10_240) {
+      return NextResponse.json({ error: 'value exceeds 10KB limit' }, { status: 400 });
+    }
+  } catch {
+    return NextResponse.json({ error: 'Invalid value format' }, { status: 400 });
   }
 
   if (LOCKED_KEYS.includes(key)) {

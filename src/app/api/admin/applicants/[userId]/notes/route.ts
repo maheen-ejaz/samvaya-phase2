@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { validateString } from '@/lib/validation';
 
 export async function POST(
   request: NextRequest,
@@ -10,6 +12,11 @@ export async function POST(
   const result = await requireAdmin();
   if (result.error) return result.error;
   const { admin } = result;
+
+  const { allowed } = checkRateLimit(`notes:${admin.id}`, 30, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   const { userId } = await params;
   const idError = validateUserId(userId);
@@ -26,9 +33,8 @@ export async function POST(
   if (!noteText) {
     return NextResponse.json({ error: 'Note text is required' }, { status: 400 });
   }
-  if (noteText.length > 10_000) {
-    return NextResponse.json({ error: 'Note text exceeds 10,000 character limit' }, { status: 400 });
-  }
+  const notesError = validateString(noteText, 'notes', { maxLength: 5000 });
+  if (notesError) return NextResponse.json({ error: notesError }, { status: 400 });
 
   const adminSupabase = createAdminClient();
 

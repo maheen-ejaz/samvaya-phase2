@@ -36,8 +36,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing chatId or userMessage' }, { status: 400 });
   }
 
-  // Prevent oversized messages (memory/cost abuse)
-  if (typeof userMessage === 'string' && userMessage.length > 5000) {
+  // Validate message type and size
+  if (typeof userMessage !== 'string') {
+    return NextResponse.json({ error: 'Message must be a string' }, { status: 400 });
+  }
+  if (userMessage.length > 5000) {
     return NextResponse.json({ error: 'Message too long' }, { status: 400 });
   }
 

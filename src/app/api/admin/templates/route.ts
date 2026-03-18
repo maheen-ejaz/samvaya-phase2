@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { validateString } from '@/lib/validation';
 
 const KNOWN_VARIABLES = ['first_name', 'last_name', 'email', 'payment_status', 'next_step', 'verification_fee', 'membership_fee'];
 
 export async function GET() {
   const result = await requireAdmin();
   if (result.error) return result.error;
+  const { admin } = result;
+
+  const { allowed } = checkRateLimit(`template-read:${admin.id}`, 60, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   const adminSupabase = createAdminClient();
   const { data, error } = await adminSupabase
@@ -27,6 +35,11 @@ export async function POST(request: NextRequest) {
   if (result.error) return result.error;
   const { admin } = result;
 
+  const { allowed } = checkRateLimit(`template-create:${admin.id}`, 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   let body: { name?: string; subject?: string; body?: string; category?: string; variables?: string[] };
   try {
     body = await request.json();
@@ -37,18 +50,15 @@ export async function POST(request: NextRequest) {
   const { name, subject, body: templateBody, category, variables } = body;
 
   // Validation
-  if (!name || name.length > 100) {
-    return NextResponse.json({ error: 'Name is required and must be ≤100 characters' }, { status: 400 });
-  }
-  if (!subject || subject.length > 255) {
-    return NextResponse.json({ error: 'Subject is required and must be ≤255 characters' }, { status: 400 });
-  }
-  if (!templateBody || templateBody.length > 10000) {
-    return NextResponse.json({ error: 'Body is required and must be ≤10,000 characters' }, { status: 400 });
-  }
+  const nameError = validateString(name, 'name', { required: true, maxLength: 100 });
+  if (nameError) return NextResponse.json({ error: nameError }, { status: 400 });
+  const subjectError = validateString(subject, 'subject', { required: true, maxLength: 255 });
+  if (subjectError) return NextResponse.json({ error: subjectError }, { status: 400 });
+  const bodyError = validateString(templateBody, 'body', { required: true, maxLength: 50000 });
+  if (bodyError) return NextResponse.json({ error: bodyError }, { status: 400 });
 
   // Validate variables in body
-  const usedVars = templateBody.match(/\{\{(\w+)\}\}/g)?.map((v: string) => v.replace(/[{}]/g, '')) || [];
+  const usedVars = templateBody!.match(/\{\{(\w+)\}\}/g)?.map((v: string) => v.replace(/[{}]/g, '')) || [];
   const unknownVars = usedVars.filter((v: string) => !KNOWN_VARIABLES.includes(v));
   if (unknownVars.length > 0) {
     return NextResponse.json(

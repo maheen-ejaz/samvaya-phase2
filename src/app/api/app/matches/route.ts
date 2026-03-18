@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function GET() {
   const result = await requireApplicant();
   if (result.error) return result.error;
 
   const userId = result.user.id;
+
+  const { allowed } = checkRateLimit(`matches-read:${userId}`, 30, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   const supabase = createAdminClient();
 
   // Fetch presentations where user is either profile A or B

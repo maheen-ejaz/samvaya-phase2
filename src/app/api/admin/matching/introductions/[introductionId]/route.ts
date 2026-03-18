@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, validateUserId } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { validateDateString, validateString } from '@/lib/validation';
 
 export async function PATCH(
   request: NextRequest,
@@ -9,6 +11,11 @@ export async function PATCH(
 ) {
   const result = await requireAdmin();
   if (result.error) return result.error;
+
+  const { allowed } = checkRateLimit(`intro-edit:${result.admin.id}`, 20, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   const { introductionId } = await params;
   const validation = validateUserId(introductionId);
@@ -19,6 +26,12 @@ export async function PATCH(
     const { scheduledAt, meetingLink, facilitatorId, status } = body;
 
     const supabase = createAdminClient();
+
+    if (scheduledAt && !validateDateString(scheduledAt)) {
+      return NextResponse.json({ error: 'Invalid date format for scheduledAt' }, { status: 400 });
+    }
+    const linkError = validateString(meetingLink, 'meetingLink', { maxLength: 2000 });
+    if (linkError) return NextResponse.json({ error: linkError }, { status: 400 });
 
     const update: Record<string, unknown> = {};
     if (scheduledAt !== undefined) update.scheduled_at = scheduledAt;
@@ -87,6 +100,11 @@ export async function DELETE(
 ) {
   const result = await requireAdmin();
   if (result.error) return result.error;
+
+  const { allowed } = checkRateLimit(`intro-edit:${result.admin.id}`, 20, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
 
   const { introductionId } = await params;
   const validation = validateUserId(introductionId);

@@ -1,22 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { isValidUUID } from '@/lib/validation';
 
 export async function GET(request: NextRequest) {
   const result = await requireApplicant();
   if (result.error) return result.error;
 
+  const userId = result.user.id;
+
+  const { allowed } = checkRateLimit(`intros-read:${userId}`, 30, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   if (result.user.paymentStatus !== 'active_member') {
     return NextResponse.json({ error: 'Active membership required' }, { status: 403 });
   }
 
-  const userId = result.user.id;
   const supabase = createAdminClient();
   const url = new URL(request.url);
   const presentationId = url.searchParams.get('presentationId');
 
   if (!presentationId) {
     return NextResponse.json({ error: 'Missing presentationId' }, { status: 400 });
+  }
+
+  if (!isValidUUID(presentationId)) {
+    return NextResponse.json({ error: 'Invalid presentation ID format' }, { status: 400 });
   }
 
   // Verify this presentation belongs to the user and is mutual interest + active member
@@ -74,11 +86,16 @@ export async function POST(request: NextRequest) {
   const result = await requireApplicant();
   if (result.error) return result.error;
 
+  const userId = result.user.id;
+
+  const { allowed } = checkRateLimit(`availability:${userId}`, 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   if (result.user.paymentStatus !== 'active_member') {
     return NextResponse.json({ error: 'Active membership required' }, { status: 403 });
   }
-
-  const userId = result.user.id;
   let body: Record<string, unknown>;
   try {
     body = await request.json();
@@ -94,6 +111,10 @@ export async function POST(request: NextRequest) {
 
   if (!presentationId || !slots || !Array.isArray(slots) || slots.length === 0) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
+
+  if (!isValidUUID(presentationId)) {
+    return NextResponse.json({ error: 'Invalid presentation ID format' }, { status: 400 });
   }
 
   // Validate slot count and values

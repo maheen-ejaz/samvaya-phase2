@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateAge } from '@/lib/utils';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { isValidUUID } from '@/lib/validation';
 
 // PII allowlist — only these fields are exposed to the user
 const PROFILE_ALLOWLIST = [
@@ -35,8 +37,19 @@ export async function GET(
   const result = await requireApplicant();
   if (result.error) return result.error;
 
-  const { presentationId } = await params;
   const userId = result.user.id;
+
+  const { allowed } = checkRateLimit(`match-detail:${userId}`, 60, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
+  const { presentationId } = await params;
+
+  if (!isValidUUID(presentationId)) {
+    return NextResponse.json({ error: 'Invalid presentation ID format' }, { status: 400 });
+  }
+
   const supabase = createAdminClient();
 
   // Fetch presentation with suggestion

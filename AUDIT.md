@@ -920,6 +920,49 @@ npx playwright test e2e/full-onboarding-flow.spec.ts --project=full-onboarding -
 
 ---
 
+## Phase 2E, Day 7 — API Security Sweep + Page Reliability
+
+| Field | Value |
+|-------|-------|
+| Date | March 18, 2026 |
+| Audit type | Security + Code Review + UX/UI |
+| Agents deployed | 3 (Security Audit, Code Review, UX Audit) + 5 implementation agents |
+| Issues found | **46 total** (2 HIGH, 11 MEDIUM, 14 LOW from audits; 19 pre-emptive fixes) |
+| Issues fixed | **All** |
+
+### What Was Built
+
+1. **Shared validation utility** (`src/lib/validation.ts`) — `isValidUUID`, `validateString`, `validateEnum`, `validateDateString`, `sanitizeString`
+2. **Rate limiting on all 40 API routes** — 30 routes newly protected (admin + app, reads + mutations)
+3. **Input validation gaps closed** — UUID checks on dynamic params, length caps on text fields, array validation, enum checks across 15 routes
+4. **Server page error handling** — 6 admin + 1 app pages wrapped with try-catch + inline error UI
+5. **Phase 2E hardening roadmap** added to PRD v9.3 (Section 10) — 12-day plan
+
+### Security Findings Fixed
+
+| Severity | Count | Key Issues |
+|----------|-------|------------|
+| HIGH | 2 | IDOR in photo reorder/setPrimary (missing `user_id` filter); chat message type bypass on length validation |
+| MEDIUM | 8 | Array validation bypass in feedback; SSRF via push endpoint (no HTTPS check); missing admin role checks on 4 pages; JSON.stringify exception; UUID missing on introductions + upload/delete |
+| LOW | 8 | Nil UUID acceptance; permissive date parsing; template fields unvalidated; inconsistent rate limit messages; duplicate UUID regex |
+
+### UX Findings Fixed
+
+| Priority | Count | Key Issues |
+|----------|-------|------------|
+| P0 | 0 | — |
+| P1 | 4 | Dashboard error page linked to itself (now refreshes); rate limit messages made friendly across 30 routes; `text-zinc-*` → `text-gray-*` for design consistency; `role="alert"` added to all error containers |
+| P2 | 2 | Deferred: TeamNotes silent error swallowing, SettingsPage silent revert (Day 8 scope) |
+
+### Verification
+
+- `npx tsc --noEmit` — clean (0 errors)
+- `npm run build` — clean (all routes + pages compile)
+- Rate limit coverage: 40/41 routes (webhook excluded — uses HMAC auth)
+- Admin role checks: all admin pages verified
+
+---
+
 ## Summary Across All Phases
 
 | Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Form UI Polish | Pre-Prod Audit | PWA Polish + E2E | Total |

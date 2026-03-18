@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { isValidUUID } from '@/lib/validation';
 
 interface DeleteUploadRequest {
   type: 'photo' | 'document';
@@ -35,6 +36,10 @@ export async function POST(request: NextRequest) {
 
   if (!type || !id) {
     return NextResponse.json({ error: 'Missing type or id' }, { status: 400 });
+  }
+
+  if (!isValidUUID(id)) {
+    return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
   }
 
   try {

@@ -1,9 +1,10 @@
 # Samvaya Phase 2 — Product Requirements Document (PRD)
 
-**Version:** 9.2
+**Version:** 9.3
 **Date:** March 2026
 **Status:** Confidential — GooCampus / Samvaya
-**Scope:** Onboarding Form + Admin Dashboard + Matching Algorithm + User PWA
+**Scope:** Onboarding Form + Admin Dashboard + Matching Algorithm + User PWA + Code Hardening
+**Changelog v9.3:** Updated March 18, 2026: Added Phase 2E — Code Hardening & Production Readiness (12-day plan) to Section 10. Updated phased delivery table.
 **Changelog v9.2:** Updated March 16, 2026: Full PRD audit to sync with codebase reality. Added 9 missing table schemas (bgv_checks, communication_log, email_templates, notification_preferences, push_subscriptions, introduction_availability + missing columns on users, compatibility_profiles, match_suggestions). Added 2 RPC function specs (get_prefiltered_candidates, handle_match_response). Updated all phase banners to COMPLETE. Added Phase 2D to phased delivery table. Updated feature status for 5 features built in Phase 2D. Added event-driven notification email documentation. Updated guided photo upload system (Q95 slots, client-side compression). Version bump reflects all Phases 2A–2D complete and ready for production deployment.
 **Changelog v9.1:** Updated March 15, 2026: Synced 9 form question specs with implementation (Q6, Q13, Q26, Q29, Q31, Q54, Q60, Q82, Q84) and added 3 missing schema columns.
 **Changelog v9.0:** Comprehensive two-pass audit for Claude Code readiness. Pass 1 fixes: (1) bgv_consent annotation corrected to Q99. (2) profiles table description updated to 100-question form. (3) partner_preferences range annotation corrected to Q76–Q94. (4) closing_freeform_note annotation corrected to Q100. (5) Section 4.3 intro corrected to 100 base questions. (6) SMS stack locked to MSG91. (7) BGV trigger corrected from "Premium membership" to "verification fee payment". (8) Auth corrected to email OTP only. (9) Deployment locked to single domain. (10) Section 10 Build Plan replaced with locked day-by-day plan. (11) Section 12 Open Questions fully replaced with resolved decisions table. (12) Section 7 given proper header. (13) Terminology cleaned: "basic/deep" and wrong "Premium" tier labels removed. (14) Razorpay entries in Tech Log annotated as v2 deferred. (15) Refund policy given section header 6B.4. Pass 2 fixes: (16) Section 4.6 critical architectural error corrected — AI chats are embedded mid-form at Q38/Q75/Q100, not a separate post-form screen; explicit Claude Code implementation note added. (17) documents table enum corrected to match what the form actually collects (identity_document, kundali, other); note added distinguishing from photos table. (18) profiles table annotated to show Q3/Q4 (email/phone) are stored in auth.users, not duplicated. (19) Phase 2B and 2C warning banners added to Sections 5 and 7. (20) Section ordering fixed — 6B moved to follow Section 6; duplicate Sections 8 and 9 renumbered to 14 and 15. (21) Section 2.1 stack table Razorpay entry updated to note v1 manual flag / v2 deferral. (22) membership_tier table cell fixed — pipe character removed to prevent Markdown table break. (23) Section 14 Refund Policy cross-reference corrected from "Section 7" to "Section 6B.4".
@@ -44,8 +45,9 @@ Phase 2 is delivered in sub-phases:
 | **2B** | Matching algorithm (AI-powered scoring + feedback loop) | **COMPLETE** |
 | **2C** | User-facing PWA (mobile-first interface) | **COMPLETE** |
 | **2D** | PWA polish + features: pause/resume, notification preferences, edit profile, push notifications, service worker, introduction scheduling, photo management | **COMPLETE** |
+| **2E** | Code hardening & production readiness: security sweep, UX polish, accessibility, E2E testing, performance audit, production deployment | **IN PROGRESS** |
 
-**All sub-phases (2A through 2D) are complete as of March 2026.** The platform is ready for production deployment and real user testing.
+**Sub-phases 2A through 2D are complete as of March 2026.** Phase 2E (code hardening) is in progress — Days 1-7 complete.
 
 ---
 
@@ -1987,6 +1989,26 @@ The full detailed day-by-day build plan is maintained in `CLAUDE.md` (the Claude
 - Service worker (offline caching, push notification handling) at `public/sw.js`
 - Push subscription API at `/api/app/push-subscription`
 - Schedule introduction availability (14-day calendar with time slots) at `/app/settings`
+
+---
+
+### Phase 2E — Code Hardening & Production Readiness 🔧 IN PROGRESS
+
+A dedicated hardening phase focused on security, accessibility, UX polish, test coverage, and production deployment. Each day targets a specific hardening category.
+
+| Day | Date | Focus | Status |
+|-----|------|-------|--------|
+| 1-2 | Mar 16 | Security hardening (CSP, server-only guards, rate limiting on 5 routes, input validation, MIME checks) + Design system foundation (tokens, animations, typography) | ✅ COMPLETE |
+| 3 | Mar 17 | Login page redesign with micro-interactions + security (open redirect fix, OTP hardening, race condition guards, WCAG contrast) | ✅ COMPLETE |
+| 4 | Mar 17 | Form input focus animations (15 components), progress bar polish, accessibility (reduced motion, focus contrast ≥2.5:1) | ✅ COMPLETE |
+| 5 | Mar 17 | Section intro cards with descriptions + time estimates, MC card animations, chat bubble redesign, save status indicator | ✅ COMPLETE |
+| 6 | Mar 18 | E2E testing expansion: critical flows (payment toggle, GooCampus, save-and-resume, double-submit), accessibility audits (axe-core), API security tests | ✅ COMPLETE |
+| 7 | Mar 18 | API security sweep: rate limiting on all 40 routes, shared validation utility, input validation gaps (UUID, length caps, enum checks), server page error handling (6 pages) | ✅ COMPLETE |
+| 8 | TBD | Admin dashboard UX: loading skeletons, empty states, retry buttons, component error boundaries, table pagination polish | PLANNED |
+| 9 | TBD | PWA UX polish: offline fallback UI, push notification testing, install prompt, photo upload error cases, service worker validation | PLANNED |
+| 10 | TBD | E2E test expansion: admin matching flow, bulk messaging, photo upload failures, BGV consent flow, profile edit persistence | PLANNED |
+| 11 | TBD | Performance audit: bundle analysis, image optimization, lazy loading, API response time benchmarks, Lighthouse score targets | PLANNED |
+| 12 | TBD | Production deployment: Vercel prod config, environment variables, domain CNAME (`app.samvayamatrimony.com`), smoke tests with real data | PLANNED |
 
 ---
 

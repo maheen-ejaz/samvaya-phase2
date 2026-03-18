@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function GET() {
   const result = await requireApplicant();
   if (result.error) return result.error;
 
   const userId = result.user.id;
+
+  const { allowed } = checkRateLimit(`settings-read:${userId}`, 60, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   const supabase = createAdminClient();
 
   // Fetch pause status
@@ -52,6 +59,12 @@ export async function PATCH(request: NextRequest) {
   if (result.error) return result.error;
 
   const userId = result.user.id;
+
+  const { allowed } = checkRateLimit(`settings-update:${userId}`, 20, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();
