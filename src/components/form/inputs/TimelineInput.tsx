@@ -157,7 +157,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                 defaultValue={entry.org_name}
                 onBlur={(e) => updateEntry(index, 'org_name', e.target.value)}
                 placeholder="e.g. AIIMS New Delhi"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
               />
             </div>
 
@@ -172,7 +172,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                 defaultValue={entry.designation}
                 onBlur={(e) => updateEntry(index, 'designation', e.target.value)}
                 placeholder="e.g. Senior Resident"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
               />
             </div>
 
@@ -185,7 +185,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                   aria-label="Start month"
                   value={entry.start_month || ''}
                   onChange={(e) => updateEntry(index, 'start_month', Number(e.target.value))}
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
                 >
                   <option value="">Month</option>
                   {MONTHS.map((m) => (
@@ -199,7 +199,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                   aria-label="Start year"
                   value={entry.start_year || ''}
                   onChange={(e) => updateEntry(index, 'start_year', Number(e.target.value))}
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
                 >
                   <option value="">Year</option>
                   {YEARS.map((y) => (
@@ -236,7 +236,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                     onChange={(e) =>
                       updateEntry(index, 'end_month', e.target.value ? Number(e.target.value) : null)
                     }
-                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
                   >
                     <option value="">Month</option>
                     {MONTHS.map((m) => (
@@ -252,7 +252,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                     onChange={(e) =>
                       updateEntry(index, 'end_year', e.target.value ? Number(e.target.value) : null)
                     }
-                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
                   >
                     <option value="">Year</option>
                     {YEARS.map((y) => (

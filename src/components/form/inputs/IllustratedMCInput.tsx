@@ -29,7 +29,7 @@ export function IllustratedMCInput({ question, value, onChange }: IllustratedMCI
               type="button"
               aria-pressed={isSelected}
               onClick={() => onChange(option.value)}
-              className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 px-3 py-4 transition-all ${
+              className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 px-3 py-4 transition-all duration-200 ${
                 isSelected
                   ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900 ring-2 ring-samvaya-red/30'
                   : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'

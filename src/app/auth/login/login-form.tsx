@@ -117,7 +117,7 @@ function OtpInput({
           autoComplete={i === 0 ? "one-time-code" : "off"}
           autoFocus={i === 0}
           aria-label={`Digit ${i + 1} of 6`}
-          className={`h-12 w-10 rounded-lg border-2 text-center text-lg font-semibold text-gray-900 transition-all duration-150 focus:border-samvaya-red focus:ring-1 focus:ring-samvaya-red focus:outline-none disabled:opacity-50 sm:h-14 sm:w-12 sm:text-xl ${getBorderClass(i)}`}
+          className={`h-12 w-10 rounded-lg border-2 text-center text-lg font-semibold text-gray-900 transition-all duration-150 focus:border-samvaya-red focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] focus:outline-none disabled:opacity-50 sm:h-14 sm:w-12 sm:text-xl ${getBorderClass(i)}`}
         />
       ))}
     </div>
@@ -320,7 +320,7 @@ export function LoginForm() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
                       placeholder="you@example.com"
-                      className="mt-1.5 block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:bg-white focus:shadow-[0_0_0_3px_rgba(163,23,31,0.1)] focus:ring-0 focus:outline-none"
+                      className="mt-1.5 block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:bg-white focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] focus:ring-0 focus:outline-none"
                     />
                   </div>
 

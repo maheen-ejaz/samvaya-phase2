@@ -89,7 +89,7 @@ export function PhoneInput({ question, value, onChange }: PhoneInputProps) {
           <select
             value={countryCode}
             onChange={(e) => handleCodeChange(e.target.value)}
-            className="h-full appearance-none rounded-lg border border-gray-300 bg-white py-3 pl-3 pr-8 text-base text-gray-900 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+            className="h-full appearance-none rounded-lg border border-gray-300 bg-white py-3 pl-3 pr-8 text-base text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
             aria-label="Country code"
           >
             {COUNTRY_CODES.map((cc) => (
@@ -113,7 +113,7 @@ export function PhoneInput({ question, value, onChange }: PhoneInputProps) {
           onChange={(e) => handleNumberChange(e.target.value)}
           onBlur={() => setTouched(true)}
           placeholder={question.placeholder || '98765 43210'}
-          className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+          className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
         />
       </div>
 

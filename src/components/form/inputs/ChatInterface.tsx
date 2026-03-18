@@ -265,7 +265,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
             maxLength={2000}
             rows={2}
             aria-label="Your response"
-            className="flex-1 resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-100 disabled:text-gray-400"
+            className="flex-1 resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] disabled:bg-gray-100 disabled:text-gray-400"
           />
           <button
             onClick={sendMessage}

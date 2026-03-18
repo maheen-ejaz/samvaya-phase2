@@ -135,7 +135,7 @@ export function TagInput({ question, value, onChange }: TagInputProps) {
           placeholder={atMax ? 'Maximum reached' : (question.placeholder || 'Type to search...')}
           disabled={atMax}
           autoComplete="off"
-          className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-4 pr-10 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-100 disabled:text-gray-400"
+          className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-4 pr-10 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] disabled:bg-gray-100 disabled:text-gray-400"
         />
         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

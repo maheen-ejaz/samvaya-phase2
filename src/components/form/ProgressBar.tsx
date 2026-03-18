@@ -26,11 +26,13 @@ export function ProgressBar() {
         </span>
         <span className="text-gray-500">{progress}%</span>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
         <div
-          className="h-full rounded-full bg-rose-500 transition-all duration-300 ease-out"
+          className="relative h-full overflow-hidden rounded-full bg-gradient-to-r from-samvaya-red to-rose-400 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
-        />
+        >
+          <div className="absolute inset-0 animate-shimmer" />
+        </div>
       </div>
 
       {/* Save status indicator */}

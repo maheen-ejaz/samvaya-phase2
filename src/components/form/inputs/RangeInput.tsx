@@ -23,7 +23,7 @@ export function RangeInput({ question, value, onChange }: RangeInputProps) {
             onChange([val, max]);
           }}
           placeholder={question.placeholder}
-          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
         />
       </div>
       <span className="mt-6 text-gray-500" aria-hidden="true">—</span>
@@ -36,7 +36,7 @@ export function RangeInput({ question, value, onChange }: RangeInputProps) {
             const val = e.target.value === '' ? null : Number(e.target.value);
             onChange([min, val]);
           }}
-          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-samvaya-red focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
         />
       </div>
     </div>
