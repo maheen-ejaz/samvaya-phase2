@@ -232,14 +232,17 @@ Applicant list, individual profile view, BGV tracker (13 checks), payment flag t
 > - Unified button, card, and badge systems across all pages (user-facing + admin)
 > - The design tokens (4 glass variants, 9 animation keyframes, shadow/radius scales) already exist in globals.css — they need to be deployed across ~130 components
 >
-> **Remaining bugs (from Phase 2E audit):**
-> - Spider chart axis labels overlap on narrow viewports
-> - Delete account lacks confirmation dialog
-> - Save status "Saved" green fails WCAG AA contrast
-> - NumberInput allows negative/unbounded values
-> - RangeInput has no min<=max validation
-> - Match card photo alt text when revealed
-> - Form submission failure has no error feedback
+> **Phase 2E audit bugs: ✅ ALL 7 FIXED** (March 19, 2026)
+> - ~~Spider chart axis labels overlap~~ — position-aware textAnchor
+> - ~~Delete account lacks confirmation~~ — inline confirmation panel
+> - ~~Save status WCAG contrast~~ — `text-emerald-300`
+> - ~~NumberInput unbounded~~ — per-column min/max/step + clamping
+> - ~~RangeInput no validation~~ — inline error + HTML constraints
+> - ~~Match card photo alt text~~ — contextual alt by blur state
+> - ~~Form submission no error feedback~~ — `submitError` state in FormProvider
+>
+> **Next up:** Premium design deployment across ~130 components (Days 1-7 per PRD 10.1).
+> Founder collaboration checklist added in PRD Section 10.1.1.
 
 ---
 
@@ -261,6 +264,8 @@ Add an entry here whenever a decision is made that isn't already in the PRD. Dat
 | Mar 18 2026 | Phase 2F: Full premium design overhaul | Every page (user-facing + admin) gets Apple-like premium treatment: glassmorphism, subtle animations, generous whitespace, depth. No compromises on quality. |
 | Mar 18 2026 | AI system prompts split to server-only | `prompts.ts` now imports `server-only`. Client uses `chat-metadata.ts` (title, maxExchanges, nudgeText only). Prevents prompt engineering exposure. |
 | Mar 18 2026 | Test pages gated behind admin auth | `/test/*` routes now require admin role via layout.tsx. Previously publicly accessible. |
+| Mar 19 2026 | All 7 Phase 2E audit bugs fixed | Spider chart labels, delete confirmation, WCAG contrast, NumberInput/RangeInput validation, match card alt text, form submission error feedback. Login gradient updated to Centered Radial Glow (Option 2). |
+| Mar 19 2026 | PRD 10.1.1: Founder collaboration checklist | Added day-by-day checklist of what Claude needs from founder to complete Phase 2F design overhaul efficiently. |
 
 ---
 

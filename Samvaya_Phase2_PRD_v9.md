@@ -2121,14 +2121,29 @@ Focus: Deploy to production on Vercel and validate with real data.
 | Buffer | Apr 2-3 | Launch Prep | Env vars verified on Vercel, domain CNAME configured, SSL cert, admin + user smoke tests on production |
 | **Launch** | **Apr 4** | **First Real Users** | **Invite 3-5 waitlist members the founders know personally** |
 
-**Remaining bug fixes (from Phase 2E audit):**
-- Spider chart axis labels overlap on narrow viewports (U-M5)
-- Delete account lacks confirmation dialog (U-M6)
-- Save status "Saved" green fails WCAG AA contrast (U-L15)
-- NumberInput allows negative/unbounded values (U-L3)
-- RangeInput has no min<=max validation (U-L4)
-- Match card photo lacks meaningful alt text when revealed (U-H3)
-- Form submission failure has no error feedback to user (U-M3)
+**Remaining bug fixes (from Phase 2E audit):** ✅ ALL FIXED (March 19, 2026)
+- ~~Spider chart axis labels overlap on narrow viewports (U-M5)~~ — position-aware `textAnchor`, reduced radius
+- ~~Delete account lacks confirmation dialog (U-M6)~~ — inline confirmation panel with "Yes, request deletion" / "Cancel"
+- ~~Save status "Saved" green fails WCAG AA contrast (U-L15)~~ — `text-emerald-300` (~5.5:1 ratio)
+- ~~NumberInput allows negative/unbounded values (U-L3)~~ — per-column min/max/step constraints with clamping
+- ~~RangeInput has no min<=max validation (U-L4)~~ — inline error message + HTML min/max attributes
+- ~~Match card photo lacks meaningful alt text when revealed (U-H3)~~ — contextual alt text based on blur state + specialty
+- ~~Form submission failure has no error feedback to user (U-M3)~~ — `submitError` state in FormProvider, displayed in UI
+
+### 10.1.1 What the Founder Needs to Provide for Phase 2F
+
+Phase 2F requires founder input at specific milestones. Without these, design decisions may not match the premium vision. Here is what Claude needs, and when:
+
+| When | What's Needed | Why |
+|------|---------------|-----|
+| **Day 1 (Design tokens)** | Review the enhanced design tokens and confirm glassmorphism intensity, animation speed, and color palette match the premium vision. Provide any reference sites or screenshots for the target aesthetic. | Design decisions compound — getting the foundation right prevents rework on Days 2-7. |
+| **Days 2-7 (Component rollout)** | After each day's design deployment, do a 10-minute walkthrough on mobile + desktop. Flag anything that feels off — too much blur, too little contrast, animation too fast/slow, spacing too tight/wide. | Premium design is subjective. Only the founder can say "this feels right" vs. "this feels off." Quick daily feedback prevents drift. |
+| **Day 3 (Brand assets)** | Confirm the logo files (`samvaya-logo-white.png`, `samvaya-logo-red.png`) are final. Provide any additional brand assets (patterns, illustrations, icons) if desired. | Design work builds on these assets. Changing them later means reworking completed pages. |
+| **Day 5 (Copy review)** | Review all user-facing text on login, dashboard, match cards, and settings. Flag any copy that doesn't match the premium tone. | Words are part of the design. "Sign in" vs. "Welcome back" changes the feel. |
+| **Days 6-7 (Admin priorities)** | Confirm which admin pages are used daily vs. rarely, so design effort is prioritized correctly. | Spending a full day polishing a rarely-used page wastes time better spent elsewhere. |
+| **Day 8 (Bug verification)** | Test each of the 7 bug fixes on your device. Confirm they work as expected. | Bugs were identified from audit — founder verification closes the loop. |
+| **Day 9 (E2E test)** | Fill out the full form as a test applicant on mobile. Report any issues. | Real-device testing catches what automated tests miss — especially touch targets and scrolling. |
+| **Days 10-12 (Production)** | Verify Vercel env vars, domain CNAME (`app.samvayamatrimony.com`), and SSL are configured. Provide the list of 3-5 waitlist members for April 4 launch invites. | Cannot launch without production infrastructure and the first user list. |
 
 ---
 

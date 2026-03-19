@@ -50,7 +50,7 @@ export function QuestionRenderer() {
               key={question.id}
               question={question}
               initialChatState={savedChatState || null}
-              onComplete={isLastChat ? () => { submitForm(); } : navigateNext}
+              onComplete={isLastChat ? async () => { const ok = await submitForm(); if (!ok) throw new Error('submit'); } : navigateNext}
               completeButtonLabel={isLastChat ? 'Submit your application' : undefined}
             />
           );

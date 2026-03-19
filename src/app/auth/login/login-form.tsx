@@ -11,11 +11,8 @@ type Step = "email" | "otp";
 function isSafeRedirectPath(path: string | null): boolean {
   if (!path) return false;
   if (!path.startsWith("/")) return false;
-  // Reject protocol-relative URLs (//attacker.com)
   if (path.startsWith("//")) return false;
-  // Reject backslash bypasses
   if (path.includes("\\")) return false;
-  // Only allow known safe prefixes
   return path === "/app" || path.startsWith("/app/") || path === "/admin" || path.startsWith("/admin/");
 }
 
@@ -99,7 +96,7 @@ function OtpInput({
   return (
     <div
       key={shakeKey}
-      className={`flex justify-center gap-2 ${hasError ? "animate-shake" : ""}`}
+      className={`flex justify-center gap-2.5 ${hasError ? "animate-shake" : ""}`}
       onPaste={handlePaste}
     >
       {digits.map((digit, i) => (
@@ -117,7 +114,7 @@ function OtpInput({
           autoComplete={i === 0 ? "one-time-code" : "off"}
           autoFocus={i === 0}
           aria-label={`Digit ${i + 1} of 6`}
-          className={`h-12 w-10 rounded-lg border-2 text-center text-lg font-semibold text-gray-900 transition-all duration-150 focus:border-samvaya-red focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] focus:outline-none disabled:opacity-50 sm:h-14 sm:w-12 sm:text-xl ${getBorderClass(i)}`}
+          className={`h-12 w-10 rounded-xl border-2 text-center text-lg font-semibold text-gray-900 shadow-sm transition-all duration-150 focus:border-samvaya-red focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.15)] focus:outline-none disabled:opacity-50 sm:h-14 sm:w-12 sm:text-xl ${getBorderClass(i)}`}
         />
       ))}
     </div>
@@ -165,14 +162,12 @@ export function LoginForm() {
   const [verifySuccess, setVerifySuccess] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
 
-  // Countdown timer for resend cooldown
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
-  // Clear OTP error state after animation
   useEffect(() => {
     if (!otpError) return;
     const timer = setTimeout(() => setOtpError(false), 1000);
@@ -184,22 +179,11 @@ export function LoginForm() {
       e.preventDefault();
       setError("");
       setLoading(true);
-
       const result = await sendOtp(email);
-
       setLoading(false);
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
-
-      // Animate step transition
+      if (result.error) { setError(result.error); return; }
       setTransitioning(true);
-      setTimeout(() => {
-        setStep("otp");
-        setResendCooldown(60);
-        setTransitioning(false);
-      }, 150);
+      setTimeout(() => { setStep("otp"); setResendCooldown(60); setTransitioning(false); }, 150);
     },
     [email]
   );
@@ -207,12 +191,10 @@ export function LoginForm() {
   const handleVerifyOtp = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (loading || verifySuccess) return; // Guard against double-click
+      if (loading || verifySuccess) return;
       setError("");
       setLoading(true);
-
       const result = await verifyOtp(email, otpCode);
-
       if (result.error) {
         setLoading(false);
         setError(result.error);
@@ -220,21 +202,12 @@ export function LoginForm() {
         setShakeKey((k) => k + 1);
         return;
       }
-
-      // Success — keep loading=true to prevent double-click, show celebration
       setVerifySuccess(true);
-
       setTimeout(() => {
         try {
-          if (isSafeRedirectPath(nextPath)) {
-            router.push(nextPath!);
-          } else {
-            router.refresh();
-          }
-        } catch {
-          // Fallback if navigation fails
-          router.push("/app");
-        }
+          if (isSafeRedirectPath(nextPath)) { router.push(nextPath!); }
+          else { router.refresh(); }
+        } catch { router.push("/app"); }
       }, 600);
     },
     [email, otpCode, router, nextPath, loading, verifySuccess]
@@ -244,71 +217,89 @@ export function LoginForm() {
     if (resendCooldown > 0 || loading) return;
     setError("");
     setLoading(true);
-
     const result = await sendOtp(email);
-
     setLoading(false);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-
+    if (result.error) { setError(result.error); return; }
     setResendCooldown(60);
   }, [email, resendCooldown, loading]);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-samvaya-gradient px-4">
-      {/* Decorative pattern overlay */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
-        <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1.5" fill="white" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#dots)" />
-        </svg>
-      </div>
+    <div className="flex min-h-screen">
+      {/* ═══ LEFT PANEL — Brand Visual ═══ */}
+      <div className="relative hidden w-1/2 flex-col items-center justify-center gap-8 overflow-hidden bg-samvaya-gradient-2 p-12 lg:flex">
+        {/* Decorative dot pattern */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
+          <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.5" fill="white" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dots)" />
+          </svg>
+        </div>
 
-      <div className="relative z-10 w-full max-w-sm">
-        {/* Logo and tagline */}
-        <div className="animate-fade-in-up mb-10 text-center">
+        {/* Logo */}
+        <div className="relative z-10 animate-fade-in">
           <Image
             src="/samvaya-logo-white.png"
             alt="Samvaya"
-            width={180}
-            height={48}
-            className="mx-auto drop-shadow-lg"
+            width={160}
+            height={44}
+            className="drop-shadow-lg"
             priority
           />
-          <p className="animate-fade-in-up stagger-1 mt-3 text-sm font-medium text-white/90">
-            Where exceptional doctors find exceptional partners
+        </div>
+
+        {/* Hero text */}
+        <div className="relative z-10 animate-fade-in-up text-center">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight text-white xl:text-5xl">
+            Where Exceptional<br />
+            Doctors Find<br />
+            Exceptional Partners
+          </h1>
+          <p className="mx-auto mt-4 max-w-md text-base text-white/70">
+            A premium, curated matrimony platform exclusively for medical professionals in India.
           </p>
         </div>
 
-        {/* Card */}
-        <div className="animate-scale-in stagger-2 overflow-hidden rounded-3xl bg-white/95 shadow-2xl backdrop-blur-sm">
-          {/* Accent line */}
-          <div className="h-1 bg-gradient-to-r from-samvaya-red via-samvaya-red-light to-samvaya-gold" />
+        {/* Footer */}
+        <div className="relative z-10 mt-4">
+          <p className="text-sm text-white/40">&copy; 2026 Samvaya Matrimony</p>
+        </div>
+      </div>
 
-          <div className="p-6">
-            <h2 className="animate-fade-in stagger-3 text-center text-base font-semibold text-gray-900">
+      {/* ═══ RIGHT PANEL — Login Form ═══ */}
+      <div className="flex w-full flex-col justify-center bg-[#FAFAF9] px-6 py-12 lg:w-1/2 lg:px-16 xl:px-24">
+        {/* Mobile logo (hidden on desktop) */}
+        <div className="mb-10 lg:hidden">
+          <Image
+            src="/samvaya-logo-red.png"
+            alt="Samvaya"
+            width={140}
+            height={38}
+            className="mx-auto"
+            priority
+          />
+        </div>
+
+        <div className="mx-auto w-full max-w-md">
+          {/* Glass form card */}
+          <div className="card-glass animate-scale-in p-8 sm:p-10">
+            <h2 className="text-2xl font-bold text-gray-900">
               {step === "email" ? "Sign in to your account" : "Enter verification code"}
             </h2>
-            <p className="animate-fade-in stagger-3 mt-1 text-center text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500">
               {step === "email"
                 ? "We\u2019ll send a 6-digit code to your email"
-                : email}
+                : `Code sent to ${email}`}
             </p>
 
             <div className={`transition-opacity duration-150 ${transitioning ? "opacity-0" : "opacity-100"}`}>
               {step === "email" ? (
-                <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
+                <form onSubmit={handleSendOtp} className="mt-8 space-y-5">
                   <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-gray-700"
-                    >
+                    <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
                       Email address
                     </label>
                     <input
@@ -320,33 +311,20 @@ export function LoginForm() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
                       placeholder="you@example.com"
-                      className="mt-1.5 block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:bg-white focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] focus:ring-0 focus:outline-none"
+                      className="input-glass"
                     />
                   </div>
 
                   {error && (
-                    <p className="animate-fade-in-up text-sm text-red-600" role="alert">
-                      {error}
-                    </p>
+                    <p className="animate-fade-in-up text-sm text-red-600" role="alert">{error}</p>
                   )}
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-samvaya-red px-4 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-samvaya-red-dark hover:shadow-lg focus:ring-2 focus:ring-samvaya-red focus:ring-offset-2 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
-                  >
-                    {loading ? (
-                      <>
-                        <Spinner />
-                        Sending code...
-                      </>
-                    ) : (
-                      "Send verification code"
-                    )}
+                  <button type="submit" disabled={loading} className="btn-dark">
+                    {loading ? (<><Spinner /> Sending code...</>) : "Send verification code"}
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleVerifyOtp} className="animate-fade-in mt-6 space-y-4">
+                <form onSubmit={handleVerifyOtp} className="animate-fade-in mt-8 space-y-5">
                   <OtpInput
                     value={otpCode}
                     onChange={setOtpCode}
@@ -357,47 +335,26 @@ export function LoginForm() {
                   />
 
                   {error && (
-                    <p className="animate-fade-in-up text-center text-sm text-red-600" role="alert">
-                      {error}
-                    </p>
+                    <p className="animate-fade-in-up text-center text-sm text-red-600" role="alert">{error}</p>
                   )}
 
                   <button
                     type="submit"
                     disabled={loading || otpCode.length < 6 || verifySuccess}
-                    className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed ${
-                      verifySuccess
-                        ? "bg-green-600"
-                        : "bg-samvaya-red hover:bg-samvaya-red-dark hover:shadow-lg focus:ring-samvaya-red disabled:opacity-70"
-                    }`}
+                    className={verifySuccess
+                      ? "btn-dark !bg-green-600 hover:!bg-green-600"
+                      : "btn-dark"
+                    }
                   >
-                    {verifySuccess ? (
-                      <>
-                        <CheckmarkIcon />
-                        Verified!
-                      </>
-                    ) : loading ? (
-                      <>
-                        <Spinner />
-                        Verifying...
-                      </>
-                    ) : (
-                      "Verify and sign in"
-                    )}
+                    {verifySuccess ? (<><CheckmarkIcon /> Verified!</>) : loading ? (<><Spinner /> Verifying...</>) : "Verify and sign in"}
                   </button>
 
                   {!verifySuccess && (
                     <div className="flex items-center justify-between text-sm">
                       <button
                         type="button"
-                        onClick={() => {
-                          setStep("email");
-                          setOtpCode("");
-                          setError("");
-                          setOtpError(false);
-                          setVerifySuccess(false);
-                        }}
-                        className="rounded-md px-2 py-2 font-medium text-samvaya-red hover:bg-samvaya-red/5 hover:text-samvaya-red-dark transition-colors"
+                        onClick={() => { setStep("email"); setOtpCode(""); setError(""); setOtpError(false); setVerifySuccess(false); }}
+                        className="btn-ghost !px-3 !py-2 !text-sm text-samvaya-red hover:text-samvaya-red-dark"
                       >
                         Change email
                       </button>
@@ -405,11 +362,9 @@ export function LoginForm() {
                         type="button"
                         onClick={handleResend}
                         disabled={resendCooldown > 0 || loading}
-                        className="rounded-md px-2 py-2 font-medium text-samvaya-red hover:bg-samvaya-red/5 hover:text-samvaya-red-dark transition-colors disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        className="btn-ghost !px-3 !py-2 !text-sm text-samvaya-red hover:text-samvaya-red-dark disabled:text-gray-400 disabled:cursor-not-allowed"
                       >
-                        {resendCooldown > 0
-                          ? `Resend in ${resendCooldown}s`
-                          : "Resend code"}
+                        {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
                       </button>
                     </div>
                   )}
@@ -417,19 +372,15 @@ export function LoginForm() {
               )}
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <p className="animate-fade-in stagger-5 mt-6 text-center text-xs text-white/80">
-          By signing in, you agree to our{" "}
-          <a href="/legal/terms" className="underline hover:text-white transition-colors">
-            Terms
-          </a>{" "}
-          and{" "}
-          <a href="/legal/privacy" className="underline hover:text-white transition-colors">
-            Privacy Policy
-          </a>
-        </p>
+          {/* Legal footer */}
+          <p className="mt-8 text-center text-xs text-gray-400">
+            By signing in, you agree to our{" "}
+            <a href="/legal/terms" className="text-gray-500 underline transition-colors hover:text-gray-700">Terms</a>
+            {" "}and{" "}
+            <a href="/legal/privacy" className="text-gray-500 underline transition-colors hover:text-gray-700">Privacy Policy</a>
+          </p>
+        </div>
       </div>
     </div>
   );

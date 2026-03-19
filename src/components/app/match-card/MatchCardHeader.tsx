@@ -34,7 +34,10 @@ export function MatchCardHeader({ profile, canSeeOriginal }: MatchCardHeaderProp
         {primaryPhoto ? (
           <img
             src={primaryPhoto}
-            alt="Match profile photo"
+            alt={canSeeOriginal
+              ? `Profile photo — ${[profile.specialty, profile.designation].filter(Boolean).join(', ') || 'match'}`
+              : "Blurred profile photo"
+            }
             loading="lazy"
             className="h-full w-full object-cover"
           />

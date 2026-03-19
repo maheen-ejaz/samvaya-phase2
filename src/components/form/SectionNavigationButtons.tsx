@@ -10,7 +10,7 @@ interface SectionNavigationButtonsProps {
 }
 
 export function SectionNavigationButtons({ onValidationErrors }: SectionNavigationButtonsProps) {
-  const { state, navigateNextSection, navigatePrevSection, submitForm } = useForm();
+  const { state, navigateNextSection, navigatePrevSection, submitForm, submitError } = useForm();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -67,39 +67,46 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
   };
 
   return (
-    <div className="mt-12 flex items-center justify-between border-t border-gray-200 pt-6">
-      <button
-        onClick={handlePrev}
-        disabled={isFirst || !hasPrev}
-        className="flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:invisible"
-      >
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-        </svg>
-        Previous
-      </button>
-
-      {isLast ? (
-        <button
-          onClick={handleSubmit}
-          disabled={submitting || submitted}
-          className="rounded-lg bg-samvaya-red px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-samvaya-red-dark focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-200 disabled:text-gray-600 disabled:cursor-not-allowed"
-        >
-          <span aria-live="polite">
-            {submitted ? 'Submitted' : submitting ? 'Submitting...' : 'Submit'}
-          </span>
-        </button>
-      ) : (
-        <button
-          onClick={handleNext}
-          className="flex items-center gap-1.5 rounded-lg bg-samvaya-red px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-samvaya-red-dark focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
-        >
-          Next Section
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-          </svg>
-        </button>
+    <div className="mt-12 border-t border-gray-200 pt-6">
+      {submitError && isLast && (
+        <p className="mb-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700" role="alert">
+          {submitError}
+        </p>
       )}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={handlePrev}
+          disabled={isFirst || !hasPrev}
+          className="flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:invisible"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          </svg>
+          Previous
+        </button>
+
+        {isLast ? (
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || submitted}
+            className="rounded-lg bg-samvaya-red px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-samvaya-red-dark focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-200 disabled:text-gray-600 disabled:cursor-not-allowed"
+          >
+            <span aria-live="polite">
+              {submitted ? 'Submitted' : submitting ? 'Submitting...' : 'Submit'}
+            </span>
+          </button>
+        ) : (
+          <button
+            onClick={handleNext}
+            className="flex items-center gap-1.5 rounded-lg bg-samvaya-red px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-samvaya-red-dark focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+          >
+            Next Section
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

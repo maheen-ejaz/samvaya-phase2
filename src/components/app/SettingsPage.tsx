@@ -279,27 +279,53 @@ export function SettingsPage({ email }: SettingsPageProps) {
       {/* Logout & Delete */}
       <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm space-y-4">
         <LogoutButton />
-        <div className="border-t border-gray-100 pt-3">
-          {WHATSAPP_NUMBER ? (
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi, I\'d like to request deletion of my Samvaya account.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-red-600 hover:text-red-700"
-            >
-              Delete Account
-            </a>
-          ) : (
-            <a
-              href="mailto:support@samvayamatrimony.com?subject=Account%20Deletion%20Request"
-              className="text-sm font-medium text-red-600 hover:text-red-700"
-            >
-              Delete Account
-            </a>
-          )}
-          <p className="mt-1 text-xs text-gray-400">This action cannot be undone</p>
-        </div>
+        <DeleteAccountSection />
       </div>
+    </div>
+  );
+}
+
+function DeleteAccountSection() {
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const deleteUrl = WHATSAPP_NUMBER
+    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi, I\'d like to request deletion of my Samvaya account.')}`
+    : 'mailto:support@samvayamatrimony.com?subject=Account%20Deletion%20Request';
+
+  return (
+    <div className="border-t border-gray-100 pt-3">
+      {!showConfirm ? (
+        <>
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="text-sm font-medium text-red-600 hover:text-red-700"
+          >
+            Delete Account
+          </button>
+          <p className="mt-1 text-xs text-gray-400">This action cannot be undone</p>
+        </>
+      ) : (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-sm font-medium text-red-800">Are you sure you want to delete your account?</p>
+          <p className="mt-1 text-xs text-red-600">This action cannot be undone. All your data will be permanently removed.</p>
+          <div className="mt-3 flex gap-3">
+            <a
+              href={deleteUrl}
+              target={WHATSAPP_NUMBER ? '_blank' : undefined}
+              rel={WHATSAPP_NUMBER ? 'noopener noreferrer' : undefined}
+              className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700"
+            >
+              Yes, request deletion
+            </a>
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

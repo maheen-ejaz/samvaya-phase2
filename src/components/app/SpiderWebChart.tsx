@@ -18,8 +18,17 @@ const AXES = [
 
 const SIZE = 280;
 const CENTER = SIZE / 2;
-const RADIUS = 110;
+const RADIUS = 100;
+const LABEL_RADIUS = 118;
 const RINGS = [25, 50, 75, 100];
+
+function getLabelAnchor(angle: number): 'start' | 'middle' | 'end' {
+  const degrees = ((angle * 180) / Math.PI + 360) % 360;
+  if (degrees > 60 && degrees < 120) return 'middle'; // bottom
+  if (degrees > 240 && degrees < 300) return 'middle'; // top
+  if (degrees >= 120 && degrees <= 240) return 'end';  // left side
+  return 'start'; // right side
+}
 
 function polarToCartesian(angle: number, value: number): [number, number] {
   const r = (value / 100) * RADIUS;
@@ -66,7 +75,9 @@ export function SpiderWebChart({ myScores, theirScores }: SpiderWebChartProps) {
         {AXES.map((axis, i) => {
           const angle = (Math.PI * 2 * i) / AXES.length - Math.PI / 2;
           const [endX, endY] = polarToCartesian(angle, 100);
-          const [labelX, labelY] = polarToCartesian(angle, 115);
+          const labelR = (LABEL_RADIUS / 100) * RADIUS;
+          const labelX = CENTER + labelR * Math.cos(angle);
+          const labelY = CENTER + labelR * Math.sin(angle);
 
           return (
             <g key={axis.key}>
@@ -81,9 +92,10 @@ export function SpiderWebChart({ myScores, theirScores }: SpiderWebChartProps) {
               <text
                 x={labelX}
                 y={labelY}
-                textAnchor="middle"
+                textAnchor={getLabelAnchor(angle)}
                 dominantBaseline="middle"
-                className="fill-gray-500 text-xs"
+                fontSize={10}
+                className="fill-gray-500"
               >
                 {axis.label}
               </text>

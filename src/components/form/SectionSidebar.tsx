@@ -79,7 +79,7 @@ function SaveStatusBadge({ status }: { status: string }) {
     case 'saving':
       return <span className="text-xs text-white/40">Saving...</span>;
     case 'saved':
-      return <span className="text-xs text-emerald-400/80">Saved</span>;
+      return <span className="text-xs text-emerald-300">Saved</span>;
     case 'error':
       return <span className="text-xs text-red-400">Save failed</span>;
     default:

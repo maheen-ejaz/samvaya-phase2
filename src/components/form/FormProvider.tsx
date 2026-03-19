@@ -32,6 +32,7 @@ interface FormContextValue {
   userId: string;
   chatState: Record<string, unknown>;
   formSubmitted: boolean;
+  submitError: string | null;
   setAnswer: (questionId: string, value: unknown) => void;
   navigateNext: () => void;
   navigatePrev: () => void;
@@ -269,12 +270,14 @@ export function FormProvider({
   }, []);
 
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const submittingRef = useRef(false);
 
   const submitForm = useCallback(async (): Promise<boolean> => {
     // Prevent concurrent submissions
     if (submittingRef.current || formSubmitted) return false;
     submittingRef.current = true;
+    setSubmitError(null);
 
     try {
       await autoSaveRef.current?.flushNow();
@@ -283,6 +286,7 @@ export function FormProvider({
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         console.error('Form submission failed:', data.error);
+        setSubmitError('Something went wrong. Please try again.');
         submittingRef.current = false;
         return false;
       }
@@ -291,6 +295,7 @@ export function FormProvider({
       return true;
     } catch (err) {
       console.error('Form submission error:', err);
+      setSubmitError('Something went wrong. Please check your connection and try again.');
       submittingRef.current = false;
       return false;
     }
@@ -303,6 +308,7 @@ export function FormProvider({
         userId,
         chatState: initialChatState,
         formSubmitted,
+        submitError,
         setAnswer,
         navigateNext,
         navigatePrev,
