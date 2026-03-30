@@ -8,9 +8,12 @@ interface GroupedMultiSelectInputProps {
   question: QuestionConfig;
   value: string[];
   onChange: (value: string[]) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMultiSelectInputProps) {
+export function GroupedMultiSelectInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: GroupedMultiSelectInputProps) {
   const selected = value || [];
   const groups = question.optionGroups || [];
   const optionsMap = useMemo(() => {
@@ -68,7 +71,7 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
   }
 
   return (
-    <fieldset>
+    <fieldset id={inputId} aria-describedby={ariaDescribedBy} aria-invalid={ariaInvalid || undefined}>
       <legend className="sr-only">{question.text}</legend>
 
       <div className="space-y-2">
@@ -119,7 +122,7 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
                         onClick={() => toggleOption(optValue)}
                         disabled={isDisabled}
                         aria-pressed={isSelected}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
                           isSelected
                             ? 'bg-samvaya-red text-white'
                             : isDisabled
@@ -156,7 +159,7 @@ export function GroupedMultiSelectInput({ question, value, onChange }: GroupedMu
               onClick={() => toggleOption(otherOption.value)}
               disabled={isOtherDisabled}
               aria-pressed={isOtherSelected}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
                 isOtherSelected
                   ? 'bg-samvaya-red text-white'
                   : isOtherDisabled

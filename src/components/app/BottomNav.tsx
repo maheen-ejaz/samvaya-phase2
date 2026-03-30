@@ -48,10 +48,10 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 pb-[env(safe-area-inset-bottom)]"
       aria-label="Main navigation"
     >
-      <div className="mx-auto flex max-w-lg items-center justify-around">
+      <div className="mx-auto flex max-w-lg items-center justify-around py-2">
         {tabs.map((tab) => {
           const isActive =
             tab.href === '/app'
@@ -62,15 +62,18 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-colors ${
+              className={`flex items-center justify-center transition-all duration-200 ${
                 isActive
-                  ? 'text-samvaya-red'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'rounded-full bg-samvaya-charcoal px-4 py-2 text-white shadow-md'
+                  : 'p-2 text-gray-400 hover:text-gray-600'
               }`}
               aria-current={isActive ? 'page' : undefined}
+              aria-label={!isActive ? tab.label : undefined}
             >
               {tab.icon(isActive)}
-              <span>{tab.label}</span>
+              {isActive && (
+                <span className="ml-1.5 text-xs font-semibold">{tab.label}</span>
+              )}
             </Link>
           );
         })}

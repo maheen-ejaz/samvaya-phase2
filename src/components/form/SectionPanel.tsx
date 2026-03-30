@@ -102,7 +102,7 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-samvaya-red/60">
           Section {sectionIndex + 1} of {SECTIONS.length}
         </p>
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+        <h2 className="text-2xl font-bold tracking-tight text-gray-900" data-section-heading>
           {section.label}
         </h2>
         {section.description && (

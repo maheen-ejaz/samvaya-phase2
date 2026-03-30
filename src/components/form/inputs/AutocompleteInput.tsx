@@ -10,6 +10,9 @@ interface AutocompleteInputProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
 /**
@@ -17,7 +20,7 @@ interface AutocompleteInputProps {
  * Supports indian_cities (filtered by state answer) and countries.
  * Always allows freeform text — suggestions are optional.
  */
-export function AutocompleteInput({ question, value, onChange, disabled }: AutocompleteInputProps) {
+export function AutocompleteInput({ question, value, onChange, disabled, inputId, ariaDescribedBy, ariaInvalid }: AutocompleteInputProps) {
   const { state } = useForm();
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -39,6 +42,8 @@ export function AutocompleteInput({ question, value, onChange, disabled }: Autoc
   // Don't show dropdown if the input exactly matches a suggestion
   const exactMatch = filtered.length === 1 && filtered[0].toLowerCase() === query;
   const showDropdown = isOpen && filtered.length > 0 && !exactMatch;
+  const resolvedInputId = inputId || `autocomplete-${question.id}`;
+  const listboxId = `listbox-${question.id}`;
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -80,7 +85,15 @@ export function AutocompleteInput({ question, value, onChange, disabled }: Autoc
     <div ref={containerRef} className="relative">
       <input
         ref={inputRef}
+        id={resolvedInputId}
         type="text"
+        role="combobox"
+        aria-expanded={showDropdown}
+        aria-controls={listboxId}
+        aria-autocomplete="list"
+        aria-activedescendant={showDropdown && highlightedIndex >= 0 ? `option-${question.id}-${highlightedIndex}` : undefined}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid || undefined}
         value={value || ''}
         onChange={(e) => {
           onChange(e.target.value);
@@ -95,10 +108,17 @@ export function AutocompleteInput({ question, value, onChange, disabled }: Autoc
         className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] disabled:bg-gray-100 disabled:text-gray-400"
       />
       {showDropdown && (
-        <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+        <ul
+          id={listboxId}
+          role="listbox"
+          className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+        >
           {filtered.map((suggestion, idx) => (
             <li
               key={suggestion}
+              id={`option-${question.id}-${idx}`}
+              role="option"
+              aria-selected={idx === highlightedIndex}
               onMouseDown={(e) => {
                 e.preventDefault();
                 selectSuggestion(suggestion);

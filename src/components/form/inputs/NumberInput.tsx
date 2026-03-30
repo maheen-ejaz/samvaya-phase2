@@ -6,6 +6,9 @@ interface NumberInputProps {
   question: QuestionConfig;
   value: number | string;
   onChange: (value: number | null) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
 const NUMBER_CONSTRAINTS: Record<string, { min: number; max: number; step: number }> = {
@@ -23,7 +26,7 @@ function cmToFeetInches(cm: number): string | null {
   return `≈ ${feet}′ ${inches}″`;
 }
 
-export function NumberInput({ question, value, onChange }: NumberInputProps) {
+export function NumberInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: NumberInputProps) {
   const isHeight = question.targetColumn === 'height_cm';
   const heightConversion = isHeight && typeof value === 'number' ? cmToFeetInches(value) : null;
   const constraints = NUMBER_CONSTRAINTS[question.targetColumn ?? ''];
@@ -31,8 +34,11 @@ export function NumberInput({ question, value, onChange }: NumberInputProps) {
   return (
     <div>
       <input
+        id={inputId}
         type="number"
         value={value ?? ''}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid || undefined}
         onChange={(e) => {
           const val = e.target.value;
           if (val === '') { onChange(null); return; }

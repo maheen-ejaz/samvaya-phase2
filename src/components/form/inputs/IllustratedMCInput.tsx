@@ -7,16 +7,19 @@ interface IllustratedMCInputProps {
   question: QuestionConfig;
   value: string;
   onChange: (value: string) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export function IllustratedMCInput({ question, value, onChange }: IllustratedMCInputProps) {
+export function IllustratedMCInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: IllustratedMCInputProps) {
   if (!question.options) return null;
 
   const count = question.options.length;
   const gridCols = count === 3 ? 'grid-cols-3' : 'grid-cols-2';
 
   return (
-    <fieldset>
+    <fieldset id={inputId} aria-describedby={ariaDescribedBy} aria-invalid={ariaInvalid || undefined}>
       <legend className="sr-only">{question.text}</legend>
       <div className={`grid ${gridCols} gap-3`}>
         {question.options.map((option) => {

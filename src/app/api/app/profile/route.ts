@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 // Fields users are allowed to edit on their own profile
@@ -73,8 +72,7 @@ export async function GET() {
     .single();
 
   // Fetch photos with signed URLs — user sees their own originals
-  const adminSupabase = createAdminClient();
-  const { data: photosRaw } = await adminSupabase
+  const { data: photosRaw } = await supabase
     .from('photos')
     .select('id, storage_path, is_primary, photo_type')
     .eq('user_id', userId)
@@ -85,7 +83,7 @@ export async function GET() {
   if (photos) {
     for (const photo of photos) {
       if (photo.storage_path) {
-        const { data: signedData } = await adminSupabase.storage
+        const { data: signedData } = await supabase.storage
           .from('photos')
           .createSignedUrl(photo.storage_path as string, 3600);
         if (signedData?.signedUrl) {
@@ -128,7 +126,7 @@ export async function PATCH(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const profileUpdates: Record<string, unknown> = {};
   const partnerPrefUpdates: Record<string, unknown> = {};

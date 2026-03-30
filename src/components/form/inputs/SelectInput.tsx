@@ -7,19 +7,22 @@ interface SelectInputProps {
   question: QuestionConfig;
   value: string;
   onChange: (value: string) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export function SelectInput({ question, value, onChange }: SelectInputProps) {
+export function SelectInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: SelectInputProps) {
   if (!question.options) return null;
 
   // Searchable combobox for longer lists (>6 options)
   if (question.options.length > 6) {
-    return <ComboboxInput question={question} value={value} onChange={onChange} />;
+    return <ComboboxInput question={question} value={value} onChange={onChange} inputId={inputId} ariaDescribedBy={ariaDescribedBy} ariaInvalid={ariaInvalid} />;
   }
 
   // Chips for short option lists (≤ 6)
   return (
-    <fieldset>
+    <fieldset id={inputId} aria-describedby={ariaDescribedBy} aria-invalid={ariaInvalid || undefined}>
       <legend className="sr-only">{question.text}</legend>
       <div className="flex flex-wrap gap-2">
         {question.options.map((option) => {
@@ -30,7 +33,7 @@ export function SelectInput({ question, value, onChange }: SelectInputProps) {
               type="button"
               onClick={() => onChange(option.value)}
               aria-pressed={isSelected}
-              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
                 isSelected
                   ? 'bg-samvaya-red text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

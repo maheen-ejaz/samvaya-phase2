@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { SECTIONS } from '@/lib/form/sections';
 import { getSectionCompletionStatus, calculateOverallProgress, getSubGroups } from '@/lib/form/section-navigation';
@@ -118,7 +119,14 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
           </span>
           <span className="text-xs font-semibold text-white/60">{progress}%</span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/15">
+        <div
+          className="h-1.5 w-full overflow-hidden rounded-full bg-white/15"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Form completion progress"
+        >
           <div
             className="h-full rounded-full bg-white/60 transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
@@ -262,6 +270,55 @@ interface MobileDrawerProps {
 }
 
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  // Focus trap + Escape key handling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Save the element that had focus before opening
+    previousFocusRef.current = document.activeElement as HTMLElement;
+
+    // Focus the close button when drawer opens
+    requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (e.key === 'Tab' && drawerRef.current) {
+        const focusable = drawerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      // Restore focus when drawer closes
+      previousFocusRef.current?.focus();
+    };
+  }, [isOpen, onClose]);
+
   return (
     <>
       {/* Backdrop */}
@@ -275,6 +332,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
 
       {/* Drawer */}
       <div
+        ref={drawerRef}
         className={`fixed inset-y-0 left-0 z-50 w-72 glass shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
@@ -286,6 +344,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
         {/* Close button */}
         <div className="flex items-center justify-end px-4 pt-4">
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="rounded-lg p-1.5 text-white/50 hover:bg-white/10"
             aria-label="Close navigation"

@@ -231,7 +231,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
       />
 
       {/* Messages area */}
-      <div ref={messagesContainerRef} className="mb-4 max-h-96 min-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <div ref={messagesContainerRef} role="log" aria-live="polite" className="mb-4 max-h-96 min-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
@@ -278,6 +278,17 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
             </svg>
           </button>
         </div>
+      )}
+
+      {/* Skip button for optional chat questions (testing mode) */}
+      {!isComplete && !question.required && (
+        <button
+          onClick={handleComplete}
+          disabled={isSubmitting}
+          className="mt-2 w-full rounded-lg border border-gray-300 bg-white py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+        >
+          Skip conversation
+        </button>
       )}
 
       {/* Nudge text */}

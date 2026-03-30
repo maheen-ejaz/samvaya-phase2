@@ -36,6 +36,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing chatId or userMessage' }, { status: 400 });
   }
 
+  // Validate chatId against known set
+  const VALID_CHAT_IDS = ['Q38', 'Q75', 'Q100'] as const;
+  if (!VALID_CHAT_IDS.includes(chatId as typeof VALID_CHAT_IDS[number])) {
+    return NextResponse.json({ error: 'Invalid chatId' }, { status: 400 });
+  }
+
   // Validate message type and size
   if (typeof userMessage !== 'string') {
     return NextResponse.json({ error: 'Message must be a string' }, { status: 400 });

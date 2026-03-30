@@ -52,9 +52,12 @@ interface PhoneInputProps {
   question: QuestionConfig;
   value: string;
   onChange: (value: string) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export function PhoneInput({ question, value, onChange }: PhoneInputProps) {
+export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: PhoneInputProps) {
   const parsed = useMemo(() => parsePhoneValue(value), [value]);
   const [countryCode, setCountryCode] = useState(parsed.code);
   const [localNumber, setLocalNumber] = useState(parsed.number);
@@ -108,11 +111,14 @@ export function PhoneInput({ question, value, onChange }: PhoneInputProps) {
 
         {/* Phone number input */}
         <input
+          id={inputId}
           type="tel"
           value={localNumber}
           onChange={(e) => handleNumberChange(e.target.value)}
           onBlur={() => setTouched(true)}
           placeholder={question.placeholder || '98765 43210'}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid || undefined}
           className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
         />
       </div>

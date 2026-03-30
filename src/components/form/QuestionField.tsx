@@ -33,27 +33,41 @@ interface QuestionFieldProps {
 }
 
 export function QuestionField({ question, value, onChange, hasError }: QuestionFieldProps) {
+  const inputId = `input-${question.id}`;
+  const errorId = `${inputId}-error`;
+  const helpId = `${inputId}-help`;
+  const hasHelpText = !!question.helpText;
+
+  // Build aria-describedby from present elements
+  const describedByParts: string[] = [];
+  if (hasError) describedByParts.push(errorId);
+  if (hasHelpText) describedByParts.push(helpId);
+  const ariaDescribedBy = describedByParts.length > 0 ? describedByParts.join(' ') : undefined;
+
   return (
     <div id={question.id}>
-      <label className="mb-3 block text-lg font-medium tracking-wide text-gray-900">
+      <label htmlFor={inputId} className="mb-3 block text-lg font-medium tracking-wide text-gray-900">
         {question.text}
         {!question.required && (
           <span className="ml-1 text-sm font-normal text-gray-500">(optional)</span>
         )}
       </label>
 
-      {question.helpText && (
-        <p className="mb-3 text-sm text-gray-500">{question.helpText}</p>
+      {hasHelpText && (
+        <p id={helpId} className="mb-3 text-sm text-gray-500">{question.helpText}</p>
       )}
 
       <InputSwitch
         question={question}
         value={value}
         onChange={onChange}
+        inputId={inputId}
+        ariaDescribedBy={ariaDescribedBy}
+        ariaInvalid={hasError}
       />
 
       {hasError && (
-        <p className="mt-2 text-sm text-red-600">This field is required</p>
+        <p id={errorId} className="mt-2 text-sm text-red-600">This field is required</p>
       )}
     </div>
   );
@@ -63,9 +77,12 @@ interface InputSwitchProps {
   question: QuestionConfig;
   value: unknown;
   onChange: (value: unknown) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
+export function InputSwitch({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: InputSwitchProps) {
   const { state } = useForm();
 
   // Dynamic options: derive from another question's selected answers
@@ -84,6 +101,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
         question={derived}
         value={cleanedValue}
         onChange={onChange as (value: string[]) => void}
+        inputId={inputId}
+        ariaDescribedBy={ariaDescribedBy}
+        ariaInvalid={ariaInvalid}
       />
     );
   }
@@ -97,6 +117,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
             question={question}
             value={(value as string) || ''}
             onChange={onChange}
+            inputId={inputId}
+            ariaDescribedBy={ariaDescribedBy}
+            ariaInvalid={ariaInvalid}
           />
         );
       }
@@ -106,6 +129,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           value={(value as string) || ''}
           onChange={onChange}
           disabled={question.type === 'email' && question.targetTable === 'auth_users'}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 
@@ -115,6 +141,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           question={question}
           value={(value as string) || ''}
           onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 
@@ -125,6 +154,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
             question={question}
             value={(value as string) || ''}
             onChange={onChange}
+            inputId={inputId}
+            ariaDescribedBy={ariaDescribedBy}
+            ariaInvalid={ariaInvalid}
           />
         );
       }
@@ -133,6 +165,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           question={question}
           value={(value as string) || ''}
           onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 
@@ -142,6 +177,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           question={question}
           value={(value as string) || ''}
           onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 
@@ -152,6 +190,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
             question={question}
             value={(value as string[]) || []}
             onChange={onChange}
+            inputId={inputId}
+            ariaDescribedBy={ariaDescribedBy}
+            ariaInvalid={ariaInvalid}
           />
         );
       }
@@ -161,6 +202,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
             question={question}
             value={(value as string[]) || []}
             onChange={onChange}
+            inputId={inputId}
+            ariaDescribedBy={ariaDescribedBy}
+            ariaInvalid={ariaInvalid}
           />
         );
       }
@@ -169,6 +213,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           question={question}
           value={(value as string[]) || []}
           onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 
@@ -178,6 +225,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           question={question}
           value={(value as string) || ''}
           onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 
@@ -187,6 +237,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           question={question}
           value={(value as string) || ''}
           onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 
@@ -196,6 +249,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           question={question}
           value={(value as number | string) ?? ''}
           onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 
@@ -205,6 +261,9 @@ export function InputSwitch({ question, value, onChange }: InputSwitchProps) {
           question={question}
           value={(value as [number | null, number | null]) || [null, null]}
           onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
         />
       );
 

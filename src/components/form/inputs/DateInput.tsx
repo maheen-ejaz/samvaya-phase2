@@ -6,9 +6,12 @@ interface DateInputProps {
   question: QuestionConfig;
   value: string;
   onChange: (value: string) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export function DateInput({ question, value, onChange }: DateInputProps) {
+export function DateInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: DateInputProps) {
   // For date_of_birth (Q9), constrain to reasonable age range for medical professionals
   const isDateOfBirth = question.targetColumn === 'date_of_birth';
   const today = new Date();
@@ -33,12 +36,15 @@ export function DateInput({ question, value, onChange }: DateInputProps) {
   return (
     <div>
       <input
+        id={inputId}
         type="date"
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         placeholder={question.placeholder}
         min={minDate}
         max={maxDate}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid || undefined}
         className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
       />
       {age !== null && age > 0 && (

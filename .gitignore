@@ -49,8 +49,15 @@ skills-lock.json
 # playwright / test artifacts
 .playwright-mcp/
 e2e-screenshots/
+e2e/.auth/
 playwright-report/
 test-results/
+
+# public auth files (never commit tokens)
+public/admin-login.html
+
+# screenshots in project root
+/*.png
 
 # typescript
 *.tsbuildinfo

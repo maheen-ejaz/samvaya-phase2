@@ -7,14 +7,17 @@ interface MultiSelectInputProps {
   question: QuestionConfig;
   value: string[];
   onChange: (value: string[]) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export function MultiSelectInput({ question, value, onChange }: MultiSelectInputProps) {
+export function MultiSelectInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: MultiSelectInputProps) {
   if (!question.options) return null;
 
   // Searchable tag input for longer lists (>6 options)
   if (question.options.length > 6) {
-    return <TagInput question={question} value={value} onChange={onChange} />;
+    return <TagInput question={question} value={value} onChange={onChange} inputId={inputId} ariaDescribedBy={ariaDescribedBy} ariaInvalid={ariaInvalid} />;
   }
 
   const selected = value || [];
@@ -31,7 +34,7 @@ export function MultiSelectInput({ question, value, onChange }: MultiSelectInput
   }
 
   return (
-    <fieldset>
+    <fieldset id={inputId} aria-describedby={ariaDescribedBy} aria-invalid={ariaInvalid || undefined}>
       <legend className="sr-only">{question.text}</legend>
       {question.maxSelections && (
         <p className="mb-2 text-sm text-gray-500">
@@ -53,7 +56,7 @@ export function MultiSelectInput({ question, value, onChange }: MultiSelectInput
               onClick={() => toggle(option.value)}
               disabled={isDisabled}
               aria-pressed={isSelected}
-              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
                 isSelected
                   ? 'bg-samvaya-red text-white'
                   : isDisabled

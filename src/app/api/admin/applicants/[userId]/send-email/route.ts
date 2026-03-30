@@ -80,7 +80,7 @@ export async function POST(
     user_id: userId,
     sent_by: admin.id,
     channel: 'email',
-    subject,
+    subject: escapeHtml(subject),
     body: emailBody,
     status: success ? 'sent' : 'failed',
     sent_at: success ? new Date().toISOString() : null,

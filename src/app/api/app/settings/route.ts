@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function GET() {
@@ -14,7 +14,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   // Fetch pause status
   const { data: user } = await supabase
@@ -71,7 +71,7 @@ export async function PATCH(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   // Handle pause toggle (is_paused column added in migration 20260327000005)
   if (typeof body.isPaused === 'boolean') {

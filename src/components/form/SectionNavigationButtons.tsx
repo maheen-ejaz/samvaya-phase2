@@ -37,6 +37,11 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
     const main = document.querySelector('main');
     if (main) main.scrollTop = 0;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Move focus to section heading for keyboard users
+    requestAnimationFrame(() => {
+      const heading = document.querySelector<HTMLElement>('[data-section-heading]');
+      if (heading) { heading.tabIndex = -1; heading.focus(); }
+    });
   };
 
   const handlePrev = () => {
@@ -45,6 +50,11 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
     const main = document.querySelector('main');
     if (main) main.scrollTop = 0;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Move focus to section heading for keyboard users
+    requestAnimationFrame(() => {
+      const heading = document.querySelector<HTMLElement>('[data-section-heading]');
+      if (heading) { heading.tabIndex = -1; heading.focus(); }
+    });
   };
 
   const handleSubmit = async () => {
@@ -89,7 +99,7 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
           <button
             onClick={handleSubmit}
             disabled={submitting || submitted}
-            className="rounded-lg bg-samvaya-red px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-samvaya-red-dark focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-200 disabled:text-gray-600 disabled:cursor-not-allowed"
+            className="rounded-lg bg-rose-600 px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-samvaya-red/20 disabled:bg-gray-200 disabled:text-gray-600 disabled:cursor-not-allowed"
           >
             <span aria-live="polite">
               {submitted ? 'Submitted' : submitting ? 'Submitting...' : 'Submit'}
@@ -98,7 +108,7 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
         ) : (
           <button
             onClick={handleNext}
-            className="flex items-center gap-1.5 rounded-lg bg-samvaya-red px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-samvaya-red-dark focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
+            className="flex items-center gap-1.5 rounded-lg bg-rose-600 px-8 py-2.5 text-sm font-medium text-white transition-colors hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-samvaya-red/20"
           >
             Next Section
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">

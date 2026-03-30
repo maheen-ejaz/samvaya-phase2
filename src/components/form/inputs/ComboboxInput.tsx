@@ -8,9 +8,12 @@ interface ComboboxInputProps {
   question: QuestionConfig;
   value: string;
   onChange: (value: string) => void;
+  inputId?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
 }
 
-export function ComboboxInput({ question, value, onChange }: ComboboxInputProps) {
+export function ComboboxInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: ComboboxInputProps) {
   const lazyCountries = useCountries();
   const options = question.optionsSource === 'countries' ? lazyCountries : (question.options || []);
   const selectedOption = useMemo(
@@ -39,6 +42,8 @@ export function ComboboxInput({ question, value, onChange }: ComboboxInputProps)
   }, [query, options]);
 
   const showDropdown = isOpen && filtered.length > 0;
+  const resolvedInputId = inputId || `combobox-${question.id}`;
+  const listboxId = `listbox-${question.id}`;
 
   // Close on outside click
   useEffect(() => {
@@ -95,7 +100,15 @@ export function ComboboxInput({ question, value, onChange }: ComboboxInputProps)
       <div className="relative">
         <input
           ref={inputRef}
+          id={resolvedInputId}
           type="text"
+          role="combobox"
+          aria-expanded={showDropdown}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={showDropdown && highlightedIndex >= 0 ? `option-${question.id}-${highlightedIndex}` : undefined}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid || undefined}
           value={inputValue}
           onChange={(e) => {
             setInputValue(e.target.value);
@@ -132,10 +145,17 @@ export function ComboboxInput({ question, value, onChange }: ComboboxInputProps)
         )}
       </div>
       {showDropdown && (
-        <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+        <ul
+          id={listboxId}
+          role="listbox"
+          className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+        >
           {filtered.map((option, idx) => (
             <li
               key={option.value}
+              id={`option-${question.id}-${idx}`}
+              role="option"
+              aria-selected={option.value === value}
               onMouseDown={(e) => {
                 e.preventDefault();
                 selectOption(option.value, option.label);
@@ -151,7 +171,7 @@ export function ComboboxInput({ question, value, onChange }: ComboboxInputProps)
             </li>
           ))}
           {filtered.length === 0 && (
-            <li className="px-4 py-2.5 text-sm text-gray-400">No matches found</li>
+            <li role="option" aria-disabled="true" className="px-4 py-2.5 text-sm text-gray-400">No matches found</li>
           )}
         </ul>
       )}

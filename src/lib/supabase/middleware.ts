@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/types/supabase";
 
 // Routes that don't require authentication
-const PUBLIC_ROUTES = ["/auth", "/legal", "/test"];
+const PUBLIC_ROUTES = ["/auth", "/legal"];
 
 function isPublicRoute(pathname: string): boolean {
   if (pathname === "/") return true;
