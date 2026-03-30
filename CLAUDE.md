@@ -43,8 +43,10 @@ Phase 1 is live: waitlist landing page at `apply.samvayamatrimony.com`, waitlist
 | Claude Chat Prompts v1 | `Samvaya_Claude_Chat_Prompts_v1.md` | Full system prompts, branching logic, extraction JSON format, and exchange limits for all 3 AI conversations |
 | This file | `CLAUDE.md` | Build order, current task, locked decisions, gotchas |
 | Audit Log | `AUDIT.md` | All audit results across Parts 1–3: agents deployed, issue counts by severity, key fixes. Updated after each audit phase. |
+| Design Direction | `design.md` | Founder-approved design reference for Phase 2F: Urbanist font, glassmorphism specs, 5 dashboard card designs, color philosophy, button styles, reference apps. **Read before any design work.** |
+| Master Plan & Status | `plan.md` | **Living status tracker.** What's done, what's pending, priority queue. Updated after every session. **Read at the start of every session.** |
 
-When in doubt about a spec detail, read the PRD. When in doubt about what to build next, read this file.
+When in doubt about a spec detail, read the PRD. When in doubt about what to build next, read `plan.md`. When in doubt about locked decisions, read this file.
 
 ---
 
@@ -141,15 +143,15 @@ membership_expired
 
 - **100 base questions** across 13 sections (A through M)
 - **~28–32 conditional questions** that appear based on answers
-- **3 Claude AI chat moments embedded mid-form** — not a post-form screen:
+- **3 Claude AI chat moments in Section M ("Conversations")** — grouped at the end of the form, after all factual sections:
 
-| Chat | Triggers at | Exchange limit | What it captures |
-|------|-------------|----------------|-----------------|
-| Conv 1 — Family background | Q38, Section D | 4 exchanges max | Family emotional texture, childhood model of marriage, domestic expectations |
-| Conv 2 — Goals & values | Q75, Section J | 6 exchanges max (richest) | Career vision, partner role vision, conflict style, financial values |
-| Conv 3 — Closing | Q100, Section M | 1 exchange only | Anything unsaid — one prompt, one response, done |
+| Chat | Question ID | questionNumber | Exchange limit | What it captures |
+|------|-------------|----------------|----------------|-----------------|
+| Conv 1 — Family background | Q38 | 101 | 4 exchanges max | Family emotional texture, childhood model of marriage, domestic expectations |
+| Conv 2 — Goals & values | Q75 | 102 | 6 exchanges max (richest) | Career vision, partner role vision, conflict style, financial values |
+| Conv 3 — Closing | Q100 | 103 | 1 exchange only | Anything unsaid — one prompt, one response, done |
 
-**How the embedded chat works:** When the form reaches Q38, the normal question UI is replaced by the chat interface. The applicant has the conversation. When it ends, the form resumes at Q39. Same pattern at Q75 (resumes at Q76) and Q100 (form completes). Build this as an inline component that swaps in at these question numbers, then hands back to the form.
+**How the chat section works:** Users complete all factual questions (Sections A-L) first. Then Section M presents all 3 conversations back-to-back. Each chat uses the ChatInterface component. Question IDs remain Q38/Q75/Q100 for backward compatibility but their questionNumber values are 101/102/103.
 
 **Other form rules:**
 - Every question auto-saves on answer (debounced Supabase upsert)
@@ -241,8 +243,35 @@ Applicant list, individual profile view, BGV tracker (13 checks), payment flag t
 > - ~~Match card photo alt text~~ — contextual alt by blur state
 > - ~~Form submission no error feedback~~ — `submitError` state in FormProvider
 >
-> **Next up:** Premium design deployment across ~130 components (Days 1-7 per PRD 10.1).
-> Founder collaboration checklist added in PRD Section 10.1.1.
+> **Current work: Admin dashboard structural overhaul** (March 27, 2026)
+>
+> User-facing PWA design work is PAUSED. Admin dashboard has been rebuilt as a 5-row command center with KPI trends, wave funnel, donut charts, match command center (spider chart), collapsible sidebar, and more. See `plan.md` for the full list of 20+ changes made today.
+>
+> **Read `plan.md` for the full status tracker** — it lists every feature (done/pending), the priority queue, and is updated after every session.
+>
+> **Completed today:**
+> - Dashboard home: 5-row command center (11 new components)
+> - KPI cards with daily snapshot trends + sparklines
+> - Horizontal wave funnel + vertical analytics funnel
+> - Donut charts for applicant distribution (4 tabs)
+> - Match command center with side-by-side profile cards
+> - Interactive spider chart (500px, scores at each axis, 2/3 width)
+> - Collapsible sidebar + Settings at bottom
+> - BGV bulk update + save, activity log human-readable, inline template editing
+> - Per-user pricing + complementary option
+> - DD-MM-YYYY dates everywhere, desktop-only layout
+>
+> **Still pending (next session):**
+> 1. In-progress applicant tab on applicant list
+> 2. Document viewer on applicant profile
+> 3. Conversation transcript viewer on applicant profile
+> 4. Send email from applicant profile + communication history
+> 5. Verification page search/sort
+>
+> **Temporary form state:** All fields optional (required: false), file upload minimums at 0, chat skip buttons enabled. MUST restore before real applicants.
+>
+> **Test user:** maheenejaz@goocampus.in, `payment_status` = `verification_pending`
+> **Test URL:** http://localhost:3000/app (after `npm run dev`)
 
 ---
 
@@ -266,6 +295,12 @@ Add an entry here whenever a decision is made that isn't already in the PRD. Dat
 | Mar 18 2026 | Test pages gated behind admin auth | `/test/*` routes now require admin role via layout.tsx. Previously publicly accessible. |
 | Mar 19 2026 | All 7 Phase 2E audit bugs fixed | Spider chart labels, delete confirmation, WCAG contrast, NumberInput/RangeInput validation, match card alt text, form submission error feedback. Login gradient updated to Centered Radial Glow (Option 2). |
 | Mar 19 2026 | PRD 10.1.1: Founder collaboration checklist | Added day-by-day checklist of what Claude needs from founder to complete Phase 2F design overhaul efficiently. |
+| Mar 25 2026 | Font: ApfelGrotezk → Urbanist | Founder reviewed 30+ reference screenshots. Urbanist (Google Font, geometric sans-serif) matches the premium aesthetic. Thin weights for display numbers, regular for body. See `design.md` for full direction. |
+| Mar 25 2026 | Design direction finalized in design.md | Complete design reference created: 5 dashboard card specs, glassmorphism targets (blur 20-40px, alpha 0.1-0.3), color shift (red = ambient, primary buttons = dark), typography rules, reference apps. |
+| Mar 27 2026 | User-facing PWA design work paused | Focus shifted to form verification + admin dashboard production readiness. Design card-by-card iteration paused at Card 1. |
+| Mar 27 2026 | Claude chats confirmed in Section M | All 3 conversations grouped as final Section M, not inline mid-form. PRD updated to v9.4. |
+| Mar 27 2026 | plan.md created as living status tracker | Updated after every session. New sessions should read plan.md for context on what's done and what's next. |
+| Mar 27 2026 | Form fields temporarily optional | All required: false, minFiles: 0 for testing. Must restore before launch. |
 
 ---
 

@@ -31,13 +31,13 @@ interface PhotoItem {
 
 const NAMED_SLOTS: PhotoSlotDef[] = [
   { key: 'face_closeup', photoType: 'face_closeup', label: 'Face close-up', description: 'A clear, well-lit photo of your face', required: true, isPrimary: true },
-  { key: 'full_length', photoType: 'full_length', label: 'Full-length', description: 'Full figure, standing naturally', required: true, isPrimary: false },
-  { key: 'professional', photoType: 'professional', label: 'Professional / formal', description: 'At work or a formal event', required: true, isPrimary: false },
+  { key: 'full_length', photoType: 'full_length', label: 'Full-length', description: 'Full figure, standing naturally', required: false, isPrimary: false },
+  { key: 'professional', photoType: 'professional', label: 'Professional / formal', description: 'At work or a formal event', required: false, isPrimary: false },
   { key: 'casual', photoType: 'casual', label: 'Casual / lifestyle', description: 'Travel, hobby, or with friends', required: false, isPrimary: false },
 ];
 
 const MAX_TOTAL = 10;
-const MIN_TOTAL = 3;
+const MIN_TOTAL = 1;
 const COMPRESSION_THRESHOLD_MB = 3;
 const COMPRESSION_TARGET_MB = 3;
 const MAX_DIMENSION = 2048;

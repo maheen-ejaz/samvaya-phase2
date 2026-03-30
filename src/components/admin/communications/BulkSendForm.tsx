@@ -41,6 +41,31 @@ export function BulkSendForm({ templates }: BulkSendFormProps) {
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
 
+  // Inline template editing
+  const [editingTemplate, setEditingTemplate] = useState(false);
+  const [editSubject, setEditSubject] = useState('');
+  const [editBody, setEditBody] = useState('');
+  const [savingTemplate, setSavingTemplate] = useState(false);
+
+  async function saveTemplateEdit() {
+    if (!selectedTemplate) return;
+    setSavingTemplate(true);
+    try {
+      const res = await fetch(`/api/admin/templates/${selectedTemplate.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: editSubject, body: editBody }),
+      });
+      if (res.ok) {
+        // Update local template data
+        selectedTemplate.subject = editSubject;
+        selectedTemplate.body = editBody;
+        setEditingTemplate(false);
+      }
+    } catch { /* ignore */ }
+    finally { setSavingTemplate(false); }
+  }
+
   const [recipientError, setRecipientError] = useState<string | null>(null);
 
   const fetchRecipients = async () => {
@@ -183,9 +208,64 @@ export function BulkSendForm({ templates }: BulkSendFormProps) {
                 ))}
               </select>
               {selectedTemplate && (
-                <div className="mt-3 rounded-md bg-gray-50 p-3 text-sm">
-                  <p className="font-medium text-gray-900">Subject: {selectedTemplate.subject}</p>
-                  <p className="mt-1 whitespace-pre-wrap text-gray-600">{selectedTemplate.body}</p>
+                <div className="mt-3 rounded-md bg-gray-50 p-4 text-sm">
+                  {editingTemplate ? (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500">Subject</label>
+                        <input
+                          type="text"
+                          value={editSubject}
+                          onChange={(e) => setEditSubject(e.target.value)}
+                          className="mt-1 block w-full rounded border border-gray-300 px-3 py-1.5 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500">Body</label>
+                        <textarea
+                          value={editBody}
+                          onChange={(e) => setEditBody(e.target.value)}
+                          rows={8}
+                          className="mt-1 block w-full rounded border border-gray-300 px-3 py-1.5 text-sm font-mono"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={saveTemplateEdit}
+                          disabled={savingTemplate}
+                          className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:bg-gray-400"
+                        >
+                          {savingTemplate ? 'Saving...' : 'Save Template'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingTemplate(false)}
+                          className="rounded-md border border-gray-300 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-start justify-between">
+                        <p className="font-medium text-gray-900">Subject: {selectedTemplate.subject}</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditSubject(selectedTemplate.subject);
+                            setEditBody(selectedTemplate.body);
+                            setEditingTemplate(true);
+                          }}
+                          className="flex-shrink-0 text-xs text-blue-600 hover:underline"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      <p className="mt-1 whitespace-pre-wrap text-gray-600">{selectedTemplate.body}</p>
+                    </>
+                  )}
                 </div>
               )}
             </div>

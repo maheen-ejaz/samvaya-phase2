@@ -36,7 +36,7 @@ export function StageTimingTable({ data }: StageTimingTableProps) {
                     {entry.avg_days !== null ? `${entry.avg_days} days` : '—'}
                   </td>
                   <td className="py-2 text-right text-gray-500">
-                    {entry.sample_size > 0 ? `n=${entry.sample_size}` : '—'}
+                    {entry.sample_size > 0 ? `${entry.sample_size} applicant${entry.sample_size !== 1 ? 's' : ''}` : '—'}
                   </td>
                 </tr>
               ))}

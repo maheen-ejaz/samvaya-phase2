@@ -60,7 +60,7 @@ const NAMED_SLOTS: PhotoSlot[] = [
     photoType: 'face_closeup',
     label: 'Face close-up',
     description: 'A clear, well-lit photo of your face — this is your first impression',
-    required: true,
+    required: false,
     isPrimary: true,
   },
   {
@@ -68,7 +68,7 @@ const NAMED_SLOTS: PhotoSlot[] = [
     photoType: 'full_length',
     label: 'Full-length',
     description: 'A photo showing your full figure, standing naturally',
-    required: true,
+    required: false,
     isPrimary: false,
   },
   {
@@ -76,7 +76,7 @@ const NAMED_SLOTS: PhotoSlot[] = [
     photoType: 'professional',
     label: 'Professional / formal',
     description: 'At work, in formal attire, or at a professional event',
-    required: true,
+    required: false,
     isPrimary: false,
   },
   {

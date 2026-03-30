@@ -43,3 +43,56 @@ export function formatEnumValue(v: unknown): string | null {
   if (v == null) return null;
   return String(v).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+/**
+ * Format a date as DD-MM-YYYY (Indian standard).
+ */
+export function formatDateIN(date: string | Date | null | undefined): string {
+  if (!date) return '--';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '--';
+  return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+}
+
+/**
+ * Format a date as DD-MM-YYYY HH:MM (Indian standard with time).
+ */
+export function formatDateTimeIN(date: string | Date | null | undefined): string {
+  if (!date) return '--';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '--';
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+}
+
+/**
+ * Human-readable relative time (e.g., "2m ago", "3d ago").
+ */
+export function timeAgo(date: string | Date): string {
+  const now = Date.now();
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const diffMs = now - d.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  if (diffSec < 60) return 'just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 30) return `${diffDay}d ago`;
+  return formatDateIN(d);
+}
+
+/**
+ * Calculate days between two dates (or from a date to now).
+ */
+export function daysSince(date: string | Date | null | undefined): number {
+  if (!date) return 0;
+  const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return 0;
+  return Math.floor((Date.now() - d.getTime()) / (24 * 60 * 60 * 1000));
+}

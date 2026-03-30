@@ -1,9 +1,11 @@
 # Samvaya Phase 2 — Product Requirements Document (PRD)
 
-**Version:** 9.3
+**Version:** 9.5
 **Date:** March 2026
 **Status:** Confidential — GooCampus / Samvaya
 **Scope:** Onboarding Form + Admin Dashboard + Matching Algorithm + User PWA + Code Hardening
+**Changelog v9.5:** Updated March 27, 2026 (end of day): Admin dashboard major structural overhaul completed. (1) Dashboard home rebuilt as 5-row command center: 10 KPI cards with trend sparklines, horizontal wave funnel, donut distribution charts (location/education/age/gender), match command center with side-by-side profile cards, activity feed, recent comms. (2) New `daily_snapshots` table for KPI trend tracking with cron API. (3) Collapsible sidebar with Settings pinned to bottom. (4) Interactive spider chart (500px SVG) replaces dimension score bars on matching page — scores visible at each axis without clicking, 2/3 width layout. (5) BGV tracker bulk update + save button. (6) Analytics: vertical narrowing funnel, conversion rates with actual numbers capped at 100%, stage timing with "X applicants" labels. (7) Activity log: human-readable metadata instead of JSON. (8) Communications: inline template editing in Send tab. (9) Per-user pricing override + complementary option on applicant detail page. (10) All admin dates use DD-MM-YYYY format. (11) Desktop-only layout (no mobile). See `plan.md` for full status and next priorities.
+**Changelog v9.4:** Updated March 27, 2026: (1) AI chat placement changed — all 3 Claude conversations (Q38, Q75, Q100) are now in Section M ("Conversations") as a grouped final section, not embedded inline mid-form. This is the confirmed design. (2) TEMPORARY: All form fields set to optional (required: false) and file upload minimums set to 0 for Playwright load testing (30-40 submissions). Will be restored to required after testing complete.
 **Changelog v9.3:** Updated March 18, 2026: Added Phase 2E — Code Hardening & Production Readiness (12-day plan) to Section 10. Updated phased delivery table.
 **Changelog v9.2:** Updated March 16, 2026: Full PRD audit to sync with codebase reality. Added 9 missing table schemas (bgv_checks, communication_log, email_templates, notification_preferences, push_subscriptions, introduction_availability + missing columns on users, compatibility_profiles, match_suggestions). Added 2 RPC function specs (get_prefiltered_candidates, handle_match_response). Updated all phase banners to COMPLETE. Added Phase 2D to phased delivery table. Updated feature status for 5 features built in Phase 2D. Added event-driven notification email documentation. Updated guided photo upload system (Q95 slots, client-side compression). Version bump reflects all Phases 2A–2D complete and ready for production deployment.
 **Changelog v9.1:** Updated March 15, 2026: Synced 9 form question specs with implementation (Q6, Q13, Q26, Q29, Q31, Q54, Q60, Q82, Q84) and added 3 missing schema columns.
@@ -45,9 +47,12 @@ Phase 2 is delivered in sub-phases:
 | **2B** | Matching algorithm (AI-powered scoring + feedback loop) | **COMPLETE** |
 | **2C** | User-facing PWA (mobile-first interface) | **COMPLETE** |
 | **2D** | PWA polish + features: pause/resume, notification preferences, edit profile, push notifications, service worker, introduction scheduling, photo management | **COMPLETE** |
-| **2E** | Code hardening & production readiness: security sweep, UX polish, accessibility, E2E testing, performance audit, production deployment | **IN PROGRESS** |
+| **2E** | Code hardening & production readiness: security sweep, UX polish, accessibility, E2E testing, performance audit, production deployment | **COMPLETE** |
+| **2F** | Admin dashboard structural overhaul + premium design + launch prep | **IN PROGRESS** — Admin dashboard rebuilt (5-row command center, spider chart, KPI trends, collapsible sidebar). Applicant detail page improvements + design overhaul pending. See `plan.md`. |
 
-**Sub-phases 2A through 2D are complete as of March 2026.** Phase 2E (code hardening) is in progress — Days 1-7 complete.
+**Sub-phases 2A through 2E are complete as of March 2026.** Phase 2F is in progress — see `plan.md` for detailed status of every feature and what's pending.
+
+> **`plan.md`** is the living status tracker for Phase 2F and beyond. It is updated after every Claude Code session with what was accomplished and what's next. Read it at the start of every session for current context.
 
 ---
 
@@ -980,13 +985,15 @@ These are stored on the profile and used by the Samvaya team for the social medi
 - Save-and-resume: full conversation state persisted to Supabase so applicants can return mid-conversation
 - Voice input: text-only in v1. Voice (speech-to-text) flagged as v2 feature. UI should show a subtle nudge: *"Take your time — longer answers help us find a better match for you."*
 
-**Three conversations, their positions in the form, and their exchange limits:**
+**Three conversations, grouped in Section M ("Conversations") at the end of the form:**
 
-| Conversation | Triggered at | Exchange limit | Covers |
-|---|---|---|---|
-| Conv 1 — Family background | Q38, Section D | 4 exchanges max | Family emotional texture, childhood model of marriage, domestic expectations, Tuesday picture |
-| Conv 2 — Goals and ambitions | Q75, Section J | 6 exchanges max | Career vision, personal meaning, partner role vision, what they bring to a relationship, conflict/communication style, financial values, what a partner must understand |
-| Conv 3 — Closing | Q100, Section M | 1 exchange only | Anything unsaid — dealbreakers, context, important nuance |
+> **Architecture note (updated March 27, 2026):** All 3 Claude conversations are grouped together as Section M, the final section of the form. Users complete all factual questions (Sections A-L) first, then do all 3 conversations back-to-back. Question IDs remain Q38/Q75/Q100 for backward compatibility, but their `questionNumber` values are 101/102/103 in the code.
+
+| Conversation | Question ID | questionNumber | Exchange limit | Covers |
+|---|---|---|---|---|
+| Conv 1 — Family background | Q38 | 101 | 4 exchanges max | Family emotional texture, childhood model of marriage, domestic expectations, Tuesday picture |
+| Conv 2 — Goals and ambitions | Q75 | 102 | 6 exchanges max | Career vision, personal meaning, partner role vision, what they bring to a relationship, conflict/communication style, financial values, what a partner must understand |
+| Conv 3 — Closing | Q100 | 103 | 1 exchange only | Anything unsaid — dealbreakers, context, important nuance |
 
 **Full system prompts, branching logic, extraction prompts, API call structure, exchange counter logic, spider web dimension mapping, and prompt version tracking are documented in:**
 `Samvaya_Claude_Chat_Prompts_v1.md`
@@ -2090,12 +2097,18 @@ Focus: Deploy to production on Vercel and validate with real data.
 
 **Goal:** Elevate the visual design from "production-ready functional" to "premium Apple-like" with glassmorphism, subtle animations, generous whitespace, and polished micro-interactions across ALL pages (user-facing + admin). Fix remaining bugs. Prepare for April 4 launch.
 
+**Design Direction:** See `design.md` for the complete, founder-approved design reference including card-by-card specs, typography rules, glassmorphism targets, color philosophy, and reference app descriptions.
+
+**Font:** Urbanist (Google Fonts, geometric sans-serif) — replaces ApfelGrotezk. Thin/light weights for display numbers, regular for body. Decision made March 25, 2026.
+
 **Design Principles:**
-- **Glassmorphism:** Frosted glass panels (backdrop-blur, semi-transparent backgrounds, subtle borders) on all card-based components
-- **Animations:** Every interaction should feel smooth — hover lifts, fade transitions, loading shimmers, success celebrations
-- **Whitespace:** Generous padding, breathing room between elements, elegant density
-- **Depth:** Layered shadows, elevation changes on hover/focus, contextual shadow intensity
-- **Consistency:** Unified button system (primary gradient, secondary glass), card system (glass panels), badge system across all pages
+- **Glassmorphism:** Real, not decorative — backdrop-blur 20-40px, alpha 0.1-0.3, backgrounds genuinely show through
+- **Typography:** Large thin-weight numbers as hero elements (Urbanist 100-300). Never bold for display numbers.
+- **Buttons:** Pill-shaped. Primary = dark charcoal/black. Secondary = frosted glass. samvaya-red = ambient/atmospheric only.
+- **Animations:** Every interaction should feel smooth — hover lifts, fade transitions, loading shimmers. Calm and elegant, never bouncy.
+- **Whitespace:** Very generous — content breathes, never cramped
+- **Depth:** Card edges defined by blur and transparency, not hard borders
+- **Consistency:** Unified button system (dark primary, glass secondary), card system (glass panels), badge system across all pages
 
 **Design infrastructure already built (in `globals.css`):**
 - 4 glass variants (`.glass`, `.glass-light`, `.glass-medium`, `.glass-dark`) — only ~10% deployed
@@ -2196,7 +2209,7 @@ Phase 2F requires founder input at specific milestones. Without these, design de
 | 9 | Razorpay integration | ✅ Deferred to v2. v1 uses manual payment flag. Team collects payment offline. |
 | 10 | Domain structure | ✅ Subdomain-based. app.samvayamatrimony.com/app + /admin. Root domain on Framer (marketing). |
 | 11 | SMS provider | ✅ MSG91. |
-| 12 | AI chat question positions | ✅ Q38 (family background, Section D), Q75 (goals & values, Section J), Q100 (closing, Section M). |
+| 12 | AI chat question positions | ✅ All 3 chats grouped in Section M ("Conversations"). IDs: Q38 (family, questionNumber 101), Q75 (goals, questionNumber 102), Q100 (closing, questionNumber 103). Users complete all factual sections first, then do conversations. |
 
 ### Pre-Deployment Action Items
 

@@ -98,7 +98,7 @@ export async function GET() {
     { stage: 'Introduced', count: 0, placeholder: true },
   ];
 
-  // Calculate conversion rates
+  // Calculate conversion rates (capped at 100% — GooCampus members can skip stages)
   const conversions = [];
   for (let i = 1; i < funnel.length; i++) {
     if (funnel[i].placeholder) continue;
@@ -107,7 +107,9 @@ export async function GET() {
     conversions.push({
       from: funnel[i - 1].stage,
       to: funnel[i].stage,
-      rate: prev > 0 ? Math.round((curr / prev) * 100) : 0,
+      rate: prev > 0 ? Math.min(100, Math.round((curr / prev) * 100)) : 0,
+      fromCount: prev,
+      toCount: curr,
     });
   }
 

@@ -35,6 +35,40 @@ export function StatusManagement({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Custom pricing
+  const [isComplementary, setIsComplementary] = useState(isGooCampusMember);
+  const [customAmount, setCustomAmount] = useState('');
+  const [savingPricing, setSavingPricing] = useState(false);
+  const [pricingSaved, setPricingSaved] = useState(false);
+
+  async function saveCustomPricing() {
+    setSavingPricing(true);
+    setPricingSaved(false);
+    try {
+      const amount = isComplementary ? 0 : parseInt(customAmount || '0', 10);
+      const res = await fetch(`/api/admin/applicants/${userId}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_custom_pricing',
+          customAmount: amount,
+          isComplementary,
+        }),
+      });
+      if (res.ok) {
+        setPricingSaved(true);
+        setTimeout(() => setPricingSaved(false), 3000);
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to save pricing');
+      }
+    } catch {
+      setError('Network error');
+    } finally {
+      setSavingPricing(false);
+    }
+  }
+
   const canMarkFeePaid = paymentStatus === 'unverified' && !isGooCampusMember;
   const canMarkGooCampus = paymentStatus === 'unverified' && isGooCampusMember;
   const canMoveToPool =
@@ -139,6 +173,48 @@ export function StatusManagement({
         )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
+
+        {/* Custom Pricing */}
+        <div className="mt-4 border-t border-gray-100 pt-4">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Pricing Override</h4>
+          <div className="mt-2 flex items-center gap-3">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={isComplementary}
+                onChange={(e) => {
+                  setIsComplementary(e.target.checked);
+                  if (e.target.checked) setCustomAmount('0');
+                }}
+                className="rounded border-gray-300"
+              />
+              Complementary (₹0)
+            </label>
+            {!isComplementary && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Custom amount:</span>
+                <input
+                  type="text"
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder={PRICING.VERIFICATION_FEE_DISPLAY}
+                  className="w-32 rounded border border-gray-300 px-2 py-1 text-sm"
+                />
+              </div>
+            )}
+            <button
+              onClick={saveCustomPricing}
+              disabled={savingPricing}
+              className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:bg-gray-400"
+            >
+              {savingPricing ? 'Saving...' : 'Save Pricing'}
+            </button>
+            {pricingSaved && <span className="text-xs text-green-600">Saved</span>}
+          </div>
+          <p className="mt-1 text-xs text-gray-400">
+            Standard fee: {PRICING.VERIFICATION_FEE_DISPLAY}. Override only if this applicant has a special arrangement.
+          </p>
+        </div>
       </div>
     </div>
   );

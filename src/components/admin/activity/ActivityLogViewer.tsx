@@ -19,6 +19,39 @@ function formatAction(action: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function formatMetadata(metadata: Record<string, unknown>): string {
+  const parts: string[] = [];
+  const humanize = (v: unknown) => String(v).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+  if (metadata.checkType && metadata.newStatus) {
+    return `Changed ${humanize(metadata.checkType)} to ${humanize(metadata.newStatus)}`;
+  }
+  if (metadata.action) {
+    parts.push(`Action: ${humanize(metadata.action)}`);
+  }
+  if (metadata.status || metadata.newStatus) {
+    parts.push(`Status: ${humanize(metadata.status || metadata.newStatus)}`);
+  }
+  if (metadata.reason) {
+    parts.push(`Reason: ${String(metadata.reason)}`);
+  }
+  if (metadata.subject) {
+    parts.push(`Subject: ${String(metadata.subject)}`);
+  }
+  if (metadata.templateName) {
+    parts.push(`Template: ${String(metadata.templateName)}`);
+  }
+  if (metadata.recipientCount) {
+    parts.push(`Recipients: ${metadata.recipientCount}`);
+  }
+  if (parts.length > 0) return parts.join(' · ');
+  // Fallback: simple key-value pairs
+  return Object.entries(metadata)
+    .filter(([, v]) => v !== null && v !== undefined && v !== '')
+    .map(([k, v]) => `${humanize(k)}: ${typeof v === 'object' ? JSON.stringify(v) : humanize(v)}`)
+    .join(' · ');
+}
+
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -184,9 +217,9 @@ export function ActivityLogViewer() {
               </div>
               {log.metadata && Object.keys(log.metadata).length > 0 && (
                 <div className="mt-1.5">
-                  <pre className="overflow-x-auto rounded bg-gray-50 p-2 text-xs text-gray-600">
-                    {JSON.stringify(log.metadata, null, 2)}
-                  </pre>
+                  <p className="rounded bg-gray-50 px-3 py-2 text-xs text-gray-600">
+                    {formatMetadata(log.metadata)}
+                  </p>
                 </div>
               )}
             </div>

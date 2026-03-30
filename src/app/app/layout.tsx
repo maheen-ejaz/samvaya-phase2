@@ -74,9 +74,9 @@ export default async function ApplicantLayout({
 
   return (
     <UserStatusProvider value={userStatus}>
-      <div className="min-h-screen bg-samvaya-blush">
+      <div className="bg-page-warm">
         <AppHeader />
-        <main className="mx-auto max-w-lg px-4 py-6 pb-24">{children}</main>
+        <main className="mx-auto max-w-lg px-5 pb-24 pt-14">{children}</main>
         <BottomNav />
         <InstallPromptBanner />
         <ServiceWorkerRegistration />

@@ -1,31 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
+import { Urbanist } from "next/font/google";
 import "./globals.css";
 
-const apfelGrotezk = localFont({
-  src: [
-    {
-      path: "../../public/fonts/ApfelGrotezk-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/ApfelGrotezk-Mittel.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/ApfelGrotezk-Fett.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/ApfelGrotezk-Satt.woff2",
-      weight: "900",
-      style: "normal",
-    },
-  ],
-  variable: "--font-apfel",
+const urbanist = Urbanist({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  variable: "--font-urbanist",
   display: "swap",
 });
 
@@ -55,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${apfelGrotezk.variable} antialiased`}
+        className={`${urbanist.variable} antialiased`}
       >
         {children}
       </body>

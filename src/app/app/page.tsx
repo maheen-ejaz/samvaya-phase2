@@ -9,6 +9,7 @@ export interface DashboardData {
   currentState: string | null;
   specialty: string[] | null;
   currentDesignation: string | null;
+  primaryPhotoUrl: string | null;
   createdAt: string;
   verifiedAt: string | null;
   paidAt: string | null;
@@ -31,7 +32,7 @@ export default async function ApplicantHome() {
 
   try {
     // Parallel data fetching for enriched dashboard
-    const [usersResult, profileResult, medResult, paymentResult, totalMatchResult, pendingMatchResult] =
+    const [usersResult, profileResult, medResult, paymentResult, totalMatchResult, pendingMatchResult, primaryPhotoResult] =
       await Promise.all([
         supabase
           .from('users')
@@ -62,6 +63,12 @@ export default async function ApplicantHome() {
           .from('match_presentations' as never)
           .select('id', { count: 'exact', head: true })
           .eq('status', 'pending'),
+        supabase
+          .from('photos')
+          .select('blurred_path')
+          .eq('user_id', user.id)
+          .eq('is_primary', true)
+          .maybeSingle(),
       ]);
 
     const userData = usersResult.data as Record<string, unknown> | null;
@@ -75,6 +82,17 @@ export default async function ApplicantHome() {
     const medCred = medResult.data as Record<string, unknown> | null;
     const payment = paymentResult.data as Record<string, unknown> | null;
 
+    // Build photo URL from blurred_path (primary photo = face_closeup by default)
+    // Bucket is private, so we need a signed URL (1 hour expiry)
+    const photoPath = (primaryPhotoResult.data as Record<string, unknown> | null)?.blurred_path as string | null;
+    let primaryPhotoUrl: string | null = null;
+    if (photoPath) {
+      const { data: signedData } = await supabase.storage
+        .from('photos')
+        .createSignedUrl(photoPath, 3600);
+      primaryPhotoUrl = signedData?.signedUrl ?? null;
+    }
+
     const dashboardData: DashboardData = {
       firstName: profile?.first_name ?? null,
       lastName: profile?.last_name ?? null,
@@ -82,6 +100,7 @@ export default async function ApplicantHome() {
       currentState: profile?.current_state ?? null,
       specialty: (medCred?.specialty as string[] | null) ?? null,
       currentDesignation: (medCred?.current_designation as string | null) ?? null,
+      primaryPhotoUrl,
       createdAt: (userData?.created_at as string) || new Date().toISOString(),
       verifiedAt: (userData?.verified_at as string | null) ?? null,
       paidAt: (payment?.paid_at as string | null) ?? null,

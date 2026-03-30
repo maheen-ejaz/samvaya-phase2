@@ -59,6 +59,9 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingCheck, setUpdatingCheck] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSavingAll, setIsSavingAll] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const fetchChecks = useCallback(async () => {
     try {
@@ -80,6 +83,30 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
   useEffect(() => {
     fetchChecks();
   }, [fetchChecks]);
+
+  async function saveAllChanges() {
+    setIsSavingAll(true);
+    setSaveSuccess(false);
+    try {
+      // Save all checks in sequence (API handles one at a time)
+      for (const check of checks) {
+        await fetch(`/api/admin/applicants/${userId}/bgv`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ checkType: check.check_type, status: check.status, notes: check.notes }),
+        });
+      }
+      setHasUnsavedChanges(false);
+      setSaveSuccess(true);
+      // Refresh to get updated isBgvComplete/bgvFlagged
+      await fetchChecks();
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch {
+      setError('Failed to save changes');
+    } finally {
+      setIsSavingAll(false);
+    }
+  }
 
   async function updateCheck(checkType: string, status: string, notes?: string) {
     setUpdatingCheck(checkType);
@@ -150,6 +177,41 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
         </div>
       )}
 
+      {/* Bulk controls */}
+      {canEditChecks && (
+        <div className="mb-4 flex items-center gap-3">
+          <label className="text-sm font-medium text-gray-700">Set all to:</label>
+          <select
+            onChange={(e) => {
+              if (!e.target.value) return;
+              const newStatus = e.target.value;
+              setChecks((prev) => prev.map((c) => ({ ...c, status: newStatus })));
+              setHasUnsavedChanges(true);
+              e.target.value = '';
+            }}
+            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+            defaultValue=""
+          >
+            <option value="" disabled>Choose status...</option>
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+            ))}
+          </select>
+          {hasUnsavedChanges && (
+            <button
+              onClick={saveAllChanges}
+              disabled={isSavingAll}
+              className="rounded-md bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-400"
+            >
+              {isSavingAll ? 'Saving...' : 'Save All Changes'}
+            </button>
+          )}
+          {saveSuccess && (
+            <span className="text-sm text-green-600">Saved</span>
+          )}
+        </div>
+      )}
+
       {/* Checks Table */}
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
@@ -168,7 +230,11 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
                 check={check}
                 canEdit={canEditChecks}
                 isUpdating={updatingCheck === check.check_type}
-                onUpdate={updateCheck}
+                onUpdate={(checkType, status, notes) => {
+                  // Update local state (don't save immediately)
+                  setChecks((prev) => prev.map((c) => c.check_type === checkType ? { ...c, status, notes: notes ?? c.notes } : c));
+                  setHasUnsavedChanges(true);
+                }}
               />
             ))}
           </tbody>
