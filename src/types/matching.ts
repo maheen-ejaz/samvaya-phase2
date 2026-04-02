@@ -129,6 +129,7 @@ export interface MatchSuggestionWithProfiles extends MatchSuggestion {
     specialty: string[];
     current_city: string | null;
     current_state: string | null;
+    primary_photo_url: string | null;
   };
   profile_b: {
     full_name: string;
@@ -137,6 +138,7 @@ export interface MatchSuggestionWithProfiles extends MatchSuggestion {
     specialty: string[];
     current_city: string | null;
     current_state: string | null;
+    primary_photo_url: string | null;
   };
 }
 
@@ -175,6 +177,7 @@ export interface PreFilterStats {
   total_in_pool: number;
   pairs_after_filter: number;
   reduction_pct: number;
+  users_skipped?: number;
 }
 
 export interface BatchScoreResult {

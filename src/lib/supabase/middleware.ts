@@ -66,7 +66,8 @@ export async function updateSession(request: NextRequest) {
     const membershipStatus = userData?.membership_status ?? "onboarding_pending";
 
     // Already authenticated and on auth pages → redirect to correct area
-    if (pathname.startsWith("/auth")) {
+    // Exception: /auth/signout must be reachable to clear the session
+    if (pathname.startsWith("/auth") && pathname !== "/auth/signout") {
       // Honor ?next= param if it's a safe relative path for the user's role
       const nextParam = request.nextUrl.searchParams.get("next");
       let redirectPath = isAdmin ? "/admin" : "/app";

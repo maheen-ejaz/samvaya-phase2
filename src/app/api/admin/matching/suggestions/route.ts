@@ -42,8 +42,49 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch suggestions' }, { status: 500 });
     }
 
+    // Parallel count queries for all statuses (used for tab badges in UI)
+    const [pendingCount, approvedCount, rejectedCount] = await Promise.all([
+      supabase.from('match_suggestions' as never).select('id', { count: 'exact', head: true }).eq('admin_status', 'pending_review'),
+      supabase.from('match_suggestions' as never).select('id', { count: 'exact', head: true }).eq('admin_status', 'approved'),
+      supabase.from('match_suggestions' as never).select('id', { count: 'exact', head: true }).eq('admin_status', 'rejected'),
+    ]);
+
     // Enrich with profile data for both members
     const suggestions = data as Array<Record<string, unknown>>;
+
+    // Collect all user IDs for batch photo fetch
+    const allUserIds = new Set<string>();
+    for (const s of suggestions) {
+      allUserIds.add(s.profile_a_id as string);
+      allUserIds.add(s.profile_b_id as string);
+    }
+
+    // Batch fetch primary photos + signed URLs
+    const photoUrlMap = new Map<string, string>();
+    if (allUserIds.size > 0) {
+      const { data: photos } = await supabase
+        .from('photos')
+        .select('user_id, storage_path')
+        .eq('is_primary', true as never)
+        .in('user_id', Array.from(allUserIds) as never);
+
+      if (photos && photos.length > 0) {
+        const paths = photos.map((p) => (p as { user_id: string; storage_path: string }).storage_path);
+        const { data: signedData } = await supabase.storage
+          .from('photos')
+          .createSignedUrls(paths, 3600);
+        if (signedData) {
+          for (let i = 0; i < photos.length; i++) {
+            const photo = photos[i] as { user_id: string; storage_path: string };
+            const signed = signedData[i];
+            if (signed?.signedUrl) {
+              photoUrlMap.set(photo.user_id, signed.signedUrl);
+            }
+          }
+        }
+      }
+    }
+
     const enriched = await Promise.all(
       suggestions.map(async (s) => {
         const aId = s.profile_a_id as string;
@@ -94,6 +135,7 @@ export async function GET(request: NextRequest) {
             specialty: medA.data?.specialty ?? [],
             current_city: profileA.data?.current_city ?? null,
             current_state: profileA.data?.current_state ?? null,
+            primary_photo_url: photoUrlMap.get(aId) ?? null,
           },
           profile_b: {
             full_name: profileB.data
@@ -104,6 +146,7 @@ export async function GET(request: NextRequest) {
             specialty: medB.data?.specialty ?? [],
             current_city: profileB.data?.current_city ?? null,
             current_state: profileB.data?.current_state ?? null,
+            primary_photo_url: photoUrlMap.get(bId) ?? null,
           },
         };
       })
@@ -114,6 +157,11 @@ export async function GET(request: NextRequest) {
       total: count ?? 0,
       page,
       limit,
+      counts: {
+        pending_review: pendingCount.count ?? 0,
+        approved: approvedCount.count ?? 0,
+        rejected: rejectedCount.count ?? 0,
+      },
     });
   } catch (err) {
     console.error('List suggestions error:', err);

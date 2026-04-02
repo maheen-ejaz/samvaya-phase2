@@ -1,20 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import type { MatchSuggestionWithProfiles, CompatibilityReport } from '@/types/matching';
-import { CompatibilityBreakdown } from './CompatibilityBreakdown';
+import type { MatchSuggestionWithProfiles } from '@/types/matching';
 import { capitalize } from '@/lib/utils';
 
 interface SuggestionCardProps {
   suggestion: MatchSuggestionWithProfiles;
-  onApprove: (id: string, narrative: string, notes: string) => Promise<void>;
-  onReject: (id: string, notes: string) => Promise<void>;
+  onOpen: () => void;
 }
 
-function getScoreBadgeColor(score: number): string {
-  if (score >= 80) return 'bg-green-100 text-green-800';
-  if (score >= 65) return 'bg-amber-100 text-amber-800';
-  return 'bg-red-100 text-red-800';
+function getPlaceholderSrc(gender?: string | null): string {
+  if (gender?.toLowerCase() === 'male') return '/male-placeholder.jpg';
+  if (gender?.toLowerCase() === 'female') return '/female-placeholder.jpg';
+  return '/male-placeholder.jpg';
+}
+
+function getCardGradient(gender?: string | null): string {
+  const g = gender?.toLowerCase();
+  if (g === 'male') return 'border-blue-200 bg-gradient-to-b from-blue-50/80 to-white';
+  if (g === 'female') return 'border-pink-200 bg-gradient-to-b from-pink-50/80 to-white';
+  return 'border-gray-200 bg-white';
 }
 
 function getRecommendationLabel(rec: string): string {
@@ -27,181 +31,137 @@ function getRecommendationLabel(rec: string): string {
   }
 }
 
-export function SuggestionCard({ suggestion, onApprove, onReject }: SuggestionCardProps) {
-  const [expanded, setExpanded] = useState(false);
-  const [showActions, setShowActions] = useState(false);
-  const [narrative, setNarrative] = useState(suggestion.match_narrative || '');
-  const [notes, setNotes] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
+function getRecommendationStyle(rec: string): string {
+  switch (rec) {
+    case 'strongly_recommend': return 'bg-admin-green-100 text-admin-green-900 border-admin-green-200';
+    case 'recommend': return 'bg-admin-green-50 text-admin-green-800 border-admin-green-100';
+    case 'worth_considering': return 'bg-amber-50 text-amber-800 border-amber-200';
+    case 'not_recommended': return 'bg-red-50 text-red-700 border-red-200';
+    default: return 'bg-gray-50 text-gray-600 border-gray-200';
+  }
+}
 
-  const report = suggestion.compatibility_report as CompatibilityReport;
+function getStatusStyle(status: string): string {
+  switch (status) {
+    case 'approved': return 'bg-admin-green-100 text-admin-green-900 border-admin-green-200';
+    case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
+    case 'pending_review': return 'bg-amber-50 text-amber-800 border-amber-200';
+    default: return 'bg-gray-50 text-gray-600 border-gray-200';
+  }
+}
 
-  const handleApprove = async () => {
-    setValidationError(null);
-    setLoading(true);
-    try {
-      await onApprove(suggestion.id, narrative, notes);
-    } catch (err) {
-      setValidationError(err instanceof Error ? err.message : 'Approval failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+function getStatusLabel(status: string): string {
+  switch (status) {
+    case 'pending_review': return 'Pending Review';
+    case 'approved': return 'Approved';
+    case 'rejected': return 'Rejected';
+    default: return status;
+  }
+}
 
-  const handleReject = async () => {
-    if (!notes.trim()) {
-      setValidationError('Please provide a rejection reason');
-      return;
-    }
-    setValidationError(null);
-    setLoading(true);
-    try {
-      await onReject(suggestion.id, notes);
-    } catch (err) {
-      setValidationError(err instanceof Error ? err.message : 'Rejection failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+/** Horizontal score bar — diagonal stripe texture */
+function ScoreBar({ score }: { score: number }) {
+  const clamped = Math.max(0, Math.min(100, score));
+  let barColor: string;
+  if (clamped < 50) barColor = '#EF5350';
+  else if (clamped < 75) barColor = '#FFA726';
+  else barColor = '#66BB6A';
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
-      {/* Header: Two profiles + score */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-1 items-center gap-6">
-          {/* Profile A */}
-          <div className="flex-1">
-            <p className="font-medium text-gray-900">{suggestion.profile_a.full_name}</p>
-            <p className="text-sm text-gray-500">
-              {suggestion.profile_a.age ? `${suggestion.profile_a.age}y` : '—'}{' '}
-              {suggestion.profile_a.gender ? capitalize(suggestion.profile_a.gender) : ''}{' '}
-              {suggestion.profile_a.specialty?.map((s) => capitalize(s)).join(', ') || ''}
-            </p>
-            <p className="text-xs text-gray-400">
-              {[suggestion.profile_a.current_city, suggestion.profile_a.current_state]
-                .filter(Boolean)
-                .map((v) => capitalize(v!))
-                .join(', ') || '—'}
-            </p>
-          </div>
-
-          {/* Score Badge */}
-          <div className="flex flex-col items-center">
-            <span
-              className={`rounded-full px-3 py-1 text-lg font-bold ${getScoreBadgeColor(
-                suggestion.overall_compatibility_score
-              )}`}
-            >
-              {suggestion.overall_compatibility_score}
-            </span>
-            {suggestion.recommendation && (
-              <span className="mt-1 text-xs text-gray-500">
-                {getRecommendationLabel(suggestion.recommendation)}
-              </span>
-            )}
-          </div>
-
-          {/* Profile B */}
-          <div className="flex-1 text-right">
-            <p className="font-medium text-gray-900">{suggestion.profile_b.full_name}</p>
-            <p className="text-sm text-gray-500">
-              {suggestion.profile_b.age ? `${suggestion.profile_b.age}y` : '—'}{' '}
-              {suggestion.profile_b.gender ? capitalize(suggestion.profile_b.gender) : ''}{' '}
-              {suggestion.profile_b.specialty?.map((s) => capitalize(s)).join(', ') || ''}
-            </p>
-            <p className="text-xs text-gray-400">
-              {[suggestion.profile_b.current_city, suggestion.profile_b.current_state]
-                .filter(Boolean)
-                .map((v) => capitalize(v!))
-                .join(', ') || '—'}
-            </p>
-          </div>
-        </div>
+    <div className="flex items-center gap-3">
+      <span className="text-3xl font-bold tabular-nums text-gray-900">{score}</span>
+      <div className="relative h-4 flex-1 overflow-hidden rounded-md bg-gray-100">
+        <div
+          className="absolute inset-y-0 left-0 rounded-md"
+          style={{
+            width: `${clamped}%`,
+            background: `repeating-linear-gradient(-45deg, ${barColor}, ${barColor} 4px, ${barColor}CC 4px, ${barColor}CC 8px)`,
+          }}
+        />
+        <div
+          className="absolute inset-y-0 right-0"
+          style={{
+            left: `${clamped}%`,
+            background: 'repeating-linear-gradient(-45deg, #E5E7EB, #E5E7EB 4px, #F3F4F6 4px, #F3F4F6 8px)',
+          }}
+        />
       </div>
+    </div>
+  );
+}
 
-      {/* Stale badge */}
-      {suggestion.is_stale && (
-        <span className="mt-2 inline-block rounded bg-yellow-100 px-2 py-0.5 text-xs text-yellow-800">
-          Stale — profiles updated since scoring
-        </span>
-      )}
+function ProfileMiniCard({ person }: { person: MatchSuggestionWithProfiles['profile_a'] }) {
+  const photoSrc = person.primary_photo_url || getPlaceholderSrc(person.gender);
+  const cardStyle = getCardGradient(person.gender);
+  const specialty = person.specialty?.map((s) => capitalize(s)).join(', ') || null;
+  const age = person.age ? `${person.age}y` : null;
+  const location = [person.current_city, person.current_state]
+    .filter(Boolean).map((v) => capitalize(v!)).join(', ') || null;
 
-      {/* Expand toggle */}
-      <div className="mt-3 flex gap-2">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="text-sm text-rose-600 hover:text-rose-700"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Hide Details' : 'Show Details'}
-        </button>
-        {suggestion.admin_status === 'pending_review' && (
-          <button
-            onClick={() => setShowActions(!showActions)}
-            className="text-sm text-gray-600 hover:text-gray-700"
-          >
-            {showActions ? 'Hide Actions' : 'Review'}
-          </button>
+  return (
+    <div className={`w-44 rounded-2xl border p-3 shadow-sm ${cardStyle}`}>
+      <div className="aspect-[4/5] w-full overflow-hidden rounded-xl bg-gray-100">
+        <img src={photoSrc} alt={person.full_name} className="h-full w-full object-cover" />
+      </div>
+      <div className="mt-2.5 px-0.5">
+        <p className="truncate text-sm font-bold text-gray-900">{person.full_name}</p>
+        {specialty && <p className="mt-0.5 truncate text-xs text-gray-500">{specialty}</p>}
+        {(age || location) && (
+          <div className="mt-0.5 flex items-center justify-between text-xs text-gray-400">
+            {age && <span>{age}</span>}
+            {location && <span className="truncate ml-1">{location}</span>}
+          </div>
         )}
       </div>
+    </div>
+  );
+}
 
-      {/* Expanded: Compatibility Breakdown */}
-      {expanded && (
-        <div className="mt-4 border-t border-gray-100 pt-4">
-          <CompatibilityBreakdown report={report} />
+export function SuggestionCard({ suggestion, onOpen }: SuggestionCardProps) {
+  const daysAgo = Math.floor(
+    (Date.now() - new Date(suggestion.created_at).getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return (
+    <div
+      className="flex cursor-pointer items-center gap-6 px-6 py-5 hover:bg-gray-50/60 transition-colors"
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onOpen(); }}
+    >
+      {/* Profile A card */}
+      <ProfileMiniCard person={suggestion.profile_a} />
+
+      {/* Center: score + badges */}
+      <div className="flex flex-1 flex-col items-center gap-3">
+        <div className="w-full max-w-xs">
+          <ScoreBar score={suggestion.overall_compatibility_score} />
         </div>
-      )}
 
-      {/* Actions: Approve / Reject */}
-      {showActions && suggestion.admin_status === 'pending_review' && (
-        <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
-          <div>
-            <label htmlFor={`narrative-${suggestion.id}`} className="block text-sm font-medium text-gray-700">
-              Match Narrative (editable)
-            </label>
-            <textarea
-              id={`narrative-${suggestion.id}`}
-              value={narrative}
-              onChange={(e) => setNarrative(e.target.value)}
-              rows={3}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label htmlFor={`notes-${suggestion.id}`} className="block text-sm font-medium text-gray-700">
-              Admin Notes {suggestion.admin_status === 'pending_review' && '(required for rejection)'}
-            </label>
-            <textarea
-              id={`notes-${suggestion.id}`}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-              placeholder="Notes or rejection reason..."
-            />
-          </div>
-          {validationError && (
-            <p className="text-sm text-red-600" role="alert">{validationError}</p>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {suggestion.recommendation && (
+            <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRecommendationStyle(suggestion.recommendation)}`}>
+              {getRecommendationLabel(suggestion.recommendation)}
+            </span>
           )}
-          <div className="flex gap-2">
-            <button
-              onClick={handleApprove}
-              disabled={loading}
-              className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Processing...' : 'Approve Match'}
-            </button>
-            <button
-              onClick={handleReject}
-              disabled={loading}
-              className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Processing...' : 'Reject'}
-            </button>
-          </div>
+          <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusStyle(suggestion.admin_status)}`}>
+            {getStatusLabel(suggestion.admin_status)}
+          </span>
+          {suggestion.is_stale && (
+            <span className="rounded-full border border-yellow-200 bg-yellow-50 px-2.5 py-0.5 text-xs text-yellow-700">
+              Stale
+            </span>
+          )}
         </div>
-      )}
+
+        <p className="text-xs text-gray-400">
+          {daysAgo === 0 ? 'Today' : `${daysAgo}d ago`} · Click to review
+        </p>
+      </div>
+
+      {/* Profile B card */}
+      <ProfileMiniCard person={suggestion.profile_b} />
     </div>
   );
 }

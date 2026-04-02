@@ -62,6 +62,10 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
     return result;
   }, [initialMatches, stageFilter, searchQuery, sortField, sortDir]);
 
+  const DASHBOARD_MATCH_LIMIT = 6;
+  const displayedMatches = filteredMatches.slice(0, DASHBOARD_MATCH_LIMIT);
+  const hasMore = filteredMatches.length > DASHBOARD_MATCH_LIMIT;
+
   function handleStageClick(stage: StageFilter) {
     setStageFilter(stageFilter === stage ? 'all' : stage);
     setExpandedId(null);
@@ -157,20 +161,34 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
           </select>
         </div>
         <span className="ml-auto text-xs text-gray-400">
-          {filteredMatches.length} match{filteredMatches.length !== 1 ? 'es' : ''}
+          {hasMore
+            ? `Showing 6 of ${filteredMatches.length}`
+            : `${filteredMatches.length} match${filteredMatches.length !== 1 ? 'es' : ''}`}
         </span>
       </div>
 
       {/* Table */}
       <div className="border-t border-gray-100">
         <MatchTable
-          matches={filteredMatches}
+          matches={displayedMatches}
           expandedId={expandedId}
           onToggleExpand={handleToggleExpand}
           onAction={handleAction}
           actionLoading={actionLoading}
         />
       </div>
+
+      {/* Show all matches CTA */}
+      {hasMore && (
+        <div className="border-t border-gray-100 px-6 py-4 text-center">
+          <button
+            onClick={() => router.push('/admin/matching?status=all')}
+            className="rounded-full border border-admin-green-300 bg-admin-green-50 px-6 py-2 text-sm font-medium text-admin-green-900 hover:bg-admin-green-100 transition-colors"
+          >
+            Show all matches ({filteredMatches.length} total)
+          </button>
+        </div>
+      )}
     </div>
   );
 }

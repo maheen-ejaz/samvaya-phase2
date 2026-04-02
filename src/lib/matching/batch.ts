@@ -165,7 +165,8 @@ export async function runMatchingPipeline(
       return { userA: a, userB: b };
     });
   } else {
-    pairs = await preFilterAllPairs();
+    const { pairs: allPairs } = await preFilterAllPairs();
+    pairs = allPairs;
   }
 
   const preFilter = await getPoolStats(pairs.length);

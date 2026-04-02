@@ -50,9 +50,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ preFilter, scoring });
   } catch (err) {
-    console.error('Batch scoring error:', err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Batch scoring error:', message);
     return NextResponse.json(
-      { error: 'Batch scoring failed' },
+      { error: `Batch scoring failed: ${message}` },
       { status: 500 }
     );
   }

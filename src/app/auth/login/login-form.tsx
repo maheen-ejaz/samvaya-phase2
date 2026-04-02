@@ -206,7 +206,7 @@ export function LoginForm() {
       setTimeout(() => {
         try {
           if (isSafeRedirectPath(nextPath)) { router.push(nextPath!); }
-          else { router.refresh(); }
+          else { router.push("/app"); }
         } catch { router.push("/app"); }
       }, 600);
     },
@@ -294,6 +294,12 @@ export function LoginForm() {
                 ? "We\u2019ll send a 6-digit code to your email"
                 : `Code sent to ${email}`}
             </p>
+
+            {step === "otp" && (
+              <p className="mt-3 rounded-lg bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">
+                Can&apos;t find it? Check your <strong>spam or junk folder</strong>. The code may take up to 3 minutes to arrive — please wait before requesting a new one.
+              </p>
+            )}
 
             <div className={`transition-opacity duration-150 ${transitioning ? "opacity-0" : "opacity-100"}`}>
               {step === "email" ? (

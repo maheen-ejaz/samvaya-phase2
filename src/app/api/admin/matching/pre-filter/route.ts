@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     const userId = body.userId as string | undefined;
 
     let pairs: Array<{ userA: string; userB: string }>;
+    let userErrorCount = 0;
 
     if (userId) {
       const validation = validateUserId(userId);
@@ -36,7 +37,9 @@ export async function POST(request: NextRequest) {
         return { userA: a, userB: b };
       });
     } else {
-      pairs = await preFilterAllPairs();
+      const { pairs: allPairs, userErrors } = await preFilterAllPairs();
+      pairs = allPairs;
+      userErrorCount = userErrors;
     }
 
     const stats = await getPoolStats(pairs.length);
@@ -52,14 +55,16 @@ export async function POST(request: NextRequest) {
         total_in_pool: stats.total_in_pool,
         pairs_found: stats.pairs_after_filter,
         reduction_pct: stats.reduction_pct,
+        users_skipped: userErrorCount,
       }
     );
 
-    return NextResponse.json({ pairs, stats });
+    return NextResponse.json({ pairs, stats: { ...stats, users_skipped: userErrorCount } });
   } catch (err) {
-    console.error('Pre-filter error:', err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Pre-filter error:', message);
     return NextResponse.json(
-      { error: 'Pre-filter failed' },
+      { error: `Pre-filter failed: ${message}` },
       { status: 500 }
     );
   }

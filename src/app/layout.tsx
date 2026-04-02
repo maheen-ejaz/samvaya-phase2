@@ -1,13 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Urbanist } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "./globals.css";
-
-const urbanist = Urbanist({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
-  variable: "--font-urbanist",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Samvaya Matrimony",
@@ -35,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${urbanist.variable} antialiased`}
+        className={`${GeistSans.variable} antialiased`}
       >
         {children}
       </body>

@@ -26,9 +26,10 @@ export async function preFilterForUser(userId: string): Promise<string[]> {
  * Run pre-filtering for all pool members and return deduplicated pairs.
  * Pairs are canonical: profile_a_id < profile_b_id (UUID string comparison).
  */
-export async function preFilterAllPairs(): Promise<
-  Array<{ userA: string; userB: string }>
-> {
+export async function preFilterAllPairs(): Promise<{
+  pairs: Array<{ userA: string; userB: string }>;
+  userErrors: number;
+}> {
   const supabase = createAdminClient();
 
   // Get all users in the pool
@@ -37,19 +38,20 @@ export async function preFilterAllPairs(): Promise<
     .select('id')
     .eq('is_bgv_complete', true)
     .in('payment_status', ['in_pool', 'match_presented'])
-    .or('is_paused.is.null,is_paused.eq.false');
+    .eq('is_paused', false);
 
   if (poolError) {
     throw new Error(`Failed to fetch pool users: ${poolError.message}`);
   }
 
   if (!poolUsers || poolUsers.length === 0) {
-    return [];
+    return { pairs: [], userErrors: 0 };
   }
 
   // Run pre-filter for each pool user — isolate failures per user
   const pairSet = new Set<string>();
   const pairs: Array<{ userA: string; userB: string }> = [];
+  let userErrors = 0;
 
   for (const user of poolUsers) {
     try {
@@ -68,10 +70,11 @@ export async function preFilterAllPairs(): Promise<
       }
     } catch (err) {
       console.error(`Pre-filter failed for user ${user.id}, skipping:`, err);
+      userErrors++;
     }
   }
 
-  return pairs;
+  return { pairs, userErrors };
 }
 
 /**
@@ -87,7 +90,7 @@ export async function getPoolStats(
     .select('id', { count: 'exact', head: true })
     .eq('is_bgv_complete', true)
     .in('payment_status', ['in_pool', 'match_presented'])
-    .or('is_paused.is.null,is_paused.eq.false');
+    .eq('is_paused', false);
 
   if (error) {
     throw new Error(`Failed to get pool stats: ${error.message}`);
