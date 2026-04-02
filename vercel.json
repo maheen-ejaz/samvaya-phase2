@@ -7,7 +7,7 @@
     },
     {
       "path": "/api/admin/communications/send-abandonment",
-      "schedule": "0 */6 * * *"
+      "schedule": "30 9 * * *"
     }
   ]
 }
