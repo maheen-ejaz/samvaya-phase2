@@ -80,7 +80,7 @@ export function TemplateList({ templates, onEdit, onRefresh }: TemplateListProps
           >
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-semibold text-gray-900">{template.name}</h3>
+                <h3 className="text-lg font-medium text-gray-900">{template.name}</h3>
                 <p className="mt-0.5 text-xs text-gray-500">
                   Subject: {template.subject}
                 </p>

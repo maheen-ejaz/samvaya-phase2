@@ -70,7 +70,7 @@ export function CompatibilityBreakdown({ report }: CompatibilityBreakdownProps) 
         {/* Match Narrative — 100% of column 2 */}
         {report.narrative && (
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <h4 className="text-sm font-semibold text-gray-900">Match Narrative</h4>
+            <h4 className="text-lg font-medium text-gray-900">Match Narrative</h4>
             <p className="mt-2 text-sm leading-relaxed text-gray-700 italic">&ldquo;{report.narrative}&rdquo;</p>
           </div>
         )}

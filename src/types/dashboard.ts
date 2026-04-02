@@ -1,23 +1,47 @@
 // Dashboard-specific types for the admin command center
 
+export type AlertType = 'payment' | 'bgv' | 'match' | 'stalled' | 'verification';
+
 export interface DashboardAlert {
   id: string;
   userId: string;
   name: string;
   message: string;
   priority: 'high' | 'medium' | 'low';
+  alertType: AlertType;
   actionLabel: string;
   actionHref?: string;
   actionEndpoint?: string;
   actionPayload?: Record<string, unknown>;
   daysStuck?: number;
+
+  // Profile context
+  age?: number;
+  gender?: string;
+  specialty?: string;
+  city?: string;
+  photoUrl?: string;
+
+  // Secondary action
+  secondaryActionLabel?: string;
+  secondaryActionHref?: string;
+
+  // Match-specific
+  hoursRemaining?: number;
+  waitingOn?: string;
+  compatibilityScore?: number;
+
+  // Email nudge support (two-step inline send)
+  nudgeEmailTo?: string;
+  nudgeEmailSubject?: string;
+  nudgeEmailBody?: string;
 }
 
 export interface DashboardMatch {
   suggestionId: string;
   presentationId: string | null;
-  personA: { id: string; name: string; details?: string };
-  personB: { id: string; name: string; details?: string };
+  personA: { id: string; name: string; details?: string; primaryPhotoUrl?: string; gender?: string };
+  personB: { id: string; name: string; details?: string; primaryPhotoUrl?: string; gender?: string };
   compatibilityScore: number;
   matchReason: string;
   fullNarrative: string;
@@ -58,8 +82,11 @@ export interface MatchStageCounts {
   mutualInterest: number;
 }
 
-export interface PipelineStage {
+export interface PipelineStripStage {
   stage: string;
+  key: string;
   count: number;
   conversionPct: number | null;
+  trend?: { direction: 'up' | 'down' | 'flat'; percentage: number };
+  href: string;
 }

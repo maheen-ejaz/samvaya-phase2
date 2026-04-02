@@ -24,7 +24,7 @@ export default async function ApplicantLayout({
   // Fetch user data for status context
   const { data: userDataRaw } = await supabase
     .from("users")
-    .select("role, payment_status, is_goocampus_member, onboarding_section")
+    .select("role, payment_status, is_goocampus_member, onboarding_section, membership_status")
     .eq("id", user.id)
     .single();
   const userData = userDataRaw as Record<string, unknown> | null;
@@ -51,6 +51,11 @@ export default async function ApplicantLayout({
   const payment = paymentRaw as Record<string, unknown> | null;
 
   const onboardingComplete = Number(userData?.onboarding_section) >= 13;
+  const membershipStatus = (userData?.membership_status as string) ?? 'onboarding_pending';
+
+  // Users who completed the form but haven't been promoted to active/in_pool
+  // see a simplified layout — no PWA chrome (BottomNav, AppHeader, etc.)
+  const isFormOnlyUser = onboardingComplete && membershipStatus === 'onboarding_complete';
 
   const userStatus = {
     userId: user.id,
@@ -67,11 +72,20 @@ export default async function ApplicantLayout({
     return (
       <UserStatusProvider value={userStatus}>
         {children}
-        <ServiceWorkerRegistration />
       </UserStatusProvider>
     );
   }
 
+  // Form completed but not yet active — simplified layout, no PWA features
+  if (isFormOnlyUser) {
+    return (
+      <UserStatusProvider value={userStatus}>
+        {children}
+      </UserStatusProvider>
+    );
+  }
+
+  // Full PWA layout — only for users who are in_pool or beyond
   return (
     <UserStatusProvider value={userStatus}>
       <div className="bg-page-warm">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { MatchSuggestionWithProfiles, CompatibilityReport } from '@/types/matching';
 import { CompatibilityBreakdown } from './CompatibilityBreakdown';
+import { capitalize } from '@/lib/utils';
 
 interface SuggestionCardProps {
   suggestion: MatchSuggestionWithProfiles;
@@ -74,12 +75,13 @@ export function SuggestionCard({ suggestion, onApprove, onReject }: SuggestionCa
             <p className="font-medium text-gray-900">{suggestion.profile_a.full_name}</p>
             <p className="text-sm text-gray-500">
               {suggestion.profile_a.age ? `${suggestion.profile_a.age}y` : '—'}{' '}
-              {suggestion.profile_a.gender || ''}{' '}
-              {suggestion.profile_a.specialty?.join(', ') || ''}
+              {suggestion.profile_a.gender ? capitalize(suggestion.profile_a.gender) : ''}{' '}
+              {suggestion.profile_a.specialty?.map((s) => capitalize(s)).join(', ') || ''}
             </p>
             <p className="text-xs text-gray-400">
               {[suggestion.profile_a.current_city, suggestion.profile_a.current_state]
                 .filter(Boolean)
+                .map((v) => capitalize(v!))
                 .join(', ') || '—'}
             </p>
           </div>
@@ -105,12 +107,13 @@ export function SuggestionCard({ suggestion, onApprove, onReject }: SuggestionCa
             <p className="font-medium text-gray-900">{suggestion.profile_b.full_name}</p>
             <p className="text-sm text-gray-500">
               {suggestion.profile_b.age ? `${suggestion.profile_b.age}y` : '—'}{' '}
-              {suggestion.profile_b.gender || ''}{' '}
-              {suggestion.profile_b.specialty?.join(', ') || ''}
+              {suggestion.profile_b.gender ? capitalize(suggestion.profile_b.gender) : ''}{' '}
+              {suggestion.profile_b.specialty?.map((s) => capitalize(s)).join(', ') || ''}
             </p>
             <p className="text-xs text-gray-400">
               {[suggestion.profile_b.current_city, suggestion.profile_b.current_state]
                 .filter(Boolean)
+                .map((v) => capitalize(v!))
                 .join(', ') || '—'}
             </p>
           </div>

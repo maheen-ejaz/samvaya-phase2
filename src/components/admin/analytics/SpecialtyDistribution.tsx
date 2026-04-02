@@ -1,5 +1,7 @@
 'use client';
 
+import { capitalize } from '@/lib/utils';
+
 interface SpecialtyEntry {
   specialty: string;
   count: number;
@@ -32,7 +34,7 @@ export function SpecialtyDistribution({ data }: SpecialtyDistributionProps) {
             <tbody className="divide-y divide-gray-50">
               {data.map((entry, i) => (
                 <tr key={i}>
-                  <td className="py-2 text-gray-900">{entry.specialty}</td>
+                  <td className="py-2 text-gray-900">{capitalize(entry.specialty)}</td>
                   <td className="py-2 text-right font-medium text-gray-900">{entry.count}</td>
                   <td className="py-2 pl-4">
                     <div className="h-4 w-full rounded-full bg-gray-100">

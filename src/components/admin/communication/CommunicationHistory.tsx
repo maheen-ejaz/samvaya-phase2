@@ -42,7 +42,7 @@ export function CommunicationHistory({ userId, refreshKey }: CommunicationHistor
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500">
+      <h3 className="mb-4 text-lg font-medium text-gray-900">
         Communication History
       </h3>
 

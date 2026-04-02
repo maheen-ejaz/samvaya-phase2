@@ -88,6 +88,14 @@ export function timeAgo(date: string | Date): string {
 }
 
 /**
+ * Capitalize the first letter of a string.
+ */
+export function capitalize(str: string): string {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
  * Calculate days between two dates (or from a date to now).
  */
 export function daysSince(date: string | Date | null | undefined): number {

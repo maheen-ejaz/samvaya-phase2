@@ -120,7 +120,7 @@ export function SuggestionQueue() {
     <div className="space-y-6">
       {/* Pipeline Controls */}
       <div className="rounded-lg border border-gray-200 bg-white p-4">
-        <h3 className="text-sm font-semibold text-gray-900">Pipeline Controls</h3>
+        <h3 className="text-lg font-medium text-gray-900">Pipeline Controls</h3>
         <div className="mt-3 flex flex-wrap gap-3">
           <button
             onClick={() => runPipeline('pre-filter')}

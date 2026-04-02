@@ -14,10 +14,10 @@ function formatAction(action: string): string {
 
 export function ActivityFeed({ logs }: ActivityFeedProps) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
+    <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-900">Today&apos;s Activity</h3>
-        <Link href="/admin/activity" className="text-xs text-rose-600 hover:text-rose-700">
+        <h3 className="text-lg font-medium text-gray-900">Today&apos;s Activity</h3>
+        <Link href="/admin/activity" className="text-xs font-medium text-admin-green-800 hover:text-admin-green-700">
           View all
         </Link>
       </div>
@@ -28,7 +28,7 @@ export function ActivityFeed({ logs }: ActivityFeedProps) {
         <div className="mt-3 space-y-2">
           {logs.map((log) => (
             <div key={log.id} className="flex items-start gap-2 text-sm">
-              <span className="mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-rose-400" />
+              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-admin-green-500" />
               <div className="flex-1 leading-snug">
                 <span className="font-medium text-gray-900">{log.actorName}</span>{' '}
                 <span className="text-gray-600">{formatAction(log.action)}</span>{' '}

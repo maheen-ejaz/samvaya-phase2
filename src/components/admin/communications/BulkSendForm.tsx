@@ -311,7 +311,7 @@ export function BulkSendForm({ templates }: BulkSendFormProps) {
       {/* Step 2: Recipients */}
       {step === 2 && (
         <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
-          <h3 className="text-sm font-semibold text-gray-900">Filter Recipients</h3>
+          <h3 className="text-lg font-medium text-gray-900">Filter Recipients</h3>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -417,7 +417,7 @@ export function BulkSendForm({ templates }: BulkSendFormProps) {
       {/* Step 3: Review & Send */}
       {step === 3 && (
         <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
-          <h3 className="text-sm font-semibold text-gray-900">Review & Confirm</h3>
+          <h3 className="text-lg font-medium text-gray-900">Review & Confirm</h3>
 
           <div className="rounded-md bg-gray-50 p-4 space-y-2 text-sm">
             <p><span className="font-medium text-gray-700">Content:</span> {useTemplate ? selectedTemplate?.name : 'Custom content'}</p>

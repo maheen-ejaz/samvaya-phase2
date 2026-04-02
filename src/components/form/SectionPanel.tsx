@@ -166,6 +166,10 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
             const question = getQuestion(item.qId)!;
             const savedChatState = chatState[item.qId] as ChatState | undefined;
             const isLastChat = isLastSection && item.qId === 'Q100';
+            // Seed answer from saved chat state so section validation can check completion
+            if (savedChatState?.isComplete && !answers[item.qId]) {
+              setAnswer(item.qId, 'complete');
+            }
             return (
               <div key={item.qId} id={`q-${item.qId}`}>
                 {item.dividerLabel && <SubGroupDivider label={item.dividerLabel} />}
@@ -173,7 +177,7 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
                   <ChatInterface
                     question={question}
                     initialChatState={savedChatState || null}
-                    onComplete={isLastChat ? () => { submitForm(); } : () => {}}
+                    onComplete={isLastChat ? () => { setAnswer(item.qId, 'complete'); submitForm(); } : () => { setAnswer(item.qId, 'complete'); }}
                     completeButtonLabel={isLastChat ? 'Submit your application' : undefined}
                   />
                 </div>

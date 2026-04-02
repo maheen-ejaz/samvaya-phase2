@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { StatusDashboard } from '@/components/app/StatusDashboard';
+import { StatusReviewPage } from '@/components/app/StatusReviewPage';
 
 export interface DashboardData {
   firstName: string | null;
@@ -36,7 +37,7 @@ export default async function ApplicantHome() {
       await Promise.all([
         supabase
           .from('users')
-          .select('onboarding_section, created_at, verified_at')
+          .select('onboarding_section, created_at, verified_at, membership_status, is_goocampus_member')
           .eq('id', user.id)
           .single(),
         supabase
@@ -78,6 +79,18 @@ export default async function ApplicantHome() {
       redirect('/app/onboarding');
     }
 
+    // Form completed but not yet active — show status + edit page (no PWA)
+    if (userData?.membership_status === 'onboarding_complete') {
+      const profile = profileResult.data;
+      return (
+        <StatusReviewPage
+          firstName={profile?.first_name ?? null}
+          submittedAt={(userData?.created_at as string) || new Date().toISOString()}
+          isGoocampusMember={(userData?.is_goocampus_member as boolean) ?? false}
+        />
+      );
+    }
+
     const profile = profileResult.data;
     const medCred = medResult.data as Record<string, unknown> | null;
     const payment = paymentResult.data as Record<string, unknown> | null;
@@ -112,6 +125,8 @@ export default async function ApplicantHome() {
 
     return <StatusDashboard data={dashboardData} />;
   } catch (err) {
+    // Re-throw Next.js internal errors (redirect, notFound) — they use throw internally
+    if (err && typeof err === 'object' && 'digest' in err) throw err;
     console.error('Page load error:', err);
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8" role="alert">

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendEmail } from '@/lib/email/client';
-import { applicantCompletionEmail, teamNotificationEmail } from '@/lib/email/templates';
+import { applicantCompletionEmail, teamNotificationEmail, applicationUpdatedEmail } from '@/lib/email/templates';
 import { checkRateLimit } from '@/lib/rate-limit';
 
 const TEAM_EMAIL = process.env.TEAM_NOTIFICATION_EMAIL || 'team@samvayamatrimony.com';
@@ -36,6 +36,26 @@ export async function POST() {
   }
 
   if (userData.membership_status === 'onboarding_complete') {
+    // Re-submission from edit mode — send update notification to team
+    const [editProfileResult, editMedicalResult] = await Promise.all([
+      supabase.from('profiles').select('first_name, last_name').eq('user_id', user.id).maybeSingle(),
+      supabase.from('medical_credentials').select('specialty').eq('user_id', user.id).maybeSingle(),
+    ]);
+    const editFirstName = editProfileResult.data?.first_name || 'Applicant';
+    const editLastName = editProfileResult.data?.last_name || '';
+    const editRawSpecialty = editMedicalResult.data?.specialty;
+    const editSpecialty = Array.isArray(editRawSpecialty) ? editRawSpecialty.join(', ') : (editRawSpecialty || '');
+
+    const updateEmail = applicationUpdatedEmail({
+      firstName: editFirstName,
+      lastName: editLastName,
+      email: user.email || 'unknown',
+      specialty: editSpecialty,
+    });
+    sendEmail(TEAM_EMAIL, updateEmail.subject, updateEmail.html).catch((err) =>
+      console.error('Update notification email failed:', err)
+    );
+
     return NextResponse.json({ success: true, alreadySubmitted: true });
   }
 

@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ApplicantActions } from './ApplicantActions';
 import { PaymentStatusBadge, ConsentBadge, GooCampusBadge } from './StatusBadge';
+import { capitalize } from '@/lib/utils';
 
 export interface Applicant {
   id: string;
@@ -19,6 +20,7 @@ export interface Applicant {
 
 interface ApplicantListProps {
   applicants: Applicant[];
+  title?: string;
 }
 
 const STATUS_OPTIONS = [
@@ -36,7 +38,7 @@ type SortDir = 'asc' | 'desc';
 
 const PER_PAGE = 25;
 
-export function ApplicantList({ applicants }: ApplicantListProps) {
+export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantListProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortField, setSortField] = useState<SortField>('submittedAt');
@@ -111,7 +113,7 @@ export function ApplicantList({ applicants }: ApplicantListProps) {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Applicants</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
         <p className="mt-1 text-sm text-gray-500">
           {applicants.length} applicant{applicants.length !== 1 ? 's' : ''} completed the form
         </p>
@@ -212,7 +214,7 @@ export function ApplicantList({ applicants }: ApplicantListProps) {
                     {applicant.email}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
-                    {applicant.specialty || '—'}
+                    {applicant.specialty ? capitalize(applicant.specialty) : '—'}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
                     {formatDate(applicant.submittedAt)}

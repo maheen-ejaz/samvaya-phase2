@@ -49,7 +49,7 @@ export function IdentitySnapshot({
 export function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500">{title}</h3>
+      <h3 className="mb-4 text-lg font-medium text-gray-900">{title}</h3>
       {children}
     </div>
   );

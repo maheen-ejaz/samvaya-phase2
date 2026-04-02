@@ -1,4 +1,5 @@
 import { PaymentStatusBadge, GooCampusBadge, BgvBadge } from '../StatusBadge';
+import { capitalize } from '@/lib/utils';
 
 interface ProfileHeaderProps {
   firstName: string;
@@ -39,10 +40,11 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
   const location = [currentCity, currentState, currentCountry]
     .filter(Boolean)
+    .map((v) => capitalize(v!))
     .join(', ');
 
   const statusLabel = medicalStatus?.replace(/_/g, ' ') || '';
-  const specialtyStr = specialty.length > 0 ? specialty.join(', ') : '';
+  const specialtyStr = specialty.length > 0 ? specialty.map((s) => capitalize(s)).join(', ') : '';
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6">
@@ -67,7 +69,7 @@ export function ProfileHeader({
                 {firstName} {lastName}
               </h2>
               <p className="mt-0.5 text-sm text-gray-500">
-                {age ? `${age} years` : ''}{age && gender ? ', ' : ''}{gender || ''}
+                {age ? `${age} years` : ''}{age && gender ? ', ' : ''}{gender ? capitalize(gender) : ''}
                 {location ? ` — ${location}` : ''}
               </p>
             </div>

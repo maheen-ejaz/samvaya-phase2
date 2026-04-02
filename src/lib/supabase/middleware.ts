@@ -57,12 +57,13 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     const { data: userData } = await supabase
       .from("users")
-      .select("role")
+      .select("role, membership_status")
       .eq("id", user.id)
       .single();
 
     const role = userData?.role ?? "applicant";
     const isAdmin = role === "admin" || role === "super_admin";
+    const membershipStatus = userData?.membership_status ?? "onboarding_pending";
 
     // Already authenticated and on auth pages → redirect to correct area
     if (pathname.startsWith("/auth")) {
@@ -92,6 +93,20 @@ export async function updateSession(request: NextRequest) {
     // Admin trying to access applicant area → redirect to /admin
     if (pathname.startsWith("/app") && isAdmin) {
       return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    // Block PWA routes for form-only users (onboarding_complete but not yet active)
+    // Allow: /app, /app/onboarding — Block: /app/matches, /app/profile, /app/settings
+    if (
+      !isAdmin &&
+      membershipStatus === "onboarding_complete" &&
+      pathname.startsWith("/app/") &&
+      !pathname.startsWith("/app/onboarding")
+    ) {
+      const blockedPrefixes = ["/app/matches", "/app/profile", "/app/settings"];
+      if (blockedPrefixes.some((prefix) => pathname.startsWith(prefix))) {
+        return NextResponse.redirect(new URL("/app", request.url));
+      }
     }
   }
 

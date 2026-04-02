@@ -86,9 +86,9 @@ export function isQuestionAnswered(questionId: string, answers: FormAnswers): bo
     });
   }
 
-  // Claude chat: considered answered if chat state exists with isComplete
+  // Claude chat: check if chat has been completed (value set to 'complete' by SectionPanel)
   if (question.type === 'claude_chat') {
-    return true; // Chat completion is managed by ChatInterface, not form validation
+    return value === 'complete';
   }
 
   return true;

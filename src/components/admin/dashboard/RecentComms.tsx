@@ -9,17 +9,17 @@ interface RecentCommsProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  sent: 'bg-green-100 text-green-700',
-  failed: 'bg-red-100 text-red-700',
-  pending: 'bg-amber-100 text-amber-700',
+  sent: 'bg-admin-green-100 text-admin-green-900',
+  failed: 'bg-gray-100 text-gray-600',
+  pending: 'bg-admin-green-50 text-admin-green-800',
 };
 
 export function RecentComms({ communications }: RecentCommsProps) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
+    <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-900">Recent Communications</h3>
-        <Link href="/admin/communications" className="text-xs text-rose-600 hover:text-rose-700">
+        <h3 className="text-lg font-medium text-gray-900">Recent Communications</h3>
+        <Link href="/admin/communications" className="text-xs font-medium text-admin-green-800 hover:text-admin-green-700">
           View all
         </Link>
       </div>

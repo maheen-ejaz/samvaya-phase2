@@ -106,7 +106,7 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
           {selectedLabels.map((item) => (
             <span
               key={item.value}
-              className="inline-flex items-center gap-1 rounded-full border border-samvaya-red/20 bg-samvaya-red/10 px-3 py-1 text-sm text-gray-900"
+              className="inline-flex items-center gap-1 rounded-lg border border-samvaya-red/20 bg-samvaya-red/10 px-3 py-1 text-sm text-gray-900"
             >
               {item.label}
               <button

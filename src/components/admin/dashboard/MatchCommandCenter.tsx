@@ -85,7 +85,7 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white">
+    <div className="rounded-xl border border-gray-200/60 bg-white shadow-sm">
       {/* Header */}
       <div className="border-b border-gray-100 px-6 py-4">
         <h3 className="text-lg font-semibold text-gray-900">Match Command Center</h3>
@@ -99,28 +99,32 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
           count={stageCounts.pendingReview}
           isActive={stageFilter === 'pending_review'}
           onClick={() => handleStageClick('pending_review')}
-          colorClass="bg-blue-50 text-blue-700"
+          bgColor="bg-admin-green-50"
+          borderColor="border-admin-green-200"
         />
         <MatchStageCard
           label="Approved & Ready"
           count={stageCounts.approvedReady}
           isActive={stageFilter === 'approved'}
           onClick={() => handleStageClick('approved')}
-          colorClass="bg-purple-50 text-purple-700"
+          bgColor="bg-admin-green-100"
+          borderColor="border-admin-green-300"
         />
         <MatchStageCard
           label="Awaiting Response"
           count={stageCounts.presentedPending}
           isActive={stageFilter === 'presented'}
           onClick={() => handleStageClick('presented')}
-          colorClass="bg-amber-50 text-amber-700"
+          bgColor="bg-admin-green-50"
+          borderColor="border-admin-green-200"
         />
         <MatchStageCard
           label="Mutual Interest"
           count={stageCounts.mutualInterest}
           isActive={stageFilter === 'mutual_interest'}
           onClick={() => handleStageClick('mutual_interest')}
-          colorClass="bg-green-50 text-green-700"
+          bgColor="bg-admin-green-100"
+          borderColor="border-admin-green-300"
         />
       </div>
 
@@ -131,7 +135,7 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
           placeholder="Search by name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-64 rounded-md border border-gray-300 px-3 py-1.5 text-sm placeholder-gray-400 focus:border-gray-400 focus:outline-none"
+          className="w-64 rounded-lg border border-gray-200 px-3 py-1.5 text-sm placeholder-gray-400 focus:border-admin-green-400 focus:ring-1 focus:ring-admin-green-400/30 focus:outline-none"
         />
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <span>Sort by:</span>
@@ -142,7 +146,7 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
               setSortField(f);
               setSortDir(d);
             }}
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-gray-400 focus:outline-none"
+            className="rounded-lg border border-gray-200 px-2 py-1 text-sm focus:border-admin-green-400 focus:outline-none"
           >
             <option value="score-desc">Score (High → Low)</option>
             <option value="score-asc">Score (Low → High)</option>

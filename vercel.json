@@ -4,6 +4,10 @@
     {
       "path": "/api/admin/communications/send-scheduled",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/admin/communications/send-abandonment",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

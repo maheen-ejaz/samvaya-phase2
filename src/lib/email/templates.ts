@@ -61,6 +61,14 @@ export function applicantCompletionEmail(firstName: string): {
         <strong>What happens next:</strong> Once verification is complete (typically 7&ndash;10 working days), your profile enters our candidate pool and our matching process begins. You don&rsquo;t need to do anything &mdash; we&rsquo;ll be in touch when we have a compatible match for you.
       </p>
 
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        <strong>Want to update your answers?</strong> You can review and edit your application at any time before we begin processing.
+      </p>
+
+      <div style="text-align:center;margin:28px 0;">
+        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Review &amp; edit your application</a>
+      </div>
+
       <p style="font-size:14px;line-height:1.5;margin:24px 0 0;color:#6b7280;font-style:italic;">
         If you have already completed verification through GooCampus, this step is not required for you.
       </p>
@@ -292,6 +300,298 @@ export function statusUpdateEmail(
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
       <p style="font-size:13px;color:#9ca3af;margin:0;">
         &mdash; The Samvaya Team
+      </p>
+    </div>
+  </div>
+</body>
+</html>`.trim(),
+  };
+}
+
+// ============================================================
+// Form abandonment reminder 1 (24h after last activity)
+// ============================================================
+
+export function formReminder1Email(firstName: string): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: "Your Samvaya application is waiting for you",
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;background:#f9fafb;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+    <div style="background:#fff;border-radius:12px;padding:32px 24px;border:1px solid #e5e7eb;">
+      <h1 style="font-size:22px;font-weight:600;margin:0 0 24px;">You&rsquo;re partway through &mdash; let&rsquo;s finish this.</h1>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Hi ${escapeHtml(firstName)},
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        We noticed you started your Samvaya application but haven&rsquo;t completed it yet. Your progress has been saved &mdash; you can pick up right where you left off.
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Samvaya is a curated community of verified medical professionals looking for meaningful connections. Completing your profile is the first step toward finding your match.
+      </p>
+
+      <div style="text-align:center;margin:28px 0;">
+        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Continue your application</a>
+      </div>
+
+      <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">
+        It only takes a few more minutes to complete.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
+      <p style="font-size:13px;color:#9ca3af;margin:0;">
+        &mdash; The Samvaya Team
+      </p>
+    </div>
+  </div>
+</body>
+</html>`.trim(),
+  };
+}
+
+// ============================================================
+// Form abandonment reminder 2 (72h after last activity)
+// ============================================================
+
+export function formReminder2Email(firstName: string): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: "Your Samvaya application is still waiting",
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;background:#f9fafb;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+    <div style="background:#fff;border-radius:12px;padding:32px 24px;border:1px solid #e5e7eb;">
+      <h1 style="font-size:22px;font-weight:600;margin:0 0 24px;">We&rsquo;re saving your spot.</h1>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Hi ${escapeHtml(firstName)},
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Your Samvaya application is still incomplete. We&rsquo;ve saved all your progress, so you won&rsquo;t need to start over.
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Every profile in our candidate pool goes through a thorough background verification. The sooner you complete your application, the sooner we can begin the process and start matching you with compatible professionals.
+      </p>
+
+      <div style="text-align:center;margin:28px 0;">
+        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Complete your application</a>
+      </div>
+
+      <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">
+        This is our last reminder. If you have any questions, reply to this email or reach out on WhatsApp.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
+      <p style="font-size:13px;color:#9ca3af;margin:0;">
+        &mdash; The Samvaya Team
+      </p>
+    </div>
+  </div>
+</body>
+</html>`.trim(),
+  };
+}
+
+// ============================================================
+// Form abandonment reminder 3 (7 days after last activity)
+// ============================================================
+
+export function formReminder3Email(firstName: string): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: 'A quick check-in from Samvaya',
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;background:#f9fafb;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+    <div style="background:#fff;border-radius:12px;padding:32px 24px;border:1px solid #e5e7eb;">
+      <h1 style="font-size:22px;font-weight:600;margin:0 0 24px;">Just checking in.</h1>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Hi ${escapeHtml(firstName)},
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        It&rsquo;s been about a week since you started your Samvaya application. We understand life gets busy &mdash; especially for doctors.
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Your progress is still saved. Whenever you&rsquo;re ready, you can pick up exactly where you left off. The whole process takes about 15&ndash;20 minutes.
+      </p>
+
+      <div style="text-align:center;margin:28px 0;">
+        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Continue your application</a>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
+      <p style="font-size:13px;color:#9ca3af;margin:0;">
+        &mdash; The Samvaya Team
+      </p>
+    </div>
+  </div>
+</body>
+</html>`.trim(),
+  };
+}
+
+// ============================================================
+// Form abandonment reminder 4 (14 days after last activity)
+// ============================================================
+
+export function formReminder4Email(firstName: string): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: 'Your Samvaya profile is still here',
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;background:#f9fafb;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+    <div style="background:#fff;border-radius:12px;padding:32px 24px;border:1px solid #e5e7eb;">
+      <h1 style="font-size:22px;font-weight:600;margin:0 0 24px;">Your profile is waiting for you.</h1>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Hi ${escapeHtml(firstName)},
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        We wanted to let you know that your partially completed Samvaya application is still saved and ready for you.
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Samvaya is built around a small, carefully verified pool of medical professionals. Completing your profile is the only way to enter the pool and be considered for a match. We&rsquo;d love to have you.
+      </p>
+
+      <div style="text-align:center;margin:28px 0;">
+        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Finish your application</a>
+      </div>
+
+      <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">
+        If something about the application isn&rsquo;t working or you have questions, just reply to this email. We&rsquo;re happy to help.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
+      <p style="font-size:13px;color:#9ca3af;margin:0;">
+        &mdash; The Samvaya Team
+      </p>
+    </div>
+  </div>
+</body>
+</html>`.trim(),
+  };
+}
+
+// ============================================================
+// Form abandonment reminder 5 (21 days — final reminder)
+// ============================================================
+
+export function formReminder5Email(firstName: string): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: 'Last reminder: Your Samvaya application',
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;background:#f9fafb;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+    <div style="background:#fff;border-radius:12px;padding:32px 24px;border:1px solid #e5e7eb;">
+      <h1 style="font-size:22px;font-weight:600;margin:0 0 24px;">One last note from us.</h1>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Hi ${escapeHtml(firstName)},
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        This is our final reminder about your Samvaya application. We don&rsquo;t want to be a nuisance &mdash; so after this, we&rsquo;ll leave the ball in your court.
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Your progress is still saved. If you decide to come back &mdash; whether that&rsquo;s tomorrow or months from now &mdash; you can pick up where you left off. No pressure, no expiry.
+      </p>
+
+      <div style="text-align:center;margin:28px 0;">
+        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Complete your application</a>
+      </div>
+
+      <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">
+        We wish you all the best. If you ever want to reach us, just reply to this email or message us on WhatsApp.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
+      <p style="font-size:13px;color:#9ca3af;margin:0;">
+        &mdash; The Samvaya Team
+      </p>
+    </div>
+  </div>
+</body>
+</html>`.trim(),
+  };
+}
+
+// ============================================================
+// Team notification — applicant updated their application
+// ============================================================
+
+interface ApplicationUpdatedData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  specialty: string;
+}
+
+export function applicationUpdatedEmail(data: ApplicationUpdatedData): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: `Application updated: ${escapeHtml(data.firstName)} ${escapeHtml(data.lastName)}`,
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;background:#f9fafb;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+    <div style="background:#fff;border-radius:12px;padding:32px 24px;border:1px solid #e5e7eb;">
+      <h1 style="font-size:20px;font-weight:600;margin:0 0 24px;">Application Updated</h1>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        <strong>${escapeHtml(data.firstName)} ${escapeHtml(data.lastName)}</strong> has updated their submitted application.
+      </p>
+
+      <table style="width:100%;font-size:14px;line-height:1.8;border-collapse:collapse;">
+        <tr><td style="color:#6b7280;padding:4px 12px 4px 0;white-space:nowrap;">Email</td><td>${escapeHtml(data.email)}</td></tr>
+        <tr><td style="color:#6b7280;padding:4px 12px 4px 0;white-space:nowrap;">Specialty</td><td>${escapeHtml(data.specialty || 'Not specified')}</td></tr>
+        <tr><td style="color:#6b7280;padding:4px 12px 4px 0;white-space:nowrap;">Updated</td><td>${new Date().toISOString()}</td></tr>
+      </table>
+
+      <p style="font-size:14px;line-height:1.5;margin:24px 0 0;color:#6b7280;">
+        Please re-review their profile in the admin dashboard if processing has already begun.
       </p>
     </div>
   </div>

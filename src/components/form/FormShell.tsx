@@ -16,6 +16,7 @@ interface FormShellProps {
   initialChatState: Record<string, unknown>;
   resumeQuestionNumber: number;
   isAlreadySubmitted?: boolean;
+  isEditMode?: boolean;
 }
 
 export function FormShell({
@@ -25,8 +26,10 @@ export function FormShell({
   initialChatState,
   resumeQuestionNumber,
   isAlreadySubmitted,
+  isEditMode,
 }: FormShellProps) {
-  if (isAlreadySubmitted) {
+  // Already submitted and NOT in edit mode — show completion screen
+  if (isAlreadySubmitted && !isEditMode) {
     return <CompletionScreen />;
   }
 
@@ -38,12 +41,12 @@ export function FormShell({
       initialChatState={initialChatState}
       resumeQuestionNumber={resumeQuestionNumber}
     >
-      <FormContent />
+      <FormContent isEditMode={isEditMode} />
     </FormProvider>
   );
 }
 
-function FormContent() {
+function FormContent({ isEditMode }: { isEditMode?: boolean }) {
   const { formSubmitted } = useForm();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Set<string>>(new Set());
@@ -68,6 +71,11 @@ function FormContent() {
         {/* Main content — white background for clean form */}
         <main className="flex-1 bg-white lg:overflow-y-auto">
           <div className="mx-auto max-w-2xl px-4 py-6 pt-16 lg:px-10 lg:py-12 lg:pt-12">
+            {isEditMode && (
+              <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                You are editing your submitted application. Changes are saved automatically.
+              </div>
+            )}
             <SectionPanel validationErrors={validationErrors} />
             <SectionNavigationButtons onValidationErrors={setValidationErrors} />
           </div>

@@ -122,7 +122,7 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
                         onClick={() => toggleOption(optValue)}
                         disabled={isDisabled}
                         aria-pressed={isSelected}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
                           isSelected
                             ? 'bg-samvaya-red text-white'
                             : isDisabled
@@ -159,7 +159,7 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
               onClick={() => toggleOption(otherOption.value)}
               disabled={isOtherDisabled}
               aria-pressed={isOtherSelected}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
+              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
                 isOtherSelected
                   ? 'bg-samvaya-red text-white'
                   : isOtherDisabled

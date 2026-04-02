@@ -1,15 +1,13 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { MetricCard } from '@/components/admin/MetricCard';
-import { PipelineFunnel } from '@/components/admin/dashboard/PipelineFunnel';
+import { PipelineStrip } from '@/components/admin/dashboard/PipelineStrip';
 import { AlertsList } from '@/components/admin/dashboard/AlertsList';
-import { DistributionTabs } from '@/components/admin/dashboard/DistributionTabs';
 import { MatchCommandCenter } from '@/components/admin/dashboard/MatchCommandCenter';
 import { ActivityFeed } from '@/components/admin/dashboard/ActivityFeed';
 import { RecentComms } from '@/components/admin/dashboard/RecentComms';
-import { calculateAge, daysSince } from '@/lib/utils';
-import type { DashboardAlert, DashboardMatch, DashboardActivityLog, DashboardCommLog, DistributionEntry, MatchStageCounts, PipelineStage } from '@/types/dashboard';
+import { calculateAge, capitalize, daysSince } from '@/lib/utils';
+import type { DashboardAlert, DashboardMatch, DashboardActivityLog, DashboardCommLog, MatchStageCounts, PipelineStripStage } from '@/types/dashboard';
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -54,7 +52,7 @@ export default async function AdminDashboard() {
       // A: All applicant users
       adminSupabase
         .from('users')
-        .select('id, membership_status, payment_status, is_bgv_complete, bgv_flagged, is_goocampus_member, updated_at')
+        .select('id, membership_status, payment_status, is_bgv_complete, bgv_flagged, bgv_consent, is_goocampus_member, onboarding_section, updated_at')
         .eq('role', 'applicant' as never),
 
       // B: Waitlist
@@ -163,6 +161,12 @@ export default async function AdminDashboard() {
       };
     }
 
+    // Extract trend for pipeline strip (drop sparkline + label)
+    function extractTrend(t: ReturnType<typeof buildTrend>): { trend?: { direction: 'up' | 'down' | 'flat'; percentage: number } } {
+      if (!t.trend) return {};
+      return { trend: { direction: t.trend.direction, percentage: t.trend.percentage } };
+    }
+
     // ================================================================
     // Build profile name map (used everywhere)
     // ================================================================
@@ -190,13 +194,13 @@ export default async function AdminDashboard() {
         const age = calculateAge(p.date_of_birth);
         if (age) parts.push(`${age}y`);
       }
-      if (p?.gender) parts.push(p.gender);
+      if (p?.gender) parts.push(capitalize(p.gender));
       if (m?.current_status) {
         const spec = Array.isArray(m.specialty) ? m.specialty[0] : null;
-        if (spec) parts.push(String(spec));
+        if (spec) parts.push(capitalize(String(spec)));
       }
-      if (p?.current_city) parts.push(p.current_city);
-      if (p?.current_state && !p.current_city) parts.push(p.current_state);
+      if (p?.current_city) parts.push(capitalize(p.current_city));
+      if (p?.current_state && !p.current_city) parts.push(capitalize(p.current_state));
       return parts.join(' · ');
     }
 
@@ -215,28 +219,39 @@ export default async function AdminDashboard() {
     const activeMembers = users.filter((u) => u.payment_status === 'active_member').length;
 
     // ================================================================
-    // ROW 2: Pipeline Funnel with conversion percentages
+    // ROW 1: Unified Pipeline Strip (replaces old KPI cards + funnel)
     // ================================================================
-    // Funnel stages with explicit conversion pairs (only show % for meaningful subset transitions)
-    const funnelData: PipelineStage[] = [
-      { stage: 'Waitlist', count: waitlistTotal, conversionPct: null },
-      { stage: 'Invited', count: waitlistInvited, conversionPct: waitlistTotal > 0 ? Math.round((waitlistInvited / waitlistTotal) * 100) : null },
-      { stage: 'Signed Up', count: signedUp, conversionPct: null }, // not a subset of invited
-      { stage: 'Form In Progress', count: formInProgress, conversionPct: null },
-      { stage: 'Form Complete', count: formComplete, conversionPct: signedUp > 0 ? Math.round((formComplete / signedUp) * 100) : null },
-      { stage: 'Payment Verified', count: paymentVerified, conversionPct: formComplete > 0 ? Math.round((paymentVerified / formComplete) * 100) : null },
-      { stage: 'BGV Complete', count: bgvComplete, conversionPct: paymentVerified > 0 ? Math.round((bgvComplete / paymentVerified) * 100) : null },
-      { stage: 'In Pool', count: inPool, conversionPct: bgvComplete > 0 ? Math.round((inPool / bgvComplete) * 100) : null },
-      { stage: 'Matches Active', count: matchesActive, conversionPct: inPool > 0 ? Math.round((matchesActive / inPool) * 100) : null },
-      { stage: 'Active Members', count: activeMembers, conversionPct: null },
+    const pipelineStages: PipelineStripStage[] = [
+      { stage: 'Waitlist', key: 'waitlist', count: waitlistTotal, conversionPct: null, href: '/admin/applicants?stage=waitlist', ...extractTrend(buildTrend(waitlistTotal, 'waitlist_total')) },
+      { stage: 'Invited', key: 'invited', count: waitlistInvited, conversionPct: waitlistTotal > 0 ? Math.round((waitlistInvited / waitlistTotal) * 100) : null, href: '/admin/applicants?stage=invited', ...extractTrend(buildTrend(waitlistInvited, 'waitlist_invited')) },
+      { stage: 'Signed Up', key: 'signed_up', count: signedUp, conversionPct: null, href: '/admin/applicants?stage=signed_up', ...extractTrend(buildTrend(signedUp, 'signed_up')) },
+      { stage: 'Form In Progress', key: 'form_in_progress', count: formInProgress, conversionPct: null, href: '/admin/applicants?stage=form_in_progress', ...extractTrend(buildTrend(formInProgress, 'form_in_progress')) },
+      { stage: 'Form Complete', key: 'form_complete', count: formComplete, conversionPct: signedUp > 0 ? Math.round((formComplete / signedUp) * 100) : null, href: '/admin/applicants?stage=form_complete', ...extractTrend(buildTrend(formComplete, 'form_complete')) },
+      { stage: 'Payment Verified', key: 'payment_verified', count: paymentVerified, conversionPct: formComplete > 0 ? Math.round((paymentVerified / formComplete) * 100) : null, href: '/admin/applicants?stage=payment_verified', ...extractTrend(buildTrend(paymentVerified, 'payment_verified')) },
+      { stage: 'BGV Complete', key: 'bgv_complete', count: bgvComplete, conversionPct: paymentVerified > 0 ? Math.round((bgvComplete / paymentVerified) * 100) : null, href: '/admin/applicants?stage=bgv_complete', ...extractTrend(buildTrend(bgvComplete, 'bgv_complete')) },
+      { stage: 'In Pool', key: 'in_pool', count: inPool, conversionPct: bgvComplete > 0 ? Math.round((inPool / bgvComplete) * 100) : null, href: '/admin/applicants?stage=in_pool', ...extractTrend(buildTrend(inPool, 'in_pool')) },
+      { stage: 'Matches Active', key: 'matches_active', count: matchesActive, conversionPct: inPool > 0 ? Math.round((matchesActive / inPool) * 100) : null, href: '/admin/matching/presentations', ...extractTrend(buildTrend(matchesActive, 'matches_active')) },
+      { stage: 'Active Members', key: 'active_members', count: activeMembers, conversionPct: null, href: '/admin/applicants?stage=active_member', ...extractTrend(buildTrend(activeMembers, 'active_members')) },
     ];
 
     // ================================================================
-    // ROW 3 LEFT: Alerts & Action Items
+    // ROW 2: Alerts & Action Items (enriched)
     // ================================================================
     const alerts: DashboardAlert[] = [];
 
-    // Unverified applicants who completed the form
+    // Helper: build profile context fields for an alert
+    function alertContext(userId: string) {
+      const p = profileMap.get(userId);
+      const m = medicalMap.get(userId);
+      return {
+        age: p?.date_of_birth ? calculateAge(p.date_of_birth) ?? undefined : undefined,
+        gender: p?.gender ? capitalize(p.gender) : undefined,
+        specialty: m?.specialty ? capitalize(Array.isArray(m.specialty) ? String(m.specialty[0]) : String(m.specialty)) : undefined,
+        city: p?.current_city ? capitalize(p.current_city) : p?.current_state ? capitalize(p.current_state) : undefined,
+      };
+    }
+
+    // 1. Unverified applicants who completed the form (HIGH)
     const unverifiedComplete = users.filter(
       (u) => u.membership_status === 'onboarding_complete' && u.payment_status === 'unverified'
     );
@@ -249,14 +264,18 @@ export default async function AdminDashboard() {
         name,
         message: isGooCampus ? 'GooCampus member — verify to move to pool' : 'Form complete — awaiting fee confirmation',
         priority: 'high',
+        alertType: 'payment',
         actionLabel: isGooCampus ? 'Verify GooCampus' : 'Mark Fee Paid',
         actionEndpoint: `/api/admin/applicants/${u.id}/status`,
         actionPayload: { action: isGooCampus ? 'mark_goocampus_verified' : 'mark_verification_paid' },
         daysStuck: daysSince(u.updated_at),
+        secondaryActionLabel: 'View Profile',
+        secondaryActionHref: `/admin/applicants/${u.id}`,
+        ...alertContext(u.id),
       });
     }
 
-    // BGV flagged
+    // 2. BGV flagged (HIGH)
     const flagged = users.filter((u) => u.bgv_flagged);
     for (const u of flagged.slice(0, 5)) {
       alerts.push({
@@ -265,12 +284,15 @@ export default async function AdminDashboard() {
         name: getName(u.id),
         message: 'BGV check flagged — requires review',
         priority: 'high',
+        alertType: 'bgv',
         actionLabel: 'View BGV',
         actionHref: `/admin/verification/${u.id}`,
+        daysStuck: daysSince(u.updated_at),
+        ...alertContext(u.id),
       });
     }
 
-    // Presentations expiring within 48 hours
+    // 3. Presentations expiring within 48 hours (MEDIUM)
     const expiringSoon = presentations.filter((p) => {
       if (p.status !== 'pending' || !p.expires_at) return false;
       const hoursLeft = (new Date(p.expires_at).getTime() - Date.now()) / (60 * 60 * 1000);
@@ -279,31 +301,96 @@ export default async function AdminDashboard() {
     for (const p of expiringSoon.slice(0, 5)) {
       const suggestion = suggestions.find((s) => s.id === p.match_suggestion_id);
       if (!suggestion) continue;
+      const hoursLeft = Math.round((new Date(p.expires_at).getTime() - Date.now()) / (60 * 60 * 1000));
+      // Determine who hasn't responded
+      const waitingParts: string[] = [];
+      if (p.member_a_response === 'pending') waitingParts.push(getName(suggestion.profile_a_id));
+      if (p.member_b_response === 'pending') waitingParts.push(getName(suggestion.profile_b_id));
       alerts.push({
         id: `expiring-${p.id}`,
         userId: suggestion.profile_a_id,
         name: `${getName(suggestion.profile_a_id)} & ${getName(suggestion.profile_b_id)}`,
-        message: 'Match presentation expiring soon',
+        message: `Match expiring in ${hoursLeft}h`,
         priority: 'medium',
+        alertType: 'match',
         actionLabel: 'Record Response',
         actionHref: '/admin/matching/presentations',
+        hoursRemaining: hoursLeft,
+        waitingOn: waitingParts.length > 0 ? waitingParts.join(', ') : undefined,
+        compatibilityScore: suggestion.overall_compatibility_score || undefined,
       });
     }
 
-    // Stuck > 7 days at verification_pending
+    // 4. Pending match reviews (MEDIUM)
+    const pendingReviews = suggestions.filter((s) => s.admin_status === 'pending_review');
+    for (const s of pendingReviews.slice(0, 5)) {
+      alerts.push({
+        id: `review-${s.id}`,
+        userId: s.profile_a_id,
+        name: `${getName(s.profile_a_id)} & ${getName(s.profile_b_id)}`,
+        message: `New match suggestion — ${s.overall_compatibility_score || 0}% compatible`,
+        priority: 'medium',
+        alertType: 'match',
+        actionLabel: 'Review Match',
+        actionHref: '/admin/matching',
+        compatibilityScore: s.overall_compatibility_score || undefined,
+      });
+    }
+
+    // 5. Stuck > 7 days at verification_pending (LOW)
     const stuckVerification = users.filter(
       (u) => u.payment_status === 'verification_pending' && daysSince(u.updated_at) > 7
     );
     for (const u of stuckVerification.slice(0, 5)) {
+      // Determine what's blocking
+      let blockReason = 'Verification processing';
+      if (!u.bgv_consent || u.bgv_consent === 'not_given') blockReason = 'BGV consent not given';
+      else if (!u.is_bgv_complete) blockReason = 'BGV in progress';
+
+      const firstName = profileMap.get(u.id)?.first_name || getName(u.id);
       alerts.push({
         id: `stuck-${u.id}`,
         userId: u.id,
         name: getName(u.id),
-        message: 'Stuck in verification for too long',
+        message: `Stuck in verification — ${blockReason}`,
         priority: 'low',
-        actionLabel: 'View Profile',
-        actionHref: `/admin/applicants/${u.id}`,
+        alertType: 'verification',
+        actionLabel: 'Send Reminder',
+        actionHref: undefined,
+        actionEndpoint: undefined,
         daysStuck: daysSince(u.updated_at),
+        secondaryActionLabel: 'View Profile',
+        secondaryActionHref: `/admin/applicants/${u.id}`,
+        nudgeEmailTo: u.id,
+        nudgeEmailSubject: `Update on your Samvaya application`,
+        nudgeEmailBody: `Hi ${firstName},\n\nWe noticed your verification has been pending for a while. If you need any help or have questions about the process, please don't hesitate to reach out.\n\nWarm regards,\nSamvaya Matrimony Team`,
+        ...alertContext(u.id),
+      });
+    }
+
+    // 6. Stalled forms — in progress > 7 days (LOW)
+    const stalledForms = users.filter(
+      (u) => (u.membership_status === 'onboarding_pending' || u.membership_status === 'onboarding_in_progress') && daysSince(u.updated_at) > 7
+    );
+    for (const u of stalledForms.slice(0, 5)) {
+      const section = u.onboarding_section || 'A';
+      const firstName = profileMap.get(u.id)?.first_name || getName(u.id);
+      alerts.push({
+        id: `stalled-${u.id}`,
+        userId: u.id,
+        name: getName(u.id),
+        message: `Form stalled at Section ${section}`,
+        priority: 'low',
+        alertType: 'stalled',
+        actionLabel: 'Send Nudge',
+        actionEndpoint: undefined,
+        daysStuck: daysSince(u.updated_at),
+        secondaryActionLabel: 'View Profile',
+        secondaryActionHref: `/admin/applicants/${u.id}`,
+        nudgeEmailTo: u.id,
+        nudgeEmailSubject: `Complete your Samvaya application`,
+        nudgeEmailBody: `Hi ${firstName},\n\nWe noticed you started your Samvaya application but haven't completed it yet. Your spot is reserved — pick up where you left off whenever you're ready.\n\nWarm regards,\nSamvaya Matrimony Team`,
+        ...alertContext(u.id),
       });
     }
 
@@ -311,68 +398,39 @@ export default async function AdminDashboard() {
     const priorityOrder = { high: 0, medium: 1, low: 2 };
     alerts.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 
-    // ================================================================
-    // ROW 3 RIGHT: Distribution data
-    // ================================================================
-
-    // Location: group by current_state (normalize casing)
-    const stateCounts = new Map<string, number>();
-    for (const p of profiles) {
-      if (p.current_state) {
-        const normalized = p.current_state.trim().toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase());
-        stateCounts.set(normalized, (stateCounts.get(normalized) || 0) + 1);
+    // Fetch photos for alert users (batch)
+    const alertUserIds = new Set(alerts.map((a) => a.userId));
+    const alertPhotoMap = new Map<string, string>();
+    if (alertUserIds.size > 0) {
+      const { data: alertPhotos } = await adminSupabase
+        .from('photos')
+        .select('user_id, storage_path')
+        .eq('is_primary', true as never)
+        .in('user_id', Array.from(alertUserIds) as never);
+      if (alertPhotos && alertPhotos.length > 0) {
+        const paths = alertPhotos.map((p) => (p as { user_id: string; storage_path: string }).storage_path);
+        const { data: signedData } = await adminSupabase.storage
+          .from('photos')
+          .createSignedUrls(paths, 3600);
+        if (signedData) {
+          for (let i = 0; i < alertPhotos.length; i++) {
+            const photo = alertPhotos[i] as { user_id: string; storage_path: string };
+            const signed = signedData[i];
+            if (signed?.signedUrl) {
+              alertPhotoMap.set(photo.user_id, signed.signedUrl);
+            }
+          }
+        }
       }
     }
-    const locationData: DistributionEntry[] = [...stateCounts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 15)
-      .map(([label, count]) => ({ label, count }));
-
-    // Education: group by current_status
-    const eduLabels: Record<string, string> = {
-      mbbs_student: 'MBBS Student',
-      intern: 'Intern',
-      mbbs_passed: 'MBBS Passed',
-      pursuing_pg: 'Pursuing PG',
-      completed_pg: 'Completed PG',
-    };
-    const eduCounts = new Map<string, number>();
-    for (const m of medical) {
-      if (m.current_status) {
-        eduCounts.set(m.current_status, (eduCounts.get(m.current_status) || 0) + 1);
-      }
+    // Attach photos to alerts
+    for (const alert of alerts) {
+      const photoUrl = alertPhotoMap.get(alert.userId);
+      if (photoUrl) alert.photoUrl = photoUrl;
     }
-    const educationData: DistributionEntry[] = [...eduCounts.entries()]
-      .map(([key, count]) => ({ label: eduLabels[key] || key, count }))
-      .sort((a, b) => b.count - a.count);
-
-    // Age: bucket from DOB
-    const ageBuckets: Record<string, number> = {
-      '24-27': 0, '28-30': 0, '31-33': 0, '34-36': 0, '37+': 0,
-    };
-    for (const p of profiles) {
-      const age = calculateAge(p.date_of_birth);
-      if (age === null) continue;
-      if (age <= 27) ageBuckets['24-27']++;
-      else if (age <= 30) ageBuckets['28-30']++;
-      else if (age <= 33) ageBuckets['31-33']++;
-      else if (age <= 36) ageBuckets['34-36']++;
-      else ageBuckets['37+']++;
-    }
-    const ageData: DistributionEntry[] = Object.entries(ageBuckets).map(([label, count]) => ({ label, count }));
-
-    // Gender
-    const genderCounts = new Map<string, number>();
-    for (const p of profiles) {
-      if (p.gender) {
-        const label = p.gender === 'male' ? 'Male' : p.gender === 'female' ? 'Female' : p.gender;
-        genderCounts.set(label, (genderCounts.get(label) || 0) + 1);
-      }
-    }
-    const genderData: DistributionEntry[] = [...genderCounts.entries()].map(([label, count]) => ({ label, count }));
 
     // ================================================================
-    // ROW 4: Match Command Center
+    // Match Command Center
     // ================================================================
 
     // Build presentation lookup by suggestion ID
@@ -387,6 +445,37 @@ export default async function AdminDashboard() {
       presentedPending: presentations.filter((p) => p.status === 'pending').length,
       mutualInterest: presentations.filter((p) => p.is_mutual_interest).length,
     };
+
+    // Fetch primary photos for all matched users (batch query + batch sign)
+    const matchUserIds = new Set<string>();
+    for (const s of suggestions) {
+      if (s.admin_status === 'rejected' || s.admin_status === 'expired') continue;
+      matchUserIds.add(s.profile_a_id);
+      matchUserIds.add(s.profile_b_id);
+    }
+    const photoUrlMap = new Map<string, string>();
+    if (matchUserIds.size > 0) {
+      const { data: matchPhotos } = await adminSupabase
+        .from('photos')
+        .select('user_id, storage_path')
+        .eq('is_primary', true as never)
+        .in('user_id', Array.from(matchUserIds) as never);
+      if (matchPhotos && matchPhotos.length > 0) {
+        const paths = matchPhotos.map((p) => (p as { user_id: string; storage_path: string }).storage_path);
+        const { data: signedData } = await adminSupabase.storage
+          .from('photos')
+          .createSignedUrls(paths, 3600);
+        if (signedData) {
+          for (let i = 0; i < matchPhotos.length; i++) {
+            const photo = matchPhotos[i] as { user_id: string; storage_path: string };
+            const signed = signedData[i];
+            if (signed?.signedUrl) {
+              photoUrlMap.set(photo.user_id, signed.signedUrl);
+            }
+          }
+        }
+      }
+    }
 
     // Build unified match list
     const dashboardMatches: DashboardMatch[] = [];
@@ -422,8 +511,8 @@ export default async function AdminDashboard() {
       dashboardMatches.push({
         suggestionId: s.id,
         presentationId: pres?.id || null,
-        personA: { id: s.profile_a_id, name: getName(s.profile_a_id), details: getDetails(s.profile_a_id) },
-        personB: { id: s.profile_b_id, name: getName(s.profile_b_id), details: getDetails(s.profile_b_id) },
+        personA: { id: s.profile_a_id, name: getName(s.profile_a_id), details: getDetails(s.profile_a_id), primaryPhotoUrl: photoUrlMap.get(s.profile_a_id), gender: profileMap.get(s.profile_a_id)?.gender || undefined },
+        personB: { id: s.profile_b_id, name: getName(s.profile_b_id), details: getDetails(s.profile_b_id), primaryPhotoUrl: photoUrlMap.get(s.profile_b_id), gender: profileMap.get(s.profile_b_id)?.gender || undefined },
         compatibilityScore: s.overall_compatibility_score || 0,
         matchReason: narrative.length > 120 ? narrative.slice(0, 120) + '...' : narrative,
         fullNarrative: narrative,
@@ -466,56 +555,34 @@ export default async function AdminDashboard() {
     // RENDER
     // ================================================================
     return (
-      <div className="mx-auto max-w-[1600px] space-y-6">
+      <div className="space-y-6">
         <h1 className="sr-only">Admin Dashboard</h1>
-        {/* Row 1: Pipeline KPIs */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-          <div className="mt-4 grid grid-cols-5 gap-3">
-            <MetricCard label="Waitlist" value={waitlistTotal} {...buildTrend(waitlistTotal, 'waitlist_total')} />
-            <MetricCard label="Invited" value={waitlistInvited} {...buildTrend(waitlistInvited, 'waitlist_invited')} />
-            <MetricCard label="Signed Up" value={signedUp} {...buildTrend(signedUp, 'signed_up')} />
-            <MetricCard label="Form In Progress" value={formInProgress} {...buildTrend(formInProgress, 'form_in_progress')} />
-            <MetricCard label="Form Complete" value={formComplete} {...buildTrend(formComplete, 'form_complete')} />
-          </div>
-          <div className="mt-3 grid grid-cols-5 gap-3">
-            <MetricCard label="Payment Verified" value={paymentVerified} {...buildTrend(paymentVerified, 'payment_verified')} />
-            <MetricCard label="BGV Complete" value={bgvComplete} {...buildTrend(bgvComplete, 'bgv_complete')} />
-            <MetricCard label="In Pool" value={inPool} {...buildTrend(inPool, 'in_pool')} />
-            <MetricCard label="Matches Active" value={matchesActive} {...buildTrend(matchesActive, 'matches_active')} />
-            <MetricCard label="Active Members" value={activeMembers} {...buildTrend(activeMembers, 'active_members')} />
+
+        {/* Page header */}
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+            <p className="mt-1 text-sm text-gray-500">Overview of your applicant pipeline and matches</p>
           </div>
         </div>
 
-        {/* Row 2: Pipeline Funnel */}
-        <PipelineFunnel data={funnelData} />
+        {/* Row 1: Unified Pipeline Strip */}
+        <PipelineStrip stages={pipelineStages} />
 
-        {/* Row 3: Alerts (1/3) + Distribution (2/3) */}
-        <div className="grid grid-cols-3 gap-6">
+        {/* Row 2: Alerts (1/2) + Activity Feed (1/2) */}
+        <div className="grid grid-cols-2 gap-6">
           <AlertsList alerts={alerts} />
-          <div className="col-span-2">
-            <DistributionTabs
-              locationData={locationData}
-              educationData={educationData}
-              ageData={ageData}
-              genderData={genderData}
-            />
-          </div>
+          <ActivityFeed logs={activityFeed} />
         </div>
 
-        {/* Row 4: Match Command Center */}
+        {/* Row 3: Match Command Center */}
         <MatchCommandCenter
           initialMatches={dashboardMatches}
           stageCounts={stageCounts}
         />
 
-        {/* Row 5: Activity (1/3) + Communications (2/3) */}
-        <div className="grid grid-cols-3 gap-6">
-          <ActivityFeed logs={activityFeed} />
-          <div className="col-span-2">
-            <RecentComms communications={recentComms} />
-          </div>
-        </div>
+        {/* Row 4: Recent Communications */}
+        <RecentComms communications={recentComms} />
       </div>
     );
   } catch (err) {

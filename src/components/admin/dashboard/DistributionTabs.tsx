@@ -32,7 +32,7 @@ export function DistributionTabs({ locationData, educationData, ageData, genderD
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h3 className="text-sm font-semibold text-gray-900">Applicant Distribution</h3>
+      <h3 className="text-lg font-medium text-gray-900">Applicant Distribution</h3>
 
       {/* Tab bar */}
       <div className="mt-3 flex gap-1 rounded-lg bg-gray-100 p-1" role="tablist">

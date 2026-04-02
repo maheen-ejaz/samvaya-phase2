@@ -14,6 +14,8 @@ import { PersonalitySummary } from '@/components/admin/profile/PersonalitySummar
 import { PartnerPreferences } from '@/components/admin/profile/PartnerPreferences';
 import { TeamNotes } from '@/components/admin/profile/TeamNotes';
 import { ClosingNote } from '@/components/admin/profile/ClosingNote';
+import { DocumentViewer } from '@/components/admin/profile/DocumentViewer';
+import { ChatTranscriptViewer } from '@/components/admin/profile/ChatTranscriptViewer';
 import { StatusManagement } from '@/components/admin/profile/StatusManagement';
 import type { WorkExperienceEntry } from '@/lib/form/types';
 
@@ -55,6 +57,7 @@ export default async function ApplicantDetailPage({
       photosResult,
       notesResult,
       authUserResult,
+      documentsResult,
     ] = await Promise.all([
       adminSupabase.from('users').select('*').eq('id', userId).single(),
       adminSupabase.from('profiles').select('*').eq('user_id', userId).single(),
@@ -64,6 +67,7 @@ export default async function ApplicantDetailPage({
       adminSupabase.from('photos').select('*').eq('user_id', userId).order('display_order'),
       adminSupabase.from('admin_notes' as never).select('*').eq('entity_type', 'user' as never).eq('entity_id', userId as never).order('created_at' as never, { ascending: false }),
       adminSupabase.auth.admin.getUserById(userId),
+      adminSupabase.from('documents').select('*').eq('user_id', userId).order('created_at'),
     ]);
 
     const userData = userResult.data;
@@ -116,6 +120,39 @@ export default async function ApplicantDetailPage({
       { label: 'Life Pace', score: compat?.life_pace_score ?? null, notes: compat?.life_pace_notes ?? null },
     ];
 
+    // Get signed URLs for documents
+    const rawDocuments = documentsResult.data || [];
+    const documentItems: Array<{ id: string; documentType: string; url: string; uploadedAt: string; verificationStatus: string }> = [];
+    for (const doc of rawDocuments) {
+      if (!doc.storage_path) continue;
+      const { data: signedData } = await adminSupabase.storage
+        .from('documents')
+        .createSignedUrl(doc.storage_path, 86400);
+      documentItems.push({
+        id: doc.id,
+        documentType: doc.document_type,
+        url: signedData?.signedUrl || '',
+        uploadedAt: doc.created_at,
+        verificationStatus: doc.verification_status || 'pending',
+      });
+    }
+
+    // Parse chat transcripts from compatibility_profiles.chat_state
+    const chatState = (compat?.chat_state ?? {}) as Record<string, { messages?: Array<{ id: string; role: 'assistant' | 'user'; content: string; timestamp: string }>; exchangeCount?: number; isComplete?: boolean }>;
+    const chatTranscripts = (['Q38', 'Q75', 'Q100'] as const)
+      .map((chatId) => {
+        const state = chatState[chatId];
+        if (!state) return null;
+        return {
+          chatId,
+          title: chatId,
+          messages: state.messages || [],
+          exchangeCount: state.exchangeCount || 0,
+          isComplete: state.isComplete || false,
+        };
+      })
+      .filter((t): t is NonNullable<typeof t> => t !== null);
+
     // Format notes
     const formattedNotes = rawNotes.map((n) => ({
       id: n.id,
@@ -158,7 +195,7 @@ export default async function ApplicantDetailPage({
           {/* All Photos Gallery */}
           {allPhotoUrls.length > 1 && (
             <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900">All Photos ({allPhotoUrls.length})</h3>
+              <h3 className="text-lg font-medium text-gray-900">All Photos ({allPhotoUrls.length})</h3>
               <div className="mt-3 grid grid-cols-4 gap-3">
                 {allPhotoUrls.map((photo) => (
                   <div key={photo.id} className="space-y-1">
@@ -174,6 +211,8 @@ export default async function ApplicantDetailPage({
               </div>
             </div>
           )}
+
+          <DocumentViewer documents={documentItems} />
 
           <IdentitySnapshot
             religion={profile?.religion || null}
@@ -288,6 +327,8 @@ export default async function ApplicantDetailPage({
             aiRedFlags={compat?.ai_red_flags || null}
             notes={formattedNotes}
           />
+
+          <ChatTranscriptViewer transcripts={chatTranscripts} />
 
           <ClosingNote closingNote={compat?.closing_freeform_note || null} />
 

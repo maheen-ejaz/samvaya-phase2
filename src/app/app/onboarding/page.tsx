@@ -165,6 +165,7 @@ export default async function OnboardingPage() {
       initialChatState={chatState}
       resumeQuestionNumber={resumeQuestion}
       isAlreadySubmitted={isAlreadySubmitted}
+      isEditMode={isAlreadySubmitted}
     />
   );
 }
