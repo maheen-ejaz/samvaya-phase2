@@ -30,7 +30,8 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
   // Sync input display when value prop changes (e.g. save-and-resume)
   useEffect(() => {
     if (!isOpen) {
-      setInputValue(selectedOption?.label || '');
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync display label when closed
+      setInputValue(() => selectedOption?.label || '');
     }
   }, [selectedOption, isOpen]);
 

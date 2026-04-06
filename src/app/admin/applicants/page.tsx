@@ -141,7 +141,7 @@ export default async function ApplicantsPage({
               ← Back to Dashboard
             </Link>
           )}
-          <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
+          <h1 className="type-heading-xl text-gray-900">{pageTitle}</h1>
           <p className="mt-4 text-sm text-gray-500">No applicants found for this stage.</p>
         </div>
       );
@@ -203,14 +203,6 @@ export default async function ApplicantsPage({
     );
   } catch (err) {
     console.error('Applicants page load error:', err);
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8" role="alert">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load data</h2>
-        <p className="text-gray-500 mb-4">Something went wrong while loading this page.</p>
-        <a href="/admin" className="text-rose-600 hover:text-rose-700 font-medium">
-          Return to dashboard
-        </a>
-      </div>
-    );
+    throw err;
   }
 }

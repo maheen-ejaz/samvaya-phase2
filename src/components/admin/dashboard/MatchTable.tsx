@@ -21,7 +21,7 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-2xl font-bold text-gray-900 tabular-nums">{score}</span>
+      <span className="type-display-sm type-stat text-gray-900">{score}</span>
       <div className="relative h-5 flex-1 overflow-hidden rounded-md bg-gray-100">
         {/* Filled portion — diagonal stripes */}
         <div
@@ -164,7 +164,7 @@ function ProfileCard({ person }: { person: DashboardMatch['personA'] }) {
 
         {/* Name + details — left-aligned */}
         <div className="mt-3 px-1">
-          <p className="text-base font-bold text-gray-900">{person.name}</p>
+          <p className="type-subheading text-gray-900">{person.name}</p>
 
           {/* Specialty */}
           {specialty && (

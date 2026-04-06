@@ -99,7 +99,7 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
+      <h1 className="type-heading-xl text-gray-900">Analytics</h1>
       <p className="mt-1 text-sm text-gray-500">Platform metrics and applicant funnel.</p>
 
       <div className="mt-6 space-y-6">

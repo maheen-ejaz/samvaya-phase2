@@ -7,13 +7,13 @@ export const metadata = {
 export default function TermsOfServicePage() {
   return (
     <article className="prose prose-neutral max-w-none">
-      <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+      <h1 className="type-heading-xl tracking-tight text-gray-900">
         Terms of Service
       </h1>
       <p className="text-sm text-gray-500">Last updated: March 2026</p>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">Eligibility</h2>
+        <h2 className="type-heading-lg text-gray-900">Eligibility</h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
           Samvaya Matrimony is an exclusive matchmaking service available only to
           verified medical professionals, including doctors, dentists, and allied
@@ -23,7 +23,7 @@ export default function TermsOfServicePage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="type-heading-lg text-gray-900">
           Service Description
         </h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
@@ -36,7 +36,7 @@ export default function TermsOfServicePage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">Fees</h2>
+        <h2 className="type-heading-lg text-gray-900">Fees</h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
           The following fees apply to our service:
         </p>
@@ -56,7 +56,7 @@ export default function TermsOfServicePage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">User Conduct</h2>
+        <h2 className="type-heading-lg text-gray-900">User Conduct</h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
           You agree to provide truthful, accurate, and complete information in
           your profile and all communications. Any misrepresentation of personal
@@ -66,7 +66,7 @@ export default function TermsOfServicePage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">Privacy</h2>
+        <h2 className="type-heading-lg text-gray-900">Privacy</h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
           Your use of Samvaya Matrimony is also governed by our{" "}
           <Link
@@ -81,7 +81,7 @@ export default function TermsOfServicePage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="type-heading-lg text-gray-900">
           Limitation of Liability
         </h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
@@ -94,7 +94,7 @@ export default function TermsOfServicePage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">Contact Us</h2>
+        <h2 className="type-heading-lg text-gray-900">Contact Us</h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
           For questions about these terms, please contact us at{" "}
           <a

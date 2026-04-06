@@ -1,7 +1,7 @@
 'use client';
 
 export default function GlobalError({
-  error,
+  error: _error,
   reset,
 }: {
   error: Error & { digest?: string };
@@ -26,7 +26,7 @@ export default function GlobalError({
           </svg>
         </div>
 
-        <h1 className="mb-2 text-xl font-bold text-gray-900">Something went wrong</h1>
+        <h1 className="mb-2 type-heading text-gray-900">Something went wrong</h1>
         <p className="mb-6 text-sm text-gray-600">
           We hit an unexpected issue. Please try again or contact our support team if it persists.
         </p>

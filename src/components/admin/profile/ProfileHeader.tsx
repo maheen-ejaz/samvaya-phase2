@@ -65,7 +65,7 @@ export function ProfileHeader({
         <div className="flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="type-heading text-gray-900">
                 {firstName} {lastName}
               </h2>
               <p className="mt-0.5 text-sm text-gray-500">

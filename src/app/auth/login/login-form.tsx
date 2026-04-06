@@ -253,7 +253,7 @@ export function LoginForm() {
 
         {/* Hero text */}
         <div className="relative z-10 animate-fade-in-up text-center">
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-white xl:text-5xl">
+          <h1 className="type-heading-xl leading-tight tracking-tight text-white xl:text-5xl">
             Where Exceptional<br />
             Doctors Find<br />
             Exceptional Partners
@@ -286,7 +286,7 @@ export function LoginForm() {
         <div className="mx-auto w-full max-w-md">
           {/* Glass form card */}
           <div className="card-glass animate-scale-in p-8 sm:p-10">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="type-heading-lg text-gray-900">
               {step === "email" ? "Sign in to your account" : "Enter verification code"}
             </h2>
             <p className="mt-2 text-sm text-gray-500">

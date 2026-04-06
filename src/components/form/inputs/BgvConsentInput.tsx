@@ -33,7 +33,7 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
       </div>
 
       {/* Title */}
-      <h3 className="mb-3 text-center text-xl font-bold text-gray-900">
+      <h3 className="type-heading-lg mb-3 text-center text-gray-900">
         Background Verification
       </h3>
 
@@ -46,7 +46,7 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
 
       {/* What we verify */}
       <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-5">
-        <h4 className="mb-4 text-sm font-semibold text-gray-900">
+        <h4 className="type-label mb-4 text-gray-900">
           What we verify
         </h4>
         <div className="space-y-3">
@@ -97,6 +97,7 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
           type="button"
           role="switch"
           aria-checked={isConsented}
+          aria-label="Consent to background verification"
           onClick={() => onChange(isConsented ? '' : 'consented')}
           className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${
             isConsented ? 'bg-emerald-600' : 'bg-gray-300'

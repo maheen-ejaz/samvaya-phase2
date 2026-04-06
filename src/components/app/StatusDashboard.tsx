@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUserStatus } from '@/lib/app/user-context';
@@ -12,6 +13,8 @@ function titleCase(str: string): string {
 }
 
 export function StatusDashboard({ data }: { data: DashboardData }) {
+  // eslint-disable-next-line react-hooks/purity -- Date.now() used once at mount via ref, stable for display purposes
+  const nowRef = useRef(Date.now());
   const {
     firstName,
     paymentStatus,
@@ -24,9 +27,12 @@ export function StatusDashboard({ data }: { data: DashboardData }) {
 
   const name = [data.firstName, data.lastName].filter(Boolean).join(' ');
 
-  const daysRemaining = membershipEndDate
-    ? Math.max(0, Math.ceil((new Date(membershipEndDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-    : null;
+  const daysRemaining = useMemo(
+    () => membershipEndDate
+      ? Math.max(0, Math.ceil((new Date(membershipEndDate).getTime() - nowRef.current) / (1000 * 60 * 60 * 24)))
+      : null,
+    [membershipEndDate]
+  );
 
   return (
     <div className="space-y-8">
@@ -35,7 +41,7 @@ export function StatusDashboard({ data }: { data: DashboardData }) {
           ═══════════════════════════════════════ */}
       <div className="flex items-start justify-between animate-fade-in-up">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">{greeting}</h1>
+          <h1 className="type-heading-xl text-gray-900">{greeting}</h1>
           <p className="mt-1 text-sm text-gray-400">Here&apos;s your journey</p>
         </div>
         <div className="flex items-center gap-3">

@@ -93,7 +93,7 @@ export function FunnelChart({ data }: FunnelChartProps) {
               >
                 <span className="text-xs font-medium text-gray-700">{stage.stage}</span>
                 <div className="text-right">
-                  <span className="text-xl font-bold text-gray-900">{stage.count.toLocaleString()}</span>
+                  <span className="type-heading-lg type-stat text-gray-900">{stage.count.toLocaleString()}</span>
                   {convPct !== null && (
                     <span className="ml-2 text-[10px] text-gray-400">{convPct}%</span>
                   )}

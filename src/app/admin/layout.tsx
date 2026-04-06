@@ -33,7 +33,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-page-admin">
       <AdminTopNav />
-      <main className="mx-auto max-w-[1600px] px-6 py-6">{children}</main>
+      <main className="mx-auto max-w-[1600px] px-6 py-6 antialiased">{children}</main>
     </div>
   );
 }

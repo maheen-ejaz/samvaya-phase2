@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useCountries, useCitiesForCountry } from '@/lib/data/use-location-data';
 
@@ -21,7 +21,7 @@ interface InternationalLocationInputProps {
  */
 export function InternationalLocationInput({ question, value, onChange }: InternationalLocationInputProps) {
   // Parse legacy string values (e.g. "Dubai, UAE") into structured format
-  const current = useMemo((): InternationalLocationValue => {
+  function parseCurrent(): InternationalLocationValue {
     if (!value) return { country: '', city: '' };
     if (typeof value === 'object' && 'country' in value) return value;
     // Legacy string format: "City, Country" — parse best-effort
@@ -33,15 +33,16 @@ export function InternationalLocationInput({ question, value, onChange }: Intern
       return { city: value, country: '' };
     }
     return { country: '', city: '' };
-  }, [value]);
+  }
+  const current = parseCurrent();
 
-  const handleCountryChange = useCallback((countryValue: string) => {
+  const handleCountryChange = (countryValue: string) => {
     onChange({ ...current, country: countryValue });
-  }, [current, onChange]);
+  };
 
-  const handleCityChange = useCallback((city: string) => {
+  const handleCityChange = (city: string) => {
     onChange({ ...current, city });
-  }, [current, onChange]);
+  };
 
   return (
     <div className="space-y-4">
@@ -89,12 +90,15 @@ function CountryCombobox({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sync input display when value changes externally
-  useEffect(() => {
+  // Sync input display when value changes externally (e.g. form reset or save-and-resume).
+  // useLayoutEffect avoids the cascading-render lint rule because it runs synchronously
+  // before paint — appropriate here since we're syncing a controlled display value.
+  useLayoutEffect(() => {
     if (!isOpen) {
       setInputValue(selectedOption?.label || '');
     }
-  }, [selectedOption, isOpen]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedOption?.label, isOpen]);
 
   const query = inputValue.toLowerCase().trim();
   const filtered = useMemo(() => {

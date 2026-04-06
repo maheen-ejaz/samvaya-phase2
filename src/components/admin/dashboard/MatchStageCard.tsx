@@ -25,7 +25,7 @@ export function MatchStageCard({ label, count, isActive, onClick, bgColor, borde
         <p className="mt-1 text-[11px] text-gray-400">&mdash;</p>
 
         {/* Count */}
-        <p className="mt-3 text-3xl font-bold text-gray-900">
+        <p className="mt-3 type-display-sm type-stat text-gray-900">
           {count.toLocaleString('en-IN')}
         </p>
       </button>

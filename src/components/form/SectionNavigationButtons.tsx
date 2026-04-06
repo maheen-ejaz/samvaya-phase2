@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from './FormProvider';
 import { SECTIONS, getSectionIndex } from '@/lib/form/sections';
 import { isSectionValid, getNextSectionId, getPrevSectionId } from '@/lib/form/section-navigation';
+import { scrollMainToElement } from './scroll-utils';
 
 interface SectionNavigationButtonsProps {
   onValidationErrors: (errors: Set<string>) => void;
@@ -26,10 +27,7 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
     const result = isSectionValid(currentSectionId, answers);
     if (!result.valid && result.firstInvalidId) {
       onValidationErrors(new Set([result.firstInvalidId]));
-      document.getElementById(result.firstInvalidId)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+      scrollMainToElement(result.firstInvalidId);
       return;
     }
     onValidationErrors(new Set());
@@ -61,10 +59,7 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
     const result = isSectionValid(currentSectionId, answers);
     if (!result.valid && result.firstInvalidId) {
       onValidationErrors(new Set([result.firstInvalidId]));
-      document.getElementById(result.firstInvalidId)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+      scrollMainToElement(result.firstInvalidId);
       return;
     }
 

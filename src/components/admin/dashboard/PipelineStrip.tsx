@@ -132,7 +132,7 @@ function PipelineRow({ stages }: { stages: PipelineStripStage[] }) {
               )}
 
               {/* Count */}
-              <p className="mt-4 text-3xl font-bold text-gray-900">
+              <p className="mt-4 type-display-sm type-stat text-gray-900">
                 {stage.count.toLocaleString('en-IN')}
               </p>
             </Link>

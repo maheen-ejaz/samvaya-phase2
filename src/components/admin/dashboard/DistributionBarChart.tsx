@@ -30,14 +30,15 @@ export function DistributionBarChart({ data, emptyMessage = 'No data available' 
   const innerRadius = 45;
 
   // Build arc segments
-  let cumulativeAngle = -90; // start at top
-  const segments = data.map((entry, i) => {
-    const angle = (entry.count / total) * 360;
-    const startAngle = cumulativeAngle;
-    cumulativeAngle += angle;
-    const endAngle = cumulativeAngle;
-    return { ...entry, startAngle, endAngle, color: COLORS[i % COLORS.length] };
-  });
+  const segments = data.reduce<Array<{ count: number; label: string; startAngle: number; endAngle: number; color: string }>>(
+    (acc, entry, i) => {
+      const prevEnd = acc.length > 0 ? acc[acc.length - 1].endAngle : -90;
+      const angle = (entry.count / total) * 360;
+      acc.push({ ...entry, startAngle: prevEnd, endAngle: prevEnd + angle, color: COLORS[i % COLORS.length] });
+      return acc;
+    },
+    []
+  );
 
   function polarToCartesian(centerX: number, centerY: number, radius: number, angleDeg: number) {
     const rad = (angleDeg * Math.PI) / 180;

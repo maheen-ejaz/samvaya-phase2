@@ -103,7 +103,7 @@ export function SettingsPage({ email }: SettingsPageProps) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
+      <h2 className="type-heading text-gray-900">Settings</h2>
 
       {/* Error banner */}
       {settingsError && (

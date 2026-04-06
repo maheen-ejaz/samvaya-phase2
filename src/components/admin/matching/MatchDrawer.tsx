@@ -75,7 +75,7 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-3xl font-bold tabular-nums text-gray-900">{score}</span>
+      <span className="type-display-sm type-stat text-gray-900">{score}</span>
       <div className="relative h-4 flex-1 overflow-hidden rounded-md bg-gray-100">
         <div
           className="absolute inset-y-0 left-0 rounded-md"
@@ -205,7 +205,7 @@ export function MatchDrawer({
       />
 
       {/* Drawer panel */}
-      <div className="fixed inset-y-0 right-0 z-50 flex w-[640px] flex-col bg-white shadow-2xl">
+      <div className="fixed inset-y-0 right-0 z-50 flex w-[55vw] min-w-[640px] max-w-[900px] flex-col bg-white shadow-2xl">
 
         {/* Header */}
         <div className="flex shrink-0 items-center gap-4 border-b border-gray-100 px-6 py-4">
@@ -292,9 +292,17 @@ export function MatchDrawer({
                 {isPending ? 'Review Decision' : 'Admin Review'}
               </h3>
 
+              {/* Narrative preview — styled read-only card */}
+              {narrative && (
+                <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">Match Narrative</p>
+                  <p className="text-sm leading-relaxed text-gray-700 italic">&ldquo;{narrative}&rdquo;</p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-medium uppercase tracking-wide text-gray-400">
-                  Match Narrative {!isPending && '(read-only)'}
+                  Edit Narrative {!isPending && '(read-only)'}
                 </label>
                 <textarea
                   value={narrative}

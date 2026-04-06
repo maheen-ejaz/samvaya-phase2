@@ -28,7 +28,7 @@ export function ConversionRates({ data }: ConversionRatesProps) {
             key={`${c.from}-${c.to}`}
             className="rounded-lg border border-gray-100 bg-gray-50 p-4 text-center"
           >
-            <p className="text-2xl font-bold text-gray-900">{Math.min(c.rate, 100)}%</p>
+            <p className="type-display-sm type-stat text-gray-900">{Math.min(c.rate, 100)}%</p>
             {c.fromCount !== undefined && c.toCount !== undefined && (
               <p className="mt-0.5 text-xs text-gray-400">
                 {c.toCount} of {c.fromCount}

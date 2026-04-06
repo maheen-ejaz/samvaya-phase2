@@ -7,13 +7,13 @@ export const metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <article className="prose prose-neutral max-w-none">
-      <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+      <h1 className="type-heading-xl tracking-tight text-gray-900">
         Privacy Policy
       </h1>
       <p className="text-sm text-gray-500">Last updated: March 2026</p>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="type-heading-lg text-gray-900">
           Information We Collect
         </h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="type-heading-lg text-gray-900">
           How We Use Your Information
         </h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
@@ -39,7 +39,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">Data Security</h2>
+        <h2 className="type-heading-lg text-gray-900">Data Security</h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
           We implement industry-standard security measures to protect your
           personal data, including encryption of data in transit and at rest,
@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">Your Rights</h2>
+        <h2 className="type-heading-lg text-gray-900">Your Rights</h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
           You have the right to access, correct, or request deletion of your
           personal data at any time. To exercise any of these rights, please
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">Contact Us</h2>
+        <h2 className="type-heading-lg text-gray-900">Contact Us</h2>
         <p className="mt-2 text-gray-700 leading-relaxed">
           If you have questions or concerns about this privacy policy or your
           personal data, please reach out to us at{" "}

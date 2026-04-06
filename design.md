@@ -22,9 +22,9 @@
 
 ## Typography
 
-**Font: Urbanist** (Google Fonts, geometric sans-serif)
+**Font: Geist** (Vercel, via `geist` npm package)
 
-Replaces ApfelGrotezk. Urbanist was chosen for its clean, modern letterforms and excellent readability across all weights. It matches the premium, sophisticated aesthetic of the reference designs.
+Replaces ApfelGrotezk. Geist is the active font across the entire Next.js app. It is a variable font supporting weights 100–900, making it ideal for the thin-weight display numbers that define the premium aesthetic. The Framer landing page will be updated to Geist separately.
 
 | Usage | Weight | CSS |
 |-------|--------|-----|
@@ -265,7 +265,7 @@ These apps were reviewed with the founder and represent the target aesthetic:
 ## Implementation Progress (updated March 26, 2026)
 
 ### What's Already Done
-- **Font:** Switched from ApfelGrotezk to Urbanist (Google Font) in `layout.tsx` and `globals.css`
+- **Font:** Geist (via `geist` npm package) — active across all 266 component files. Semantic type utilities defined in `globals.css` (`.type-display-*`, `.type-heading-*`, `.type-subheading`, `.type-body*`, `.type-label`, `.type-caption`, `.type-stat`).
 - **Design tokens in globals.css:**
   - `.card-glass` — alpha 0.6, blur 24px, inset white highlight, elevated shadow, rounded-2xl
   - `.glass-sub-card` — warm-tinted sub-card for depth layering inside parent cards

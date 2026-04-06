@@ -113,7 +113,7 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
     <div>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+        <h1 className="type-heading-xl text-gray-900">{title}</h1>
         <p className="mt-1 text-sm text-gray-500">
           {applicants.length} applicant{applicants.length !== 1 ? 's' : ''} completed the form
         </p>
@@ -165,36 +165,36 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
           <table className="min-w-full divide-y divide-gray-200" role="table">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
                   <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center hover:text-gray-700">
                     Name {sortIndicator('name')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
                   Email
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
                   <button type="button" onClick={() => toggleSort('specialty')} className="inline-flex items-center hover:text-gray-700">
                     Specialty {sortIndicator('specialty')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
                   <button type="button" onClick={() => toggleSort('submittedAt')} className="inline-flex items-center hover:text-gray-700">
                     Submitted {sortIndicator('submittedAt')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
                   <button type="button" onClick={() => toggleSort('paymentStatus')} className="inline-flex items-center hover:text-gray-700">
                     Status {sortIndicator('paymentStatus')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
                   BGV Consent
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
                   GooCampus
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
                   Actions
                 </th>
               </tr>

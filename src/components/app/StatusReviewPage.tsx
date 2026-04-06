@@ -32,7 +32,7 @@ export function StatusReviewPage({ firstName, submittedAt, isGoocampusMember }: 
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Application submitted</h2>
+              <h2 className="type-heading text-gray-900">Application submitted</h2>
               <p className="text-sm text-gray-600">Submitted on {formattedDate}</p>
             </div>
           </div>
@@ -45,7 +45,7 @@ export function StatusReviewPage({ firstName, submittedAt, isGoocampusMember }: 
         {/* Verification fee info (skip for GooCampus members) */}
         {!isGoocampusMember && (
           <div className="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 text-base font-semibold text-gray-900">Next step: Verification fee</h3>
+            <h3 className="mb-3 type-subheading text-gray-900">Next step: Verification fee</h3>
             <p className="mb-4 text-sm leading-relaxed text-gray-700">
               Before we can begin your background verification, the verification fee of{' '}
               <span className="font-semibold">&#8377;7,080</span> (&#8377;6,000 + GST) needs to be paid.
@@ -77,7 +77,7 @@ export function StatusReviewPage({ firstName, submittedAt, isGoocampusMember }: 
 
         {/* Edit application CTA */}
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <h3 className="mb-2 text-base font-semibold text-gray-900">Want to update your application?</h3>
+          <h3 className="mb-2 type-subheading text-gray-900">Want to update your application?</h3>
           <p className="mb-4 text-sm text-gray-600">
             You can review and edit your answers before our team processes your profile.
           </p>

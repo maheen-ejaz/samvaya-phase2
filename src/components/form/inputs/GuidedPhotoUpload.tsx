@@ -60,7 +60,7 @@ const NAMED_SLOTS: PhotoSlot[] = [
     photoType: 'face_closeup',
     label: 'Face close-up',
     description: 'A clear, well-lit photo of your face — this is your first impression',
-    required: false,
+    required: true,
     isPrimary: true,
   },
   {

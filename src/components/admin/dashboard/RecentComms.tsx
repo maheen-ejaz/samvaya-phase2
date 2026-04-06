@@ -18,7 +18,7 @@ export function RecentComms({ communications }: RecentCommsProps) {
   return (
     <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-gray-900">Recent Communications</h3>
+        <h3 className="type-heading text-gray-900">Recent Communications</h3>
         <Link href="/admin/communications" className="text-xs font-medium text-admin-green-800 hover:text-admin-green-700">
           View all
         </Link>
@@ -30,11 +30,11 @@ export function RecentComms({ communications }: RecentCommsProps) {
         <div className="mt-3">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-left text-xs text-gray-500">
-                <th className="pb-2 font-medium">Recipient</th>
-                <th className="pb-2 font-medium">Subject</th>
-                <th className="pb-2 font-medium">Date</th>
-                <th className="pb-2 font-medium">Status</th>
+              <tr className="border-b border-gray-100 text-left">
+                <th className="pb-2 type-label text-gray-500">Recipient</th>
+                <th className="pb-2 type-label text-gray-500">Subject</th>
+                <th className="pb-2 type-label text-gray-500">Date</th>
+                <th className="pb-2 type-label text-gray-500">Status</th>
               </tr>
             </thead>
             <tbody>

@@ -41,7 +41,7 @@ export function PricingDisplay({ verificationFee, membershipFee }: PricingDispla
             <p className="text-sm font-medium text-gray-500">{label}</p>
             {data ? (
               <>
-                <p className="mt-1 text-2xl font-bold text-gray-900">
+                <p className="mt-1 type-display-sm type-stat text-gray-900">
                   {formatPaise(data.total)}
                 </p>
                 <p className="mt-0.5 text-xs text-gray-500">

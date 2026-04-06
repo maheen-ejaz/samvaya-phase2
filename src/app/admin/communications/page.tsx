@@ -25,7 +25,7 @@ export default async function CommunicationsPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <h1 className="text-2xl font-bold text-gray-900">Communications</h1>
+      <h1 className="type-heading-xl text-gray-900">Communications</h1>
       <p className="mt-1 text-sm text-gray-500">Send emails, manage templates, and view send history.</p>
 
       <div className="mt-6">

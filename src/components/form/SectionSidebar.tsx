@@ -6,6 +6,7 @@ import { SECTIONS } from '@/lib/form/sections';
 import { getSectionCompletionStatus, calculateOverallProgress, getSubGroups } from '@/lib/form/section-navigation';
 import { getQuestion } from '@/lib/form/questions';
 import { useForm } from './FormProvider';
+import { scrollMainToElement } from './scroll-utils';
 import type { SectionStatus, SubGroup } from '@/lib/form/section-navigation';
 
 // ============================================================
@@ -214,7 +215,7 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
                                     if (targetIdx >= 0) navigateTo(targetIdx);
                                     // Scroll to the question element after a brief delay for state to settle
                                     setTimeout(() => {
-                                      document.getElementById(`q-${targetQId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                      scrollMainToElement(`q-${targetQId}`);
                                     }, 50);
                                   }
                                   onSectionClick?.();

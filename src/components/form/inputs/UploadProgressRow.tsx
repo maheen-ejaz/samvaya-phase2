@@ -50,7 +50,8 @@ export function UploadProgressRow({
     if (intervalRef.current) clearInterval(intervalRef.current);
 
     if (stage === 'complete') {
-      setPercent(100);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- progress bar animation driven by stage prop
+      setPercent(() => 100);
       return;
     }
     if (stage === 'error') return;

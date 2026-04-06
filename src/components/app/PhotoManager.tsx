@@ -324,7 +324,7 @@ export function PhotoManager() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Manage Photos</h2>
+        <h2 className="type-heading text-gray-900">Manage Photos</h2>
         <Link
           href="/app/profile"
           className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"

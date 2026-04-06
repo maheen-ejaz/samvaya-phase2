@@ -7,6 +7,7 @@ import {
   preFilterAllPairs,
   getPoolStats,
 } from '@/lib/matching/pre-filter';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function POST(request: NextRequest) {
   const result = await requireAdmin();
@@ -58,6 +59,22 @@ export async function POST(request: NextRequest) {
         users_skipped: userErrorCount,
       }
     );
+
+    // Save last run timestamp to system_config
+    const supabase = createAdminClient();
+    await supabase
+      .from('system_config' as never)
+      .upsert({
+        key: 'pre_filter_last_run',
+        value: {
+          ran_at: new Date().toISOString(),
+          mode: userId ? 'single_user' : 'all',
+          user_id: userId ?? null,
+          pairs_found: stats.pairs_after_filter,
+          total_in_pool: stats.total_in_pool,
+        },
+        description: 'Last pre-filter run metadata',
+      } as never);
 
     return NextResponse.json({ pairs, stats: { ...stats, users_skipped: userErrorCount } });
   } catch (err) {

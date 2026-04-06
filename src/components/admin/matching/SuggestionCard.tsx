@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, useRef } from 'react';
 import type { MatchSuggestionWithProfiles } from '@/types/matching';
 import { capitalize } from '@/lib/utils';
 
@@ -69,7 +70,7 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-3xl font-bold tabular-nums text-gray-900">{score}</span>
+      <span className="type-display-sm type-stat text-gray-900">{score}</span>
       <div className="relative h-4 flex-1 overflow-hidden rounded-md bg-gray-100">
         <div
           className="absolute inset-y-0 left-0 rounded-md"
@@ -99,17 +100,17 @@ function ProfileMiniCard({ person }: { person: MatchSuggestionWithProfiles['prof
     .filter(Boolean).map((v) => capitalize(v!)).join(', ') || null;
 
   return (
-    <div className={`w-44 rounded-2xl border p-3 shadow-sm ${cardStyle}`}>
-      <div className="aspect-[4/5] w-full overflow-hidden rounded-xl bg-gray-100">
+    <div className={`flex-1 rounded-xl border p-2.5 ${cardStyle}`}>
+      <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-100">
         <img src={photoSrc} alt={person.full_name} className="h-full w-full object-cover" />
       </div>
-      <div className="mt-2.5 px-0.5">
+      <div className="mt-2 px-0.5">
         <p className="truncate text-sm font-bold text-gray-900">{person.full_name}</p>
         {specialty && <p className="mt-0.5 truncate text-xs text-gray-500">{specialty}</p>}
         {(age || location) && (
           <div className="mt-0.5 flex items-center justify-between text-xs text-gray-400">
             {age && <span>{age}</span>}
-            {location && <span className="truncate ml-1">{location}</span>}
+            {location && <span className="truncate ml-1 text-right">{location}</span>}
           </div>
         )}
       </div>
@@ -118,38 +119,44 @@ function ProfileMiniCard({ person }: { person: MatchSuggestionWithProfiles['prof
 }
 
 export function SuggestionCard({ suggestion, onOpen }: SuggestionCardProps) {
-  const daysAgo = Math.floor(
-    (Date.now() - new Date(suggestion.created_at).getTime()) / (1000 * 60 * 60 * 24)
+  // eslint-disable-next-line react-hooks/purity -- Date.now() used once at mount via ref, stable for display purposes
+  const nowRef = useRef(Date.now());
+  const daysAgo = useMemo(
+    () => Math.floor(
+      (nowRef.current - new Date(suggestion.created_at).getTime()) / (1000 * 60 * 60 * 24)
+    ),
+    [suggestion.created_at]
   );
 
   return (
     <div
-      className="flex cursor-pointer items-center gap-6 px-6 py-5 hover:bg-gray-50/60 transition-colors"
+      className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
       onClick={onOpen}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onOpen(); }}
     >
-      {/* Profile A card */}
-      <ProfileMiniCard person={suggestion.profile_a} />
+      {/* Profile photos side by side */}
+      <div className="flex gap-3">
+        <ProfileMiniCard person={suggestion.profile_a} />
+        <ProfileMiniCard person={suggestion.profile_b} />
+      </div>
 
-      {/* Center: score + badges */}
-      <div className="flex flex-1 flex-col items-center gap-3">
-        <div className="w-full max-w-xs">
-          <ScoreBar score={suggestion.overall_compatibility_score} />
-        </div>
+      {/* Score + badges */}
+      <div className="mt-4 space-y-2.5">
+        <ScoreBar score={suggestion.overall_compatibility_score} />
 
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {suggestion.recommendation && (
-            <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRecommendationStyle(suggestion.recommendation)}`}>
+            <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${getRecommendationStyle(suggestion.recommendation)}`}>
               {getRecommendationLabel(suggestion.recommendation)}
             </span>
           )}
-          <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusStyle(suggestion.admin_status)}`}>
+          <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${getStatusStyle(suggestion.admin_status)}`}>
             {getStatusLabel(suggestion.admin_status)}
           </span>
           {suggestion.is_stale && (
-            <span className="rounded-full border border-yellow-200 bg-yellow-50 px-2.5 py-0.5 text-xs text-yellow-700">
+            <span className="rounded-full border border-yellow-200 bg-yellow-50 px-2 py-0.5 text-xs text-yellow-700">
               Stale
             </span>
           )}
@@ -159,9 +166,6 @@ export function SuggestionCard({ suggestion, onOpen }: SuggestionCardProps) {
           {daysAgo === 0 ? 'Today' : `${daysAgo}d ago`} · Click to review
         </p>
       </div>
-
-      {/* Profile B card */}
-      <ProfileMiniCard person={suggestion.profile_b} />
     </div>
   );
 }

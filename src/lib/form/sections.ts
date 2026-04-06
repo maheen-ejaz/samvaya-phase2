@@ -68,7 +68,7 @@ export const SECTIONS: SectionConfig[] = [
     label: 'Education',
     description: 'Your medical education and qualifications',
     estimatedMinutes: 3,
-    questionRange: [56, 60],
+    questionRange: [56, 61],
     showConfidentialityCallout: false,
   },
   {
@@ -76,7 +76,7 @@ export const SECTIONS: SectionConfig[] = [
     label: 'Career',
     description: 'Your work experience and professional journey',
     estimatedMinutes: 3,
-    questionRange: [61, 62],
+    questionRange: [62, 63],
     showConfidentialityCallout: false,
   },
   {
@@ -84,7 +84,7 @@ export const SECTIONS: SectionConfig[] = [
     label: 'Goals & Values',
     description: 'Your vision for the future and an in-depth AI conversation',
     estimatedMinutes: 12,
-    questionRange: [63, 74],
+    questionRange: [64, 75],
     showConfidentialityCallout: false,
   },
   {
@@ -92,7 +92,7 @@ export const SECTIONS: SectionConfig[] = [
     label: 'Partner Preferences',
     description: 'What you are looking for in a life partner',
     estimatedMinutes: 8,
-    questionRange: [76, 94],
+    questionRange: [77, 95],
     showConfidentialityCallout: true,
     confidentialityText:
       'Your answers here are private and confidential. Be honest — this is how we find the right match for you.',
@@ -102,7 +102,7 @@ export const SECTIONS: SectionConfig[] = [
     label: 'Documents & Verification',
     description: 'Photos, identity documents, and background check consent',
     estimatedMinutes: 5,
-    questionRange: [95, 99],
+    questionRange: [96, 100],
     showConfidentialityCallout: false,
   },
   {

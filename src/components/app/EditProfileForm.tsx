@@ -142,7 +142,7 @@ export function EditProfileForm() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
           </Link>
-          <h2 className="text-lg font-semibold text-gray-900">Edit Profile</h2>
+          <h2 className="type-heading text-gray-900">Edit Profile</h2>
         </div>
       </div>
 

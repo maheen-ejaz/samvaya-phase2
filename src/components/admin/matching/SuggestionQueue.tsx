@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import type { MatchSuggestionWithProfiles } from '@/types/matching';
 import { SuggestionCard } from './SuggestionCard';
 import { MatchDrawer } from './MatchDrawer';
+import { MatchStageCard } from '@/components/admin/dashboard/MatchStageCard';
 
 interface PoolHealth {
   active_pool: number;
@@ -46,6 +47,8 @@ export function SuggestionQueue() {
   const [poolHealth, setPoolHealth] = useState<PoolHealth | null>(null);
   const [statusCounts, setStatusCounts] = useState<StatusCounts | null>(null);
   const [drawerIndex, setDrawerIndex] = useState<number | null>(null);
+  const [lastPreFilter, setLastPreFilter] = useState<string | null>(null);
+  const [lastFullPipeline, setLastFullPipeline] = useState<string | null>(null);
 
   const fetchSuggestions = useCallback(async () => {
     setLoading(true);
@@ -81,10 +84,24 @@ export function SuggestionQueue() {
     }
   }, []);
 
+  const fetchLastRunTimestamps = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/matching/last-runs');
+      if (res.ok) {
+        const data = await res.json();
+        setLastPreFilter(data.pre_filter ?? null);
+        setLastFullPipeline(data.full_pipeline ?? null);
+      }
+    } catch {
+      // Non-critical
+    }
+  }, []);
+
   useEffect(() => {
     fetchSuggestions();
     fetchPoolHealth();
-  }, [fetchSuggestions, fetchPoolHealth]);
+    fetchLastRunTimestamps();
+  }, [fetchSuggestions, fetchPoolHealth, fetchLastRunTimestamps]);
 
   const runPipeline = async (mode: 'pre-filter' | 'batch-score') => {
     setPipelineLoading(true);
@@ -123,6 +140,7 @@ export function SuggestionQueue() {
 
       fetchSuggestions();
       fetchPoolHealth();
+      fetchLastRunTimestamps();
     } catch (err) {
       setPipelineResult({
         message: err instanceof Error ? err.message : 'Pipeline failed',
@@ -172,6 +190,16 @@ export function SuggestionQueue() {
 
   const totalPages = Math.ceil(total / 20);
 
+  function formatIST(iso: string): { date: string; time: string } {
+    const d = new Date(new Date(iso).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return { date: `${dd}-${mm}-${yyyy}`, time: `${hh}:${min} IST` };
+  }
+
   const getTabLabel = (tab: typeof STATUS_TABS[0]) => {
     if (!statusCounts) return tab.label;
     const count = tab.value === 'all'
@@ -191,55 +219,96 @@ export function SuggestionQueue() {
         </div>
         <div className="px-6 py-4 space-y-4">
 
-          {/* Stats strip */}
-          {statusCounts && (
-            <div className="flex items-center gap-6">
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Queue</span>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-amber-400" />
-                  <span className="text-sm font-semibold text-gray-900">{statusCounts.pending_review}</span>
-                  <span className="text-sm text-gray-500">pending</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-admin-green-500" />
-                  <span className="text-sm font-semibold text-gray-900">{statusCounts.approved}</span>
-                  <span className="text-sm text-gray-500">approved</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-red-400" />
-                  <span className="text-sm font-semibold text-gray-900">{statusCounts.rejected}</span>
-                  <span className="text-sm text-gray-500">rejected</span>
-                </div>
-              </div>
+          {/* Stats cards */}
+          <div className="flex gap-3">
+            {/* Queue group */}
+            <MatchStageCard
+              label="Pending Review"
+              count={statusCounts?.pending_review ?? 0}
+              isActive={statusFilter === 'pending_review'}
+              onClick={() => { setStatusFilter('pending_review'); setPage(1); setDrawerIndex(null); }}
+              bgColor="bg-amber-50"
+              borderColor="border-amber-200"
+            />
+            <MatchStageCard
+              label="Approved"
+              count={statusCounts?.approved ?? 0}
+              isActive={statusFilter === 'approved'}
+              onClick={() => { setStatusFilter('approved'); setPage(1); setDrawerIndex(null); }}
+              bgColor="bg-admin-green-100"
+              borderColor="border-admin-green-300"
+            />
+            <MatchStageCard
+              label="Rejected"
+              count={statusCounts?.rejected ?? 0}
+              isActive={statusFilter === 'rejected'}
+              onClick={() => { setStatusFilter('rejected'); setPage(1); setDrawerIndex(null); }}
+              bgColor="bg-red-50"
+              borderColor="border-red-200"
+            />
 
-              {poolHealth && (
-                <>
-                  <span className="text-gray-200">|</span>
-                  <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Pool</span>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-admin-green-500" />
-                      <span className="text-sm font-semibold text-gray-900">{poolHealth.active_pool}</span>
-                      <span className="text-sm text-gray-500">active</span>
-                    </div>
-                    {poolHealth.paused > 0 && (
-                      <div className="flex items-center gap-1.5">
-                        <span className="h-2 w-2 rounded-full bg-amber-400" />
-                        <span className="text-sm font-semibold text-amber-700">{poolHealth.paused}</span>
-                        <span className="text-sm text-gray-500">paused</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-gray-300" />
-                      <span className="text-sm font-semibold text-gray-500">{poolHealth.not_verified}</span>
-                      <span className="text-sm text-gray-500">pending BGV</span>
-                    </div>
-                  </div>
-                </>
+            {/* Divider */}
+            <div className="mx-1 self-stretch border-l border-gray-200" />
+
+            {/* Pool group */}
+            <MatchStageCard
+              label="Active Pool"
+              count={poolHealth?.active_pool ?? 0}
+              isActive={false}
+              onClick={() => {}}
+              bgColor="bg-admin-green-100"
+              borderColor="border-admin-green-300"
+            />
+            {poolHealth && poolHealth.paused > 0 && (
+              <MatchStageCard
+                label="Paused"
+                count={poolHealth.paused}
+                isActive={false}
+                onClick={() => {}}
+                bgColor="bg-amber-50"
+                borderColor="border-amber-200"
+              />
+            )}
+            <MatchStageCard
+              label="Pending BGV"
+              count={poolHealth?.not_verified ?? 0}
+              isActive={false}
+              onClick={() => {}}
+              bgColor="bg-gray-50"
+              borderColor="border-gray-200"
+            />
+          </div>
+
+          {/* Last run timestamps */}
+          <div className="flex items-center gap-6 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Last Pre-filter</span>
+              {lastPreFilter ? (() => {
+                const { date, time } = formatIST(lastPreFilter);
+                return (
+                  <span className="text-sm font-medium text-gray-700">
+                    {date} &nbsp;<span className="text-gray-400">·</span>&nbsp; {time}
+                  </span>
+                );
+              })() : (
+                <span className="text-sm text-gray-400 italic">Never run</span>
               )}
             </div>
-          )}
+            <span className="text-gray-200">|</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Last Full Pipeline</span>
+              {lastFullPipeline ? (() => {
+                const { date, time } = formatIST(lastFullPipeline);
+                return (
+                  <span className="text-sm font-medium text-gray-700">
+                    {date} &nbsp;<span className="text-gray-400">·</span>&nbsp; {time}
+                  </span>
+                );
+              })() : (
+                <span className="text-sm text-gray-400 italic">Never run</span>
+              )}
+            </div>
+          </div>
 
           {/* Pipeline buttons */}
           <div className="flex items-center gap-3">
@@ -340,7 +409,7 @@ export function SuggestionQueue() {
 
         {/* Suggestion cards */}
         {!loading && sortedSuggestions.length > 0 && (
-          <div className="divide-y divide-gray-100">
+          <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 p-6">
             {sortedSuggestions.map((s, idx) => (
               <SuggestionCard
                 key={s.id}

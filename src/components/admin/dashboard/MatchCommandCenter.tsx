@@ -92,7 +92,7 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
     <div className="rounded-xl border border-gray-200/60 bg-white shadow-sm">
       {/* Header */}
       <div className="border-b border-gray-100 px-6 py-4">
-        <h3 className="text-lg font-semibold text-gray-900">Match Command Center</h3>
+        <h3 className="type-heading-lg text-gray-900">Match Command Center</h3>
         <p className="mt-0.5 text-sm text-gray-500">All active matches across the pipeline.</p>
       </div>
 

@@ -102,7 +102,7 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-samvaya-red/60">
           Section {sectionIndex + 1} of {SECTIONS.length}
         </p>
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900" data-section-heading>
+        <h2 className="type-heading-lg text-gray-900" data-section-heading>
           {section.label}
         </h2>
         {section.description && (
@@ -143,7 +143,7 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
       {/* Welcome header — only in Section A */}
       {currentSectionId === 'A' && (
         <div className="mb-8 rounded-xl border border-rose-100 bg-rose-50 px-5 py-6">
-          <h1 className="mb-3 text-xl font-bold text-gray-900">
+          <h1 className="mb-3 type-heading text-gray-900">
             Welcome to Samvaya
           </h1>
           <p className="text-base leading-relaxed text-gray-700">

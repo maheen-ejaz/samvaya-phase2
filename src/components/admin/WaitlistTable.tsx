@@ -85,7 +85,7 @@ export function WaitlistTable({ entries, title }: WaitlistTableProps) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+        <h1 className="type-heading-xl text-gray-900">{title}</h1>
         <span className="text-sm text-gray-500">{filtered.length} entries</span>
       </div>
 
@@ -103,25 +103,25 @@ export function WaitlistTable({ entries, title }: WaitlistTableProps) {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('fullName')}>
+              <th className="px-4 py-3 text-left type-label text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('fullName')}>
                 Name {sortIcon('fullName')}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+              <th className="px-4 py-3 text-left type-label text-gray-500">
                 Email
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+              <th className="px-4 py-3 text-left type-label text-gray-500">
                 Phone
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('specialty')}>
+              <th className="px-4 py-3 text-left type-label text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('specialty')}>
                 Specialty {sortIcon('specialty')}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('city')}>
+              <th className="px-4 py-3 text-left type-label text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('city')}>
                 City {sortIcon('city')}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('status')}>
+              <th className="px-4 py-3 text-left type-label text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('status')}>
                 Status {sortIcon('status')}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('createdAt')}>
+              <th className="px-4 py-3 text-left type-label text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('createdAt')}>
                 Date {sortIcon('createdAt')}
               </th>
             </tr>

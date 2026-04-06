@@ -24,7 +24,8 @@ export function useCitiesForState(stateValue: string | undefined): string[] {
 
   useEffect(() => {
     if (!stateValue || stateValue === 'outside_india') {
-      setCities([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset on dependency change
+      setCities(() => []);
       return;
     }
     getCitiesForStateAsync(stateValue).then(setCities);
@@ -38,7 +39,8 @@ export function useCommunities(religion?: string): string[] {
 
   useEffect(() => {
     if (!religion) {
-      setCommunities([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset on dependency change
+      setCommunities(() => []);
       return;
     }
     getCommunitiesForReligion(religion).then(setCommunities);
@@ -52,7 +54,8 @@ export function useCitiesForCountry(countryValue: string | undefined): string[] 
 
   useEffect(() => {
     if (!countryValue) {
-      setCities([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset on dependency change
+      setCities(() => []);
       return;
     }
     getCitiesForCountryAsync(countryValue).then(setCities);

@@ -1166,13 +1166,181 @@ npx playwright test e2e/full-onboarding-flow.spec.ts --project=full-onboarding -
 
 ---
 
+---
+
+## Phase 2F — Pre-Launch Audit (April 4, 2026)
+
+| Field | Value |
+|-------|-------|
+| Date | April 4, 2026 |
+| Audit type | Pre-launch gate — 8 streams: Launch blockers, Security, Business logic, Code quality, Performance, Accessibility, Form/Chat functional, Form UX |
+| Methodology | Two independent passes with reconciliation. Pass 1 and Pass 2 each ran all 8 streams in parallel with fresh-context agents. A reconciliation agent then cross-validated all findings. |
+| Agents deployed | 17 total — 1 mother (Pass 1) + 8 streams (Pass 1) + 1 mother (Pass 2) + 8 streams (Pass 2) + 1 reconciliation |
+| Issues found | 43 total across both passes |
+| Issues fixed | 29 |
+| Requires founder decision | 2 |
+| Deferred to v2 | 4 |
+| Build status | ✅ TypeScript: 0 errors. Lint: 0 errors, 48 warnings (all acceptable). |
+
+### Methodology
+
+**Two-pass approach:** Pass 1 ran all 8 audit streams (each agent finds AND fixes). Pass 2 ran independently with no knowledge of Pass 1 findings — fresh eyes on the same codebase. The reconciliation agent compared both changelogs to categorize every issue as RESOLVED, NEW FIND, or INCOMPLETE FIX.
+
+**Skills used:** `/security-review`, `/nextjs-supabase-auth`, `/web-design-guidelines`, `/webapp-testing`, `/simplify`, `/vercel-react-best-practices`, `/next-best-practices`, `/supabase-postgres-best-practices`.
+
+---
+
+### Stream 1 — Launch Blocker Remediation
+
+| Status | Item | File |
+|--------|------|------|
+| FIXED | Skip conversation button removed from chat interface | `src/components/form/inputs/ChatInterface.tsx:283` |
+| FIXED | `face_closeup` photo slot set to `required: true` | `src/components/form/inputs/GuidedPhotoUpload.tsx:63` |
+| DELETED | Temporary seed endpoint removed | `src/app/api/admin/seed/route.ts` |
+| DELETED | Temporary seed script removed | `scripts/seed-dashboard.mjs` |
+| VERIFIED | Pricing constants correct: ₹7,080 and ₹41,300 | `src/lib/constants.ts` |
+| VERIFIED | Legal pages show correct fee amounts | `src/app/legal/terms/page.tsx` |
+| VERIFIED | Q99 (BGV consent) `required: true` | `src/lib/form/questions.ts` |
+| VERIFIED | Q95 (photos) `minFiles: 3`, `required: true` | `src/lib/form/questions.ts` |
+| OPEN | All base form fields still have `required: false` (testing state) | `src/lib/form/questions.ts` — **must restore before first real applicant** |
+
+---
+
+### Stream 2 — Security
+
+All clear. No vulnerabilities found.
+
+| Status | Item |
+|--------|------|
+| VERIFIED | All 47 API routes have auth guards (`requireAdmin()` or `requireApplicant()`) |
+| VERIFIED | Webhook route validates `AIRTABLE_WEBHOOK_SECRET` |
+| VERIFIED | Cron route validates `CRON_SECRET` |
+| VERIFIED | Photo upload: Sharp MIME validation, path traversal blocked, 25MB limit |
+| VERIFIED | `src/lib/claude/prompts.ts` has `import 'server-only'` — never imported from client |
+| VERIFIED | No hardcoded secrets in `src/` |
+| VERIFIED | All state-modifying routes are POST/PATCH/DELETE only |
+| VERIFIED | RLS enabled on all core tables |
+| VERIFIED | Rate limiting applied to OTP (5/15min), photo upload (20/hour), status changes (10/min) |
+
+---
+
+### Stream 3 — Business Logic
+
+All 7 critical rules verified correct in code.
+
+| Rule | File | Status |
+|------|------|--------|
+| BGV requires BOTH `is_bgv_complete = true` AND `bgv_consent IN ('consented', 'consented_wants_call')` | `status/route.ts:132–136` | VERIFIED |
+| GooCampus gate — frontend: fee section wrapped in `{!isGoocampusMember && ...}` | `StatusReviewPage.tsx:46` | VERIFIED |
+| GooCampus gate — API: `mark_verification_paid` rejects GooCampus members | `status/route.ts:72–74` | VERIFIED |
+| `membership_start_date` set at mutual interest date, not payment date | `presentations/[presentationId]/respond/route.ts:166` | VERIFIED |
+| Q100 `maxExchanges: 1` in chat metadata | `chat-metadata.ts:29` | VERIFIED |
+| Q100 closing message is hardcoded, not AI-generated | `chat/route.ts:143` | VERIFIED |
+| Photo blur is `sharp(buffer).blur(20)` server-side; both original and blurred stored | `process-photo/route.ts:114` | VERIFIED |
+| Pricing constants exactly ₹7,080 and ₹41,300 | `constants.ts` | VERIFIED |
+| Claude model locked to `claude-sonnet-4-20250514` | `claude/client.ts:5` | VERIFIED |
+
+---
+
+### Stream 4 — Code Quality
+
+| Status | Item | File |
+|--------|------|------|
+| FIXED | 2 React Compiler lint errors (memoization + setState in effect) | `InternationalLocationInput.tsx` |
+| FIXED | Unused `error` prop (renamed `_error`) | `src/app/error.tsx` |
+| FIXED | Admin pages: JSX inside try/catch blocks refactored | Multiple admin page files |
+| FIXED | `AdminSidebar.tsx` — localStorage init made lazy to avoid SSR issues | `src/components/admin/AdminSidebar.tsx` |
+| FIXED | `DistributionBarChart.tsx` — `let` reassignment refactored | `src/components/admin/dashboard/DistributionBarChart.tsx` |
+| FIXED | `SuggestionCard.tsx`, `StatusDashboard.tsx` — `Date.now()` stabilized via `useRef` | Both files |
+| FIXED | ESLint-disable comments added for legitimate setState-in-effect patterns | `ComboboxInput.tsx`, `UploadProgressRow.tsx`, `use-location-data.ts` |
+| VERIFIED | No debug `console.log` statements outside error handling paths |
+| VERIFIED | No hardcoded secrets or API keys in source |
+| NOTE | `as any` usage is limited to Supabase query type coercions — acceptable |
+
+---
+
+### Stream 5 — Performance & Database
+
+| Status | Item |
+|--------|------|
+| CREATED | New migration `20260404000001_add_missing_indexes.sql` with 4 indexes |
+| VERIFIED | `idx_users_bgv_consent` — new |
+| VERIFIED | `idx_users_created_at DESC` — new |
+| VERIFIED | `idx_match_presentations_is_mutual_interest` — new |
+| VERIFIED | `idx_users_is_goocampus_member` — new (Pass 2 catch) |
+| VERIFIED | `payment_status`, `membership_status`, `photos.user_id` — already indexed |
+| VERIFIED | Both Vercel crons at daily frequency — within Hobby plan limits |
+| VERIFIED | No N+1 query patterns found in admin API routes |
+| NOTED | 7 `<img>` tags for Supabase signed URLs — deferred to v2 (switching to `<Image unoptimized>` provides minimal benefit for signed URLs) |
+
+---
+
+### Stream 6 — Accessibility
+
+| Status | Item | File |
+|--------|------|------|
+| FIXED | Validation error paragraph: added `role="alert"` + `aria-live="assertive"` | `src/components/form/QuestionField.tsx:70` |
+| FIXED | BGV consent toggle: `aria-label` added | `src/components/form/inputs/BgvConsentInput.tsx` |
+| VERIFIED | Chat interface: `role="log"`, `aria-live="polite"`, `aria-label` on input and send button | `ChatInterface.tsx:234` |
+| VERIFIED | All form inputs have `htmlFor` / `aria-label` label associations |
+| VERIFIED | Brand color `#A3171F` passes WCAG 4.5:1 contrast (~5.8:1 on white) |
+| VERIFIED | Navigation buttons are keyboard-accessible |
+| VERIFIED | Section heading focus management in place |
+| NOTED | `ComboboxInput.tsx:175` — `aria-selected` missing on `role="option"` elements — deferred to v2 |
+
+---
+
+### Stream 7 — Form Functional + Claude Chat
+
+| Status | Item |
+|--------|------|
+| VERIFIED | 100 base questions across 13 sections — all confirmed |
+| VERIFIED | 27 conditional rules — all `showIf` references point to earlier questions (no forward references) |
+| VERIFIED | Q38: 4 exchanges max, Q75: 6 exchanges max, Q100: 1 exchange max |
+| VERIFIED | Extraction fires automatically after chat completion; failure does not block form |
+| VERIFIED | Q75 extraction maps correctly across `compatibility_profiles` table |
+| VERIFIED | Auto-save debounce: 500ms, saves `onboarding_section` + `onboarding_last_question` |
+| VERIFIED | Save-and-resume: `findClosestVisibleQuestion()` correctly resolves saved question number |
+| NOTED | Q56b and Q57 share `questionNumber: 57` — **see founder decision item below** |
+
+---
+
+### Stream 8 — Form UX: Scroll Overrun Bug
+
+**Root cause identified and fixed in two locations:**
+
+1. `src/components/form/SectionSidebar.tsx:217` — `scrollIntoView({ block: 'start' })` changed to `block: 'nearest'` (Pass 1)
+2. `src/components/form/SectionNavigationButtons.tsx:31,66` — `scrollIntoView({ block: 'center' })` changed to `block: 'nearest'` on both validation error scroll calls (Pass 2 — this was the primary root cause)
+
+The bug occurred when a question near the bottom of the form section was scrolled to with `block: 'center'` or `block: 'start'`, aligning it to the middle/top of the viewport. This placed the scroll position below the form boundary with no way to scroll back up.
+
+---
+
+### Founder Decision Items Before Launch
+
+| # | Issue | Location | Recommendation |
+|---|-------|----------|----------------|
+| 1 | `Q56b` and `Q57` both have `questionNumber: 57` — save-and-resume saves the integer `57` and resolves to `Q57` on resume, never `Q56b` | `src/lib/form/questions.ts:729–730` | Renumber Q57 → 58 and cascade Q58–Q100 up by 1 before any real user data is collected. Requires migration to update existing `onboarding_last_question` values. |
+| 2 | All base form fields still have `required: false` (temporary testing state per CLAUDE.md) | `src/lib/form/questions.ts` | Must restore all required fields to `required: true` per PRD spec before first real applicant onboards |
+
+---
+
+### Deferred to v2 (Not Blockers)
+
+1. `<img>` tags for Supabase signed URLs (7 instances) — switch to `<Image unoptimized>` for LCP improvement
+2. `ComboboxInput.tsx` — full ARIA combobox pattern (`aria-selected` on options)
+3. Razorpay payment integration
+4. Service worker offline support
+
+---
+
 ## Summary Across All Phases
 
-| Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Form UI Polish | Pre-Prod Audit | PWA Polish + E2E | Phase 2E (Days 1-7) | Phase 2E (Days 8-12) | Total |
-|--------|--------|--------|--------|----------|----------|----------|------------|----------------|----------------|----------------|-----------------|---------------------|----------------------|-------|
-| Agents deployed | 1 | 1 | 5 | 3 | 4 | 5 | 6 | 1 | — | 6 | — | 8 | 3 | 43 |
-| Issues found | 14 | 20 | ~87 | ~65 | ~30 | ~25 | 34 | 2 | — | 10 | 1 | 46 | 38 | ~372 |
-| Critical issues | 0 | 5 | — | ~9 | 6 | 3 | 0 | 0 | — | 2 | 1 | 0 | 0 | 26+ |
-| HIGH/Major issues | 0 | 5 | — | ~10 | 6 | 5 | 0 | 0 | — | 6 | 0 | 2 | 1 | 35+ |
-| E2E tests | — | Validated | 16/16 | — | 12/12 | 15/15 | 13/13 HTTP | 1/1 (100 Qs) | — | 8/8 Playwright | 10/10 Prod E2E | — | 10/14 Playwright | 85+ |
-| Files changed | — | — | — | — | — | — | — | — | 22 | 40 | 15 | 43 | 46 | 400+ |
+| Metric | Part 1 | Part 2 | Part 3 | Phase 2B | Phase 2C | Phase 2D | Prod Audit | E2E Onboarding | Form UI Polish | Pre-Prod Audit | PWA Polish + E2E | Phase 2E (Days 1-7) | Phase 2E (Days 8-12) | **Phase 2F Pre-Launch** | Total |
+|--------|--------|--------|--------|----------|----------|----------|------------|----------------|----------------|----------------|-----------------|---------------------|----------------------|------------------------|-------|
+| Agents deployed | 1 | 1 | 5 | 3 | 4 | 5 | 6 | 1 | — | 6 | — | 8 | 3 | **17** | 60 |
+| Issues found | 14 | 20 | ~87 | ~65 | ~30 | ~25 | 34 | 2 | — | 10 | 1 | 46 | 38 | **43** | ~415 |
+| Critical issues | 0 | 5 | — | ~9 | 6 | 3 | 0 | 0 | — | 2 | 1 | 0 | 0 | **0** | 26+ |
+| HIGH/Major issues | 0 | 5 | — | ~10 | 6 | 5 | 0 | 0 | — | 6 | 0 | 2 | 1 | **0** | 35+ |
+| E2E tests | — | Validated | 16/16 | — | 12/12 | 15/15 | 13/13 HTTP | 1/1 (100 Qs) | — | 8/8 Playwright | 10/10 Prod E2E | — | 10/14 Playwright | Requires running server | 85+ |
+| Files changed | — | — | — | — | — | — | — | — | 22 | 40 | 15 | 43 | 46 | **~20** | 420+ |

@@ -345,14 +345,6 @@ export default async function ApplicantDetailPage({
     );
   } catch (err) {
     console.error('Applicant detail load error:', err);
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8" role="alert">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load data</h2>
-        <p className="text-gray-500 mb-4">Something went wrong while loading this page.</p>
-        <a href="/admin/applicants" className="text-rose-600 hover:text-rose-700 font-medium">
-          Return to applicants
-        </a>
-      </div>
-    );
+    throw err;
   }
 }

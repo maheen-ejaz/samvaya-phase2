@@ -25,11 +25,11 @@ const AXES = [
   { key: 'emotional_compatibility', label: 'Emotional' },
 ];
 
-const SIZE = 500;
+const SIZE = 580;
 const CENTER = SIZE / 2;
 const RADIUS = 150;
 const SCORE_RADIUS = 195;
-const LABEL_RADIUS = 220;
+const LABEL_RADIUS = 218;
 const RINGS = [25, 50, 75, 100];
 
 function polarToXY(angle: number, radius: number): { x: number; y: number } {
@@ -63,7 +63,7 @@ export function InteractiveSpiderChart({ dimensions, overallScore }: Interactive
 
   return (
     <div className="flex flex-col items-center">
-      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="max-w-full" role="img" aria-label="Compatibility scores radar chart">
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" role="img" aria-label="Compatibility scores radar chart">
         <title>Compatibility scores radar chart</title>
         {/* Background rings */}
         {RINGS.map((ring) => {

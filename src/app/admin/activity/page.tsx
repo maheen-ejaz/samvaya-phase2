@@ -38,7 +38,7 @@ export default async function ActivityLogPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <h1 className="text-2xl font-bold text-gray-900">Activity Log</h1>
+      <h1 className="type-heading-xl text-gray-900">Activity Log</h1>
       <p className="mt-1 text-sm text-gray-500">Audit trail of all admin actions.</p>
 
       <div className="mt-6">

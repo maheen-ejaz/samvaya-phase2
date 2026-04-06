@@ -228,7 +228,7 @@ export function AlertsList({ alerts }: AlertsListProps) {
     <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-gray-900">
+        <h3 className="type-heading text-gray-900">
           Alerts & Action Items
           {nonDismissed.length > 0 && (
             <span className="ml-2 inline-flex items-center justify-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
