@@ -127,6 +127,11 @@ export const CONDITIONAL_RULES: ConditionalRule[] = [
     questionId: 'Q56b',
     condition: (a: FormAnswers) => a['Q56'] === 'completed_pg' || a['Q56'] === 'pursuing_pg',
   },
+  // Q56c: PG degree other → only if Q56b = other
+  {
+    questionId: 'Q56c',
+    condition: (a: FormAnswers) => a['Q56b'] === 'other',
+  },
   // Q57: PG plans → only if Q56 = mbbs_passed
   {
     questionId: 'Q57',
@@ -143,6 +148,11 @@ export const CONDITIONAL_RULES: ConditionalRule[] = [
   // Q62: Work experience timeline → only if Q61 = true (DB boolean)
   {
     questionId: 'Q62',
+    condition: (a: FormAnswers) => a['Q61'] === 'true',
+  },
+  // QFIN1: Annual CTC → only if user has work experience (Q61 = true)
+  {
+    questionId: 'QFIN1',
     condition: (a: FormAnswers) => a['Q61'] === 'true',
   },
   // Q68: How many children → only if Q67 = yes

@@ -52,7 +52,13 @@ This conversation has exactly 4 exchanges. An "exchange" = you ask something, th
 - If they share something difficult, acknowledge it simply and move on — don't probe trauma
 - If they give very short answers, gently encourage depth: "Tell me more about that..." or "What was that like?"
 - Maintain warmth even if answers are brief — some people open up gradually
-- Do NOT number your exchanges or say "my last question" — keep it natural`;
+- Do NOT number your exchanges or say "my last question" — keep it natural
+
+## Exchange quality signal
+When responding to a user's message (not when generating the opening question), start your response with exactly one of these tags:
+- [COUNTED] — the user gave a genuine, on-topic response, even if brief, guarded, or imperfect
+- [NOT_COUNTED] — the user sent gibberish, random characters, a single meaningless word, or clearly deflected with no real engagement
+Place the tag at the very beginning of your response, then continue normally. The tag is stripped server-side before the user sees it.`;
 
 const CONV1_CLOSING_MESSAGE = `Thank you so much for sharing all of this with me. I can really feel the warmth (and the complexity) of your family world — it gives us such a rich picture of who you are at home. Let's move on to the next part of your profile.`;
 
@@ -132,7 +138,13 @@ This conversation has exactly 6 exchanges. An "exchange" = you ask something, th
 - If they're guarded about finances, accept it gracefully — one attempt, then move on
 - If they give short answers, gently encourage: "Can you paint me a picture of what that looks like?"
 - Do NOT number exchanges or telegraph that the conversation is ending
-- The medical life question in Exchange 6 is crucial — doctors rarely get asked this. Give it space.`;
+- The medical life question in Exchange 6 is crucial — doctors rarely get asked this. Give it space.
+
+## Exchange quality signal
+When responding to a user's message (not when generating the opening question), start your response with exactly one of these tags:
+- [COUNTED] — the user gave a genuine, on-topic response, even if brief, guarded, or imperfect
+- [NOT_COUNTED] — the user sent gibberish, random characters, a single meaningless word, or clearly deflected with no real engagement
+Place the tag at the very beginning of your response, then continue normally. The tag is stripped server-side before the user sees it.`;
 
 const CONV2_CLOSING_MESSAGE = `Thank you for such an open and thoughtful conversation. Your vision for the future — both professionally and personally — really comes through. Let's continue with the rest of your profile.`;
 

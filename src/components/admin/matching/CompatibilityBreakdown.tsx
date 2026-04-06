@@ -10,9 +10,9 @@ interface CompatibilityBreakdownProps {
 
 export function CompatibilityBreakdown({ report }: CompatibilityBreakdownProps) {
   return (
-    <div className="grid grid-cols-3 gap-6">
-      {/* Column 1: Spider Chart (2/3) */}
-      <div className="col-span-2">
+    <div className="space-y-6">
+      {/* Spider Chart: Full Width */}
+      <div>
         <InteractiveSpiderChart
           dimensions={Object.fromEntries(
             SCORING_DIMENSIONS.map((dim) => [dim, {
@@ -25,46 +25,44 @@ export function CompatibilityBreakdown({ report }: CompatibilityBreakdownProps) 
         />
       </div>
 
-      {/* Column 2: Highlights + Concerns + Narrative (1/3) */}
-      <div className="space-y-4">
-        <div className="space-y-4">
-          {/* Highlights — 50% of column 2 */}
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-            <h4 className="flex items-center gap-2 text-sm font-semibold text-green-800">
-              <span>✓</span> Highlights
-            </h4>
-            {report.highlights.length > 0 ? (
-              <ul className="mt-2 space-y-1">
-                {report.highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-green-900">
-                    <span className="mt-0.5 text-green-500">+</span>
-                    {h}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-green-600">No highlights noted.</p>
-            )}
-          </div>
+      {/* Highlights + Concerns: Two Column Row */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Highlights */}
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+          <h4 className="flex items-center gap-2 text-sm font-semibold text-green-800">
+            <span>✓</span> Highlights
+          </h4>
+          {report.highlights.length > 0 ? (
+            <ul className="mt-2 space-y-1">
+              {report.highlights.map((h, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-green-900">
+                  <span className="mt-0.5 text-green-500">+</span>
+                  {h}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-green-600">No highlights noted.</p>
+          )}
+        </div>
 
-          {/* Concerns — 50% of column 2 */}
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-            <h4 className="flex items-center gap-2 text-sm font-semibold text-red-800">
-              <span>⚠</span> Concerns
-            </h4>
-            {report.concerns.length > 0 ? (
-              <ul className="mt-2 space-y-1">
-                {report.concerns.map((c, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-red-900">
-                    <span className="mt-0.5 text-red-500">!</span>
-                    {c}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-red-600">No concerns noted.</p>
-            )}
-          </div>
+        {/* Concerns */}
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <h4 className="flex items-center gap-2 text-sm font-semibold text-red-800">
+            <span>⚠</span> Concerns
+          </h4>
+          {report.concerns.length > 0 ? (
+            <ul className="mt-2 space-y-1">
+              {report.concerns.map((c, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-red-900">
+                  <span className="mt-0.5 text-red-500">!</span>
+                  {c}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-red-600">No concerns noted.</p>
+          )}
         </div>
       </div>
     </div>

@@ -207,7 +207,7 @@ export function ActivityLogViewer() {
                   <span className="ml-2 text-sm text-gray-500">
                     {formatAction(log.action)}
                   </span>
-                  <span className="ml-2 text-xs text-gray-400">
+                  <span className="ml-2 text-xs text-gray-400 capitalize">
                     on {log.entity_type}
                   </span>
                 </div>

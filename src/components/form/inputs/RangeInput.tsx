@@ -14,10 +14,23 @@ interface RangeInputProps {
 const RANGE_CONSTRAINTS: Record<string, { min: number; max: number }> = {
   preferred_age_min: { min: 18, max: 60 },
   preferred_height_min_cm: { min: 100, max: 220 },
+  preferred_weight_min_kg: { min: 40, max: 140 },
 };
+
+const HEIGHT_COLUMNS = new Set(['preferred_height_min_cm', 'preferred_height_max_cm']);
+
+function cmToFeetInches(cm: number): string | null {
+  if (cm < 50 || cm > 250) return null;
+  const totalInches = cm / 2.54;
+  let feet = Math.floor(totalInches / 12);
+  let inches = Math.round(totalInches % 12);
+  if (inches === 12) { feet += 1; inches = 0; }
+  return `≈ ${feet}′ ${inches}″`;
+}
 
 export function RangeInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: RangeInputProps) {
   const [min, max] = value || [null, null];
+  const isHeightField = HEIGHT_COLUMNS.has(question.targetColumn ?? '') || HEIGHT_COLUMNS.has(question.targetColumn2 ?? '');
   const constraints = RANGE_CONSTRAINTS[question.targetColumn ?? ''];
   const hasError = min != null && max != null && min > max;
   const rangeErrorId = `${question.id}-range-error`;
@@ -49,6 +62,9 @@ export function RangeInput({ question, value, onChange, inputId, ariaDescribedBy
             aria-invalid={isInvalid}
             className={`w-full rounded-lg border bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] ${hasError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-samvaya-red'}`}
           />
+          {isHeightField && min != null && cmToFeetInches(min) && (
+            <p className="mt-1 text-xs text-gray-400">{cmToFeetInches(min)}</p>
+          )}
         </div>
         <span className="mt-6 text-gray-500" aria-hidden="true">—</span>
         <div className="flex-1">
@@ -67,6 +83,9 @@ export function RangeInput({ question, value, onChange, inputId, ariaDescribedBy
             aria-invalid={isInvalid}
             className={`w-full rounded-lg border bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] ${hasError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-samvaya-red'}`}
           />
+          {isHeightField && max != null && cmToFeetInches(max) && (
+            <p className="mt-1 text-xs text-gray-400">{cmToFeetInches(max)}</p>
+          )}
         </div>
       </div>
       {hasError && (

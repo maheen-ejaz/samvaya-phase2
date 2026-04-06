@@ -68,17 +68,17 @@ export function ApplicantActions({
         <button
           onClick={() => handleAction('mark_goocampus_verified')}
           disabled={loading}
-          className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
+          className="rounded-md border border-gray-200 bg-white px-3 py-1 text-xs text-gray-900 hover:border-gray-300 hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {loading ? 'Processing...' : 'Verify GooCampus'}
+          {loading ? 'Processing…' : 'Verify GooCampus'}
         </button>
       ) : (
         <button
           onClick={() => handleAction('mark_verification_paid')}
           disabled={loading}
-          className="rounded-md bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+          className="rounded-md border border-gray-200 bg-white px-3 py-1 text-xs text-gray-900 hover:border-gray-300 hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {loading ? 'Processing...' : 'Mark Fee Paid (\u20B97,080)'}
+          {loading ? 'Processing…' : 'Mark Fee Paid (\u20B97,080)'}
         </button>
       )}
 

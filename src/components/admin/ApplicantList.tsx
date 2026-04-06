@@ -125,14 +125,14 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
           type="search"
           value={search}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search by name or email..."
-          className="w-64 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+          placeholder="Search by name or email…"
+          className="w-64 rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-1.5 text-sm text-gray-700 placeholder:text-gray-400 focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-0"
           aria-label="Search applicants"
         />
         <select
           value={statusFilter}
           onChange={(e) => handleStatusFilter(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+          className="rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-1.5 text-sm text-gray-600 focus:border-gray-400 focus:outline-none focus:ring-0"
           aria-label="Filter by payment status"
         >
           {STATUS_OPTIONS.map((opt) => (
@@ -142,7 +142,7 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
           ))}
         </select>
         {(search || statusFilter !== 'all') && (
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-400">
             {filtered.length} result{filtered.length !== 1 ? 's' : ''}
           </span>
         )}
@@ -161,74 +161,78 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
 
       {/* Table */}
       {filtered.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-          <table className="min-w-full divide-y divide-gray-200" role="table">
-            <thead className="bg-gray-50">
+        <div className="overflow-x-auto rounded-lg border border-gray-100">
+          <table className="min-w-full divide-y divide-gray-100" role="table">
+            <thead className="bg-white">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
-                  <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center hover:text-gray-700">
+                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                  <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center hover:text-gray-600">
                     Name {sortIndicator('name')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                   Email
                 </th>
-                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
-                  <button type="button" onClick={() => toggleSort('specialty')} className="inline-flex items-center hover:text-gray-700">
+                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                  <button type="button" onClick={() => toggleSort('specialty')} className="inline-flex items-center hover:text-gray-600">
                     Specialty {sortIndicator('specialty')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
-                  <button type="button" onClick={() => toggleSort('submittedAt')} className="inline-flex items-center hover:text-gray-700">
+                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                  <button type="button" onClick={() => toggleSort('submittedAt')} className="inline-flex items-center hover:text-gray-600">
                     Submitted {sortIndicator('submittedAt')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
-                  <button type="button" onClick={() => toggleSort('paymentStatus')} className="inline-flex items-center hover:text-gray-700">
+                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                  <button type="button" onClick={() => toggleSort('paymentStatus')} className="inline-flex items-center hover:text-gray-600">
                     Status {sortIndicator('paymentStatus')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                   BGV Consent
                 </th>
-                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                   GooCampus
                 </th>
-                <th scope="col" className="px-4 py-3 text-left type-label text-gray-500">
+                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {paginated.map((applicant) => (
-                <tr key={applicant.id} className="hover:bg-gray-50">
-                  <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
-                    <Link
-                      href={`/admin/applicants/${applicant.id}`}
-                      className="text-rose-700 hover:text-rose-900 hover:underline"
-                    >
-                      {applicant.firstName} {applicant.lastName}
-                    </Link>
+                <tr key={applicant.id} className="hover:bg-gray-50/70 transition-colors">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm">
+                    <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs">
+                      <Link
+                        href={`/admin/applicants/${applicant.id}`}
+                        className="font-medium text-gray-900 transition-colors hover:text-rose-700"
+                      >
+                        {applicant.firstName} {applicant.lastName}
+                      </Link>
+                    </span>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
-                    {applicant.email}
+                  <td className="whitespace-nowrap px-4 py-4 text-sm">
+                    <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+                      {applicant.email}
+                    </span>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-500">
                     {applicant.specialty ? capitalize(applicant.specialty) : '—'}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-500">
                     {formatDate(applicant.submittedAt)}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm">
                     <PaymentStatusBadge status={applicant.paymentStatus} />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm">
                     <ConsentBadge consent={applicant.bgvConsent} />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm">
                     <GooCampusBadge isMember={applicant.isGooCampusMember} />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3">
+                  <td className="whitespace-nowrap px-4 py-4 text-sm">
                     <ApplicantActions
                       userId={applicant.id}
                       paymentStatus={applicant.paymentStatus}
@@ -246,24 +250,24 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-400">
             Showing {paginatedStart + 1}–{Math.min(paginatedStart + PER_PAGE, filtered.length)} of {filtered.length}
           </p>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="rounded-md border border-gray-300 px-4 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Previous
             </button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-gray-400">
               Page {page} of {totalPages}
             </span>
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="rounded-md border border-gray-300 px-4 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
             </button>
@@ -276,9 +280,28 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
+    const date = new Date(iso);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    // Within the last 24 hours — show relative time
+    if (diffHours < 24) {
+      const hrs = Math.floor(diffHours);
+      if (hrs < 1) return 'Just now';
+      return hrs === 1 ? '1 hr ago' : `${hrs} hrs ago`;
+    }
+
+    // Yesterday (24–48 hours) — show "Yesterday, H:MM am/pm"
+    if (diffHours < 48) {
+      const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+      return `Yesterday, ${time}`;
+    }
+
+    // Older than 2 days — show "Month DD, YYYY"
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: '2-digit',
       year: 'numeric',
     });
   } catch {

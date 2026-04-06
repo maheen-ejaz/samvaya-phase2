@@ -85,53 +85,59 @@ export default async function VerificationPage() {
           <p className="text-sm text-gray-500">No applicants in the verification queue.</p>
         </div>
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="mt-6 overflow-x-auto rounded-lg border border-gray-100">
+          <table className="min-w-full divide-y divide-gray-100">
+            <thead className="bg-white">
               <tr>
-                <th className="px-4 py-3 text-left type-label text-gray-500">Name</th>
-                <th className="px-4 py-3 text-left type-label text-gray-500">Status</th>
-                <th className="px-4 py-3 text-left type-label text-gray-500">BGV Consent</th>
-                <th className="px-4 py-3 text-left type-label text-gray-500">BGV</th>
-                <th className="px-4 py-3 text-left type-label text-gray-500">Documents</th>
-                <th className="px-4 py-3 text-left type-label text-gray-500">Actions</th>
+                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Name</th>
+                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Status</th>
+                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">BGV Consent</th>
+                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">BGV</th>
+                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Documents</th>
+                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {users.map((u) => {
                 const profile = profileMap.get(u.id);
                 const name = profile ? `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim() : 'Unknown';
                 const dc = docCounts.get(u.id);
 
                 return (
-                  <tr key={u.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
-                      <Link href={`/admin/applicants/${u.id}`} className="text-rose-700 hover:underline">
-                        {name}
-                      </Link>
+                  <tr key={u.id} className="transition-colors hover:bg-gray-50/70">
+                    <td className="whitespace-nowrap px-4 py-4 text-sm">
+                      <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs">
+                        <Link href={`/admin/applicants/${u.id}`} className="font-medium text-gray-900 transition-colors hover:text-rose-700">
+                          {name}
+                        </Link>
+                      </span>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm">
+                    <td className="whitespace-nowrap px-4 py-4 text-sm">
                       <PaymentStatusBadge status={u.payment_status} />
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm">
+                    <td className="whitespace-nowrap px-4 py-4 text-sm">
                       <ConsentBadge consent={u.bgv_consent ?? ''} />
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm">
-                      {u.is_bgv_complete ? (
-                        <span className="text-green-700">Complete</span>
-                      ) : u.bgv_flagged ? (
-                        <span className="text-red-600">Flagged</span>
-                      ) : (
-                        <span className="text-gray-400">Pending</span>
-                      )}
+                    <td className="whitespace-nowrap px-4 py-4 text-sm">
+                      <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1">
+                        {u.is_bgv_complete ? (
+                          <span className="text-xs text-green-700">Complete</span>
+                        ) : u.bgv_flagged ? (
+                          <span className="text-xs text-red-600">Flagged</span>
+                        ) : (
+                          <span className="text-xs text-gray-400">Pending</span>
+                        )}
+                      </span>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
-                      {dc ? `${dc.pending} pending / ${dc.total} total` : '0 docs'}
+                    <td className="whitespace-nowrap px-4 py-4 text-sm">
+                      <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+                        {dc ? `${dc.pending} pending / ${dc.total} total` : '0 docs'}
+                      </span>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm">
+                    <td className="whitespace-nowrap px-4 py-4 text-sm">
                       <Link
                         href={`/admin/verification/${u.id}`}
-                        className="rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                        className="rounded-md border border-gray-200 bg-white px-3 py-1 text-xs text-gray-900 hover:border-gray-300 hover:text-black"
                       >
                         BGV Tracker
                       </Link>

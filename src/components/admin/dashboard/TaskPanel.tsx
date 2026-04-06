@@ -11,17 +11,17 @@ type StatusFilter = 'all' | 'needs_action' | 'in_progress' | 'done';
 
 const statusColors: Record<string, { badge: string; text: string; dot: string }> = {
   needs_action: {
-    badge: 'bg-red-50 text-red-700',
+    badge: 'bg-red-50 text-gray-900',
     text: 'text-red-600',
     dot: 'bg-red-500',
   },
   in_progress: {
-    badge: 'bg-amber-50 text-amber-700',
+    badge: 'bg-amber-50 text-gray-900',
     text: 'text-amber-600',
     dot: 'bg-amber-500',
   },
   done: {
-    badge: 'bg-green-50 text-green-700',
+    badge: 'bg-green-50 text-gray-900',
     text: 'text-green-600',
     dot: 'bg-green-500',
   },
@@ -277,11 +277,11 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
             {filterStatus === 'all' ? 'No tasks yet' : `No ${filterStatus.replace('_', ' ')} tasks`}
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="divide-y divide-gray-100">
             {filteredTasks.map((task) => {
               const colors = statusColors[task.status];
               return (
-                <div key={task.id} className="flex items-start gap-3 py-2 px-2 rounded-lg hover:bg-gray-50">
+                <div key={task.id} className="flex items-start gap-3 py-3 px-2 rounded-lg hover:bg-gray-50/70 transition-colors">
                   {/* Checkbox / status dot */}
                   <div className="pt-1 flex-shrink-0">
                     <input
@@ -303,7 +303,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
                     <div className="flex items-center gap-2 mt-2">
                       {task.dueDate && (
                         <span className="text-xs text-gray-500">
-                          Due: {new Date(task.dueDate).toLocaleDateString()}
+                          Due: {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}
                         </span>
                       )}
                       {task.actionHref && (
@@ -318,7 +318,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
                   <div className="flex-shrink-0">
                     <button
                       onClick={() => cycleStatus(task.id)}
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${colors.badge} hover:opacity-80 cursor-pointer`}
+                      className={`inline-block px-2.5 py-1 rounded-md text-xs font-medium ${colors.badge} hover:opacity-80 cursor-pointer`}
                       title="Click to change status"
                     >
                       {task.status === 'needs_action'

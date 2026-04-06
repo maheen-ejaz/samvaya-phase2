@@ -63,10 +63,11 @@ export interface DashboardActivityLog {
 
 export interface DashboardCommLog {
   id: string;
+  userId: string;
   recipientName: string;
   subject: string;
   sentAt: string;
-  status: 'sent' | 'failed' | 'pending';
+  status: 'sent' | 'failed' | 'pending' | 'opened' | 'bounced';
   channel: string;
 }
 

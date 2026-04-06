@@ -121,8 +121,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Conversation already complete' }, { status: 400 });
   }
 
-  const newExchangeCount = currentExchangeCount + 1;
-  const isLastExchange = newExchangeCount >= config.maxExchanges;
+  let newExchangeCount = currentExchangeCount + 1;
+  let isLastExchange = newExchangeCount >= config.maxExchanges;
 
   // Build message history from SERVER state (never trust client-supplied messages)
   const serverMessages = serverChatState?.messages ?? [];
@@ -151,6 +151,17 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
+
+    // Parse quality signal: Claude prefixes [COUNTED] or [NOT_COUNTED] when it evaluates a user response
+    if (assistantResponse.startsWith('[NOT_COUNTED]')) {
+      assistantResponse = assistantResponse.slice('[NOT_COUNTED]'.length).trimStart();
+      // Restore exchange count — this response doesn't count toward the limit
+      newExchangeCount = currentExchangeCount;
+      isLastExchange = false;
+    } else if (assistantResponse.startsWith('[COUNTED]')) {
+      assistantResponse = assistantResponse.slice('[COUNTED]'.length).trimStart();
+    }
+    // If neither prefix is present (e.g. opening message flow), no change — proceed normally
   }
 
   const assistantMsg: ChatMessage = {

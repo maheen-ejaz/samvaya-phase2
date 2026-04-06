@@ -156,7 +156,7 @@ export function ActivityFeed({ logs }: ActivityFeedProps) {
                     {rest && <span className="text-gray-500">{rest}</span>}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+                    <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 capitalize">
                       {log.entityType}
                     </span>
                     <span className="text-xs text-gray-400">{timeAgo(log.createdAt)}</span>

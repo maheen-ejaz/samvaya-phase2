@@ -44,12 +44,26 @@ export function CompletionScreen() {
         </p>
 
         {/* Fee callout */}
-        <div className="mb-6 rounded-lg bg-rose-50 p-4">
+        <div className="mb-4 rounded-lg bg-rose-50 p-4">
           <p className="text-sm font-semibold text-gray-900">
             Verification fee: &#8377;6,000 + GST (&#8377;7,080 total)
           </p>
           <p className="mt-1 text-xs text-gray-600">
-            This is a one-time, non-refundable fee. Work begins as soon as your payment is confirmed.
+            This is mandatory and covers your identity and background verification. It is a one-time,
+            non-refundable fee. Work begins as soon as your payment is confirmed.
+          </p>
+        </div>
+
+        {/* Service fee transparency */}
+        <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <p className="text-sm font-semibold text-gray-900">
+            About the service fee
+          </p>
+          <p className="mt-1.5 text-xs leading-relaxed text-gray-600">
+            The verification fee above is the only upfront cost. A service fee of &#8377;35,000 + GST
+            (&#8377;41,300 total) is only applicable once we find a compatible match and <em>both</em>{' '}
+            parties confirm mutual interest in proceeding.{' '}
+            <strong>If we don&rsquo;t find a match, you are not required to pay any service fee.</strong>
           </p>
         </div>
 

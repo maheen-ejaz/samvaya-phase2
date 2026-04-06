@@ -580,6 +580,7 @@ export default async function AdminDashboard() {
     // ================================================================
     const recentComms: DashboardCommLog[] = commsLogs.map((c) => ({
       id: c.id,
+      userId: c.user_id,
       recipientName: getName(c.user_id),
       subject: c.subject || '',
       sentAt: c.sent_at,
