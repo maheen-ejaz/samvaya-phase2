@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
+import { Instrument_Sans } from "next/font/google";
 import "./globals.css";
+
+const instrumentSans = Instrument_Sans({
+  subsets: ["latin"],
+  variable: "--font-instrument-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Samvaya Matrimony",
@@ -28,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${GeistSans.variable} antialiased`}
+        className={`${instrumentSans.variable} antialiased`}
       >
         {children}
       </body>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import Image from 'next/image';
 import { SECTIONS } from '@/lib/form/sections';
 import { getSectionCompletionStatus, calculateOverallProgress, getSubGroups } from '@/lib/form/section-navigation';
@@ -8,6 +8,7 @@ import { getQuestion } from '@/lib/form/questions';
 import { useForm } from './FormProvider';
 import { scrollMainToElement } from './scroll-utils';
 import type { SectionStatus, SubGroup } from '@/lib/form/section-navigation';
+import type { SectionId } from '@/lib/form/types';
 
 // ============================================================
 // Vertical stepper — line segment between items
@@ -100,6 +101,7 @@ interface SidebarContentProps {
 export function SidebarContent({ onSectionClick }: SidebarContentProps) {
   const { state, navigateToSection, navigateTo } = useForm();
   const progress = calculateOverallProgress(state.answers);
+  const [conversationsGateMessage, setConversationsGateMessage] = useState(false);
 
   // Current question number for active sub-group detection
   const currentQId = state.visibleQuestions[state.currentQuestionIndex];
@@ -158,6 +160,18 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
                 {/* Clickable row */}
                 <button
                   onClick={() => {
+                    if (section.id === 'N') {
+                      const incomplete = SECTIONS.filter(
+                        (s) => s.id !== 'N' && getSectionCompletionStatus(s.id as SectionId, state.answers) !== 'complete'
+                      );
+                      if (incomplete.length > 0) {
+                        setConversationsGateMessage(true);
+                        navigateToSection(incomplete[0].id as SectionId);
+                        onSectionClick?.();
+                        return;
+                      }
+                    }
+                    setConversationsGateMessage(false);
                     navigateToSection(section.id);
                     onSectionClick?.();
                   }}
@@ -235,6 +249,15 @@ export function SidebarContent({ onSectionClick }: SidebarContentProps) {
                     )}
                   </div>
                 </div>
+
+                {/* Gate message — shown below Conversations when access is blocked */}
+                {section.id === 'N' && conversationsGateMessage && (
+                  <div className="ml-9 mt-2 rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2">
+                    <p className="text-xs leading-relaxed text-amber-200">
+                      Please complete all other sections first — we need your full profile before starting the conversations.
+                    </p>
+                  </div>
+                )}
               </li>
             );
           })}

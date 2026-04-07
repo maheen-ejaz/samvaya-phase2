@@ -1,14 +1,16 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useForm } from './FormProvider';
 import { QuestionField } from './QuestionField';
 import { ChatInterface } from './inputs/ChatInterface';
 import { BgvConsentInput } from './inputs/BgvConsentInput';
 import { SECTIONS, getSectionIndex } from '@/lib/form/sections';
-import { getVisibleQuestionsForSection, getSubGroupForQuestion } from '@/lib/form/section-navigation';
+import { getVisibleQuestionsForSection, getSubGroupForQuestion, getSectionCompletionStatus } from '@/lib/form/section-navigation';
 import { getQuestion } from '@/lib/form/questions';
 import type { SectionId } from '@/lib/form/types';
 import type { ChatState } from '@/lib/claude/types';
+import { CHAT_METADATA } from '@/lib/claude/chat-metadata';
 
 interface SectionPanelProps {
   validationErrors: Set<string>;
@@ -84,11 +86,29 @@ function buildRenderItems(
 }
 
 export function SectionPanel({ validationErrors }: SectionPanelProps) {
-  const { state, chatState, setAnswer, submitForm } = useForm();
+  const { state, chatState, setAnswer, submitForm, userId, navigateToSection } = useForm();
   const { currentSectionId, answers } = state;
 
   const sectionIndex = getSectionIndex(currentSectionId);
   const section = SECTIONS[sectionIndex];
+
+  // Welcome screen state — persisted in localStorage per user
+  const welcomeKey = `samvaya_conversations_welcome_seen_${userId}`;
+  const [hasSeenWelcome, setHasSeenWelcome] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(welcomeKey) === 'true';
+  });
+
+  // Redirect if user lands on Section N with incomplete prior sections
+  useEffect(() => {
+    if (currentSectionId !== 'N') return;
+    const incomplete = SECTIONS.filter((s) => s.id !== 'N' && getSectionCompletionStatus(s.id as SectionId, answers) !== 'complete');
+    if (incomplete.length > 0) {
+      navigateToSection(incomplete[0].id as SectionId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSectionId]);
+
   if (!section) return null;
 
   const visibleQuestionIds = getVisibleQuestionsForSection(currentSectionId, answers);
@@ -140,6 +160,38 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
         </div>
       )}
 
+      {/* Conversations welcome screen — Section N, shown once */}
+      {currentSectionId === 'N' && !hasSeenWelcome && (
+        <div className="flex flex-col items-center text-center py-6">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-rose-50 text-3xl">
+            🎉
+          </div>
+          <h2 className="type-heading text-gray-900 mb-2">
+            You&apos;ve made it to the final step
+          </h2>
+          <p className="text-sm text-samvaya-red font-medium mb-6">
+            Now for the most important part
+          </p>
+          <div className="w-full rounded-xl border border-rose-100 bg-rose-50/60 px-6 py-5 text-left mb-8">
+            <p className="text-sm leading-relaxed text-gray-700 mb-3">
+              These three short conversations are how we understand the real person behind your profile — your values, your family, your hopes for the future.
+            </p>
+            <p className="text-sm leading-relaxed text-gray-700">
+              Your honest, unhurried answers are what help us find the right match, not just a good one. There are no right or wrong answers — just be yourself, and take your time.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.setItem(welcomeKey, 'true');
+              setHasSeenWelcome(true);
+            }}
+            className="w-full rounded-lg bg-rose-600 py-3.5 text-sm font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-samvaya-red/30"
+          >
+            Begin conversations →
+          </button>
+        </div>
+      )}
+
       {/* Welcome header — only in Section A */}
       {currentSectionId === 'A' && (
         <div className="mb-8 rounded-xl border border-rose-100 bg-rose-50 px-5 py-6">
@@ -159,8 +211,8 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
         </div>
       )}
 
-      {/* Questions */}
-      <div className="space-y-8">
+      {/* Questions — hidden while conversations welcome screen is showing */}
+      {!(currentSectionId === 'N' && !hasSeenWelcome) && <div className="space-y-8">
         {renderItems.map((item) => {
           if (item.kind === 'chat') {
             const question = getQuestion(item.qId)!;
@@ -170,6 +222,46 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
             if (savedChatState?.isComplete && !answers[item.qId]) {
               setAnswer(item.qId, 'complete');
             }
+
+            const isChatDone = savedChatState?.isComplete || answers[item.qId] === 'complete';
+
+            // Determine if a prior chat in this section is still incomplete
+            const chatItems = renderItems.filter((r) => r.kind === 'chat');
+            const myIndexAmongChats = chatItems.findIndex((r) => r.qId === item.qId);
+            const priorChatIncomplete = chatItems.slice(0, myIndexAmongChats).some((r) => {
+              const prior = chatState[r.qId] as ChatState | undefined;
+              return !prior?.isComplete && answers[r.qId] !== 'complete';
+            });
+
+            // Completed chat — show compact summary card
+            if (isChatDone) {
+              const meta = CHAT_METADATA[item.qId];
+              return (
+                <div key={item.qId} id={`q-${item.qId}`}>
+                  {item.dividerLabel && <SubGroupDivider label={item.dividerLabel} />}
+                  <div className="rounded-xl border border-green-200 bg-green-50 px-5 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                        <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{meta?.title ?? question.text}</p>
+                        <p className="text-xs text-green-700 mt-0.5">Conversation complete</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // Future chat — a prior one is still incomplete, don't render yet
+            if (priorChatIncomplete) {
+              return null;
+            }
+
+            // Active chat — render full interface
             return (
               <div key={item.qId} id={`q-${item.qId}`}>
                 {item.dividerLabel && <SubGroupDivider label={item.dividerLabel} />}
@@ -236,7 +328,7 @@ export function SectionPanel({ validationErrors }: SectionPanelProps) {
             </div>
           );
         })}
-      </div>
+      </div>}
     </div>
   );
 }

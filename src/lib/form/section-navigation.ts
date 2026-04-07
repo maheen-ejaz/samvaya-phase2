@@ -222,30 +222,31 @@ const SECTION_SUBGROUPS: Partial<Record<SectionId, SubGroup[]>> = {
     { label: 'Health', questionRange: [49, 52] },
   ],
   H: [
-    { label: 'Medical Status', questionRange: [56, 58] },
-    { label: 'Qualifications', questionRange: [59, 61] },
+    { label: 'Medical Status', questionRange: [57, 59] },
+    { label: 'Qualifications', questionRange: [60, 63] },
   ],
-  J: [
-    { label: 'Life Goals', questionRange: [64, 69] },
-    { label: 'Relationship Values', questionRange: [70, 75] },
-  ],
+  // J (Financial Background): 6 questions (66-71) — no subgroups needed
   K: [
-    { label: 'Age & Physical', questionRange: [77, 78] },
-    { label: 'Professional', questionRange: [79, 80] },
-    { label: 'Location & Language', questionRange: [81, 82] },
-    { label: 'Lifestyle & Appearance', questionRange: [83, 89] },
-    { label: 'Family & Values', questionRange: [90, 93] },
-    { label: 'Personal Qualities', questionRange: [94, 95] },
+    { label: 'Marriage & Family', questionRange: [72, 79] },
+    { label: 'Location & Future Plans', questionRange: [80, 83] },
   ],
   L: [
-    { label: 'Photos', questionRange: [96, 97] },
-    { label: 'Documents', questionRange: [98, 99] },
-    { label: 'BGV Consent', questionRange: [100, 100] },
+    { label: 'Age & Physical', questionRange: [85, 87] },
+    { label: 'Professional', questionRange: [88, 89] },
+    { label: 'Location & Language', questionRange: [90, 91] },
+    { label: 'Lifestyle & Appearance', questionRange: [92, 98] },
+    { label: 'Family & Values', questionRange: [99, 100] },
+    { label: 'Career & Qualities', questionRange: [101, 104] },
   ],
   M: [
-    { label: 'Family Background', questionRange: [101, 101] },
-    { label: 'Goals & Values', questionRange: [102, 102] },
-    { label: 'Closing', questionRange: [103, 103] },
+    { label: 'Photos', questionRange: [105, 106] },
+    { label: 'Documents', questionRange: [107, 108] },
+    { label: 'BGV Consent', questionRange: [109, 109] },
+  ],
+  N: [
+    { label: 'Family Background', questionRange: [110, 110] },
+    { label: 'Goals & Values', questionRange: [111, 111] },
+    { label: 'Closing', questionRange: [112, 112] },
   ],
 };
 

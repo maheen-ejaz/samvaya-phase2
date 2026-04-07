@@ -2086,6 +2086,7 @@ Focus: Deploy to production on Vercel and validate with real data.
 **Scope:**
 - **Vercel production config** — Set up production environment on Vercel dashboard. Configure build settings, Node.js version, region (Mumbai for India-first).
 - **Environment variables** — Set all production env vars on Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `AIRTABLE_WEBHOOK_SECRET`, `TEAM_NOTIFICATION_EMAIL`.
+- **Waitlist count (live)** — The admin dashboard Waitlist card is wired to the external "Samvaya Waitlist" Supabase project but is gated behind `USE_LIVE_WAITLIST=false` during development. Before launch, provide the credentials for that project and set the following three Vercel env vars: `WAITLIST_SUPABASE_URL`, `WAITLIST_SUPABASE_SERVICE_ROLE_KEY`, and `USE_LIVE_WAITLIST=true`. Without this, the dashboard will show demo data instead of real waitlist numbers.
 - **Domain CNAME** — Configure `app.samvayamatrimony.com` CNAME to point to Vercel. Verify SSL certificate auto-provisioning. Test that root domain (`samvayamatrimony.com`) still serves Framer marketing site.
 - **Smoke tests** — Run through the full user flow on production: login via OTP → fill form (first 5 questions minimum) → auto-save → logout → re-login → resume. Verify data in Supabase dashboard.
 - **Admin smoke test** — Login as admin → view applicant list → open detail page → toggle payment status → add team note. Verify all admin pages load without errors.

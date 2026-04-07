@@ -3,17 +3,19 @@
 import { useState } from 'react';
 import { useForm } from './FormProvider';
 import { SECTIONS, getSectionIndex } from '@/lib/form/sections';
-import { isSectionValid, getNextSectionId, getPrevSectionId } from '@/lib/form/section-navigation';
+import { isSectionValid, getNextSectionId, getPrevSectionId, getSectionCompletionStatus } from '@/lib/form/section-navigation';
 import { scrollMainToElement } from './scroll-utils';
+import type { SectionId } from '@/lib/form/types';
 
 interface SectionNavigationButtonsProps {
   onValidationErrors: (errors: Set<string>) => void;
 }
 
 export function SectionNavigationButtons({ onValidationErrors }: SectionNavigationButtonsProps) {
-  const { state, navigateNextSection, navigatePrevSection, submitForm, submitError } = useForm();
+  const { state, navigateNextSection, navigatePrevSection, navigateToSection, submitForm, submitError } = useForm();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [conversationsBlockedSections, setConversationsBlockedSections] = useState<{ id: SectionId; label: string }[]>([]);
 
   const { currentSectionId, answers } = state;
   const sectionIndex = getSectionIndex(currentSectionId);
@@ -23,6 +25,9 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
   const hasPrev = getPrevSectionId(currentSectionId) !== null;
   const hasNext = getNextSectionId(currentSectionId) !== null;
 
+  // Section M is the last section before Conversations (N)
+  const isBeforeConversations = currentSectionId === 'M';
+
   const handleNext = () => {
     const result = isSectionValid(currentSectionId, answers);
     if (!result.valid && result.firstInvalidId) {
@@ -30,6 +35,17 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
       scrollMainToElement(result.firstInvalidId);
       return;
     }
+
+    // Gate: if about to enter Section N, check all prior sections are complete
+    if (isBeforeConversations) {
+      const incomplete = SECTIONS.filter((s) => s.id !== 'N' && getSectionCompletionStatus(s.id as SectionId, answers) !== 'complete');
+      if (incomplete.length > 0) {
+        setConversationsBlockedSections(incomplete.map((s) => ({ id: s.id as SectionId, label: s.label })));
+        return;
+      }
+    }
+
+    setConversationsBlockedSections([]);
     onValidationErrors(new Set());
     navigateNextSection();
     const main = document.querySelector('main');
@@ -77,6 +93,32 @@ export function SectionNavigationButtons({ onValidationErrors }: SectionNavigati
         <p className="mb-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700" role="alert">
           {submitError}
         </p>
+      )}
+      {conversationsBlockedSections.length > 0 && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4" role="alert">
+          <p className="mb-2 text-sm font-semibold text-amber-800">
+            Complete these sections before starting the conversations:
+          </p>
+          <ul className="space-y-1">
+            {conversationsBlockedSections.map((s) => (
+              <li key={s.id} className="flex items-center justify-between">
+                <span className="text-sm text-amber-700">• {s.label}</span>
+                <button
+                  onClick={() => {
+                    setConversationsBlockedSections([]);
+                    navigateToSection(s.id);
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="ml-4 rounded px-2 py-0.5 text-xs font-medium text-amber-800 underline hover:text-amber-900"
+                >
+                  Go →
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <div className="flex items-center justify-between">
         <button
