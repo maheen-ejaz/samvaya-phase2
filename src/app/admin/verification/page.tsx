@@ -1,8 +1,7 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { PaymentStatusBadge, ConsentBadge } from '@/components/admin/StatusBadge';
+import { VerificationTable } from '@/components/admin/verification/VerificationTable';
 
 type VerificationUser = {
   id: string;
@@ -73,81 +72,38 @@ export default async function VerificationPage() {
 
   const { users, profileMap, docCounts } = await loadVerificationData();
 
+  const rows = users.map((u) => {
+    const profile = profileMap.get(u.id);
+    const dc = docCounts.get(u.id);
+    return {
+      id: u.id,
+      firstName: profile?.first_name ?? null,
+      lastName: profile?.last_name ?? null,
+      paymentStatus: u.payment_status,
+      bgvConsent: u.bgv_consent,
+      isBgvComplete: u.is_bgv_complete,
+      bgvFlagged: u.bgv_flagged,
+      isGooCampusMember: u.is_goocampus_member,
+      docsPending: dc?.pending ?? 0,
+      docsTotal: dc?.total ?? 0,
+    };
+  });
+
   return (
     <div className="mx-auto max-w-7xl">
-      <h1 className="type-heading-xl text-gray-900">Verification Queue</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Applicants with verification pending or needing BGV
-      </p>
+      <div className="mb-6 flex items-center gap-3">
+        <h1 className="type-heading-xl text-gray-900">Verification Queue</h1>
+        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-normal text-gray-600">
+          {users.length}
+        </span>
+      </div>
 
       {users.length === 0 ? (
-        <div className="mt-6 rounded-lg border border-dashed border-gray-300 py-12 text-center">
+        <div className="rounded-xl border border-dashed border-gray-200 py-12 text-center">
           <p className="text-sm text-gray-500">No applicants in the verification queue.</p>
         </div>
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-lg border border-gray-100">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-white">
-              <tr>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Name</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Status</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">BGV Consent</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">BGV</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Documents</th>
-                <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {users.map((u) => {
-                const profile = profileMap.get(u.id);
-                const name = profile ? `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim() : 'Unknown';
-                const dc = docCounts.get(u.id);
-
-                return (
-                  <tr key={u.id} className="transition-colors hover:bg-gray-50/70">
-                    <td className="whitespace-nowrap px-4 py-4 text-sm">
-                      <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs">
-                        <Link href={`/admin/applicants/${u.id}`} className="font-medium text-gray-900 transition-colors hover:text-rose-700">
-                          {name}
-                        </Link>
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-sm">
-                      <PaymentStatusBadge status={u.payment_status} />
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-sm">
-                      <ConsentBadge consent={u.bgv_consent ?? ''} />
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-sm">
-                      <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1">
-                        {u.is_bgv_complete ? (
-                          <span className="text-xs text-green-700">Complete</span>
-                        ) : u.bgv_flagged ? (
-                          <span className="text-xs text-red-600">Flagged</span>
-                        ) : (
-                          <span className="text-xs text-gray-400">Pending</span>
-                        )}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-sm">
-                      <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
-                        {dc ? `${dc.pending} pending / ${dc.total} total` : '0 docs'}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-sm">
-                      <Link
-                        href={`/admin/verification/${u.id}`}
-                        className="rounded-md border border-gray-200 bg-white px-3 py-1 text-xs text-gray-900 hover:border-gray-300 hover:text-black"
-                      >
-                        BGV Tracker
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <VerificationTable rows={rows} />
       )}
     </div>
   );

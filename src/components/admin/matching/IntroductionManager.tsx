@@ -152,7 +152,7 @@ export function IntroductionManager() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`rounded px-2 py-0.5 text-xs ${getStatusBadge(intro.status)}`}>
-                    {intro.status}
+                    {intro.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                   </span>
                   {(intro.status === 'scheduled' || intro.status === 'rescheduled') && (
                     <button

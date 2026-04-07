@@ -194,7 +194,7 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
           >
             <option value="" disabled>Choose status...</option>
             {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+              <option key={s} value={s}>{s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</option>
             ))}
           </select>
           {hasUnsavedChanges && (
@@ -213,17 +213,17 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
       )}
 
       {/* Checks Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Check</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Notes</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Action</th>
+      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+        <table className="min-w-full">
+          <thead>
+            <tr className="border-b border-gray-100">
+              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Check</th>
+              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Status</th>
+              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Notes</th>
+              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-gray-50 bg-white">
             {checks.map((check) => (
               <BgvCheckRow
                 key={check.check_type}
@@ -259,17 +259,17 @@ function BgvCheckRow({
   const [localNotes, setLocalNotes] = useState(check.notes || '');
 
   return (
-    <tr className={isUpdating ? 'opacity-50' : ''}>
-      <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
+    <tr className={`border-l-2 border-l-transparent transition-colors hover:border-l-admin-green-300 hover:bg-gray-50 ${isUpdating ? 'opacity-50' : ''}`}>
+      <td className="whitespace-nowrap px-5 py-4 text-sm font-medium text-gray-900">
         {CHECK_LABELS[check.check_type] || check.check_type}
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-sm">
+      <td className="whitespace-nowrap px-5 py-4 text-sm">
         <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[check.status]}`}>
           <span>{STATUS_ICONS[check.status]}</span>
-          {check.status.replace(/_/g, ' ')}
+          {check.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
         </span>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-600">
+      <td className="px-5 py-4 text-sm text-gray-600">
         {editingNotes ? (
           <div className="flex gap-2">
             <input
@@ -305,7 +305,7 @@ function BgvCheckRow({
           </span>
         )}
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-sm">
+      <td className="whitespace-nowrap px-5 py-4 text-sm">
         {canEdit ? (
           <select
             value={check.status}
@@ -316,7 +316,7 @@ function BgvCheckRow({
           >
             {STATUS_OPTIONS.map((s) => (
               <option key={s} value={s}>
-                {s.replace(/_/g, ' ')}
+                {s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
               </option>
             ))}
           </select>

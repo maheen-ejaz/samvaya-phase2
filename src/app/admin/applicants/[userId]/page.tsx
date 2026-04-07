@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { ProfileHeader } from '@/components/admin/profile/ProfileHeader';
+import { ApplicantActivityTimeline } from '@/components/admin/profile/ApplicantActivityTimeline';
 import { IdentitySnapshot } from '@/components/admin/profile/IdentitySnapshot';
 import { FamilyBackground } from '@/components/admin/profile/FamilyBackground';
 import { EducationCareer } from '@/components/admin/profile/EducationCareer';
@@ -162,17 +163,19 @@ export default async function ApplicantDetailPage({
     }));
 
     return (
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-6">
+      <div className="mx-auto max-w-7xl">
+        {/* Back nav */}
+        <div className="mb-5">
           <Link
             href="/admin/applicants"
-            className="text-sm text-gray-500 hover:text-gray-700"
+            className="text-sm text-gray-400 hover:text-gray-600"
           >
             &larr; Back to Applicants
           </Link>
         </div>
 
         <div className="space-y-4">
+          {/* ── Full-width header ── */}
           <ProfileHeader
             firstName={profile?.first_name || 'Unknown'}
             lastName={profile?.last_name || ''}
@@ -184,6 +187,7 @@ export default async function ApplicantDetailPage({
             medicalStatus={medical?.current_status || null}
             specialty={Array.isArray(medical?.specialty) ? medical.specialty : []}
             paymentStatus={userData.payment_status || 'unverified'}
+            membershipStatus={userData.membership_status || 'onboarding_pending'}
             isGooCampusMember={userData.is_goocampus_member || false}
             isBgvComplete={userData.is_bgv_complete || false}
             bgvFlagged={userData.bgv_flagged || false}
@@ -192,19 +196,166 @@ export default async function ApplicantDetailPage({
             phone={authUser?.phone || ''}
           />
 
+          {/* ── Masonry card grid — fills gaps automatically ── */}
+          <div className="columns-1 gap-4 lg:columns-2">
+
+            <div className="mb-4 break-inside-avoid">
+              <IdentitySnapshot
+                religion={profile?.religion || null}
+                religiousObservance={profile?.religious_observance || null}
+                motherTongue={profile?.mother_tongue || null}
+                languagesSpoken={Array.isArray(profile?.languages_spoken) ? profile.languages_spoken : []}
+                maritalStatus={profile?.marital_status || null}
+                bloodGroup={profile?.blood_group || null}
+                referralSource={profile?.referral_source || null}
+                dateOfBirth={profile?.date_of_birth || null}
+                believesInKundali={profile?.believes_in_kundali ?? null}
+                casteComfort={profile?.caste_comfort ?? null}
+                caste={profile?.caste || null}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <EducationCareer
+                medicalStatus={medical?.current_status || null}
+                pgPlans={medical?.pg_plans || null}
+                additionalQualifications={Array.isArray(medical?.additional_qualifications) ? medical.additional_qualifications : []}
+                specialty={Array.isArray(medical?.specialty) ? medical.specialty : []}
+                hasWorkExperience={medical?.has_work_experience ?? null}
+                workExperience={workExperience}
+                currentDesignation={medical?.current_designation || null}
+                totalExperienceMonths={medical?.total_experience_months ?? null}
+                linkedinUrl={medical?.linkedin_url || null}
+                instagramHandle={medical?.instagram_handle || null}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <FamilyBackground
+                fatherName={profile?.father_name || null}
+                fatherOccupation={profile?.father_occupation || null}
+                motherName={profile?.mother_name || null}
+                motherOccupation={profile?.mother_occupation || null}
+                siblingsCount={profile?.siblings_count ?? null}
+                keyQuote={compat?.key_quote || null}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <CompatibilityProfile
+                dimensions={dimensions}
+                communicationStyle={compat?.communication_style || null}
+                conflictApproach={compat?.conflict_approach || null}
+                partnerRoleVision={compat?.partner_role_vision || null}
+                financialValues={compat?.financial_values || null}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <LifestyleSnapshot
+                diet={profile?.diet || null}
+                attire={profile?.attire_preference || null}
+                fitness={profile?.fitness_habits || null}
+                smoking={profile?.smoking || null}
+                drinking={profile?.drinking || null}
+                tattoos={profile?.tattoos_piercings || null}
+                disability={profile?.has_disability || null}
+                disabilityDescription={profile?.disability_description || null}
+                hasAllergies={profile?.has_allergies ?? null}
+                allergyDescription={profile?.allergy_description || null}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <PersonalitySummary
+                aiSummary={compat?.ai_personality_summary || null}
+                compatibilityKeywords={Array.isArray(compat?.ai_compatibility_keywords) ? compat.ai_compatibility_keywords : []}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <InterestsBlock
+                hobbies={Array.isArray(profile?.hobbies_interests) ? profile.hobbies_interests : []}
+                hobbiesRegular={profile?.hobbies_regular || null}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <PartnerPreferences
+                ageMin={partnerPrefs?.preferred_age_min ?? null}
+                ageMax={partnerPrefs?.preferred_age_max ?? null}
+                heightMinCm={partnerPrefs?.preferred_height_min_cm ?? null}
+                heightMaxCm={partnerPrefs?.preferred_height_max_cm ?? null}
+                prefersSpecificSpecialty={partnerPrefs?.prefers_specific_specialty ?? null}
+                preferredSpecialties={Array.isArray(partnerPrefs?.preferred_specialties) ? partnerPrefs.preferred_specialties : []}
+                preferredCareerStage={Array.isArray(partnerPrefs?.preferred_career_stage) ? partnerPrefs.preferred_career_stage : []}
+                preferredIndianStates={Array.isArray(partnerPrefs?.preferred_indian_states) ? partnerPrefs.preferred_indian_states : []}
+                preferredCountries={Array.isArray(partnerPrefs?.preferred_countries) ? partnerPrefs.preferred_countries : []}
+                noLocationPreference={partnerPrefs?.no_location_preference ?? false}
+                preferredMotherTongue={Array.isArray(partnerPrefs?.preferred_mother_tongue) ? partnerPrefs.preferred_mother_tongue : []}
+                bodyTypePreference={Array.isArray(partnerPrefs?.body_type_preference) ? partnerPrefs.body_type_preference : []}
+                attirePreference={partnerPrefs?.attire_preference || null}
+                dietPreference={Array.isArray(partnerPrefs?.diet_preference) ? partnerPrefs.diet_preference : []}
+                fitnessPreference={partnerPrefs?.fitness_preference || null}
+                smokingPreference={partnerPrefs?.smoking_preference || null}
+                drinkingPreference={partnerPrefs?.drinking_preference || null}
+                tattooPreference={partnerPrefs?.tattoo_preference || null}
+                familyTypePreference={partnerPrefs?.family_type_preference || null}
+                religiousObservancePreference={partnerPrefs?.religious_observance_preference || null}
+                partnerCareerExpectation={partnerPrefs?.partner_career_expectation_after_marriage || null}
+                partnerQualities={Array.isArray(partnerPrefs?.partner_qualities) ? partnerPrefs.partner_qualities : []}
+                partnerQualitiesOther={partnerPrefs?.partner_qualities_other || null}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <GoalsValues
+                marriageTimeline={profile?.marriage_timeline || null}
+                longDistanceComfort={profile?.long_distance_comfort || null}
+                familyArrangement={profile?.post_marriage_family_arrangement || null}
+                workingExpectation={profile?.both_partners_working_expectation || null}
+                wantsChildren={profile?.wants_children || null}
+                childrenCount={profile?.children_count_preference || null}
+                childrenTiming={profile?.children_timing_preference || null}
+                openToPartnerWithChildren={profile?.open_to_partner_with_children || null}
+                settlementCountries={Array.isArray(profile?.preferred_settlement_countries) ? profile.preferred_settlement_countries : []}
+                relocationOpenness={profile?.open_to_immediate_relocation || null}
+                plansToGoAbroad={profile?.plans_to_go_abroad ?? null}
+                abroadCountries={Array.isArray(profile?.abroad_countries) ? profile.abroad_countries : []}
+              />
+            </div>
+
+            <div className="mb-4 break-inside-avoid">
+              <DocumentViewer documents={documentItems} />
+            </div>
+
+          </div>
+
+          {/* ── Full-width bottom sections ── */}
+
           {/* All Photos Gallery */}
           {allPhotoUrls.length > 1 && (
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <h3 className="text-lg font-medium text-gray-900">All Photos ({allPhotoUrls.length})</h3>
-              <div className="mt-3 grid grid-cols-4 gap-3">
+            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Photos ({allPhotoUrls.length})
+                </h3>
+              </div>
+              <div className="grid grid-cols-4 gap-3 lg:grid-cols-6">
                 {allPhotoUrls.map((photo) => (
                   <div key={photo.id} className="space-y-1">
-                    <div className="overflow-hidden rounded-lg border border-gray-200">
+                    <div className="overflow-hidden rounded-xl border border-gray-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={photo.url} alt="" className="aspect-[3/4] w-full object-cover" />
                     </div>
-                    <p className="text-center text-xs capitalize text-gray-500">
-                      {photo.photoType.replace(/_/g, ' ')}
-                      {photo.isPrimary && <span className="ml-1 text-rose-500">(Primary)</span>}
+                    <p className="text-center text-xs capitalize text-gray-400">
+                      {photo.photoType.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                      {photo.isPrimary && <span className="ml-1 text-rose-500">·</span>}
                     </p>
                   </div>
                 ))}
@@ -212,115 +363,7 @@ export default async function ApplicantDetailPage({
             </div>
           )}
 
-          <DocumentViewer documents={documentItems} />
-
-          <IdentitySnapshot
-            religion={profile?.religion || null}
-            religiousObservance={profile?.religious_observance || null}
-            motherTongue={profile?.mother_tongue || null}
-            languagesSpoken={Array.isArray(profile?.languages_spoken) ? profile.languages_spoken : []}
-            maritalStatus={profile?.marital_status || null}
-            bloodGroup={profile?.blood_group || null}
-            referralSource={profile?.referral_source || null}
-            dateOfBirth={profile?.date_of_birth || null}
-            believesInKundali={profile?.believes_in_kundali ?? null}
-            casteComfort={profile?.caste_comfort ?? null}
-            caste={profile?.caste || null}
-          />
-
-          <FamilyBackground
-            fatherName={profile?.father_name || null}
-            fatherOccupation={profile?.father_occupation || null}
-            motherName={profile?.mother_name || null}
-            motherOccupation={profile?.mother_occupation || null}
-            siblingsCount={profile?.siblings_count ?? null}
-            keyQuote={compat?.key_quote || null}
-          />
-
-          <EducationCareer
-            medicalStatus={medical?.current_status || null}
-            pgPlans={medical?.pg_plans || null}
-            additionalQualifications={Array.isArray(medical?.additional_qualifications) ? medical.additional_qualifications : []}
-            specialty={Array.isArray(medical?.specialty) ? medical.specialty : []}
-            hasWorkExperience={medical?.has_work_experience ?? null}
-            workExperience={workExperience}
-            currentDesignation={medical?.current_designation || null}
-            totalExperienceMonths={medical?.total_experience_months ?? null}
-            linkedinUrl={medical?.linkedin_url || null}
-            instagramHandle={medical?.instagram_handle || null}
-          />
-
-          <LifestyleSnapshot
-            diet={profile?.diet || null}
-            attire={profile?.attire_preference || null}
-            fitness={profile?.fitness_habits || null}
-            smoking={profile?.smoking || null}
-            drinking={profile?.drinking || null}
-            tattoos={profile?.tattoos_piercings || null}
-            disability={profile?.has_disability || null}
-            disabilityDescription={profile?.disability_description || null}
-            hasAllergies={profile?.has_allergies ?? null}
-            allergyDescription={profile?.allergy_description || null}
-          />
-
-          <InterestsBlock
-            hobbies={Array.isArray(profile?.hobbies_interests) ? profile.hobbies_interests : []}
-            hobbiesRegular={profile?.hobbies_regular || null}
-          />
-
-          <GoalsValues
-            marriageTimeline={profile?.marriage_timeline || null}
-            longDistanceComfort={profile?.long_distance_comfort || null}
-            familyArrangement={profile?.post_marriage_family_arrangement || null}
-            workingExpectation={profile?.both_partners_working_expectation || null}
-            wantsChildren={profile?.wants_children || null}
-            childrenCount={profile?.children_count_preference || null}
-            childrenTiming={profile?.children_timing_preference || null}
-            openToPartnerWithChildren={profile?.open_to_partner_with_children || null}
-            settlementCountries={Array.isArray(profile?.preferred_settlement_countries) ? profile.preferred_settlement_countries : []}
-            relocationOpenness={profile?.open_to_immediate_relocation || null}
-            plansToGoAbroad={profile?.plans_to_go_abroad ?? null}
-            abroadCountries={Array.isArray(profile?.abroad_countries) ? profile.abroad_countries : []}
-          />
-
-          <CompatibilityProfile
-            dimensions={dimensions}
-            communicationStyle={compat?.communication_style || null}
-            conflictApproach={compat?.conflict_approach || null}
-            partnerRoleVision={compat?.partner_role_vision || null}
-            financialValues={compat?.financial_values || null}
-          />
-
-          <PersonalitySummary
-            aiSummary={compat?.ai_personality_summary || null}
-            compatibilityKeywords={Array.isArray(compat?.ai_compatibility_keywords) ? compat.ai_compatibility_keywords : []}
-          />
-
-          <PartnerPreferences
-            ageMin={partnerPrefs?.preferred_age_min ?? null}
-            ageMax={partnerPrefs?.preferred_age_max ?? null}
-            heightMinCm={partnerPrefs?.preferred_height_min_cm ?? null}
-            heightMaxCm={partnerPrefs?.preferred_height_max_cm ?? null}
-            prefersSpecificSpecialty={partnerPrefs?.prefers_specific_specialty ?? null}
-            preferredSpecialties={Array.isArray(partnerPrefs?.preferred_specialties) ? partnerPrefs.preferred_specialties : []}
-            preferredCareerStage={Array.isArray(partnerPrefs?.preferred_career_stage) ? partnerPrefs.preferred_career_stage : []}
-            preferredIndianStates={Array.isArray(partnerPrefs?.preferred_indian_states) ? partnerPrefs.preferred_indian_states : []}
-            preferredCountries={Array.isArray(partnerPrefs?.preferred_countries) ? partnerPrefs.preferred_countries : []}
-            noLocationPreference={partnerPrefs?.no_location_preference ?? false}
-            preferredMotherTongue={Array.isArray(partnerPrefs?.preferred_mother_tongue) ? partnerPrefs.preferred_mother_tongue : []}
-            bodyTypePreference={Array.isArray(partnerPrefs?.body_type_preference) ? partnerPrefs.body_type_preference : []}
-            attirePreference={partnerPrefs?.attire_preference || null}
-            dietPreference={Array.isArray(partnerPrefs?.diet_preference) ? partnerPrefs.diet_preference : []}
-            fitnessPreference={partnerPrefs?.fitness_preference || null}
-            smokingPreference={partnerPrefs?.smoking_preference || null}
-            drinkingPreference={partnerPrefs?.drinking_preference || null}
-            tattooPreference={partnerPrefs?.tattoo_preference || null}
-            familyTypePreference={partnerPrefs?.family_type_preference || null}
-            religiousObservancePreference={partnerPrefs?.religious_observance_preference || null}
-            partnerCareerExpectation={partnerPrefs?.partner_career_expectation_after_marriage || null}
-            partnerQualities={Array.isArray(partnerPrefs?.partner_qualities) ? partnerPrefs.partner_qualities : []}
-            partnerQualitiesOther={partnerPrefs?.partner_qualities_other || null}
-          />
+          <ChatTranscriptViewer transcripts={chatTranscripts} />
 
           <TeamNotes
             userId={userId}
@@ -328,9 +371,7 @@ export default async function ApplicantDetailPage({
             notes={formattedNotes}
           />
 
-          <ChatTranscriptViewer transcripts={chatTranscripts} />
-
-          <ClosingNote closingNote={compat?.closing_freeform_note || null} />
+          <ApplicantActivityTimeline userId={userId} />
 
           <StatusManagement
             userId={userId}
@@ -340,6 +381,8 @@ export default async function ApplicantDetailPage({
             isGooCampusMember={userData.is_goocampus_member || false}
             isBgvComplete={userData.is_bgv_complete || false}
           />
+
+          <ClosingNote closingNote={compat?.closing_freeform_note || null} />
         </div>
       </div>
     );

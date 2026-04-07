@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { MatchSuggestionWithProfiles, CompatibilityReport } from '@/types/matching';
 import { CompatibilityBreakdown } from './CompatibilityBreakdown';
 import { capitalize } from '@/lib/utils';
+import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
 
 interface MatchDrawerProps {
   suggestions: MatchSuggestionWithProfiles[];
@@ -111,7 +112,10 @@ function ProfileCard({ person }: { person: MatchSuggestionWithProfiles['profile_
         <img src={photoSrc} alt={person.full_name} className="h-full w-full object-cover" />
       </div>
       <div className="mt-3 px-1">
-        <p className="text-base font-bold text-gray-900">{person.full_name}</p>
+        <p className="inline-flex items-center gap-1.5 text-base font-bold text-gray-900">
+          {person.full_name}
+          <ApplicantStatusIcons isGooCampusMember={person.is_goocampus_member ?? false} paymentStatus={person.payment_status} size={13} />
+        </p>
         {details.length > 0 && <p className="mt-1 text-sm text-gray-500">{details.join(', ')}</p>}
         {(age || location) && (
           <div className="mt-1 flex items-center justify-between text-sm text-gray-400">
@@ -164,6 +168,9 @@ export function MatchDrawer({
   const report = suggestion.compatibility_report as CompatibilityReport;
   const isPending = suggestion.admin_status === 'pending_review';
   const daysAgo = Math.floor((Date.now() - new Date(suggestion.created_at).getTime()) / (1000 * 60 * 60 * 24));
+  const [firstProfile, secondProfile] = suggestion.profile_a?.gender?.toLowerCase() === 'female'
+    ? [suggestion.profile_a, suggestion.profile_b]
+    : [suggestion.profile_b, suggestion.profile_a];
 
   const handleApprove = async () => {
     setValidationError(null);
@@ -234,7 +241,7 @@ export function MatchDrawer({
 
           <div className="flex-1">
             <p className="text-sm font-semibold text-gray-900">
-              {suggestion.profile_a.full_name} &amp; {suggestion.profile_b.full_name}
+              {firstProfile.full_name} &amp; {secondProfile.full_name}
             </p>
             <p className="text-xs text-gray-400">Created {daysAgo === 0 ? 'today' : `${daysAgo}d ago`}</p>
           </div>
@@ -251,10 +258,10 @@ export function MatchDrawer({
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto">
 
-          {/* Profile cards */}
+          {/* Profile cards — female always on the left */}
           <div className="flex gap-4 px-6 pt-6">
-            <ProfileCard person={suggestion.profile_a} />
-            <ProfileCard person={suggestion.profile_b} />
+            <ProfileCard person={firstProfile} />
+            <ProfileCard person={secondProfile} />
           </div>
 
           {/* Score + badges */}

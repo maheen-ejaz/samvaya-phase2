@@ -3,6 +3,7 @@
 import { useMemo, useRef } from 'react';
 import type { MatchSuggestionWithProfiles } from '@/types/matching';
 import { capitalize } from '@/lib/utils';
+import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
 
 interface SuggestionCardProps {
   suggestion: MatchSuggestionWithProfiles;
@@ -105,7 +106,10 @@ function ProfileMiniCard({ person }: { person: MatchSuggestionWithProfiles['prof
         <img src={photoSrc} alt={person.full_name} className="h-full w-full object-cover" />
       </div>
       <div className="mt-2 px-0.5">
-        <p className="truncate text-sm font-bold text-gray-900">{person.full_name}</p>
+        <p className="inline-flex items-center gap-1 truncate text-sm font-bold text-gray-900">
+          {person.full_name}
+          <ApplicantStatusIcons isGooCampusMember={person.is_goocampus_member ?? false} paymentStatus={person.payment_status} size={12} />
+        </p>
         {specialty && <p className="mt-0.5 truncate text-xs text-gray-500">{specialty}</p>}
         {(age || location) && (
           <div className="mt-0.5 flex items-center justify-between text-xs text-gray-400">
@@ -136,11 +140,18 @@ export function SuggestionCard({ suggestion, onOpen }: SuggestionCardProps) {
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onOpen(); }}
     >
-      {/* Profile photos side by side */}
-      <div className="flex gap-3">
-        <ProfileMiniCard person={suggestion.profile_a} />
-        <ProfileMiniCard person={suggestion.profile_b} />
-      </div>
+      {/* Profile photos side by side — female always on the left */}
+      {(() => {
+        const [first, second] = suggestion.profile_a?.gender?.toLowerCase() === 'female'
+          ? [suggestion.profile_a, suggestion.profile_b]
+          : [suggestion.profile_b, suggestion.profile_a];
+        return (
+          <div className="flex gap-3">
+            <ProfileMiniCard person={first} />
+            <ProfileMiniCard person={second} />
+          </div>
+        );
+      })()}
 
       {/* Score + badges */}
       <div className="mt-4 space-y-2.5">

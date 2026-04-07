@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         const s = p.match_suggestions as Record<string, unknown>;
         const aId = s.profile_a_id as string;
         const bId = s.profile_b_id as string;
-        const [profileA, profileB] = await Promise.all([
+        const [profileA, profileB, userA, userB] = await Promise.all([
           supabase
             .from('profiles')
             .select('first_name, last_name')
@@ -62,6 +62,16 @@ export async function GET(request: NextRequest) {
             .from('profiles')
             .select('first_name, last_name')
             .eq('user_id', bId)
+            .single(),
+          supabase
+            .from('users')
+            .select('is_goocampus_member, payment_status')
+            .eq('id', aId)
+            .single(),
+          supabase
+            .from('users')
+            .select('is_goocampus_member, payment_status')
+            .eq('id', bId)
             .single(),
         ]);
 
@@ -73,6 +83,10 @@ export async function GET(request: NextRequest) {
           profile_b_name: profileB.data
             ? `${profileB.data.first_name || ''} ${profileB.data.last_name || ''}`.trim()
             : 'Unknown',
+          profile_a_is_goocampus: userA.data?.is_goocampus_member ?? false,
+          profile_a_payment_status: userA.data?.payment_status ?? null,
+          profile_b_is_goocampus: userB.data?.is_goocampus_member ?? false,
+          profile_b_payment_status: userB.data?.payment_status ?? null,
         };
       })
     );

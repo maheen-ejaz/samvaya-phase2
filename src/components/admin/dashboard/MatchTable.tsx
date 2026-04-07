@@ -1,6 +1,7 @@
 'use client';
 
 import type { DashboardMatch } from '@/types/dashboard';
+import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
 
 interface MatchTableProps {
   matches: DashboardMatch[];
@@ -164,7 +165,10 @@ function ProfileCard({ person }: { person: DashboardMatch['personA'] }) {
 
         {/* Name + details — left-aligned */}
         <div className="mt-3 px-1">
-          <p className="type-subheading text-gray-900">{person.name}</p>
+          <p className="inline-flex items-center gap-1 type-subheading text-gray-900">
+            {person.name}
+            <ApplicantStatusIcons isGooCampusMember={person.isGooCampusMember ?? false} paymentStatus={person.paymentStatus} size={13} />
+          </p>
 
           {/* Specialty */}
           {specialty && (
@@ -201,11 +205,18 @@ function MatchCard({
     <div className={`rounded-2xl border transition-shadow ${isExpanded ? 'border-admin-green-300 shadow-md' : 'border-gray-200 hover:shadow-sm'}`}>
       {/* Match layout: profiles on top, gauge + CTA on bottom */}
       <div className="cursor-pointer px-6 py-6" onClick={onToggle}>
-        {/* Row 1: Two profile cards side by side */}
-        <div className="flex gap-4">
-          <ProfileCard person={match.personA} />
-          <ProfileCard person={match.personB} />
-        </div>
+        {/* Row 1: Two profile cards side by side — female always on the left */}
+        {(() => {
+          const [first, second] = match.personA?.gender?.toLowerCase() === 'female'
+            ? [match.personA, match.personB]
+            : [match.personB, match.personA];
+          return (
+            <div className="flex gap-4">
+              <ProfileCard person={first} />
+              <ProfileCard person={second} />
+            </div>
+          );
+        })()}
 
         {/* Row 2: Score bar */}
         <div className="mt-5">

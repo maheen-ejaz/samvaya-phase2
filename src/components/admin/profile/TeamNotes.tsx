@@ -46,10 +46,15 @@ export function TeamNotes({ userId, aiRedFlags, notes }: TeamNotesProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h3 className="mb-4 text-lg font-medium text-gray-900">
-        Team Notes & Flags
-      </h3>
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="mb-5 flex items-center gap-2">
+        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+          </svg>
+        </div>
+        <h3 className="text-sm font-semibold text-gray-900">Team Notes & Flags</h3>
+      </div>
 
       {/* AI Red Flags */}
       {aiRedFlags && (

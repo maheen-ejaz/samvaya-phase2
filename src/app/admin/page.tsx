@@ -8,6 +8,7 @@ import { ActivityFeed } from '@/components/admin/dashboard/ActivityFeed';
 import { RecentComms } from '@/components/admin/dashboard/RecentComms';
 import { calculateAge, capitalize, daysSince } from '@/lib/utils';
 import { syncAutoTasks } from '@/lib/admin/sync-tasks';
+import { fetchLiveWaitlistCount } from '@/lib/supabase/waitlist-external';
 import type { DashboardAlert, DashboardMatch, DashboardActivityLog, DashboardCommLog, MatchStageCounts, PipelineStripStage, AdminTask } from '@/types/dashboard';
 
 export default async function AdminDashboard() {
@@ -185,6 +186,7 @@ export default async function AdminDashboard() {
     // ================================================================
     const profileMap = new Map(profiles.map((p) => [p.user_id, p]));
     const medicalMap = new Map(medical.map((m) => [m.user_id, m]));
+    const userMap = new Map(users.map((u) => [u.id, u]));
     const currentUserId = user.id;
 
     function getName(userId: string): string {
@@ -220,8 +222,16 @@ export default async function AdminDashboard() {
     // ================================================================
     // ROW 1: Pipeline KPI counts
     // ================================================================
-    const waitlistTotal = waitlist.length;
-    const waitlistInvited = waitlist.filter((w) => w.status === 'invited').length;
+    const useLiveWaitlist = process.env.USE_LIVE_WAITLIST === 'true';
+    let waitlistTotal: number;
+    let waitlistInvited: number;
+    if (useLiveWaitlist) {
+      waitlistTotal = (await fetchLiveWaitlistCount()) ?? 0;
+      waitlistInvited = 0; // external project — status breakdown not yet wired
+    } else {
+      waitlistTotal = waitlist.length;
+      waitlistInvited = waitlist.filter((w) => w.status === 'invited').length;
+    }
     const signedUp = users.length;
     const formInProgress = users.filter((u) => u.membership_status === 'onboarding_pending' || u.membership_status === 'onboarding_in_progress').length;
     const formComplete = users.filter((u) => u.membership_status === 'onboarding_complete').length;
@@ -256,11 +266,14 @@ export default async function AdminDashboard() {
     function alertContext(userId: string) {
       const p = profileMap.get(userId);
       const m = medicalMap.get(userId);
+      const u = userMap.get(userId);
       return {
         age: p?.date_of_birth ? calculateAge(p.date_of_birth) ?? undefined : undefined,
         gender: p?.gender ? capitalize(p.gender) : undefined,
         specialty: m?.specialty ? capitalize(Array.isArray(m.specialty) ? String(m.specialty[0]) : String(m.specialty)) : undefined,
         city: p?.current_city ? capitalize(p.current_city) : p?.current_state ? capitalize(p.current_state) : undefined,
+        isGooCampusMember: u?.is_goocampus_member ?? false,
+        paymentStatus: u?.payment_status ?? undefined,
       };
     }
 
@@ -547,8 +560,8 @@ export default async function AdminDashboard() {
       dashboardMatches.push({
         suggestionId: s.id,
         presentationId: pres?.id || null,
-        personA: { id: s.profile_a_id, name: getName(s.profile_a_id), details: getDetails(s.profile_a_id), primaryPhotoUrl: photoUrlMap.get(s.profile_a_id), gender: profileMap.get(s.profile_a_id)?.gender || undefined },
-        personB: { id: s.profile_b_id, name: getName(s.profile_b_id), details: getDetails(s.profile_b_id), primaryPhotoUrl: photoUrlMap.get(s.profile_b_id), gender: profileMap.get(s.profile_b_id)?.gender || undefined },
+        personA: { id: s.profile_a_id, name: getName(s.profile_a_id), details: getDetails(s.profile_a_id), primaryPhotoUrl: photoUrlMap.get(s.profile_a_id), gender: profileMap.get(s.profile_a_id)?.gender || undefined, isGooCampusMember: userMap.get(s.profile_a_id)?.is_goocampus_member ?? false, paymentStatus: userMap.get(s.profile_a_id)?.payment_status ?? undefined },
+        personB: { id: s.profile_b_id, name: getName(s.profile_b_id), details: getDetails(s.profile_b_id), primaryPhotoUrl: photoUrlMap.get(s.profile_b_id), gender: profileMap.get(s.profile_b_id)?.gender || undefined, isGooCampusMember: userMap.get(s.profile_b_id)?.is_goocampus_member ?? false, paymentStatus: userMap.get(s.profile_b_id)?.payment_status ?? undefined },
         compatibilityScore: s.overall_compatibility_score || 0,
         matchReason: narrative.length > 120 ? narrative.slice(0, 120) + '...' : narrative,
         fullNarrative: narrative,
@@ -606,15 +619,8 @@ export default async function AdminDashboard() {
         {/* Row 1: Unified Pipeline Strip */}
         <PipelineStrip stages={pipelineStages} />
 
-        {/* Row 2: Tasks (2/3) + Activity Feed (1/3) */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2">
-            <TaskPanel initialTasks={tasks} />
-          </div>
-          <div className="col-span-1">
-            <ActivityFeed logs={activityFeed} />
-          </div>
-        </div>
+        {/* Row 2: Tasks — full width */}
+        <TaskPanel initialTasks={tasks} />
 
         {/* Row 3: Match Command Center */}
         <MatchCommandCenter
@@ -622,8 +628,11 @@ export default async function AdminDashboard() {
           stageCounts={stageCounts}
         />
 
-        {/* Row 4: Recent Communications */}
-        <RecentComms communications={recentComms} />
+        {/* Row 4: Today's Activity + Recent Communications (50/50) */}
+        <div className="grid grid-cols-2 gap-6">
+          <ActivityFeed logs={activityFeed} />
+          <RecentComms communications={recentComms} />
+        </div>
       </div>
     );
   } catch (err) {

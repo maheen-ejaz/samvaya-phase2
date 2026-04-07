@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { DashboardAlert, AlertType } from '@/types/dashboard';
+import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
 
 interface AlertsListProps {
   alerts: DashboardAlert[];
@@ -324,7 +325,10 @@ export function AlertsList({ alerts }: AlertsListProps) {
                   {/* Summary text */}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-gray-900 truncate">
-                      <span className="font-medium">{alert.name}</span>{' '}
+                      <span className="inline-flex items-center gap-1 font-medium">
+                        {alert.name}
+                        <ApplicantStatusIcons isGooCampusMember={alert.isGooCampusMember ?? false} paymentStatus={alert.paymentStatus} size={12} />
+                      </span>{' '}
                       <span className="text-gray-500">{alert.message}</span>
                     </p>
                   </div>

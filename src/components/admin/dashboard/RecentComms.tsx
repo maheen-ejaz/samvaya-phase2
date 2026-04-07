@@ -10,12 +10,12 @@ interface RecentCommsProps {
   communications: DashboardCommLog[];
 }
 
-const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
-  sent:    { label: 'Sent',    classes: 'bg-emerald-50 text-gray-900' },
-  opened:  { label: 'Opened',  classes: 'bg-blue-50 text-gray-900' },
-  pending: { label: 'Pending', classes: 'bg-amber-50 text-gray-900' },
-  failed:  { label: 'Failed',  classes: 'bg-red-50 text-gray-900' },
-  bounced: { label: 'Bounced', classes: 'bg-orange-50 text-gray-900' },
+const STATUS_CONFIG: Record<string, { label: string; bg: string; dot: string; text: string }> = {
+  sent:    { label: 'Sent',    bg: 'bg-emerald-50', dot: 'bg-emerald-500', text: 'text-emerald-800' },
+  opened:  { label: 'Opened',  bg: 'bg-blue-50',    dot: 'bg-blue-500',    text: 'text-blue-800' },
+  pending: { label: 'Pending', bg: 'bg-amber-50',   dot: 'bg-amber-400',   text: 'text-amber-800' },
+  failed:  { label: 'Failed',  bg: 'bg-red-50',     dot: 'bg-red-500',     text: 'text-red-800' },
+  bounced: { label: 'Bounced', bg: 'bg-orange-50',  dot: 'bg-orange-400',  text: 'text-orange-800' },
 };
 
 export function RecentComms({ communications }: RecentCommsProps) {
@@ -23,7 +23,7 @@ export function RecentComms({ communications }: RecentCommsProps) {
 
   return (
     <>
-      <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h3 className="type-heading text-gray-900">Recent Communications</h3>
@@ -41,29 +41,30 @@ export function RecentComms({ communications }: RecentCommsProps) {
           <div className="mt-4">
             <table className="w-full text-sm">
               <thead>
-                <tr>
-                  <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Recipient</th>
-                  <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Subject</th>
-                  <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Date</th>
-                  <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">Status</th>
+                <tr className="border-b border-gray-100">
+                  <th className="pb-3 text-left text-sm font-normal text-gray-500">Recipient</th>
+                  <th className="pb-3 text-left text-sm font-normal text-gray-500">Subject</th>
+                  <th className="pb-3 text-left text-sm font-normal text-gray-500">Date</th>
+                  <th className="pb-3 text-left text-sm font-normal text-gray-500">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-50">
                 {communications.map((comm) => {
-                  const statusCfg = STATUS_CONFIG[comm.status] ?? { label: comm.status.charAt(0).toUpperCase() + comm.status.slice(1), classes: 'bg-gray-100 text-gray-900' };
+                  const cfg = STATUS_CONFIG[comm.status] ?? {
+                    label: comm.status.charAt(0).toUpperCase() + comm.status.slice(1),
+                    bg: 'bg-gray-100', dot: 'bg-gray-400', text: 'text-gray-600',
+                  };
                   return (
                     <tr
                       key={comm.id}
-                      className="transition-colors hover:bg-gray-50/70"
+                      className="group relative border-l-2 border-l-transparent transition-all duration-150 hover:border-l-admin-green-300 hover:bg-gray-50 hover:-translate-y-px"
                     >
                       <td className="py-3.5 pr-4">
                         <button
                           onClick={() => setSelectedUserId(comm.userId)}
-                          className="transition-colors hover:text-rose-700"
+                          className="font-medium text-gray-900 transition-colors hover:text-rose-700"
                         >
-                          <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-900">
-                            {comm.recipientName}
-                          </span>
+                          {comm.recipientName}
                         </button>
                       </td>
                       <td className="py-3.5 pr-4 max-w-[240px]">
@@ -71,8 +72,9 @@ export function RecentComms({ communications }: RecentCommsProps) {
                       </td>
                       <td className="py-3.5 pr-4 whitespace-nowrap text-gray-500">{formatDateIN(comm.sentAt)}</td>
                       <td className="py-3.5">
-                        <span className={`inline-block rounded-md px-2.5 py-1 text-xs font-medium ${statusCfg.classes}`}>
-                          {statusCfg.label}
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cfg.bg} ${cfg.text}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+                          {cfg.label}
                         </span>
                       </td>
                     </tr>

@@ -1,5 +1,8 @@
-import { PaymentStatusBadge, GooCampusBadge, BgvBadge } from '../StatusBadge';
+import { BgvBadge } from '../StatusBadge';
+import { ApplicantStatusIcons } from '../ApplicantStatusIcons';
 import { capitalize } from '@/lib/utils';
+import { ApplicantPipeline } from './ApplicantPipeline';
+import { formatEnum } from './IdentitySnapshot';
 
 interface ProfileHeaderProps {
   firstName: string;
@@ -12,6 +15,7 @@ interface ProfileHeaderProps {
   medicalStatus: string | null;
   specialty: string[];
   paymentStatus: string;
+  membershipStatus: string;
   isGooCampusMember: boolean;
   isBgvComplete: boolean;
   bgvFlagged: boolean;
@@ -31,6 +35,7 @@ export function ProfileHeader({
   medicalStatus,
   specialty,
   paymentStatus,
+  membershipStatus,
   isGooCampusMember,
   isBgvComplete,
   bgvFlagged,
@@ -43,54 +48,62 @@ export function ProfileHeader({
     .map((v) => capitalize(v!))
     .join(', ');
 
-  const statusLabel = medicalStatus?.replace(/_/g, ' ') || '';
+  const statusLabel = formatEnum(medicalStatus) || '';
   const specialtyStr = specialty.length > 0 ? specialty.map((s) => capitalize(s)).join(', ') : '';
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
-      <div className="flex gap-6">
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      {/* Top row: photo + info + pipeline */}
+      <div className="flex gap-5">
         {/* Photo */}
-        <div className="h-28 w-28 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+        <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100 ring-2 ring-gray-100">
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photoUrl} alt={`${firstName} ${lastName}`} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-3xl text-gray-300">
+            <div className="flex h-full w-full items-center justify-center text-3xl font-light text-gray-300">
               {firstName?.[0] || '?'}
             </div>
           )}
         </div>
 
-        {/* Info */}
-        <div className="flex-1">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="type-heading text-gray-900">
+        {/* Name + details */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-8">
+            {/* Left: name block — fixed width so pipeline gets the rest */}
+            <div className="w-56 flex-shrink-0">
+              <h2 className="inline-flex items-center gap-1.5 text-xl font-semibold text-gray-900">
                 {firstName} {lastName}
+                <ApplicantStatusIcons isGooCampusMember={isGooCampusMember} paymentStatus={paymentStatus} size={16} />
               </h2>
               <p className="mt-0.5 text-sm text-gray-500">
-                {age ? `${age} years` : ''}{age && gender ? ', ' : ''}{gender ? capitalize(gender) : ''}
-                {location ? ` — ${location}` : ''}
+                {age ? `${age} yrs` : ''}
+                {age && gender ? ' · ' : ''}
+                {gender ? capitalize(gender) : ''}
+                {location ? ` · ${location}` : ''}
               </p>
+              {(statusLabel || specialtyStr) && (
+                <p className="mt-1 text-sm font-medium text-gray-700">
+                  {statusLabel}{statusLabel && specialtyStr ? ' — ' : ''}{specialtyStr}
+                </p>
+              )}
+              <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
+                <span>{email}</span>
+                {phone && <span>{phone}</span>}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <PaymentStatusBadge status={paymentStatus} />
-              <GooCampusBadge isMember={isGooCampusMember} />
-              <BgvBadge isComplete={isBgvComplete} isFlagged={bgvFlagged} />
+
+            {/* Right: pipeline fills all remaining space */}
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 self-stretch">
+              <ApplicantPipeline
+                paymentStatus={paymentStatus}
+                membershipStatus={membershipStatus}
+              />
+              {/* Indicator badges */}
+              <div className="flex items-center gap-2">
+                <BgvBadge isComplete={isBgvComplete} isFlagged={bgvFlagged} />
+              </div>
             </div>
-          </div>
-
-          {/* Medical */}
-          {(statusLabel || specialtyStr) && (
-            <p className="mt-2 text-sm text-gray-700">
-              {statusLabel}{statusLabel && specialtyStr ? ' — ' : ''}{specialtyStr}
-            </p>
-          )}
-
-          {/* Contact */}
-          <div className="mt-3 flex gap-4 text-xs text-gray-500">
-            <span>{email}</span>
-            {phone && <span>{phone}</span>}
           </div>
         </div>
       </div>

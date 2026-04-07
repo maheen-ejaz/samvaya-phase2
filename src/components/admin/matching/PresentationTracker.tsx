@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
 
 interface Presentation {
   id: string;
@@ -12,6 +13,10 @@ interface Presentation {
   expires_at: string;
   profile_a_name: string;
   profile_b_name: string;
+  profile_a_is_goocampus: boolean;
+  profile_a_payment_status: string | null;
+  profile_b_is_goocampus: boolean;
+  profile_b_payment_status: string | null;
   match_suggestions: {
     overall_compatibility_score: number;
     profile_a_id: string;
@@ -155,14 +160,20 @@ export function PresentationTracker() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{p.profile_a_name}</p>
+                    <p className="inline-flex items-center gap-1 text-sm font-medium text-gray-900">
+                      {p.profile_a_name}
+                      <ApplicantStatusIcons isGooCampusMember={p.profile_a_is_goocampus ?? false} paymentStatus={p.profile_a_payment_status} size={12} />
+                    </p>
                     <span className={`mt-1 inline-block rounded px-2 py-0.5 text-xs ${getResponseBadge(p.member_a_response)}`}>
                       {p.member_a_response}
                     </span>
                   </div>
                   <span className="text-gray-400">×</span>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{p.profile_b_name}</p>
+                    <p className="inline-flex items-center gap-1 text-sm font-medium text-gray-900">
+                      {p.profile_b_name}
+                      <ApplicantStatusIcons isGooCampusMember={p.profile_b_is_goocampus ?? false} paymentStatus={p.profile_b_payment_status} size={12} />
+                    </p>
                     <span className={`mt-1 inline-block rounded px-2 py-0.5 text-xs ${getResponseBadge(p.member_b_response)}`}>
                       {p.member_b_response}
                     </span>
@@ -170,7 +181,7 @@ export function PresentationTracker() {
                 </div>
                 <div className="text-right">
                   <span className={`rounded px-2 py-1 text-xs font-medium ${getStatusBadge(p.status)}`}>
-                    {p.status.replace('_', ' ')}
+                    {p.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                   </span>
                   <p className="mt-1 text-xs text-gray-400">
                     Score: {p.match_suggestions.overall_compatibility_score}

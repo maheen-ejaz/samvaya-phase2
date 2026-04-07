@@ -330,7 +330,7 @@ export function BulkSendForm({ templates }: BulkSendFormProps) {
                       }}
                       className="rounded border-gray-300 text-rose-600"
                     />
-                    {s.replace(/_/g, ' ')}
+                    {s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                   </label>
                 ))}
               </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { formatDateIN } from '@/lib/utils';
+import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
 
 interface UserSummary {
   name: string | null;
@@ -133,15 +134,13 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
               {loading ? (
                 <div className="h-5 w-32 animate-pulse rounded bg-gray-200" />
               ) : (
-                <h2 className="text-base font-semibold text-gray-900">{summary?.name || 'Unknown'}</h2>
+                <h2 className="inline-flex items-center gap-1.5 text-base font-semibold text-gray-900">
+                  {summary?.name || 'Unknown'}
+                  <ApplicantStatusIcons isGooCampusMember={summary?.isGoocampusMember ?? false} paymentStatus={summary?.paymentStatus} size={14} />
+                </h2>
               )}
               {summary?.specialty && summary.specialty.length > 0 && (
                 <p className="mt-0.5 text-sm text-gray-500">{summary.specialty.join(', ')}</p>
-              )}
-              {summary?.isGoocampusMember && (
-                <span className="mt-1 inline-block rounded-full bg-admin-green-100 px-2 py-0.5 text-xs font-medium text-admin-green-800">
-                  GooCampus
-                </span>
               )}
             </div>
           </div>
@@ -283,5 +282,5 @@ function InfoItem({ label, value, valueClass }: { label: string; value: string |
 }
 
 function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, ' ');
+  return str.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }

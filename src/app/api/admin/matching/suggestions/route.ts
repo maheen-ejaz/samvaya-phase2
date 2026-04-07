@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
         const aId = s.profile_a_id as string;
         const bId = s.profile_b_id as string;
 
-        const [profileA, profileB] = await Promise.all([
+        const [profileA, profileB, medA, medB, userA, userB] = await Promise.all([
           supabase
             .from('profiles')
             .select('user_id, first_name, last_name, gender, date_of_birth, current_city, current_state')
@@ -101,9 +101,6 @@ export async function GET(request: NextRequest) {
             .select('user_id, first_name, last_name, gender, date_of_birth, current_city, current_state')
             .eq('user_id', bId)
             .single(),
-        ]);
-
-        const [medA, medB] = await Promise.all([
           supabase
             .from('medical_credentials')
             .select('specialty')
@@ -113,6 +110,16 @@ export async function GET(request: NextRequest) {
             .from('medical_credentials')
             .select('specialty')
             .eq('user_id', bId)
+            .single(),
+          supabase
+            .from('users')
+            .select('is_goocampus_member, payment_status')
+            .eq('id', aId)
+            .single(),
+          supabase
+            .from('users')
+            .select('is_goocampus_member, payment_status')
+            .eq('id', bId)
             .single(),
         ]);
 
@@ -136,6 +143,8 @@ export async function GET(request: NextRequest) {
             current_city: profileA.data?.current_city ?? null,
             current_state: profileA.data?.current_state ?? null,
             primary_photo_url: photoUrlMap.get(aId) ?? null,
+            is_goocampus_member: userA.data?.is_goocampus_member ?? false,
+            payment_status: userA.data?.payment_status ?? null,
           },
           profile_b: {
             full_name: profileB.data
@@ -147,6 +156,8 @@ export async function GET(request: NextRequest) {
             current_city: profileB.data?.current_city ?? null,
             current_state: profileB.data?.current_state ?? null,
             primary_photo_url: photoUrlMap.get(bId) ?? null,
+            is_goocampus_member: userB.data?.is_goocampus_member ?? false,
+            payment_status: userB.data?.payment_status ?? null,
           },
         };
       })

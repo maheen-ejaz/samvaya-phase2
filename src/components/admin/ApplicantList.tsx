@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import Link from 'next/link';
-import { ApplicantActions } from './ApplicantActions';
-import { PaymentStatusBadge, ConsentBadge, GooCampusBadge } from './StatusBadge';
+import { PaymentStatusBadge, ConsentBadge } from './StatusBadge';
+import { ApplicantStatusIcons } from './ApplicantStatusIcons';
 import { capitalize } from '@/lib/utils';
+import { ApplicantPreviewDrawer } from './applicants/ApplicantPreviewDrawer';
 
 export interface Applicant {
   id: string;
@@ -44,11 +44,15 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
   const [sortField, setSortField] = useState<SortField>('submittedAt');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [page, setPage] = useState(1);
+  const [drawerUserId, setDrawerUserId] = useState<string | null>(null);
+  const drawerApplicant = useMemo(
+    () => applicants.find((a) => a.id === drawerUserId) ?? null,
+    [applicants, drawerUserId]
+  );
 
   const filtered = useMemo(() => {
     let result = applicants;
 
-    // Search by name or email
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
@@ -58,12 +62,10 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
       );
     }
 
-    // Filter by status
     if (statusFilter !== 'all') {
       result = result.filter((a) => a.paymentStatus === statusFilter);
     }
 
-    // Sort
     result = [...result].sort((a, b) => {
       let cmp = 0;
       switch (sortField) {
@@ -91,7 +93,6 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
   const paginatedStart = (page - 1) * PER_PAGE;
   const paginated = filtered.slice(paginatedStart, paginatedStart + PER_PAGE);
 
-  // Reset to page 1 when filters change
   const handleSearch = (value: string) => { setSearch(value); setPage(1); };
   const handleStatusFilter = (value: string) => { setStatusFilter(value); setPage(1); };
 
@@ -106,17 +107,17 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
 
   const sortIndicator = (field: SortField) => {
     if (sortField !== field) return <span className="ml-1 text-gray-300">↕</span>;
-    return <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>;
+    return <span className="ml-1 text-gray-500">{sortDir === 'asc' ? '↑' : '↓'}</span>;
   };
 
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-center gap-3">
         <h1 className="type-heading-xl text-gray-900">{title}</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {applicants.length} applicant{applicants.length !== 1 ? 's' : ''} completed the form
-        </p>
+        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-normal text-gray-600">
+          {applicants.length}
+        </span>
       </div>
 
       {/* Search + Filters */}
@@ -150,7 +151,7 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <div className="rounded-lg border border-dashed border-gray-300 py-12 text-center">
+        <div className="rounded-xl border border-dashed border-gray-200 py-12 text-center">
           <p className="text-sm text-gray-500">
             {applicants.length === 0
               ? 'No applicants have completed the form yet.'
@@ -161,87 +162,84 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
 
       {/* Table */}
       {filtered.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-100">
-          <table className="min-w-full divide-y divide-gray-100" role="table">
-            <thead className="bg-white">
-              <tr>
-                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                  <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center hover:text-gray-600">
+        <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+          <table className="min-w-full" role="table">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
+                  <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center hover:text-gray-700">
                     Name {sortIndicator('name')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
                   Email
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                  <button type="button" onClick={() => toggleSort('specialty')} className="inline-flex items-center hover:text-gray-600">
+                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
+                  <button type="button" onClick={() => toggleSort('specialty')} className="inline-flex items-center hover:text-gray-700">
                     Specialty {sortIndicator('specialty')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                  <button type="button" onClick={() => toggleSort('submittedAt')} className="inline-flex items-center hover:text-gray-600">
+                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
+                  <button type="button" onClick={() => toggleSort('submittedAt')} className="inline-flex items-center hover:text-gray-700">
                     Submitted {sortIndicator('submittedAt')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                  <button type="button" onClick={() => toggleSort('paymentStatus')} className="inline-flex items-center hover:text-gray-600">
+                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
+                  <button type="button" onClick={() => toggleSort('paymentStatus')} className="inline-flex items-center hover:text-gray-700">
                     Status {sortIndicator('paymentStatus')}
                   </button>
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
                   BGV Consent
-                </th>
-                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                  GooCampus
-                </th>
-                <th scope="col" className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-                  Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {paginated.map((applicant) => (
-                <tr key={applicant.id} className="hover:bg-gray-50/70 transition-colors">
-                  <td className="whitespace-nowrap px-4 py-4 text-sm">
-                    <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs">
-                      <Link
-                        href={`/admin/applicants/${applicant.id}`}
-                        className="font-medium text-gray-900 transition-colors hover:text-rose-700"
-                      >
-                        {applicant.firstName} {applicant.lastName}
-                      </Link>
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm">
-                    <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+            <tbody className="divide-y divide-gray-50">
+              {paginated.map((applicant) => {
+                const isSelected = drawerUserId === applicant.id;
+                return (
+                  <tr
+                    key={applicant.id}
+                    onClick={() => setDrawerUserId(applicant.id)}
+                    className={`group relative cursor-pointer border-l-2 transition-all duration-150 ${
+                      isSelected
+                        ? 'border-l-admin-green-400 bg-admin-green-50'
+                        : 'border-l-transparent hover:border-l-admin-green-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
+                    }`}
+                  >
+                    <td className="whitespace-nowrap px-5 py-4 text-sm">
+                      <span className="inline-flex items-center gap-1.5">
+                        <a
+                          href={`/admin/applicants/${applicant.id}`}
+                          className={`font-medium transition-colors hover:text-rose-700 ${isSelected ? 'text-admin-green-900' : 'text-gray-900'}`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {applicant.firstName} {applicant.lastName}
+                        </a>
+                        <ApplicantStatusIcons
+                          isGooCampusMember={applicant.isGooCampusMember}
+                          paymentStatus={applicant.paymentStatus}
+                        />
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
                       {applicant.email}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-500">
-                    {applicant.specialty ? capitalize(applicant.specialty) : '—'}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-500">
-                    {formatDate(applicant.submittedAt)}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm">
-                    <PaymentStatusBadge status={applicant.paymentStatus} />
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm">
-                    <ConsentBadge consent={applicant.bgvConsent} />
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm">
-                    <GooCampusBadge isMember={applicant.isGooCampusMember} />
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-4 text-sm">
-                    <ApplicantActions
-                      userId={applicant.id}
-                      paymentStatus={applicant.paymentStatus}
-                      bgvConsent={applicant.bgvConsent}
-                      isGooCampusMember={applicant.isGooCampusMember}
-                    />
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                      {applicant.specialty ? capitalize(applicant.specialty) : '—'}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                      {formatDate(applicant.submittedAt)}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-sm">
+                      <PaymentStatusBadge status={applicant.paymentStatus} />
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-sm">
+                      <ConsentBadge consent={applicant.bgvConsent} />
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -274,6 +272,15 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
           </div>
         </div>
       )}
+
+      {/* Applicant preview drawer */}
+      {drawerApplicant && (
+        <ApplicantPreviewDrawer
+          userId={drawerApplicant.id}
+          basicInfo={drawerApplicant}
+          onClose={() => setDrawerUserId(null)}
+        />
+      )}
     </div>
   );
 }
@@ -285,20 +292,17 @@ function formatDate(iso: string): string {
     const diffMs = now.getTime() - date.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
 
-    // Within the last 24 hours — show relative time
     if (diffHours < 24) {
       const hrs = Math.floor(diffHours);
       if (hrs < 1) return 'Just now';
       return hrs === 1 ? '1 hr ago' : `${hrs} hrs ago`;
     }
 
-    // Yesterday (24–48 hours) — show "Yesterday, H:MM am/pm"
     if (diffHours < 48) {
       const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
       return `Yesterday, ${time}`;
     }
 
-    // Older than 2 days — show "Month DD, YYYY"
     return date.toLocaleDateString('en-US', {
       month: 'long',
       day: '2-digit',

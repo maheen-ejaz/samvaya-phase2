@@ -12,6 +12,12 @@ interface IdentitySnapshotProps {
   caste: string | null;
 }
 
+const IconPerson = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);
+
 export function IdentitySnapshot({
   religion,
   religiousObservance,
@@ -26,7 +32,7 @@ export function IdentitySnapshot({
   caste,
 }: IdentitySnapshotProps) {
   return (
-    <Section title="Identity Snapshot">
+    <Section title="Identity Snapshot" icon={<IconPerson />}>
       <Grid>
         <Field label="Religion" value={religion} />
         <Field label="Observance" value={formatEnum(religiousObservance)} />
@@ -46,24 +52,39 @@ export function IdentitySnapshot({
 
 // Shared helpers used across profile blocks
 
-export function Section({ title, children }: { title: string; children: React.ReactNode }) {
+export function Section({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h3 className="mb-4 text-lg font-medium text-gray-900">{title}</h3>
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="mb-5 flex items-center gap-2">
+        {icon && (
+          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+            {icon}
+          </div>
+        )}
+        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+      </div>
       {children}
     </div>
   );
 }
 
 export function Grid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-2 gap-x-6 gap-y-3 lg:grid-cols-3">{children}</div>;
+  return <div className="grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-3">{children}</div>;
 }
 
 export function Field({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div>
-      <dt className="text-xs text-gray-400">{label}</dt>
-      <dd className="mt-0.5 text-sm text-gray-900">{value || '—'}</dd>
+      <p className="text-xs text-gray-400">{label}</p>
+      <p className="mt-0.5 text-sm font-medium text-gray-900">{value || '—'}</p>
     </div>
   );
 }

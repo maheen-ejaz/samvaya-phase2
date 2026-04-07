@@ -62,7 +62,7 @@ export function DocumentViewer({ documents }: DocumentViewerProps) {
                   Uploaded {new Date(doc.uploadedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </p>
                 <span className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_STYLES[doc.verificationStatus] || 'bg-gray-100 text-gray-600'}`}>
-                  {doc.verificationStatus.replace(/_/g, ' ')}
+                  {doc.verificationStatus.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                 </span>
               </div>
 

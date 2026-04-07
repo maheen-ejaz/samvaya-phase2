@@ -21,6 +21,8 @@ export interface DashboardAlert {
   specialty?: string;
   city?: string;
   photoUrl?: string;
+  isGooCampusMember?: boolean;
+  paymentStatus?: string;
 
   // Secondary action
   secondaryActionLabel?: string;
@@ -40,8 +42,8 @@ export interface DashboardAlert {
 export interface DashboardMatch {
   suggestionId: string;
   presentationId: string | null;
-  personA: { id: string; name: string; details?: string; primaryPhotoUrl?: string; gender?: string };
-  personB: { id: string; name: string; details?: string; primaryPhotoUrl?: string; gender?: string };
+  personA: { id: string; name: string; details?: string; primaryPhotoUrl?: string; gender?: string; isGooCampusMember?: boolean; paymentStatus?: string };
+  personB: { id: string; name: string; details?: string; primaryPhotoUrl?: string; gender?: string; isGooCampusMember?: boolean; paymentStatus?: string };
   compatibilityScore: number;
   matchReason: string;
   fullNarrative: string;

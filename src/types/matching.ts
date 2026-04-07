@@ -130,6 +130,8 @@ export interface MatchSuggestionWithProfiles extends MatchSuggestion {
     current_city: string | null;
     current_state: string | null;
     primary_photo_url: string | null;
+    is_goocampus_member: boolean;
+    payment_status: string | null;
   };
   profile_b: {
     full_name: string;
@@ -139,6 +141,8 @@ export interface MatchSuggestionWithProfiles extends MatchSuggestion {
     current_city: string | null;
     current_state: string | null;
     primary_photo_url: string | null;
+    is_goocampus_member: boolean;
+    payment_status: string | null;
   };
 }
 

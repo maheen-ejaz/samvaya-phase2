@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
   const action = searchParams.get('action');
   const actor = searchParams.get('actor');
   const entityType = searchParams.get('entity_type');
+  const entityId = searchParams.get('entity_id');
   const from = searchParams.get('from');
   const to = searchParams.get('to');
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
   if (action) query = query.eq('action', action);
   if (actor) query = query.eq('actor_id', actor);
   if (entityType) query = query.eq('entity_type', entityType);
+  if (entityId) query = query.eq('entity_id', entityId);
   if (from) query = query.gte('created_at', from);
   if (to) query = query.lte('created_at', `${to}T23:59:59.999Z`);
 
