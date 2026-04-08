@@ -95,19 +95,11 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
 
   const handleSearch = (value: string) => { setSearch(value); setPage(1); };
   const handleStatusFilter = (value: string) => { setStatusFilter(value); setPage(1); };
-
-  function toggleSort(field: SortField) {
-    if (sortField === field) {
-      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortField(field);
-      setSortDir('asc');
-    }
-  }
-
-  const sortIndicator = (field: SortField) => {
-    if (sortField !== field) return <span className="ml-1 text-gray-300">↕</span>;
-    return <span className="ml-1 text-gray-500">{sortDir === 'asc' ? '↑' : '↓'}</span>;
+  const handleSortChange = (value: string) => {
+    const [field, dir] = value.split(':') as [SortField, SortDir];
+    setSortField(field);
+    setSortDir(dir);
+    setPage(1);
   };
 
   return (
@@ -142,6 +134,19 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
             </option>
           ))}
         </select>
+        <select
+          value={`${sortField}:${sortDir}`}
+          onChange={(e) => handleSortChange(e.target.value)}
+          className="rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-1.5 text-sm text-gray-600 focus:border-gray-400 focus:outline-none focus:ring-0"
+          aria-label="Sort by"
+        >
+          <option value="submittedAt:desc">Newest first</option>
+          <option value="submittedAt:asc">Oldest first</option>
+          <option value="name:asc">Name A–Z</option>
+          <option value="name:desc">Name Z–A</option>
+          <option value="specialty:asc">Specialty A–Z</option>
+          <option value="paymentStatus:asc">Status A–Z</option>
+        </select>
         {(search || statusFilter !== 'all') && (
           <span className="text-sm text-gray-400">
             {filtered.length} result{filtered.length !== 1 ? 's' : ''}
@@ -164,34 +169,14 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
       {filtered.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
           <table className="min-w-full" role="table">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                  <button type="button" onClick={() => toggleSort('name')} className="inline-flex items-center hover:text-gray-700">
-                    Name {sortIndicator('name')}
-                  </button>
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                  Email
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                  <button type="button" onClick={() => toggleSort('specialty')} className="inline-flex items-center hover:text-gray-700">
-                    Specialty {sortIndicator('specialty')}
-                  </button>
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                  <button type="button" onClick={() => toggleSort('submittedAt')} className="inline-flex items-center hover:text-gray-700">
-                    Submitted {sortIndicator('submittedAt')}
-                  </button>
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                  <button type="button" onClick={() => toggleSort('paymentStatus')} className="inline-flex items-center hover:text-gray-700">
-                    Status {sortIndicator('paymentStatus')}
-                  </button>
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                  BGV Consent
-                </th>
+            <thead className="admin-table-thead">
+              <tr>
+                <th scope="col" className="text-left">Name</th>
+                <th scope="col" className="text-left">Email</th>
+                <th scope="col" className="text-left">Specialty</th>
+                <th scope="col" className="text-left">Submitted</th>
+                <th scope="col" className="text-left">Status</th>
+                <th scope="col" className="text-left">BGV Consent</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -203,15 +188,15 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
                     onClick={() => setDrawerUserId(applicant.id)}
                     className={`group relative cursor-pointer border-l-2 transition-all duration-150 ${
                       isSelected
-                        ? 'border-l-admin-green-400 bg-admin-green-50'
-                        : 'border-l-transparent hover:border-l-admin-green-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
+                        ? 'border-l-admin-blue-400 bg-admin-blue-50'
+                        : 'border-l-transparent hover:border-l-admin-blue-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
                     }`}
                   >
                     <td className="whitespace-nowrap px-5 py-4 text-sm">
                       <span className="inline-flex items-center gap-1.5">
                         <a
                           href={`/admin/applicants/${applicant.id}`}
-                          className={`font-medium transition-colors hover:text-rose-700 ${isSelected ? 'text-admin-green-900' : 'text-gray-900'}`}
+                          className={`font-medium transition-colors hover:text-rose-700 ${isSelected ? 'text-admin-blue-900' : 'text-gray-900'}`}
                           onClick={(e) => e.stopPropagation()}
                         >
                           {applicant.firstName} {applicant.lastName}

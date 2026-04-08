@@ -24,22 +24,24 @@ export function SpecialtyDistribution({ data }: SpecialtyDistributionProps) {
       ) : (
         <div className="mt-4">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th scope="col" className="pb-2 text-left font-medium text-gray-500">Specialty</th>
-                <th scope="col" className="pb-2 text-right font-medium text-gray-500">Count</th>
-                <th scope="col" className="pb-2 pl-4 text-left font-medium text-gray-500 w-40"></th>
+            <thead className="admin-table-thead">
+              <tr>
+                <th scope="col" className="w-6 text-left">#</th>
+                <th scope="col" className="text-left">Specialty</th>
+                <th scope="col" className="text-right">Count</th>
+                <th scope="col" className="w-40 pl-4 text-left"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {data.map((entry, i) => (
-                <tr key={i}>
+                <tr key={i} className="transition-colors hover:bg-gray-50">
+                  <td className="py-2 text-[10px] tabular-nums text-gray-400">{i + 1}</td>
                   <td className="py-2 text-gray-900">{capitalize(entry.specialty)}</td>
                   <td className="py-2 text-right font-medium text-gray-900">{entry.count}</td>
                   <td className="py-2 pl-4">
-                    <div className="h-4 w-full rounded-full bg-gray-100">
+                    <div className="h-1.5 w-full rounded-full bg-gray-100">
                       <div
-                        className="h-full rounded-full bg-rose-400"
+                        className="h-full rounded-full bg-[#4F6EF7]"
                         style={{ width: `${(entry.count / maxCount) * 100}%` }}
                       />
                     </div>

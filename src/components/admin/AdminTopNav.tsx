@@ -71,6 +71,16 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: '/admin/tasks',
+    label: 'Tasks',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="12" height="12" rx="1.5" />
+        <path d="M5 8l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
     href: '/admin/activity',
     label: 'Activity',
     icon: (

@@ -81,14 +81,14 @@ function FunnelChart({ stageCounts }: { stageCounts: StageCounts }) {
             >
               <span
                 className={`block truncate text-[10px] leading-tight transition-colors ${
-                  isHovered ? 'font-semibold text-rose-600' : 'text-gray-400'
+                  isHovered ? 'font-semibold text-[#4F6EF7]' : 'text-gray-400'
                 }`}
               >
                 {stage.label}
               </span>
               <span
                 className={`mt-0.5 block tabular-nums transition-all ${
-                  isHovered ? 'text-sm font-bold text-rose-600' : 'text-sm font-semibold text-gray-700'
+                  isHovered ? 'text-sm font-bold text-[#4F6EF7]' : 'text-sm font-semibold text-gray-700'
                 }`}
               >
                 {count}
@@ -128,7 +128,7 @@ function FunnelChart({ stageCounts }: { stageCounts: StageCounts }) {
                       <span className="mx-2 text-gray-200">|</span>
                       <span>
                         Conversion:{' '}
-                        <span className="font-medium text-emerald-600">{conv.rate}%</span>
+                        <span className="font-medium text-[#4F6EF7]">{conv.rate}%</span>
                       </span>
                       <span className="mx-2 text-gray-200">|</span>
                       <span>
@@ -148,9 +148,9 @@ function FunnelChart({ stageCounts }: { stageCounts: StageCounts }) {
                 tabIndex={-1}
               >
                 {isHovered ? (
-                  <div className="h-full w-full bg-rose-500" />
+                  <div className="h-full w-full bg-[#4F6EF7]" />
                 ) : (
-                  /* Diagonal hatch via inline SVG */
+                  /* Diagonal hatch via inline SVG — blue theme */
                   <svg
                     width="100%"
                     height="100%"
@@ -165,10 +165,10 @@ function FunnelChart({ stageCounts }: { stageCounts: StageCounts }) {
                         height="10"
                         patternTransform="rotate(45)"
                       >
-                        <rect width="10" height="10" fill="#ffe4e6" />
+                        <rect width="10" height="10" fill="#EEF2FF" />
                         <line
                           x1="0" y1="0" x2="0" y2="10"
-                          stroke="#fca5a5"
+                          stroke="#A5B4FC"
                           strokeWidth="4"
                         />
                       </pattern>
@@ -208,7 +208,7 @@ export function ApplicantDashboard({ stageCounts }: ApplicantDashboardProps) {
               {/* Card */}
               <Link
                 href={href}
-                className={`group relative block h-full rounded-xl rounded-br-none border border-admin-green-200 bg-admin-green-100 p-5 pb-6 transition-all hover:-translate-y-0.5 hover:shadow-md${card.featured ? ' texture-stripes' : ''}`}
+                className={`group relative block h-full rounded-xl rounded-br-none border border-admin-blue-200 bg-admin-blue-100 p-5 pb-6 transition-all hover:-translate-y-0.5 hover:shadow-md${card.featured ? ' texture-stripes' : ''}`}
               >
                 <p className="text-lg font-medium text-gray-900">{card.label}</p>
                 <p className="mt-0.5 text-[11px] text-gray-400">{card.sub}</p>
@@ -223,7 +223,7 @@ export function ApplicantDashboard({ stageCounts }: ApplicantDashboardProps) {
               {/* Arrow button */}
               <Link
                 href={href}
-                className="absolute z-20 flex items-center justify-center rounded-full bg-admin-green-900 text-white shadow-md transition-all hover:bg-admin-green-800 hover:scale-105 hover:shadow-lg"
+                className="absolute z-20 flex items-center justify-center rounded-full bg-admin-blue-900 text-white shadow-md transition-all hover:bg-admin-blue-800 hover:scale-105 hover:shadow-lg"
                 style={{
                   width: `${BTN_SIZE}px`,
                   height: `${BTN_SIZE}px`,
@@ -250,7 +250,7 @@ export function ApplicantDashboard({ stageCounts }: ApplicantDashboardProps) {
 
       {/* Funnel chart card */}
       <div className="rounded-2xl border border-gray-100 bg-white/80 p-6 shadow-sm backdrop-blur-sm">
-        <h2 className="mb-6 text-sm font-semibold text-gray-700">Recruitment Pipeline</h2>
+        <h2 className="mb-6 text-sm font-semibold text-gray-700">Applicant Pipeline</h2>
         <FunnelChart stageCounts={stageCounts} />
       </div>
 

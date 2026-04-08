@@ -250,7 +250,7 @@ export function AlertsList({ alerts }: AlertsListProps) {
               onClick={() => { setActiveTab(tab.key); setSelectedIds(new Set()); setExpandedId(null); }}
               className={`rounded-full px-3.5 py-1 text-xs font-medium border transition-colors ${
                 activeTab === tab.key
-                  ? 'bg-admin-green-900 text-white border-admin-green-900'
+                  ? 'bg-admin-blue-900 text-white border-admin-blue-900'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
               }`}
             >
@@ -273,7 +273,7 @@ export function AlertsList({ alerts }: AlertsListProps) {
               type="checkbox"
               checked={allPaymentsSelected}
               onChange={toggleSelectAll}
-              className="rounded border-gray-300 text-admin-green-900 focus:ring-admin-green-500"
+              className="rounded border-gray-300 text-admin-blue-900 focus:ring-admin-blue-500"
             />
             Select all
           </label>
@@ -281,7 +281,7 @@ export function AlertsList({ alerts }: AlertsListProps) {
             <button
               onClick={handleBulkMarkPaid}
               disabled={bulkLoading}
-              className="rounded-full bg-admin-green-900 px-3 py-1 text-xs font-medium text-white hover:bg-admin-green-800 disabled:bg-gray-400"
+              className="rounded-full bg-admin-blue-900 px-3 py-1 text-xs font-medium text-white hover:bg-admin-blue-800 disabled:bg-gray-400"
             >
               {bulkLoading ? 'Processing...' : `Mark ${selectedIds.size} Fee Paid`}
             </button>
@@ -315,7 +315,7 @@ export function AlertsList({ alerts }: AlertsListProps) {
                       checked={selectedIds.has(alert.id)}
                       onClick={(e) => toggleSelect(e, alert.id)}
                       onChange={() => {}}
-                      className="rounded border-gray-300 text-admin-green-900 focus:ring-admin-green-500 flex-shrink-0"
+                      className="rounded border-gray-300 text-admin-blue-900 focus:ring-admin-blue-500 flex-shrink-0"
                     />
                   )}
 
@@ -387,7 +387,7 @@ export function AlertsList({ alerts }: AlertsListProps) {
                         <button
                           onClick={(e) => handleAction(e, alert)}
                           disabled={loadingId === alert.id}
-                          className="rounded-full bg-admin-green-900 px-4 py-1.5 text-xs font-medium text-white hover:bg-admin-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          className="rounded-full bg-admin-blue-900 px-4 py-1.5 text-xs font-medium text-white hover:bg-admin-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                           {loadingId === alert.id ? '...' : alert.actionLabel}
                         </button>
@@ -433,7 +433,7 @@ export function AlertsList({ alerts }: AlertsListProps) {
                               <button
                                 onClick={() => sendNudge(alert)}
                                 disabled={nudgeSending || !nudgeSubject.trim() || !nudgeBody.trim()}
-                                className="rounded-full bg-admin-green-900 px-4 py-1.5 text-xs font-medium text-white hover:bg-admin-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                className="rounded-full bg-admin-blue-900 px-4 py-1.5 text-xs font-medium text-white hover:bg-admin-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
                               >
                                 {nudgeSending ? 'Sending...' : 'Send Email'}
                               </button>

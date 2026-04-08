@@ -27,8 +27,8 @@ export function MatchingNav() {
               href={tab.href}
               className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-admin-green-900 text-white shadow-sm'
-                  : 'border border-gray-200 text-gray-500 hover:border-admin-green-300 hover:text-admin-green-900'
+                  ? 'bg-admin-blue-900 text-white shadow-sm'
+                  : 'border border-gray-200 text-gray-500 hover:border-admin-blue-300 hover:text-admin-blue-900'
               }`}
             >
               {tab.label}

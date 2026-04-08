@@ -69,7 +69,7 @@ function StageStepper({ currentStage }: { currentStage: string }) {
                 className="absolute inset-0"
                 style={{
                   background: isCompleted
-                    ? 'repeating-linear-gradient(-45deg, #66BB6A, #66BB6A 3px, #81C784 3px, #81C784 6px)'
+                    ? 'repeating-linear-gradient(-45deg, #4F6EF7, #4F6EF7 3px, #818CF8 3px, #818CF8 6px)'
                     : 'repeating-linear-gradient(-45deg, #E5E7EB, #E5E7EB 3px, #F3F4F6 3px, #F3F4F6 6px)',
                 }}
               />
@@ -109,7 +109,7 @@ export function MatchTable({ matches, expandedId, onToggleExpand, onAction, acti
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 p-4">
+    <div className="grid grid-cols-3 gap-3 p-4">
       {matches.map((match) => {
         const isExpanded = expandedId === match.suggestionId;
 
@@ -157,14 +157,14 @@ function ProfileCard({ person }: { person: DashboardMatch['personA'] }) {
 
   return (
     <div className="flex-1">
-      <div className={`rounded-2xl border p-4 shadow-sm ${cardStyle}`}>
+      <div className={`rounded-xl border p-2.5 shadow-sm ${cardStyle}`}>
         {/* Photo */}
-        <div className="aspect-[4/5] w-full overflow-hidden rounded-xl bg-gray-100">
+        <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-100">
           <img src={photoSrc} alt={person.name} className="h-full w-full object-cover" />
         </div>
 
         {/* Name + details — left-aligned */}
-        <div className="mt-3 px-1">
+        <div className="mt-2 px-0.5">
           <p className="inline-flex items-center gap-1 type-subheading text-gray-900">
             {person.name}
             <ApplicantStatusIcons isGooCampusMember={person.isGooCampusMember ?? false} paymentStatus={person.paymentStatus} size={13} />
@@ -202,16 +202,16 @@ function MatchCard({
   actionLoading: boolean;
 }) {
   return (
-    <div className={`rounded-2xl border transition-shadow ${isExpanded ? 'border-admin-green-300 shadow-md' : 'border-gray-200 hover:shadow-sm'}`}>
+    <div className={`rounded-2xl border transition-shadow ${isExpanded ? 'border-admin-blue-300 shadow-md' : 'border-gray-200 hover:shadow-sm'}`}>
       {/* Match layout: profiles on top, gauge + CTA on bottom */}
-      <div className="cursor-pointer px-6 py-6" onClick={onToggle}>
+      <div className="cursor-pointer px-4 py-4" onClick={onToggle}>
         {/* Row 1: Two profile cards side by side — female always on the left */}
         {(() => {
           const [first, second] = match.personA?.gender?.toLowerCase() === 'female'
             ? [match.personA, match.personB]
             : [match.personB, match.personA];
           return (
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <ProfileCard person={first} />
               <ProfileCard person={second} />
             </div>
@@ -219,7 +219,7 @@ function MatchCard({
         })()}
 
         {/* Row 2: Score bar */}
-        <div className="mt-5">
+        <div className="mt-3">
           <ScoreBar score={match.compatibilityScore} />
         </div>
 
@@ -234,7 +234,7 @@ function MatchCard({
           <button
             onClick={(e) => { e.stopPropagation(); onAction(); }}
             disabled={actionLoading}
-            className="rounded-full bg-admin-green-900 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-green-800 disabled:bg-gray-300"
+            className="rounded-full bg-admin-blue-900 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-blue-800 disabled:bg-gray-300"
           >
             {actionLoading ? '...' : match.nextAction}
           </button>
@@ -276,11 +276,11 @@ function HighlightsConcerns({ report }: { report: Record<string, unknown> }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {highlights.length > 0 && (
-        <div className="rounded-lg border border-admin-green-200 bg-admin-green-50 p-3">
-          <h5 className="text-xs font-semibold text-admin-green-900">Highlights</h5>
+        <div className="rounded-lg border border-admin-blue-200 bg-admin-blue-50 p-3">
+          <h5 className="text-xs font-semibold text-admin-blue-900">Highlights</h5>
           <ul className="mt-1.5 space-y-1">
             {highlights.map((h, i) => (
-              <li key={i} className="text-xs text-admin-green-800">+ {h}</li>
+              <li key={i} className="text-xs text-admin-blue-800">+ {h}</li>
             ))}
           </ul>
         </div>

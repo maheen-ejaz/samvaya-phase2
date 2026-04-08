@@ -8,6 +8,7 @@ import { ApplicantActions } from '@/components/admin/ApplicantActions';
 import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
 import { PaymentStatusBadge, GooCampusBadge, BgvBadge } from '@/components/admin/StatusBadge';
 import { capitalize } from '@/lib/utils';
+import { DrawerBgvTracker } from '@/components/admin/applicants/DrawerBgvTracker';
 
 interface PartnerPrefs {
   ageMin: number | null;
@@ -158,9 +159,9 @@ function JourneyTimeline({
                 <div
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold transition-colors ${
                     isCurrent
-                      ? 'border-admin-green-500 bg-admin-green-500 text-white'
+                      ? 'border-admin-blue-500 bg-admin-blue-500 text-white'
                       : isPast
-                      ? 'border-admin-green-300 bg-admin-green-50 text-admin-green-600'
+                      ? 'border-admin-blue-300 bg-admin-blue-50 text-admin-blue-600'
                       : 'border-gray-200 bg-white text-gray-300'
                   }`}
                 >
@@ -174,7 +175,7 @@ function JourneyTimeline({
                 </div>
                 {!isLast && (
                   <div
-                    className={`my-0.5 w-px flex-1 ${isPast || isCurrent ? 'bg-admin-green-200' : 'bg-gray-100'}`}
+                    className={`my-0.5 w-px flex-1 ${isPast || isCurrent ? 'bg-admin-blue-200' : 'bg-gray-100'}`}
                     style={{ minHeight: '20px' }}
                   />
                 )}
@@ -185,7 +186,7 @@ function JourneyTimeline({
                 <p
                   className={`text-sm leading-tight ${
                     isCurrent
-                      ? 'font-semibold text-admin-green-900'
+                      ? 'font-semibold text-admin-blue-900'
                       : isPast
                       ? 'text-gray-600'
                       : 'text-gray-300'
@@ -194,7 +195,7 @@ function JourneyTimeline({
                   {MILESTONE_LABELS[status]}
                 </p>
                 {isCurrent && (
-                  <p className="mt-0.5 text-[11px] text-admin-green-600">Current stage</p>
+                  <p className="mt-0.5 text-[11px] text-admin-blue-600">Current stage</p>
                 )}
                 {status === 'unverified' && joinedDate && (
                   <p className="mt-0.5 text-[11px] text-gray-400">{joinedDate}</p>
@@ -217,7 +218,7 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
   const [preview, setPreview] = useState<ApplicantPreview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'timeline'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'verification'>('overview');
 
   const fetchPreview = useCallback(async (id: string) => {
     setLoading(true);
@@ -284,7 +285,7 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
 
           <Link
             href={`/admin/applicants/${userId}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-admin-green-900 px-3.5 py-1.5 text-xs font-medium text-white transition-all hover:bg-admin-green-800 hover:shadow-md"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-admin-blue-900 px-3.5 py-1.5 text-xs font-medium text-white transition-all hover:bg-admin-blue-800 hover:shadow-md"
           >
             View Full Profile
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -337,13 +338,13 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
 
         {/* Tabs */}
         <div className="flex shrink-0 border-b border-gray-100">
-          {(['overview', 'timeline'] as const).map((tab) => (
+          {(['overview', 'timeline', 'verification'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex-1 py-2.5 text-xs font-medium capitalize transition-colors ${
                 activeTab === tab
-                  ? 'border-b-2 border-admin-green-500 text-admin-green-900'
+                  ? 'border-b-2 border-admin-blue-500 text-admin-blue-900'
                   : 'text-gray-400 hover:text-gray-600'
               }`}
             >
@@ -452,8 +453,8 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
                       {preview.matchStats.mutualInterest > 0 && (
                         <div className="flex items-center justify-between">
                           <p className="text-xs text-gray-500">Mutual interest</p>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-admin-green-50 px-2 py-0.5 text-xs font-medium text-admin-green-800">
-                            <span className="h-1.5 w-1.5 rounded-full bg-admin-green-500" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-admin-blue-50 px-2 py-0.5 text-xs font-medium text-admin-blue-800">
+                            <span className="h-1.5 w-1.5 rounded-full bg-admin-blue-500" />
                             {preview.matchStats.mutualInterest}
                           </span>
                         </div>
@@ -562,8 +563,8 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
 
               {/* AI personality summary */}
               {!loading && preview?.personalitySummary && (
-                <div className="rounded-xl border border-admin-green-200 bg-admin-green-50 p-4">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-admin-green-800">
+                <div className="rounded-xl border border-admin-blue-200 bg-admin-blue-50 p-4">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-admin-blue-800">
                     AI Personality Summary
                   </p>
                   <p className="text-sm leading-relaxed text-gray-700">{preview.personalitySummary}</p>
@@ -572,7 +573,7 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
                       {preview.compatibilityKeywords.map((kw) => (
                         <span
                           key={kw}
-                          className="rounded-full border border-admin-green-200 bg-white px-2.5 py-0.5 text-[11px] font-medium text-admin-green-800"
+                          className="rounded-full border border-admin-blue-200 bg-white px-2.5 py-0.5 text-[11px] font-medium text-admin-blue-800"
                         >
                           {kw}
                         </span>
@@ -604,6 +605,11 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
           {/* ── TIMELINE TAB ─────────────────────────────────────────── */}
           {activeTab === 'timeline' && (
             <JourneyTimeline preview={preview} loading={loading} basicInfo={basicInfo} />
+          )}
+
+          {/* ── VERIFICATION TAB ─────────────────────────────────────── */}
+          {activeTab === 'verification' && (
+            <DrawerBgvTracker userId={userId} />
           )}
         </div>
       </div>

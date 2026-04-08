@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { sendNotificationEmail } from '@/lib/email/notifications';
 import { statusUpdateEmail } from '@/lib/email/templates';
 import { PRICING } from '@/lib/constants';
+import { createBgvInitiateTask } from '@/lib/admin/sync-tasks';
 
 type Action = 'mark_verification_paid' | 'mark_goocampus_verified' | 'move_to_pool';
 
@@ -104,6 +105,9 @@ export async function POST(
     await adminSupabase.from('users').update({ payment_status: 'verification_pending' as never }).eq('id', userId);
     await logActivity(admin.id, 'marked_verification_paid', 'user', userId, { amount: PRICING.VERIFICATION_FEE_PAISE });
 
+    // Auto-create a task to initiate BGV
+    createBgvInitiateTaskForUser(adminSupabase, userId);
+
     notifyStatusChange(adminSupabase, userId, 'verification_pending');
     return NextResponse.json({ success: true, newPaymentStatus: 'verification_pending' });
   }
@@ -144,6 +148,32 @@ export async function POST(
   }
 
   return NextResponse.json({ error: 'Unhandled action' }, { status: 400 });
+}
+
+/** Fire-and-forget: create BGV initiate task after payment confirmed */
+function createBgvInitiateTaskForUser(
+  supabase: ReturnType<typeof createAdminClient>,
+  userId: string
+) {
+  (async () => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('user_id', userId)
+        .single();
+      const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+      const name = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || 'Applicant';
+      await createBgvInitiateTask({
+        userId,
+        name,
+        phone: null,
+        email: authUser?.user?.email ?? null,
+      });
+    } catch (err) {
+      console.error('createBgvInitiateTaskForUser failed:', err);
+    }
+  })();
 }
 
 /** Fire-and-forget status change notification */

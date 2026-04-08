@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { AnalyticsDashboard } from '@/components/admin/analytics/AnalyticsDashboard';
-import { DistributionTabs } from '@/components/admin/dashboard/DistributionTabs';
+import { AnalyticsKPIStrip } from '@/components/admin/analytics/AnalyticsKPIStrip';
+import { AnalyticsDonutGrid } from '@/components/admin/analytics/AnalyticsDonutGrid';
 import { calculateAge } from '@/lib/utils';
 import type { DistributionEntry } from '@/types/dashboard';
 
@@ -27,19 +28,44 @@ export default async function AnalyticsPage() {
     redirect('/app/onboarding');
   }
 
-  // Fetch distribution data server-side
   const adminSupabase = createAdminClient();
-  const [profilesResult, medicalResult] = await Promise.all([
+
+  const [profilesResult, medicalResult, usersResult, matchesResult] = await Promise.all([
     adminSupabase
       .from('profiles')
       .select('user_id, gender, date_of_birth, current_state'),
     adminSupabase
       .from('medical_credentials')
       .select('user_id, current_status'),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (adminSupabase as any)
+      .from('users')
+      .select('id, payment_status, membership_status, created_at')
+      .eq('role', 'applicant'),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (adminSupabase as any)
+      .from('match_presentations')
+      .select('id', { count: 'exact', head: true }),
   ]);
 
   const profiles = profilesResult.data || [];
   const medical = medicalResult.data || [];
+  const users = ((usersResult as { data: Array<{ id: string; payment_status: string | null; membership_status: string | null; created_at: string | null }> | null }).data || []);
+
+  // KPI counts
+  const totalApplicants = users.length;
+  const formComplete = users.filter((u) => u.membership_status === 'onboarding_complete').length;
+  const inPool = users.filter((u) => u.payment_status === 'in_pool').length;
+  const matchesPresented = matchesResult.count ?? 0;
+  const activeMembers = users.filter((u) => u.payment_status === 'active_member').length;
+
+  // "+N this month" — applicants joined since the 1st of the current month
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const addedThisMonth = users.filter(
+    (u) => u.created_at && new Date(u.created_at) >= startOfMonth
+  ).length;
 
   // Location
   const stateCounts = new Map<string, number>();
@@ -51,7 +77,7 @@ export default async function AnalyticsPage() {
   }
   const locationData: DistributionEntry[] = [...stateCounts.entries()]
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 15)
+    .slice(0, 8)
     .map(([label, count]) => ({ label, count }));
 
   // Education
@@ -99,11 +125,24 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <h1 className="type-heading-xl text-gray-900">Analytics</h1>
-      <p className="mt-1 text-sm text-gray-500">Platform metrics and applicant funnel.</p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="type-heading-xl text-gray-900">Analytics</h1>
+          <p className="mt-1 text-sm text-gray-500">Platform metrics and applicant funnel.</p>
+        </div>
+        <p className="text-xs text-gray-400">Live data · refreshes on load</p>
+      </div>
 
       <div className="mt-6 space-y-6">
-        <DistributionTabs
+        <AnalyticsKPIStrip
+          totalApplicants={totalApplicants}
+          formComplete={formComplete}
+          inPool={inPool}
+          matchesPresented={matchesPresented}
+          activeMembers={activeMembers}
+          addedThisMonth={addedThisMonth}
+        />
+        <AnalyticsDonutGrid
           locationData={locationData}
           educationData={educationData}
           ageData={ageData}

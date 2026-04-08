@@ -15,7 +15,7 @@ export function MatchStageCard({ label, count, isActive, onClick, bgColor, borde
       <button
         onClick={onClick}
         className={`relative block h-full w-full rounded-xl rounded-br-none border p-5 pb-6 text-left transition-all hover:shadow-md hover:-translate-y-0.5 ${bgColor} ${borderColor} ${
-          isActive ? 'ring-2 ring-admin-green-700/30 shadow-md' : ''
+          isActive ? 'ring-2 ring-admin-blue-700/30 shadow-md' : ''
         }`}
       >
         {/* Label */}
@@ -35,7 +35,7 @@ export function MatchStageCard({ label, count, isActive, onClick, bgColor, borde
 
       {/* Arrow icon — decorative, sits in the notch */}
       <div
-        className="pointer-events-none absolute z-20 flex items-center justify-center rounded-full bg-admin-green-900 text-white shadow-md"
+        className="pointer-events-none absolute z-20 flex items-center justify-center rounded-full bg-admin-blue-900 text-white shadow-md"
         style={{
           width: `${BTN_SIZE}px`,
           height: `${BTN_SIZE}px`,

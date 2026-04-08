@@ -105,7 +105,7 @@ export function WaitlistTable({ entries, title }: WaitlistTableProps) {
 
       <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
         <table className="min-w-full">
-          <thead>
+          <thead className="admin-table-thead">
             <tr className="border-b border-gray-100">
               <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('fullName')}>
                 <span className="inline-flex items-center">Name {sortIndicator('fullName')}</span>
@@ -151,8 +151,8 @@ export function WaitlistTable({ entries, title }: WaitlistTableProps) {
                     onClick={() => setDrawerEntry(entry)}
                     className={`group relative cursor-pointer border-l-2 transition-all duration-150 ${
                       isSelected
-                        ? 'border-l-admin-green-400 bg-admin-green-50'
-                        : 'border-l-transparent hover:border-l-admin-green-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
+                        ? 'border-l-admin-blue-400 bg-admin-blue-50'
+                        : 'border-l-transparent hover:border-l-admin-blue-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
                     }`}
                   >
                     <td className="whitespace-nowrap px-5 py-4 text-sm font-medium text-gray-900">

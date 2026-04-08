@@ -42,7 +42,7 @@ const PAYMENT_STATUS_COLORS: Record<string, string> = {
   in_pool: 'bg-blue-100 text-blue-800',
   match_presented: 'bg-purple-100 text-purple-800',
   awaiting_payment: 'bg-orange-100 text-orange-800',
-  active_member: 'bg-admin-green-100 text-admin-green-900',
+  active_member: 'bg-admin-blue-100 text-admin-blue-900',
   membership_expired: 'bg-red-100 text-red-800',
 };
 
@@ -175,7 +175,7 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
                 <InfoItem label="Location" value={summary.location} />
                 <InfoItem label="Religion" value={summary.religion ? capitalize(summary.religion) : null} />
                 <InfoItem label="Registered" value={formatDateIN(summary.registrationDate)} />
-                <InfoItem label="BGV" value={summary.bgvStatus ? 'Complete' : 'Pending'} valueClass={summary.bgvStatus ? 'text-admin-green-700' : 'text-yellow-700'} />
+                <InfoItem label="BGV" value={summary.bgvStatus ? 'Complete' : 'Pending'} valueClass={summary.bgvStatus ? 'text-admin-blue-700' : 'text-yellow-700'} />
               </div>
 
               {/* Payment status */}
@@ -194,7 +194,7 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-admin-green-600 transition-all"
+                    className="h-full rounded-full bg-admin-blue-600 transition-all"
                     style={{ width: `${summary.formProgress}%` }}
                   />
                 </div>
@@ -208,7 +208,7 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
                 <p className="type-label text-gray-500">Actions</p>
 
                 {emailSuccess && (
-                  <p className="rounded-lg bg-admin-green-50 px-3 py-2 text-sm text-admin-green-800">
+                  <p className="rounded-lg bg-admin-blue-50 px-3 py-2 text-sm text-admin-blue-800">
                     Email sent successfully.
                   </p>
                 )}
@@ -227,21 +227,21 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
                       placeholder="Subject"
                       value={emailState.subject}
                       onChange={(e) => setEmailState((s) => ({ ...s, subject: e.target.value }))}
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-admin-green-500 focus:ring-1 focus:ring-admin-green-500"
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-admin-blue-500 focus:ring-1 focus:ring-admin-blue-500"
                     />
                     <textarea
                       placeholder="Message..."
                       value={emailState.body}
                       onChange={(e) => setEmailState((s) => ({ ...s, body: e.target.value }))}
                       rows={4}
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-admin-green-500 focus:ring-1 focus:ring-admin-green-500 resize-none"
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-admin-blue-500 focus:ring-1 focus:ring-admin-blue-500 resize-none"
                     />
                     {emailError && <p className="text-xs text-red-600">{emailError}</p>}
                     <div className="flex gap-2">
                       <button
                         onClick={handleSendEmail}
                         disabled={emailSending || !emailState.subject.trim() || !emailState.body.trim()}
-                        className="flex-1 rounded-lg bg-admin-green-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-admin-green-800 disabled:opacity-50"
+                        className="flex-1 rounded-lg bg-admin-blue-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-admin-blue-800 disabled:opacity-50"
                       >
                         {emailSending ? 'Sending…' : 'Send'}
                       </button>

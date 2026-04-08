@@ -44,7 +44,7 @@ export function VerificationTable({ rows }: VerificationTableProps) {
     <>
       <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
         <table className="min-w-full">
-          <thead>
+          <thead className="admin-table-thead">
             <tr className="border-b border-gray-100">
               <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Name</th>
               <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Status</th>
@@ -80,8 +80,8 @@ export function VerificationTable({ rows }: VerificationTableProps) {
                   onClick={() => setDrawerRow(row)}
                   className={`group relative cursor-pointer border-l-2 transition-all duration-150 hover:shadow-sm hover:-translate-y-px ${
                     isSelected
-                      ? 'border-l-admin-green-400 bg-admin-green-50'
-                      : 'border-l-transparent hover:border-l-admin-green-300 hover:bg-gray-50'
+                      ? 'border-l-admin-blue-400 bg-admin-blue-50'
+                      : 'border-l-transparent hover:border-l-admin-blue-300 hover:bg-gray-50'
                   }`}
                 >
                   <td className="whitespace-nowrap px-5 py-4 text-sm">

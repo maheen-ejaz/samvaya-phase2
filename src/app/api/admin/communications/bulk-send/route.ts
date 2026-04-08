@@ -127,6 +127,7 @@ export async function POST(request: NextRequest) {
     payment_status?: string[];
     goocampus?: string;
     scheduled_at?: string;
+    user_id?: string;
   };
   try {
     body = await request.json();
@@ -168,23 +169,40 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Either template_id or subject+body required' }, { status: 400 });
   }
 
-  // Fetch recipients
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let userQuery: any = adminSupabase
-    .from('users')
-    .select('id, payment_status, is_goocampus_member')
-    .eq('role', 'applicant' as never);
+  // Fetch recipients — single user or bulk filter
+  let users: Array<Record<string, string>>;
 
-  if (body.payment_status && body.payment_status.length > 0) {
-    userQuery = userQuery.in('payment_status', body.payment_status);
-  }
-  if (body.goocampus === 'yes') {
-    userQuery = userQuery.eq('is_goocampus_member', true);
-  } else if (body.goocampus === 'no') {
-    userQuery = userQuery.eq('is_goocampus_member', false);
+  if (body.user_id) {
+    // Single-recipient mode
+    const { data: singleUser } = await adminSupabase
+      .from('users')
+      .select('id, payment_status, is_goocampus_member')
+      .eq('id', body.user_id)
+      .single();
+    if (!singleUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    users = [singleUser as Record<string, string>];
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let userQuery: any = adminSupabase
+      .from('users')
+      .select('id, payment_status, is_goocampus_member')
+      .eq('role', 'applicant' as never);
+
+    if (body.payment_status && body.payment_status.length > 0) {
+      userQuery = userQuery.in('payment_status', body.payment_status);
+    }
+    if (body.goocampus === 'yes') {
+      userQuery = userQuery.eq('is_goocampus_member', true);
+    } else if (body.goocampus === 'no') {
+      userQuery = userQuery.eq('is_goocampus_member', false);
+    }
+
+    const { data: bulkUsers } = await userQuery;
+    users = bulkUsers || [];
   }
 
-  const { data: users } = await userQuery;
   if (!users || users.length === 0) {
     return NextResponse.json({ error: 'No recipients match the filters' }, { status: 400 });
   }

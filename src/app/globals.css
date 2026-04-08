@@ -28,17 +28,17 @@
   --color-samvaya-blush: #FFF4F4;
   --color-samvaya-blush-dark: #FFE8E8;
 
-  /* Admin dashboard green palette (FluxCRM-inspired) */
-  --color-admin-green-900: #1B4332;
-  --color-admin-green-800: #2D6A4F;
-  --color-admin-green-700: #40916C;
-  --color-admin-green-600: #52B788;
-  --color-admin-green-500: #74C69D;
-  --color-admin-green-400: #95D5B2;
-  --color-admin-green-300: #B7E4C7;
-  --color-admin-green-200: #D8F3DC;
-  --color-admin-green-100: #E8F5E9;
-  --color-admin-green-50: #F1F8E9;
+  /* Admin dashboard blue palette */
+  --color-admin-blue-900: #1E3A8A;
+  --color-admin-blue-800: #1D4ED8;
+  --color-admin-blue-700: #2563EB;
+  --color-admin-blue-600: #4F6EF7;
+  --color-admin-blue-500: #6B8AF9;
+  --color-admin-blue-400: #818CF8;
+  --color-admin-blue-300: #A5B4FC;
+  --color-admin-blue-200: #C7D2FE;
+  --color-admin-blue-100: #E0E7FF;
+  --color-admin-blue-50: #EEF2FF;
   --color-admin-page-bg: #F4F5F7;
 
   /* UI-1: Design tokens — border radius */
@@ -719,4 +719,113 @@ h4 { font-weight: 600; }
   font-variant-numeric: tabular-nums;
   font-weight: 300;
   letter-spacing: -0.02em;
+}
+
+/* ═══════════════════════════════════════════
+   Admin Design System — Unified Table & KPI
+   ═══════════════════════════════════════════ */
+
+/* Table header — gray bg, uppercase small labels */
+.admin-table-thead th {
+  background-color: #F8F9FA;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6B7280;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid #E5E7EB;
+  white-space: nowrap;
+}
+/* Ensure sort buttons and spans inside th inherit uppercase + override browser button defaults */
+.admin-table-thead th button,
+.admin-table-thead th span {
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  color: inherit;
+}
+.admin-table-thead th:first-child {
+  border-radius: 0.5rem 0 0 0;
+}
+.admin-table-thead th:last-child {
+  border-radius: 0 0.5rem 0 0;
+}
+
+/* Table row hover */
+.admin-table-row:hover {
+  background-color: #F9FAFB;
+}
+.admin-table-row td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+/* KPI card container */
+.admin-kpi-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.admin-kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* KPI icon circle */
+.admin-kpi-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #4F6EF7;
+  color: white;
+  flex-shrink: 0;
+}
+
+/* KPI trend badges */
+.admin-badge-trend-up {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+.admin-badge-trend-down {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid rgba(252, 165, 165, 0.25);
+}
+
+/* Admin blue badge */
+.admin-badge-blue {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #EEF2FF;
+  color: #4F6EF7;
+  border: 1px solid rgba(79, 110, 247, 0.2);
 }

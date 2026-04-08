@@ -235,8 +235,8 @@ export function SuggestionQueue() {
               count={statusCounts?.approved ?? 0}
               isActive={statusFilter === 'approved'}
               onClick={() => { setStatusFilter('approved'); setPage(1); setDrawerIndex(null); }}
-              bgColor="bg-admin-green-100"
-              borderColor="border-admin-green-300"
+              bgColor="bg-admin-blue-100"
+              borderColor="border-admin-blue-300"
             />
             <MatchStageCard
               label="Rejected"
@@ -256,8 +256,8 @@ export function SuggestionQueue() {
               count={poolHealth?.active_pool ?? 0}
               isActive={false}
               onClick={() => {}}
-              bgColor="bg-admin-green-100"
-              borderColor="border-admin-green-300"
+              bgColor="bg-admin-blue-100"
+              borderColor="border-admin-blue-300"
             />
             {poolHealth && poolHealth.paused > 0 && (
               <MatchStageCard
@@ -315,14 +315,14 @@ export function SuggestionQueue() {
             <button
               onClick={() => runPipeline('pre-filter')}
               disabled={pipelineLoading}
-              className="rounded-full bg-admin-green-900 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full bg-admin-blue-900 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {pipelineLoading ? 'Running…' : 'Run Pre-filter'}
             </button>
             <button
               onClick={() => runPipeline('batch-score')}
               disabled={pipelineLoading}
-              className="rounded-full border border-admin-green-300 bg-admin-green-50 px-5 py-2 text-sm font-medium text-admin-green-900 hover:bg-admin-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full border border-admin-blue-300 bg-admin-blue-50 px-5 py-2 text-sm font-medium text-admin-blue-900 hover:bg-admin-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {pipelineLoading ? 'Running…' : 'Run Full Pipeline'}
             </button>
@@ -331,7 +331,7 @@ export function SuggestionQueue() {
           {/* Pipeline result */}
           {pipelineResult && (
             <div
-              className={`rounded-lg px-4 py-2.5 text-sm ${pipelineResult.isError ? 'bg-red-50 text-red-700' : 'bg-admin-green-50 text-admin-green-900'}`}
+              className={`rounded-lg px-4 py-2.5 text-sm ${pipelineResult.isError ? 'bg-red-50 text-red-700' : 'bg-admin-blue-50 text-admin-blue-900'}`}
               role={pipelineResult.isError ? 'alert' : 'status'}
             >
               {pipelineResult.message}
@@ -356,8 +356,8 @@ export function SuggestionQueue() {
                 onClick={() => { setStatusFilter(tab.value); setPage(1); setDrawerIndex(null); }}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   statusFilter === tab.value
-                    ? 'bg-admin-green-900 text-white shadow-sm'
-                    : 'border border-gray-200 text-gray-500 hover:border-admin-green-300 hover:text-admin-green-900'
+                    ? 'bg-admin-blue-900 text-white shadow-sm'
+                    : 'border border-gray-200 text-gray-500 hover:border-admin-blue-300 hover:text-admin-blue-900'
                 }`}
               >
                 {getTabLabel(tab)}
@@ -375,7 +375,7 @@ export function SuggestionQueue() {
                 setSortField(f);
                 setSortDir(d);
               }}
-              className="rounded-lg border border-gray-200 px-2 py-1 text-sm focus:border-admin-green-400 focus:outline-none"
+              className="rounded-lg border border-gray-200 px-2 py-1 text-sm focus:border-admin-blue-400 focus:outline-none"
             >
               <option value="score-desc">Score (High → Low)</option>
               <option value="score-asc">Score (Low → High)</option>
@@ -395,7 +395,7 @@ export function SuggestionQueue() {
         {/* Loading */}
         {loading && (
           <div className="flex items-center justify-center py-16">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-200 border-t-admin-green-600" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-200 border-t-admin-blue-600" />
           </div>
         )}
 
@@ -426,7 +426,7 @@ export function SuggestionQueue() {
             <button
               onClick={() => { setPage(Math.max(1, page - 1)); setDrawerIndex(null); }}
               disabled={page === 1}
-              className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:border-admin-green-300 hover:text-admin-green-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:border-admin-blue-300 hover:text-admin-blue-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
@@ -434,7 +434,7 @@ export function SuggestionQueue() {
             <button
               onClick={() => { setPage(Math.min(totalPages, page + 1)); setDrawerIndex(null); }}
               disabled={page === totalPages}
-              className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:border-admin-green-300 hover:text-admin-green-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:border-admin-blue-300 hover:text-admin-blue-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>

@@ -33,8 +33,8 @@ function getRecommendationLabel(rec: string): string {
 
 function getRecommendationStyle(rec: string): string {
   switch (rec) {
-    case 'strongly_recommend': return 'bg-admin-green-100 text-admin-green-900 border-admin-green-200';
-    case 'recommend': return 'bg-admin-green-50 text-admin-green-800 border-admin-green-100';
+    case 'strongly_recommend': return 'bg-admin-blue-100 text-admin-blue-900 border-admin-blue-200';
+    case 'recommend': return 'bg-admin-blue-50 text-admin-blue-800 border-admin-blue-100';
     case 'worth_considering': return 'bg-amber-50 text-amber-800 border-amber-200';
     case 'not_recommended': return 'bg-red-50 text-red-700 border-red-200';
     default: return 'bg-gray-50 text-gray-600 border-gray-200';
@@ -43,7 +43,7 @@ function getRecommendationStyle(rec: string): string {
 
 function getStatusStyle(status: string): string {
   switch (status) {
-    case 'approved': return 'bg-admin-green-100 text-admin-green-900 border-admin-green-200';
+    case 'approved': return 'bg-admin-blue-100 text-admin-blue-900 border-admin-blue-200';
     case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
     case 'pending_review': return 'bg-amber-50 text-amber-800 border-amber-200';
     default: return 'bg-gray-50 text-gray-600 border-gray-200';
@@ -221,7 +221,7 @@ export function MatchDrawer({
             <button
               onClick={() => onNavigate(currentIndex - 1)}
               disabled={currentIndex === 0}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-admin-green-300 hover:text-admin-green-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-admin-blue-300 hover:text-admin-blue-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Previous match (←)"
             >
               ←
@@ -232,7 +232,7 @@ export function MatchDrawer({
             <button
               onClick={() => onNavigate(currentIndex + 1)}
               disabled={currentIndex === suggestions.length - 1}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-admin-green-300 hover:text-admin-green-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-admin-blue-300 hover:text-admin-blue-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Next match (→)"
             >
               →
@@ -318,7 +318,7 @@ export function MatchDrawer({
                   rows={4}
                   className={`mt-1.5 w-full rounded-lg border px-3 py-2 text-sm ${
                     isPending
-                      ? 'border-gray-200 bg-white focus:border-admin-green-400 focus:ring-1 focus:ring-admin-green-400/30 focus:outline-none'
+                      ? 'border-gray-200 bg-white focus:border-admin-blue-400 focus:ring-1 focus:ring-admin-blue-400/30 focus:outline-none'
                       : 'border-transparent bg-white/60 text-gray-500 cursor-default'
                   }`}
                   placeholder="AI-generated narrative about why these two are compatible…"
@@ -334,7 +334,7 @@ export function MatchDrawer({
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     rows={3}
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:border-admin-green-400 focus:ring-1 focus:ring-admin-green-400/30 focus:outline-none"
+                    className="mt-1.5 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:border-admin-blue-400 focus:ring-1 focus:ring-admin-blue-400/30 focus:outline-none"
                     placeholder="Notes or rejection reason…"
                   />
                 </div>
@@ -352,7 +352,7 @@ export function MatchDrawer({
               )}
 
               {actionSuccess && (
-                <p className="rounded-lg bg-admin-green-50 px-3 py-2 text-sm text-admin-green-900" role="status">{actionSuccess}</p>
+                <p className="rounded-lg bg-admin-blue-50 px-3 py-2 text-sm text-admin-blue-900" role="status">{actionSuccess}</p>
               )}
 
               {isPending && !actionSuccess && (
@@ -360,7 +360,7 @@ export function MatchDrawer({
                   <button
                     onClick={handleApprove}
                     disabled={loading}
-                    className="rounded-full bg-admin-green-900 px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="rounded-full bg-admin-blue-900 px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {loading ? 'Processing…' : 'Approve Match'}
                   </button>

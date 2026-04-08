@@ -1,26 +1,32 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import type { AdminTask } from '@/types/dashboard';
 
 interface TaskPanelProps {
   initialTasks: AdminTask[];
 }
 
-type StatusFilter = 'all' | 'needs_action' | 'in_progress' | 'done';
+type StatusFilter = 'all' | 'open' | 'in_progress' | 'in_review' | 'closed';
 
 const statusColors: Record<string, { badge: string; text: string; dot: string }> = {
-  needs_action: {
-    badge: 'bg-red-50 text-gray-900',
-    text: 'text-red-600',
-    dot: 'bg-red-500',
+  open: {
+    badge: 'bg-gray-100 text-gray-900',
+    text: 'text-gray-600',
+    dot: 'bg-gray-400',
   },
   in_progress: {
+    badge: 'bg-blue-50 text-gray-900',
+    text: 'text-blue-600',
+    dot: 'bg-blue-500',
+  },
+  in_review: {
     badge: 'bg-amber-50 text-gray-900',
     text: 'text-amber-600',
     dot: 'bg-amber-500',
   },
-  done: {
+  closed: {
     badge: 'bg-green-50 text-gray-900',
     text: 'text-green-600',
     dot: 'bg-green-500',
@@ -45,12 +51,12 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
       filtered = filtered.filter((task) => task.status === filterStatus);
     }
 
-    // Only show active and recent done tasks (last 7 days)
+    // Only show active and recent closed tasks (last 7 days)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     filtered = filtered.filter((task) => {
-      if (task.status !== 'done') return true;
+      if (task.status !== 'closed') return true;
       const resolvedDate = task.resolvedAt ? new Date(task.resolvedAt) : null;
       return resolvedDate && resolvedDate > sevenDaysAgo;
     });
@@ -61,10 +67,11 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
   // Count by status
   const counts = useMemo(() => {
     const all = tasks.length;
-    const needsAction = tasks.filter((t) => t.status === 'needs_action').length;
+    const open = tasks.filter((t) => t.status === 'open').length;
     const inProgress = tasks.filter((t) => t.status === 'in_progress').length;
-    const done = tasks.filter((t) => t.status === 'done').length;
-    return { all, needsAction, inProgress, done };
+    const inReview = tasks.filter((t) => t.status === 'in_review').length;
+    const closed = tasks.filter((t) => t.status === 'closed').length;
+    return { all, open, inProgress, inReview, closed };
   }, [tasks]);
 
   // Handle task status update
@@ -81,7 +88,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
             ? {
                 ...t,
                 status: newStatus as any,
-                resolvedAt: newStatus === 'done' ? new Date().toISOString() : t.resolvedAt,
+                resolvedAt: newStatus === 'closed' ? new Date().toISOString() : t.resolvedAt,
               }
             : t
         )
@@ -116,9 +123,10 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
     if (!task) return;
 
     const cycle: Record<string, string> = {
-      needs_action: 'in_progress',
-      in_progress: 'done',
-      done: 'needs_action',
+      open: 'in_progress',
+      in_progress: 'in_review',
+      in_review: 'closed',
+      closed: 'open',
     };
 
     updateTaskStatus(taskId, cycle[task.status]);
@@ -143,6 +151,8 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
           body: JSON.stringify({
             title: newTaskTitle,
             task_type: 'manual',
+            task_category: 'manual',
+            priority: 'normal',
             due_date: newTaskDueDate || null,
             notes: newTaskNotes || null,
           }),
@@ -175,7 +185,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
         {!showAddForm && (
           <button
             onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-admin-green-800 hover:text-admin-green-700"
+            className="inline-flex items-center gap-1 text-xs font-medium text-admin-blue-800 hover:text-admin-blue-700"
           >
             <span>+</span> Add Task
           </button>
@@ -184,29 +194,27 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
 
       {/* Status tabs */}
       <div className="mt-4 flex gap-2 border-b border-gray-200">
-        {['all', 'needs_action', 'in_progress', 'done'].map((status) => {
-          const statusKey = status as StatusFilter;
-          const displayName =
-            status === 'all'
-              ? `All`
-              : status === 'needs_action'
-                ? 'Needs Action'
-                : status === 'in_progress'
-                  ? 'In Progress'
-                  : 'Done';
-          const count = status === 'all' ? counts.all : counts[status as keyof typeof counts];
+        {[
+          { key: 'all', label: 'All', countKey: 'all' },
+          { key: 'open', label: 'Open', countKey: 'open' },
+          { key: 'in_progress', label: 'In Progress', countKey: 'inProgress' },
+          { key: 'in_review', label: 'In Review', countKey: 'inReview' },
+          { key: 'closed', label: 'Closed', countKey: 'closed' },
+        ].map(({ key, label, countKey }) => {
+          const statusKey = key as StatusFilter;
+          const count = counts[countKey as keyof typeof counts];
 
           return (
             <button
-              key={status}
+              key={key}
               onClick={() => setFilterStatus(statusKey)}
               className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
                 filterStatus === statusKey
-                  ? 'border-admin-green-600 text-admin-green-700'
+                  ? 'border-admin-blue-600 text-admin-blue-700'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              {displayName} <span className="ml-1 text-xs text-gray-500">({count})</span>
+              {label} <span className="ml-1 text-xs text-gray-500">({count})</span>
             </button>
           );
         })}
@@ -223,7 +231,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
                 placeholder="e.g., Follow up with John Doe"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-green-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-blue-500"
               />
             </div>
 
@@ -233,7 +241,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
                 type="date"
                 value={newTaskDueDate}
                 onChange={(e) => setNewTaskDueDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-green-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-blue-500"
               />
             </div>
 
@@ -244,7 +252,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
                 onChange={(e) => setNewTaskNotes(e.target.value)}
                 placeholder="Add any additional notes..."
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-green-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-blue-500"
               />
             </div>
 
@@ -254,7 +262,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 px-3 py-2 bg-admin-green-600 text-white text-sm font-medium rounded-lg hover:bg-admin-green-700 disabled:opacity-50"
+                className="flex-1 px-3 py-2 bg-admin-blue-600 text-white text-sm font-medium rounded-lg hover:bg-admin-blue-700 disabled:opacity-50"
               >
                 {isSubmitting ? 'Creating...' : 'Create Task'}
               </button>
@@ -269,6 +277,13 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
           </div>
         </form>
       )}
+
+      {/* View all link */}
+      <div className="mt-3 flex justify-end">
+        <Link href="/admin/tasks" className="text-xs font-medium text-admin-blue-600 hover:text-admin-blue-700 transition-colors">
+          View all tasks →
+        </Link>
+      </div>
 
       {/* Tasks list */}
       <div className="mt-4">
@@ -286,15 +301,15 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
                   <div className="pt-1 flex-shrink-0">
                     <input
                       type="checkbox"
-                      checked={task.status === 'done'}
-                      onChange={() => updateTaskStatus(task.id, task.status === 'done' ? 'needs_action' : 'done')}
-                      className="w-4 h-4 rounded border-gray-300 text-admin-green-600 focus:ring-admin-green-500 cursor-pointer"
+                      checked={task.status === 'closed'}
+                      onChange={() => updateTaskStatus(task.id, task.status === 'closed' ? 'open' : 'closed')}
+                      className="w-4 h-4 rounded border-gray-300 text-admin-blue-600 focus:ring-admin-blue-500 cursor-pointer"
                     />
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${task.status === 'done' ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                    <p className={`text-sm font-medium ${task.status === 'closed' ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
                       {task.title}
                     </p>
                     {task.notes && <p className="text-xs text-gray-500 mt-1">{task.notes}</p>}
@@ -307,7 +322,7 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
                         </span>
                       )}
                       {task.actionHref && (
-                        <a href={task.actionHref} className="text-xs text-admin-green-600 hover:text-admin-green-700">
+                        <a href={task.actionHref} className="text-xs text-admin-blue-600 hover:text-admin-blue-700">
                           View →
                         </a>
                       )}
@@ -321,11 +336,13 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
                       className={`inline-block px-2.5 py-1 rounded-md text-xs font-medium ${colors.badge} hover:opacity-80 cursor-pointer`}
                       title="Click to change status"
                     >
-                      {task.status === 'needs_action'
-                        ? 'Needs Action'
+                      {task.status === 'open'
+                        ? 'Open'
                         : task.status === 'in_progress'
                           ? 'In Progress'
-                          : 'Done'}
+                          : task.status === 'in_review'
+                            ? 'In Review'
+                            : 'Closed'}
                     </button>
                   </div>
                 </div>

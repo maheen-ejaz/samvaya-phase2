@@ -35,8 +35,8 @@ function getRecommendationLabel(rec: string): string {
 
 function getRecommendationStyle(rec: string): string {
   switch (rec) {
-    case 'strongly_recommend': return 'bg-admin-green-100 text-admin-green-900 border-admin-green-200';
-    case 'recommend': return 'bg-admin-green-50 text-admin-green-800 border-admin-green-100';
+    case 'strongly_recommend': return 'bg-admin-blue-100 text-admin-blue-900 border-admin-blue-200';
+    case 'recommend': return 'bg-admin-blue-50 text-admin-blue-800 border-admin-blue-100';
     case 'worth_considering': return 'bg-amber-50 text-amber-800 border-amber-200';
     case 'not_recommended': return 'bg-red-50 text-red-700 border-red-200';
     default: return 'bg-gray-50 text-gray-600 border-gray-200';
@@ -45,7 +45,7 @@ function getRecommendationStyle(rec: string): string {
 
 function getStatusStyle(status: string): string {
   switch (status) {
-    case 'approved': return 'bg-admin-green-100 text-admin-green-900 border-admin-green-200';
+    case 'approved': return 'bg-admin-blue-100 text-admin-blue-900 border-admin-blue-200';
     case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
     case 'pending_review': return 'bg-amber-50 text-amber-800 border-amber-200';
     default: return 'bg-gray-50 text-gray-600 border-gray-200';

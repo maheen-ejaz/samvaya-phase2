@@ -215,7 +215,7 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
       {/* Checks Table */}
       <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
         <table className="min-w-full">
-          <thead>
+          <thead className="admin-table-thead">
             <tr className="border-b border-gray-100">
               <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Check</th>
               <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Status</th>
@@ -259,7 +259,7 @@ function BgvCheckRow({
   const [localNotes, setLocalNotes] = useState(check.notes || '');
 
   return (
-    <tr className={`border-l-2 border-l-transparent transition-colors hover:border-l-admin-green-300 hover:bg-gray-50 ${isUpdating ? 'opacity-50' : ''}`}>
+    <tr className={`border-l-2 border-l-transparent transition-colors hover:border-l-admin-blue-300 hover:bg-gray-50 ${isUpdating ? 'opacity-50' : ''}`}>
       <td className="whitespace-nowrap px-5 py-4 text-sm font-medium text-gray-900">
         {CHECK_LABELS[check.check_type] || check.check_type}
       </td>

@@ -124,7 +124,7 @@ export function ActivityFeed({ logs }: ActivityFeedProps) {
     <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <h3 className="type-heading text-gray-900">Today&apos;s Activity</h3>
-        <Link href="/admin/activity" className="text-xs font-medium text-admin-green-800 hover:text-admin-green-700">
+        <Link href="/admin/activity" className="text-xs font-medium text-admin-blue-800 hover:text-admin-blue-700">
           View all
         </Link>
       </div>

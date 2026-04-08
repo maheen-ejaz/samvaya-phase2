@@ -85,7 +85,7 @@ export function MatchHistory() {
       {!loading && suggestions.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
           <table className="w-full text-left text-sm">
-            <thead>
+            <thead className="admin-table-thead">
               <tr className="border-b border-gray-100">
                 <th scope="col" className="px-5 py-3.5 text-sm font-normal text-gray-500">Person A</th>
                 <th scope="col" className="px-5 py-3.5 text-sm font-normal text-gray-500">Person B</th>
@@ -103,7 +103,7 @@ export function MatchHistory() {
                   <>
                     <tr
                       key={s.id}
-                      className="group relative border-l-2 border-l-transparent transition-all duration-150 hover:border-l-admin-green-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px"
+                      className="group relative border-l-2 border-l-transparent transition-all duration-150 hover:border-l-admin-blue-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px"
                     >
                       <td className="px-5 py-4">
                         <span className="inline-flex items-center gap-1 font-medium text-gray-900">

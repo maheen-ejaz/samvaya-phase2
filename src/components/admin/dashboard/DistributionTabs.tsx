@@ -31,21 +31,21 @@ export function DistributionTabs({ locationData, educationData, ageData, genderD
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
+    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
       <h3 className="type-heading text-gray-900">Applicant Distribution</h3>
 
       {/* Tab bar */}
-      <div className="mt-3 flex gap-1 rounded-lg bg-gray-100 p-1" role="tablist">
+      <div className="mt-3 flex border-b border-gray-100" role="tablist">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             role="tab"
             aria-selected={activeTab === tab.key}
-            className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
               activeTab === tab.key
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-admin-blue-500 text-admin-blue-900'
+                : 'text-gray-400 hover:text-gray-600'
             }`}
           >
             {tab.label}

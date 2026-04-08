@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FunnelChart } from './FunnelChart';
-import { ConversionRates } from './ConversionRates';
-import { GeoDistribution } from './GeoDistribution';
+import { HorizontalWaveFunnel } from './HorizontalWaveFunnel';
 import { SpecialtyDistribution } from './SpecialtyDistribution';
 import { StageTimingTable } from './StageTimingTable';
 
@@ -38,8 +36,12 @@ export function AnalyticsDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-rose-600" />
+      <div className="space-y-6">
+        <div className="animate-pulse rounded-xl bg-gray-100 h-64" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="animate-pulse rounded-xl bg-gray-100 h-56" />
+          <div className="animate-pulse rounded-xl bg-gray-100 h-56" />
+        </div>
       </div>
     );
   }
@@ -54,13 +56,11 @@ export function AnalyticsDashboard() {
 
   return (
     <div className="space-y-6">
-      <FunnelChart data={data.funnel} />
-      <ConversionRates data={data.conversions} />
+      <HorizontalWaveFunnel data={data.funnel} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <GeoDistribution data={data.geographic} />
         <SpecialtyDistribution data={data.specialties} />
+        <StageTimingTable data={data.stage_timing} />
       </div>
-      <StageTimingTable data={data.stage_timing} />
     </div>
   );
 }

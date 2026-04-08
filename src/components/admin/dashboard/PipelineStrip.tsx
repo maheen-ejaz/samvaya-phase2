@@ -9,16 +9,16 @@ interface PipelineStripProps {
 
 // Green shade progression — lighter for early stages, deeper for later stages
 const STAGE_COLORS: Record<string, { bg: string; border: string; featured?: boolean }> = {
-  waitlist: { bg: 'bg-admin-green-50', border: 'border-admin-green-200' },
-  invited: { bg: 'bg-admin-green-50', border: 'border-admin-green-200' },
-  signed_up: { bg: 'bg-admin-green-100', border: 'border-admin-green-200', featured: true },
-  form_in_progress: { bg: 'bg-admin-green-50', border: 'border-admin-green-200' },
-  form_complete: { bg: 'bg-admin-green-100', border: 'border-admin-green-300', featured: true },
-  payment_verified: { bg: 'bg-admin-green-50', border: 'border-admin-green-200' },
-  bgv_complete: { bg: 'bg-admin-green-50', border: 'border-admin-green-200' },
-  in_pool: { bg: 'bg-admin-green-100', border: 'border-admin-green-300', featured: true },
-  matches_active: { bg: 'bg-admin-green-50', border: 'border-admin-green-200' },
-  active_members: { bg: 'bg-admin-green-100', border: 'border-admin-green-300', featured: true },
+  waitlist: { bg: 'bg-admin-blue-50', border: 'border-admin-blue-200' },
+  invited: { bg: 'bg-admin-blue-50', border: 'border-admin-blue-200' },
+  signed_up: { bg: 'bg-admin-blue-100', border: 'border-admin-blue-200', featured: true },
+  form_in_progress: { bg: 'bg-admin-blue-50', border: 'border-admin-blue-200' },
+  form_complete: { bg: 'bg-admin-blue-100', border: 'border-admin-blue-300', featured: true },
+  payment_verified: { bg: 'bg-admin-blue-50', border: 'border-admin-blue-200' },
+  bgv_complete: { bg: 'bg-admin-blue-50', border: 'border-admin-blue-200' },
+  in_pool: { bg: 'bg-admin-blue-100', border: 'border-admin-blue-300', featured: true },
+  matches_active: { bg: 'bg-admin-blue-50', border: 'border-admin-blue-200' },
+  active_members: { bg: 'bg-admin-blue-100', border: 'border-admin-blue-300', featured: true },
 };
 
 // Button size and notch geometry (exported for reuse in MatchStageCard)
@@ -102,39 +102,35 @@ function PipelineRow({ stages }: { stages: PipelineStripStage[] }) {
             {/* Notched card background */}
             <Link
               href={stage.href}
-              className={`group relative block h-full rounded-xl rounded-br-none border p-5 pb-6 transition-all hover:shadow-md hover:-translate-y-0.5 ${STAGE_COLORS[stage.key]?.bg || 'bg-admin-green-50'} ${STAGE_COLORS[stage.key]?.border || 'border-admin-green-200'} ${STAGE_COLORS[stage.key]?.featured ? 'texture-stripes' : ''}`}
+              className={`group relative block h-full rounded-xl rounded-br-none border p-5 pb-6 transition-all hover:shadow-md hover:-translate-y-0.5 ${STAGE_COLORS[stage.key]?.bg || 'bg-admin-blue-50'} ${STAGE_COLORS[stage.key]?.border || 'border-admin-blue-200'} ${STAGE_COLORS[stage.key]?.featured ? 'texture-stripes' : ''}`}
             >
               {/* Label */}
               <p className="text-lg font-medium text-gray-900">
                 {stage.stage}
               </p>
 
-              {/* Trend subtitle */}
-              {stage.trend ? (
-                <p
-                  className={`mt-0.5 text-[11px] font-medium ${
-                    stage.trend.direction === 'up'
-                      ? 'text-admin-green-800'
-                      : stage.trend.direction === 'down'
-                        ? 'text-red-600'
-                        : 'text-gray-400'
-                  }`}
-                >
-                  {stage.trend.direction === 'up'
-                    ? '↑'
-                    : stage.trend.direction === 'down'
-                      ? '↓'
-                      : '→'}{' '}
-                  {stage.trend.percentage}% vs 7d ago
-                </p>
-              ) : (
-                <p className="mt-0.5 text-[11px] text-gray-400">—</p>
-              )}
-
               {/* Count */}
-              <p className="mt-4 type-display-sm type-stat text-gray-900">
+              <p className="mt-3 type-display-sm type-stat text-gray-900">
                 {stage.count.toLocaleString('en-IN')}
               </p>
+
+              {/* Trend badge */}
+              {stage.trend ? (
+                <span
+                  className={`mt-2 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                    stage.trend.direction === 'up'
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : stage.trend.direction === 'down'
+                        ? 'bg-red-50 text-red-600'
+                        : 'bg-gray-100 text-gray-500'
+                  }`}
+                >
+                  {stage.trend.direction === 'up' ? '↑' : stage.trend.direction === 'down' ? '↓' : '→'}
+                  {stage.trend.percentage}% vs 7d ago
+                </span>
+              ) : (
+                <span className="mt-2 block text-[10px] text-gray-300">—</span>
+              )}
             </Link>
 
             {/* Concave notch cutout */}
@@ -143,7 +139,7 @@ function PipelineRow({ stages }: { stages: PipelineStripStage[] }) {
             {/* Arrow button — sits in the bottom-right corner notch */}
             <Link
               href={stage.href}
-              className="absolute z-20 flex items-center justify-center rounded-full bg-admin-green-900 text-white shadow-md transition-all hover:bg-admin-green-800 hover:shadow-lg hover:scale-105"
+              className="absolute z-20 flex items-center justify-center rounded-full bg-admin-blue-900 text-white shadow-md transition-all hover:bg-admin-blue-800 hover:shadow-lg hover:scale-105"
               style={{
                 width: `${BTN_SIZE}px`,
                 height: `${BTN_SIZE}px`,

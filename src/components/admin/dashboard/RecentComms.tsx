@@ -40,7 +40,7 @@ export function RecentComms({ communications }: RecentCommsProps) {
         ) : (
           <div className="mt-4">
             <table className="w-full text-sm">
-              <thead>
+              <thead className="admin-table-thead">
                 <tr className="border-b border-gray-100">
                   <th className="pb-3 text-left text-sm font-normal text-gray-500">Recipient</th>
                   <th className="pb-3 text-left text-sm font-normal text-gray-500">Subject</th>
@@ -57,7 +57,7 @@ export function RecentComms({ communications }: RecentCommsProps) {
                   return (
                     <tr
                       key={comm.id}
-                      className="group relative border-l-2 border-l-transparent transition-all duration-150 hover:border-l-admin-green-300 hover:bg-gray-50 hover:-translate-y-px"
+                      className="group relative border-l-2 border-l-transparent transition-all duration-150 hover:border-l-admin-blue-300 hover:bg-gray-50 hover:-translate-y-px"
                     >
                       <td className="py-3.5 pr-4">
                         <button
