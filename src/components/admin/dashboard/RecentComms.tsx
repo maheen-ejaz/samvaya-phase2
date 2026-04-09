@@ -23,13 +23,20 @@ export function RecentComms({ communications }: RecentCommsProps) {
 
   return (
     <>
-      <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h3 className="type-heading text-gray-900">Recent Communications</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="type-heading text-gray-900">Recent Communications</h3>
+            {communications.length > 0 && (
+              <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-admin-blue-100 px-2 text-xs font-semibold text-admin-blue-900">
+                {communications.length}
+              </span>
+            )}
+          </div>
           <Link
             href="/admin/communications"
-            className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+            className="text-xs font-medium text-admin-blue-800 hover:text-admin-blue-700"
           >
             View all
           </Link>
@@ -42,10 +49,10 @@ export function RecentComms({ communications }: RecentCommsProps) {
             <table className="w-full text-sm">
               <thead className="admin-table-thead">
                 <tr className="border-b border-gray-100">
-                  <th className="pb-3 text-left text-sm font-normal text-gray-500">Recipient</th>
-                  <th className="pb-3 text-left text-sm font-normal text-gray-500">Subject</th>
-                  <th className="pb-3 text-left text-sm font-normal text-gray-500">Date</th>
-                  <th className="pb-3 text-left text-sm font-normal text-gray-500">Status</th>
+                  <th className="pb-3 text-left">Recipient</th>
+                  <th className="pb-3 text-left">Subject</th>
+                  <th className="pb-3 text-left">Date</th>
+                  <th className="pb-3 text-left">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -62,7 +69,7 @@ export function RecentComms({ communications }: RecentCommsProps) {
                       <td className="py-3.5 pr-4">
                         <button
                           onClick={() => setSelectedUserId(comm.userId)}
-                          className="font-medium text-gray-900 transition-colors hover:text-rose-700"
+                          className="font-medium text-gray-900 transition-colors hover:text-admin-blue-700"
                         >
                           {comm.recipientName}
                         </button>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { capitalize } from '@/lib/utils';
 
 interface SpecialtyEntry {
@@ -11,8 +12,20 @@ interface SpecialtyDistributionProps {
   data: SpecialtyEntry[];
 }
 
+// Blue gradient: darkest for rank 1, progressively lighter
+const BAR_COLORS = [
+  'bg-[#1E3A8A]',
+  'bg-[#2563EB]',
+  'bg-[#4F6EF7]',
+  'bg-[#6B8AF9]',
+  'bg-[#A5B4FC]',
+  'bg-[#C7D2FE]',
+];
+
 export function SpecialtyDistribution({ data }: SpecialtyDistributionProps) {
+  const [expanded, setExpanded] = useState(false);
   const maxCount = Math.max(...data.map((d) => d.count), 1);
+  const visibleData = expanded ? data : data.slice(0, 5);
 
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -22,35 +35,45 @@ export function SpecialtyDistribution({ data }: SpecialtyDistributionProps) {
       {data.length === 0 ? (
         <p className="mt-4 text-sm text-gray-400">No specialty data available yet.</p>
       ) : (
-        <div className="mt-4">
-          <table className="w-full text-sm">
-            <thead className="admin-table-thead">
-              <tr>
-                <th scope="col" className="w-6 text-left">#</th>
-                <th scope="col" className="text-left">Specialty</th>
-                <th scope="col" className="text-right">Count</th>
-                <th scope="col" className="w-40 pl-4 text-left"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {data.map((entry, i) => (
-                <tr key={i} className="transition-colors hover:bg-gray-50">
-                  <td className="py-2 text-[10px] tabular-nums text-gray-400">{i + 1}</td>
-                  <td className="py-2 text-gray-900">{capitalize(entry.specialty)}</td>
-                  <td className="py-2 text-right font-medium text-gray-900">{entry.count}</td>
-                  <td className="py-2 pl-4">
-                    <div className="h-1.5 w-full rounded-full bg-gray-100">
-                      <div
-                        className="h-full rounded-full bg-[#4F6EF7]"
-                        style={{ width: `${(entry.count / maxCount) * 100}%` }}
-                      />
+        <>
+          <div className="mt-6 space-y-3">
+            {visibleData.map((entry, i) => {
+              const color = BAR_COLORS[Math.min(i, BAR_COLORS.length - 1)];
+              return (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="w-32 flex-shrink-0 truncate text-sm font-medium text-gray-900">
+                    {capitalize(entry.specialty)}
+                  </span>
+                  <div className="flex-1 overflow-hidden rounded-full bg-gray-100 h-6">
+                    <div
+                      className={`h-full rounded-full ${color} flex items-center justify-end pr-3 transition-all`}
+                      style={{ width: `${Math.max((entry.count / maxCount) * 100, 5)}%` }}
+                    >
+                      {(entry.count / maxCount) * 100 > 15 && (
+                        <span className="text-xs font-semibold text-white tabular-nums">
+                          {entry.count}
+                        </span>
+                      )}
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                  {(entry.count / maxCount) * 100 <= 15 && (
+                    <span className="w-10 flex-shrink-0 text-right text-sm font-medium text-gray-700">
+                      {entry.count}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {data.length > 5 && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="mt-4 text-xs font-medium text-admin-blue-700 hover:underline"
+            >
+              {expanded ? 'Show less' : `Show all ${data.length} specialties`}
+            </button>
+          )}
+        </>
       )}
     </div>
   );

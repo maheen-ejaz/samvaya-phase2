@@ -6,6 +6,8 @@ import type { MatchSuggestionWithProfiles } from '@/types/matching';
 import { SuggestionCard } from './SuggestionCard';
 import { MatchDrawer } from './MatchDrawer';
 import { MatchStageCard } from '@/components/admin/dashboard/MatchStageCard';
+import { DonutChart, DONUT_COLORS, type DonutSlice } from '@/components/admin/analytics/DonutChart';
+import { DonutLegend } from '@/components/admin/analytics/DonutLegend';
 
 interface PoolHealth {
   active_pool: number;
@@ -219,6 +221,61 @@ export function SuggestionQueue() {
         </div>
         <div className="px-6 py-4 space-y-4">
 
+          {/* Queue Status & Pool Health Donuts */}
+          {statusCounts && poolHealth && (
+            <div className="grid grid-cols-2 gap-4">
+              {/* Queue Status Donut */}
+              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Queue Status</p>
+                <div className="flex flex-col items-center gap-4">
+                  <DonutChart
+                    data={[
+                      { label: 'Pending Review', count: statusCounts.pending_review, color: DONUT_COLORS[0] },
+                      { label: 'Approved', count: statusCounts.approved, color: DONUT_COLORS[1] },
+                      { label: 'Rejected', count: statusCounts.rejected, color: DONUT_COLORS[2] },
+                    ]}
+                    size={150}
+                    strokeWidth={14}
+                  />
+                  <DonutLegend
+                    data={[
+                      { label: 'Pending Review', count: statusCounts.pending_review, color: DONUT_COLORS[0] },
+                      { label: 'Approved', count: statusCounts.approved, color: DONUT_COLORS[1] },
+                      { label: 'Rejected', count: statusCounts.rejected, color: DONUT_COLORS[2] },
+                    ]}
+                    total={statusCounts.pending_review + statusCounts.approved + statusCounts.rejected}
+                    maxItems={3}
+                  />
+                </div>
+              </div>
+
+              {/* Pool Health Donut */}
+              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Pool Health</p>
+                <div className="flex flex-col items-center gap-4">
+                  <DonutChart
+                    data={[
+                      { label: 'Active', count: poolHealth.active_pool, color: DONUT_COLORS[0] },
+                      { label: 'Paused', count: poolHealth.paused, color: DONUT_COLORS[1] },
+                      { label: 'Pending BGV', count: poolHealth.not_verified, color: DONUT_COLORS[2] },
+                    ]}
+                    size={150}
+                    strokeWidth={14}
+                  />
+                  <DonutLegend
+                    data={[
+                      { label: 'Active', count: poolHealth.active_pool, color: DONUT_COLORS[0] },
+                      { label: 'Paused', count: poolHealth.paused, color: DONUT_COLORS[1] },
+                      { label: 'Pending BGV', count: poolHealth.not_verified, color: DONUT_COLORS[2] },
+                    ]}
+                    total={poolHealth.active_pool + poolHealth.paused + poolHealth.not_verified}
+                    maxItems={3}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stats cards */}
           <div className="flex gap-3">
             {/* Queue group */}
@@ -227,24 +284,24 @@ export function SuggestionQueue() {
               count={statusCounts?.pending_review ?? 0}
               isActive={statusFilter === 'pending_review'}
               onClick={() => { setStatusFilter('pending_review'); setPage(1); setDrawerIndex(null); }}
-              bgColor="bg-amber-50"
-              borderColor="border-amber-200"
+              bgColor="bg-amber-50/50"
+              borderColor="border-amber-100"
             />
             <MatchStageCard
               label="Approved"
               count={statusCounts?.approved ?? 0}
               isActive={statusFilter === 'approved'}
               onClick={() => { setStatusFilter('approved'); setPage(1); setDrawerIndex(null); }}
-              bgColor="bg-admin-blue-100"
-              borderColor="border-admin-blue-300"
+              bgColor="bg-admin-blue-50"
+              borderColor="border-admin-blue-200"
             />
             <MatchStageCard
               label="Rejected"
               count={statusCounts?.rejected ?? 0}
               isActive={statusFilter === 'rejected'}
               onClick={() => { setStatusFilter('rejected'); setPage(1); setDrawerIndex(null); }}
-              bgColor="bg-red-50"
-              borderColor="border-red-200"
+              bgColor="bg-red-50/50"
+              borderColor="border-red-100"
             />
 
             {/* Divider */}
@@ -256,8 +313,8 @@ export function SuggestionQueue() {
               count={poolHealth?.active_pool ?? 0}
               isActive={false}
               onClick={() => {}}
-              bgColor="bg-admin-blue-100"
-              borderColor="border-admin-blue-300"
+              bgColor="bg-admin-blue-50"
+              borderColor="border-admin-blue-200"
             />
             {poolHealth && poolHealth.paused > 0 && (
               <MatchStageCard
@@ -265,8 +322,8 @@ export function SuggestionQueue() {
                 count={poolHealth.paused}
                 isActive={false}
                 onClick={() => {}}
-                bgColor="bg-amber-50"
-                borderColor="border-amber-200"
+                bgColor="bg-amber-50/50"
+                borderColor="border-amber-100"
               />
             )}
             <MatchStageCard
