@@ -21,7 +21,7 @@ export function PricingDisplay({ verificationFee, membershipFee }: PricingDispla
   ];
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
+    <div className="rounded-xl border border-gray-200/60 bg-white p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">Pricing</h2>
         <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
@@ -36,7 +36,7 @@ export function PricingDisplay({ verificationFee, membershipFee }: PricingDispla
         {fees.map(({ label, data, description }) => (
           <div
             key={label}
-            className="rounded-lg border border-gray-200 bg-gray-50 p-4"
+            className="rounded-xl border border-gray-200/60 bg-gray-50 p-4"
           >
             <p className="text-sm font-medium text-gray-500">{label}</p>
             {data ? (

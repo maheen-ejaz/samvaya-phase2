@@ -47,8 +47,8 @@ export function FeatureFlagEditor({ flags: initialFlags }: FeatureFlagEditorProp
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
-      <h2 className="text-lg font-semibold text-gray-900">Feature Flags</h2>
+    <div className="rounded-xl border border-gray-200/60 bg-white p-6">
+      <h2 className="type-heading text-gray-900">Feature Flags</h2>
       <p className="mt-1 text-sm text-gray-500">
         Toggle features on or off. Changes take effect immediately.
       </p>

@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
     if (!singleUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    users = [singleUser as Record<string, string>];
+    users = [singleUser as unknown as Record<string, string>];
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let userQuery: any = adminSupabase

@@ -22,6 +22,8 @@ export async function GET() {
     verificationPaidResult,
     bgvCompleteResult,
     inPoolResult,
+    matchedResult,
+    introducedResult,
     geoResult,
     specialtyResult,
     stageTimingResult,
@@ -69,6 +71,18 @@ export async function GET() {
         'active_member',
       ] as never),
 
+    // Matched: presentations where both parties expressed mutual interest
+    adminSupabase
+      .from('match_presentations' as never)
+      .select('id', { count: 'exact', head: true })
+      .eq('is_mutual_interest', true as never),
+
+    // Introduced: video introductions that are scheduled or completed
+    adminSupabase
+      .from('introductions' as never)
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['scheduled', 'completed'] as never),
+
     // Geographic distribution via RPC
     adminSupabase.rpc('get_geographic_distribution' as never),
 
@@ -94,14 +108,13 @@ export async function GET() {
     { stage: 'Verification Paid', count: verificationPaidResult.count ?? 0 },
     { stage: 'BGV Complete', count: bgvCompleteResult.count ?? 0 },
     { stage: 'In Pool', count: inPoolResult.count ?? 0 },
-    { stage: 'Matched', count: 0, placeholder: true },
-    { stage: 'Introduced', count: 0, placeholder: true },
+    { stage: 'Matched', count: matchedResult.count ?? 0 },
+    { stage: 'Introduced', count: introducedResult.count ?? 0 },
   ];
 
   // Calculate conversion rates (capped at 100% — GooCampus members can skip stages)
   const conversions = [];
   for (let i = 1; i < funnel.length; i++) {
-    if (funnel[i].placeholder) continue;
     const prev = funnel[i - 1].count;
     const curr = funnel[i].count;
     conversions.push({

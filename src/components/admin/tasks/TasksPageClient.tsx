@@ -5,6 +5,8 @@ import type { AdminTask, TaskStatus, TaskPriority, TaskCategory } from '@/types/
 import { TaskGroupSection } from './TaskGroupSection';
 import { TaskFilters } from './TaskFilters';
 import { TaskCreateModal } from './TaskCreateModal';
+import { DonutChart, DONUT_COLORS } from '@/components/admin/analytics/DonutChart';
+import { DonutLegend } from '@/components/admin/analytics/DonutLegend';
 
 interface TasksPageClientProps {
   initialTasks: AdminTask[];
@@ -130,20 +132,34 @@ export function TasksPageClient({ initialTasks }: TasksPageClientProps) {
         </div>
       )}
 
-      {/* Status summary chips */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {[
-          { label: 'Open', count: counts.open, color: 'bg-gray-100 text-gray-700' },
-          { label: 'In Progress', count: counts.in_progress, color: 'bg-blue-50 text-blue-700' },
-          { label: 'In Review', count: counts.in_review, color: 'bg-amber-50 text-amber-700' },
-          { label: 'Closed', count: counts.closed, color: 'bg-green-50 text-green-700' },
-        ].map((chip) => (
-          <span key={chip.label} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${chip.color}`}>
-            {chip.label}
-            <span className="font-bold">{chip.count}</span>
-          </span>
-        ))}
-      </div>
+      {/* Status summary donut */}
+      {(counts.open + counts.in_progress + counts.in_review + counts.closed) > 0 && (
+        <div className="rounded-lg border border-gray-100 bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Task Status Overview</p>
+          <div className="flex items-center gap-5">
+            <DonutChart
+              data={[
+                { label: 'Open', count: counts.open, color: DONUT_COLORS[3] },
+                { label: 'In Progress', count: counts.in_progress, color: DONUT_COLORS[0] },
+                { label: 'In Review', count: counts.in_review, color: DONUT_COLORS[1] },
+                { label: 'Closed', count: counts.closed, color: DONUT_COLORS[2] },
+              ]}
+              size={90}
+              strokeWidth={14}
+            />
+            <DonutLegend
+              data={[
+                { label: 'Open', count: counts.open, color: DONUT_COLORS[3] },
+                { label: 'In Progress', count: counts.in_progress, color: DONUT_COLORS[0] },
+                { label: 'In Review', count: counts.in_review, color: DONUT_COLORS[1] },
+                { label: 'Closed', count: counts.closed, color: DONUT_COLORS[2] },
+              ]}
+              total={counts.open + counts.in_progress + counts.in_review + counts.closed}
+              maxItems={4}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Task groups */}
       <div className="space-y-4">

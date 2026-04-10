@@ -339,7 +339,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'How did you hear about us?',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'referral_source',
     options: [
@@ -396,7 +396,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Know your time of birth?',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'local',
     targetColumn: 'knows_time_of_birth',
     options: [
@@ -421,7 +421,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'State of birth',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'place_of_birth',
     options: [
@@ -518,12 +518,12 @@ const sectionA: QuestionConfig[] = [
 
 const sectionB: QuestionConfig[] = [
   { id: 'Q18', questionNumber: 18, section: 'B', text: 'Citizenship', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'citizenship_country', optionsSource: 'countries', searchable: true },
-  { id: 'Q19', questionNumber: 19, section: 'B', text: 'Do you possess an employment visa outside India?', type: 'select', required: false, targetTable: 'local', targetColumn: 'has_employment_visa', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
+  { id: 'Q19', questionNumber: 19, section: 'B', text: 'Do you possess an employment visa outside India?', type: 'select', required: true, targetTable: 'local', targetColumn: 'has_employment_visa', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
   { id: 'Q20', questionNumber: 20, section: 'B', text: 'Visa country', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'employment_visa_country', optionsSource: 'countries', searchable: true },
   { id: 'Q21', questionNumber: 21, section: 'B', text: 'Country of residence', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'current_country', optionsSource: 'countries', searchable: true },
   { id: 'Q22', questionNumber: 22, section: 'B', text: 'Current state', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'current_state', options: INDIAN_STATES, searchable: true },
   { id: 'Q23', questionNumber: 23, section: 'B', text: 'Current city', type: 'text', required: true, targetTable: 'profiles', targetColumn: 'current_city', placeholder: 'Start typing your city name', autocompleteSource: 'indian_cities' },
-  { id: 'Q24', questionNumber: 24, section: 'B', text: 'Permanent address same as current?', type: 'select', required: false, targetTable: 'local', targetColumn: 'permanent_same_as_current', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
+  { id: 'Q24', questionNumber: 24, section: 'B', text: 'Permanent address same as current?', type: 'select', required: true, targetTable: 'local', targetColumn: 'permanent_same_as_current', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
   { id: 'Q25', questionNumber: 25, section: 'B', text: 'Permanent city and state', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'permanent_city', placeholder: 'e.g. Pune, Maharashtra' },
   { id: 'Q26', questionNumber: 26, section: 'B', text: 'Home ownership', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'permanent_ownership', options: [{ value: 'owned', label: 'Owned' }, { value: 'rented', label: 'Rental' }, { value: 'family_home', label: 'Family home' }] },
 ];
@@ -534,9 +534,9 @@ const sectionB: QuestionConfig[] = [
 
 const sectionC: QuestionConfig[] = [
   { id: 'Q27', questionNumber: 27, section: 'C', text: 'Religion', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'religion', options: RELIGIONS, searchable: true },
-  { id: 'Q28', questionNumber: 28, section: 'C', text: 'Level of religious observance', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'religious_observance', options: [{ value: 'actively_practicing', label: 'Actively practicing' }, { value: 'culturally_observant', label: 'Culturally observant' }, { value: 'spiritual', label: 'Spiritual but not religious' }, { value: 'not_religious', label: 'Not religious' }] },
+  { id: 'Q28', questionNumber: 28, section: 'C', text: 'Level of religious observance', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'religious_observance', options: [{ value: 'actively_practicing', label: 'Actively practicing' }, { value: 'culturally_observant', label: 'Culturally observant' }, { value: 'spiritual', label: 'Spiritual but not religious' }, { value: 'not_religious', label: 'Not religious' }] },
   { id: 'Q29', questionNumber: 29, section: 'C', text: 'Do you believe in Kundali/horoscope matching?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'believes_in_kundali', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
-  { id: 'Q30', questionNumber: 30, section: 'C', text: 'Are you comfortable sharing your sect, caste, or community?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'caste_comfort', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: "No, I'd rather not say" }] },
+  { id: 'Q30', questionNumber: 30, section: 'C', text: 'Are you comfortable sharing your sect, caste, or community?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'caste_comfort', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: "No, I'd rather not say" }] },
   { id: 'Q31', questionNumber: 31, section: 'C', text: 'Sect, caste, or community', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'caste', placeholder: 'e.g. Sunni, Brahmin, Catholic, Jat Sikh', helpText: 'This helps us find compatible matches within your community preferences.', autocompleteSource: 'communities' },
 ];
 
@@ -546,12 +546,12 @@ const sectionC: QuestionConfig[] = [
 
 const sectionD: QuestionConfig[] = [
   { id: 'Q32', questionNumber: 32, section: 'D', text: "Father's name", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'father_name', placeholder: 'Full name', groupWith: ['Q33'] },
-  { id: 'Q33', questionNumber: 33, section: 'D', text: "Father's occupation", type: 'select', required: false, targetTable: 'profiles', targetColumn: 'father_occupation', options: OCCUPATION_OPTIONS, groupWith: ['Q32'], searchable: true },
+  { id: 'Q33', questionNumber: 33, section: 'D', text: "Father's occupation", type: 'select', required: true, targetTable: 'profiles', targetColumn: 'father_occupation', options: OCCUPATION_OPTIONS, groupWith: ['Q32'], searchable: true },
   { id: 'Q34', questionNumber: 34, section: 'D', text: "Father's occupation (other)", type: 'text', required: false, targetTable: 'profiles', targetColumn: 'father_occupation_other', helpText: 'Since you selected "Other"' },
   { id: 'Q35', questionNumber: 35, section: 'D', text: "Mother's name", type: 'text', required: true, targetTable: 'profiles', targetColumn: 'mother_name', placeholder: 'Full name', groupWith: ['Q36'] },
-  { id: 'Q36', questionNumber: 36, section: 'D', text: "Mother's occupation", type: 'select', required: false, targetTable: 'profiles', targetColumn: 'mother_occupation', options: OCCUPATION_OPTIONS, groupWith: ['Q35'], searchable: true },
+  { id: 'Q36', questionNumber: 36, section: 'D', text: "Mother's occupation", type: 'select', required: true, targetTable: 'profiles', targetColumn: 'mother_occupation', options: OCCUPATION_OPTIONS, groupWith: ['Q35'], searchable: true },
   { id: 'Q37', questionNumber: 37, section: 'D', text: "Mother's occupation (other)", type: 'text', required: false, targetTable: 'profiles', targetColumn: 'mother_occupation_other', helpText: 'Since you selected "Other"' },
-  { id: 'Q39', questionNumber: 39, section: 'D', text: 'Number of siblings', type: 'number', required: false, targetTable: 'profiles', targetColumn: 'siblings_count', placeholder: '0' },
+  { id: 'Q39', questionNumber: 39, section: 'D', text: 'Number of siblings', type: 'number', required: true, targetTable: 'profiles', targetColumn: 'siblings_count', placeholder: '0' },
 ];
 
 // ============================================================
@@ -582,13 +582,13 @@ const sectionF: QuestionConfig[] = [
     { value: 'jain', label: 'Jain', icon: '🙏' },
     { value: 'other', label: 'Flexible / Other', icon: '🍽️' },
   ] },
-  { id: 'Q44', questionNumber: 44, section: 'F', text: 'Everyday attire', type: 'illustrated_mc', required: false, targetTable: 'profiles', targetColumn: 'attire_preference', options: [
+  { id: 'Q44', questionNumber: 44, section: 'F', text: 'Everyday attire', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'attire_preference', options: [
     { value: 'modern_western', label: 'Western', icon: '👔' },
     { value: 'traditional', label: 'Traditional', icon: '🪷' },
     { value: 'mix', label: 'Mix of both', icon: '✨' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q45', questionNumber: 45, section: 'F', text: 'Fitness habits', type: 'illustrated_mc', required: false, targetTable: 'profiles', targetColumn: 'fitness_habits', options: [
+  { id: 'Q45', questionNumber: 45, section: 'F', text: 'Fitness habits', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'fitness_habits', options: [
     { value: 'regularly_exercises', label: 'Regular (4+ times/week)', icon: '💪' },
     { value: 'occasionally', label: 'Moderate (1-3 times/week)', icon: '🏃' },
     { value: 'rarely', label: 'Occasional', icon: '🚶' },
@@ -604,15 +604,15 @@ const sectionF: QuestionConfig[] = [
     { value: 'occasionally', label: 'Socially', icon: '🥂' },
     { value: 'frequently', label: 'Regularly', icon: '🍷' },
   ] },
-  { id: 'Q48', questionNumber: 48, section: 'F', text: 'Tattoos or piercings?', type: 'illustrated_mc', required: false, targetTable: 'profiles', targetColumn: 'tattoos_piercings', options: [
+  { id: 'Q48', questionNumber: 48, section: 'F', text: 'Tattoos or piercings?', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'tattoos_piercings', options: [
     { value: 'none', label: 'None', icon: '✋' },
     { value: 'tattoos_only', label: 'Tattoos', icon: '🎨' },
     { value: 'piercings_only', label: 'Piercings', icon: '💎' },
     { value: 'both', label: 'Both', icon: '✨' },
   ] },
-  { id: 'Q49', questionNumber: 49, section: 'F', text: 'Any disabilities or health conditions?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'has_disability', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'prefer_not_to_disclose', label: 'Prefer not to disclose' }] },
+  { id: 'Q49', questionNumber: 49, section: 'F', text: 'Any disabilities or health conditions?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'has_disability', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'prefer_not_to_disclose', label: 'Prefer not to disclose' }] },
   { id: 'Q50', questionNumber: 50, section: 'F', text: 'Please describe your disability or health condition', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'disability_description', placeholder: 'Share what you are comfortable with' },
-  { id: 'Q51', questionNumber: 51, section: 'F', text: 'Any allergies?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'has_allergies', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
+  { id: 'Q51', questionNumber: 51, section: 'F', text: 'Any allergies?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'has_allergies', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
   { id: 'Q52', questionNumber: 52, section: 'F', text: 'Describe your allergies', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'allergy_description', placeholder: 'e.g. peanuts, dust, pollen' },
 ];
 
@@ -627,7 +627,7 @@ const sectionG: QuestionConfig[] = [
     section: 'G',
     text: 'Hobbies and interests',
     type: 'multi_select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'hobbies_interests',
     helpText: 'Select all that apply. Tap a category to expand it.',
@@ -717,7 +717,7 @@ const sectionG: QuestionConfig[] = [
       { value: 'other', label: 'Other' },
     ],
   },
-  { id: 'Q54', questionNumber: 54, section: 'G', text: 'Pick your top 4 interests — the ones you are most active in', type: 'multi_select', required: false, targetTable: 'profiles', targetColumn: 'hobbies_regular', maxSelections: 4, dynamicOptionsFrom: 'Q53', helpText: 'Select exactly 4 from what you chose above.' },
+  { id: 'Q54', questionNumber: 54, section: 'G', text: 'Pick your top 4 interests — the ones you are most active in', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'hobbies_regular', maxSelections: 4, dynamicOptionsFrom: 'Q53', helpText: 'Select exactly 4 from what you chose above.' },
   { id: 'Q55', questionNumber: 55, section: 'G', text: 'Any other hobbies not listed above?', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'hobbies_other', helpText: 'Since you selected "Other"' },
   { id: 'QWKND', questionNumber: 56, section: 'G', text: 'How do you prefer to spend your free time?', type: 'multi_select', required: false, targetTable: 'profiles', targetColumn: 'free_time_preferences', helpText: 'Choose all that apply — there\'s no right answer here.', options: [
     { value: 'family_friends', label: 'Time with family and close friends' },
@@ -742,7 +742,7 @@ const sectionH: QuestionConfig[] = [
   { id: 'Q56b', questionNumber: 58, section: 'H', text: 'What is your PG degree?', type: 'select', required: false, targetTable: 'medical_credentials', targetColumn: 'pg_degree', options: PG_DEGREE_OPTIONS },
   { id: 'Q56c', questionNumber: 59, section: 'H', text: 'Please specify your PG degree', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'pg_degree_other', placeholder: 'e.g. MRCS, MMed, MPhil...' },
   { id: 'Q57', questionNumber: 60, section: 'H', text: 'Planning to pursue PG?', type: 'select', required: false, targetTable: 'medical_credentials', targetColumn: 'pg_plans', options: [{ value: 'yes_within_1_year', label: 'Yes, within the next year' }, { value: 'yes_2_to_3_years', label: 'Yes, in 2-3 years' }, { value: 'no_plan_to_practice', label: 'No, I plan to practice as MBBS' }, { value: 'undecided', label: 'Undecided' }] },
-  { id: 'Q58', questionNumber: 61, section: 'H', text: 'Any additional qualifications or certifications?', type: 'multi_select', required: false, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS, searchable: true, helpText: 'Beyond your primary medical degree' },
+  { id: 'Q58', questionNumber: 61, section: 'H', text: 'Any additional qualifications or certifications?', type: 'multi_select', required: true, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS, searchable: true, helpText: 'Beyond your primary medical degree' },
   { id: 'Q59', questionNumber: 62, section: 'H', text: 'What other qualifications do you have?', type: 'text', required: false, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications_other', placeholder: 'Please specify' },
   { id: 'Q60', questionNumber: 63, section: 'H', text: 'Specialty (current or planned)', type: 'multi_select', required: true, targetTable: 'medical_credentials', targetColumn: 'specialty', helpText: 'Select all that apply', options: MEDICAL_SPECIALTY_OPTIONS, searchable: true },
 ];
@@ -752,7 +752,7 @@ const sectionH: QuestionConfig[] = [
 // ============================================================
 
 const sectionI: QuestionConfig[] = [
-  { id: 'Q61', questionNumber: 64, section: 'I', text: 'Do you have any full-time work experience?', type: 'select', required: false, targetTable: 'medical_credentials', targetColumn: 'has_work_experience', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
+  { id: 'Q61', questionNumber: 64, section: 'I', text: 'Do you have any full-time work experience?', type: 'select', required: true, targetTable: 'medical_credentials', targetColumn: 'has_work_experience', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
   { id: 'Q62', questionNumber: 65, section: 'I', text: 'Add your work experience', type: 'timeline', required: false, targetTable: 'medical_credentials', targetColumn: 'work_experience', helpText: 'Add your work experience entries, starting with the most recent.' },
 ];
 
@@ -808,7 +808,7 @@ const sectionJ: QuestionConfig[] = [
 
 const sectionK_goalsValues: QuestionConfig[] = [
   { id: 'Q63', questionNumber: 72, section: 'K', text: 'What is your preferred marriage timeline?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'marriage_timeline', options: [{ value: 'within_6_months', label: 'Within 6 months' }, { value: '6_to_12_months', label: '6-12 months' }, { value: '1_to_2_years', label: '1-2 years' }, { value: 'no_fixed_timeline', label: 'No fixed timeline' }] },
-  { id: 'Q64', questionNumber: 73, section: 'K', text: 'Are you open to a long-distance relationship?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'long_distance_comfort', helpText: 'This means being in different cities or countries during the initial phase of the relationship.', options: [{ value: 'yes_absolutely', label: 'Yes' }, { value: 'open_to_it', label: 'Open to it' }, { value: 'prefer_same_location', label: 'Prefer same city' }] },
+  { id: 'Q64', questionNumber: 73, section: 'K', text: 'Are you open to a long-distance relationship?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'long_distance_comfort', helpText: 'This means being in different cities or countries during the initial phase of the relationship.', options: [{ value: 'yes_absolutely', label: 'Yes' }, { value: 'open_to_it', label: 'Open to it' }, { value: 'prefer_same_location', label: 'Prefer same city' }] },
   { id: 'Q65', questionNumber: 74, section: 'K', text: 'Preferred family arrangement after marriage', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'post_marriage_family_arrangement', options: [
     { value: 'nuclear', label: 'Nuclear family', icon: '🏠' },
     { value: 'joint', label: 'Joint family', icon: '👨‍👩‍👧‍👦' },
@@ -830,9 +830,9 @@ const sectionK_goalsValues: QuestionConfig[] = [
   { id: 'Q68', questionNumber: 77, section: 'K', text: 'Preferred number of children', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'children_count_preference', options: [{ value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3_or_more', label: '3+' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q69', questionNumber: 78, section: 'K', text: 'Preferred timing for children', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'children_timing_preference', options: [{ value: 'within_1_2_years', label: '1-2 years after marriage' }, { value: 'after_3_5_years', label: '3-5 years' }, { value: 'after_milestones', label: 'After career milestones' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q70', questionNumber: 79, section: 'K', text: 'Open to a partner with children?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'open_to_partner_with_children', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'open', label: 'Open to it' }] },
-  { id: 'Q71', questionNumber: 80, section: 'K', text: 'Preferred countries to settle', type: 'multi_select', required: false, targetTable: 'profiles', targetColumn: 'preferred_settlement_countries', optionsSource: 'countries', searchable: true },
-  { id: 'Q72', questionNumber: 81, section: 'K', text: 'Open to relocating for partner?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'open_to_immediate_relocation', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'open', label: 'Open to it' }] },
-  { id: 'Q73', questionNumber: 82, section: 'K', text: 'Do you have plans to study or work outside India in the next 3 years?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'plans_to_go_abroad', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
+  { id: 'Q71', questionNumber: 80, section: 'K', text: 'Preferred countries to settle', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'preferred_settlement_countries', optionsSource: 'countries', searchable: true },
+  { id: 'Q72', questionNumber: 81, section: 'K', text: 'Open to relocating for partner?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'open_to_immediate_relocation', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'open', label: 'Open to it' }] },
+  { id: 'Q73', questionNumber: 82, section: 'K', text: 'Do you have plans to study or work outside India in the next 3 years?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'plans_to_go_abroad', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
   { id: 'Q74', questionNumber: 83, section: 'K', text: 'Which countries are you exploring?', type: 'multi_select', required: false, targetTable: 'profiles', targetColumn: 'abroad_countries', optionsSource: 'countries', searchable: true },
 ];
 
@@ -844,64 +844,64 @@ const sectionL: QuestionConfig[] = [
   { id: 'Q76', questionNumber: 85, section: 'L', text: 'Preferred partner age range', type: 'range', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_age_min', targetColumn2: 'preferred_age_max' },
   { id: 'Q77', questionNumber: 86, section: 'L', text: 'Preferred partner height range', type: 'range', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_height_min_cm', targetColumn2: 'preferred_height_max_cm' },
   { id: 'Q77b', questionNumber: 87, section: 'L', text: 'Preferred partner weight range', type: 'range', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_weight_min_kg', targetColumn2: 'preferred_weight_max_kg', helpText: 'In kilograms (kg)' },
-  { id: 'Q78', questionNumber: 88, section: 'L', text: 'Prefer a specific specialty?', type: 'select', required: false, targetTable: 'partner_preferences', targetColumn: 'prefers_specific_specialty', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No, open to all' }] },
+  { id: 'Q78', questionNumber: 88, section: 'L', text: 'Prefer a specific specialty?', type: 'select', required: true, targetTable: 'partner_preferences', targetColumn: 'prefers_specific_specialty', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No, open to all' }] },
   { id: 'Q79', questionNumber: 89, section: 'L', text: 'Which specialties do you prefer?', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_specialties', options: MEDICAL_SPECIALTY_OPTIONS, searchable: true },
-  { id: 'Q80', questionNumber: 90, section: 'L', text: 'Preferred partner location', type: 'dual_location', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_indian_states', targetColumn2: 'preferred_countries', targetColumn3: 'no_location_preference' },
-  { id: 'Q81', questionNumber: 91, section: 'L', text: "Partner's mother tongue preference", type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_mother_tongue', options: MOTHER_TONGUE_OPTIONS, searchable: true },
-  { id: 'Q82', questionNumber: 92, section: 'L', text: 'Body type preference', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'body_type_preference', options: BODY_TYPE_OPTIONS },
-  { id: 'Q83', questionNumber: 93, section: 'L', text: "Partner's attire preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'attire_preference', options: [
+  { id: 'Q80', questionNumber: 90, section: 'L', text: 'Preferred partner location', type: 'dual_location', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_indian_states', targetColumn2: 'preferred_countries', targetColumn3: 'no_location_preference' },
+  { id: 'Q81', questionNumber: 91, section: 'L', text: "Partner's mother tongue preference", type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_mother_tongue', options: MOTHER_TONGUE_OPTIONS, searchable: true },
+  { id: 'Q82', questionNumber: 92, section: 'L', text: 'Body type preference', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'body_type_preference', options: BODY_TYPE_OPTIONS },
+  { id: 'Q83', questionNumber: 93, section: 'L', text: "Partner's attire preference", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'attire_preference', options: [
     { value: 'modern_western', label: 'Western', icon: '👔' },
     { value: 'traditional', label: 'Traditional', icon: '🪷' },
     { value: 'mix', label: 'Mix of both', icon: '✨' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q84', questionNumber: 94, section: 'L', text: "Partner's diet preference", type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'diet_preference', options: DIET_PREFERENCE_OPTIONS },
-  { id: 'Q85', questionNumber: 95, section: 'L', text: "Partner's fitness preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'fitness_preference', options: [
+  { id: 'Q84', questionNumber: 94, section: 'L', text: "Partner's diet preference", type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'diet_preference', options: DIET_PREFERENCE_OPTIONS },
+  { id: 'Q85', questionNumber: 95, section: 'L', text: "Partner's fitness preference", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'fitness_preference', options: [
     { value: 'regularly_exercises', label: 'Regular', icon: '💪' },
     { value: 'occasionally', label: 'Moderate', icon: '🏃' },
     { value: 'rarely', label: 'Any level', icon: '🚶' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q86', questionNumber: 96, section: 'L', text: "Partner's smoking preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'smoking_preference', options: [
+  { id: 'Q86', questionNumber: 96, section: 'L', text: "Partner's smoking preference", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'smoking_preference', options: [
     { value: 'never', label: 'Non-smoker only', icon: '🚭' },
     { value: 'occasionally', label: 'Occasional is fine', icon: '🌫️' },
     { value: 'frequently', label: 'Frequent is fine', icon: '🚬' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q87', questionNumber: 97, section: 'L', text: "Partner's drinking preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'drinking_preference', options: [
+  { id: 'Q87', questionNumber: 97, section: 'L', text: "Partner's drinking preference", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'drinking_preference', options: [
     { value: 'never', label: 'Non-drinker only', icon: '💧' },
     { value: 'occasionally', label: 'Social drinking is fine', icon: '🥂' },
     { value: 'frequently', label: 'Frequent is fine', icon: '🍷' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q88', questionNumber: 98, section: 'L', text: "Partner's tattoo/piercing preference", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'tattoo_preference', options: [
+  { id: 'Q88', questionNumber: 98, section: 'L', text: "Partner's tattoo/piercing preference", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'tattoo_preference', options: [
     { value: 'none', label: 'None preferred', icon: '✋' },
     { value: 'tattoos_only', label: 'Tattoos are fine', icon: '🎨' },
     { value: 'piercings_only', label: 'Piercings are fine', icon: '💎' },
     { value: 'both', label: 'Both are fine', icon: '✨' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q89', questionNumber: 99, section: 'L', text: 'What is your preference for family type?', type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'family_type_preference', options: [
+  { id: 'Q89', questionNumber: 99, section: 'L', text: 'What is your preference for family type?', type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'family_type_preference', options: [
     { value: 'nuclear', label: 'Nuclear', icon: '🏠' },
     { value: 'joint', label: 'Joint', icon: '👨‍👩‍👧‍👦' },
     { value: 'flexible', label: 'Flexible', icon: '🔄' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q90', questionNumber: 100, section: 'L', text: "What is your preference for your partner's religious observance?", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'religious_observance_preference', options: [
+  { id: 'Q90', questionNumber: 100, section: 'L', text: "What is your preference for your partner's religious observance?", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'religious_observance_preference', options: [
     { value: 'actively_practicing', label: 'Actively practicing', icon: '🙏' },
     { value: 'culturally_observant', label: 'Culturally observant', icon: '🪔' },
     { value: 'spiritual', label: 'Spiritual', icon: '🧘' },
     { value: 'not_religious', label: 'Not religious', icon: '🌐' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q91', questionNumber: 101, section: 'L', text: "What are your expectations for your partner's career after marriage?", type: 'illustrated_mc', required: false, targetTable: 'partner_preferences', targetColumn: 'partner_career_expectation_after_marriage', options: [
+  { id: 'Q91', questionNumber: 101, section: 'L', text: "What are your expectations for your partner's career after marriage?", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_career_expectation_after_marriage', options: [
     { value: 'both_continue', label: 'Both should work', icon: '💼' },
     { value: 'comfortable_either_way', label: 'Either way', icon: '⚖️' },
     { value: 'prefer_partner_home', label: 'Prefer homemaker', icon: '🏡' },
     { value: 'open', label: 'Open to discussion', icon: '💬' },
   ] },
-  { id: 'Q92', questionNumber: 102, section: 'L', text: 'Which career stages are acceptable for your partner?', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_career_stage', options: [{ value: 'mbbs_student', label: 'MBBS Student' }, { value: 'intern', label: 'Intern' }, { value: 'mbbs_passed', label: 'MBBS Passed' }, { value: 'pursuing_pg', label: 'PG Resident' }, { value: 'completed_pg', label: 'Completed PG' }, { value: 'established', label: 'Established Practitioner' }, { value: 'no_preference', label: 'No preference' }], searchable: true },
-  { id: 'Q93', questionNumber: 103, section: 'L', text: 'What qualities are you looking for in a partner?', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'partner_qualities', maxSelections: 15, helpText: 'Select up to 15 qualities.', options: PARTNER_QUALITY_OPTIONS, optionGroups: PARTNER_QUALITY_GROUPS },
+  { id: 'Q92', questionNumber: 102, section: 'L', text: 'Which career stages are acceptable for your partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_career_stage', options: [{ value: 'mbbs_student', label: 'MBBS Student' }, { value: 'intern', label: 'Intern' }, { value: 'mbbs_passed', label: 'MBBS Passed' }, { value: 'pursuing_pg', label: 'PG Resident' }, { value: 'completed_pg', label: 'Completed PG' }, { value: 'established', label: 'Established Practitioner' }, { value: 'no_preference', label: 'No preference' }], searchable: true },
+  { id: 'Q93', questionNumber: 103, section: 'L', text: 'What qualities are you looking for in a partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_qualities', maxSelections: 15, helpText: 'Select up to 15 qualities.', options: PARTNER_QUALITY_OPTIONS, optionGroups: PARTNER_QUALITY_GROUPS },
   { id: 'Q94', questionNumber: 104, section: 'L', text: 'Any other qualities you are looking for?', type: 'text', required: false, targetTable: 'partner_preferences', targetColumn: 'partner_qualities_other', placeholder: 'Describe any qualities not listed above' },
 ];
 

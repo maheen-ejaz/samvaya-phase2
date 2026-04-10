@@ -47,7 +47,7 @@ export function AdminKPICard({
 
       {/* Count + trend badge */}
       <div className="mt-3 flex items-end gap-2">
-        <p className="text-3xl font-light tracking-tight text-gray-900 tabular-nums leading-none">
+        <p className="type-display-sm type-stat text-gray-900 leading-none">
           {count.toLocaleString('en-IN')}
         </p>
         {trend && (

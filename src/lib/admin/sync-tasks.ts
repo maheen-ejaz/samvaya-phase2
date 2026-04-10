@@ -1,5 +1,5 @@
 import 'server-only';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { DashboardAlert } from '@/types/dashboard';
 
 /**
@@ -8,7 +8,7 @@ import type { DashboardAlert } from '@/types/dashboard';
  */
 export async function syncAutoTasks(alerts: DashboardAlert[]): Promise<void> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     const tasksToUpsert = alerts.map((alert) => {
       let taskType = 'manual';
@@ -88,7 +88,7 @@ export async function createWaitlistCallTask(params: {
   waitlistId: string;
 }): Promise<void> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     await supabase.from('admin_tasks' as never).insert({
       task_type: 'waitlist_call',
@@ -121,7 +121,7 @@ export async function createBgvInitiateTask(params: {
   email: string | null;
 }): Promise<void> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     await supabase.from('admin_tasks' as never).upsert(
       {

@@ -601,6 +601,59 @@ export function applicationUpdatedEmail(data: ApplicationUpdatedData): {
 }
 
 // ============================================================
+// Membership expired — notify member that their membership has lapsed
+// ============================================================
+
+export function membershipExpiredEmail(firstName: string): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: 'Samvaya: Your membership has expired',
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;background:#f9fafb;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+    <div style="background:#fff;border-radius:12px;padding:32px 24px;border:1px solid #e5e7eb;">
+      <h1 style="font-size:22px;font-weight:600;margin:0 0 24px;">Your Samvaya membership has expired</h1>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Hi ${escapeHtml(firstName)},
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        Your Samvaya membership window has come to an end. We hope your time with us was meaningful.
+      </p>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        If you&rsquo;d like to continue your journey with Samvaya, you&rsquo;re welcome to renew your membership. Our team will be in touch to walk you through the options.
+      </p>
+
+      <div style="background:#fef2f2;border-radius:8px;padding:20px;margin:24px 0;">
+        <p style="font-size:15px;font-weight:600;margin:0 0 8px;">Membership renewal</p>
+        <p style="font-size:14px;line-height:1.5;margin:0;color:#4b5563;">
+          Membership fee: &#8377;35,000 + GST (&#8377;41,300 total). Reach out to us and we&rsquo;ll take it from there.
+        </p>
+      </div>
+
+      <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+        If you have any questions or would like to speak with our team, simply reply to this email or reach us on WhatsApp.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
+      <p style="font-size:13px;color:#9ca3af;margin:0;">
+        &mdash; The Samvaya Team
+      </p>
+    </div>
+  </div>
+</body>
+</html>`.trim(),
+  };
+}
+
+// ============================================================
 // Team notification email — new application submitted
 // ============================================================
 

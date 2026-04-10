@@ -135,6 +135,7 @@ function JourneyTimeline({
 }: {
   preview: ApplicantPreview | null;
   loading: boolean;
+  basicInfo: Applicant;
 }) {
   const paymentStatus = preview?.paymentStatus ?? basicInfo.paymentStatus;
   const currentIdx = PAYMENT_STATUS_ORDER.indexOf(paymentStatus as MilestoneKey);

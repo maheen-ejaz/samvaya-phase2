@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { MatchSuggestionWithProfiles, CompatibilityReport } from '@/types/matching';
 import { CompatibilityBreakdown } from './CompatibilityBreakdown';
 import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
@@ -100,9 +100,8 @@ export function MatchHistory() {
               {suggestions.map((s) => {
                 const badgeStyle = getStatusBadge(s.admin_status);
                 return (
-                  <>
+                  <React.Fragment key={s.id}>
                     <tr
-                      key={s.id}
                       className="group relative border-l-2 border-l-transparent transition-all duration-150 hover:border-l-admin-blue-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px"
                     >
                       <td className="px-5 py-4">
@@ -150,7 +149,7 @@ export function MatchHistory() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </tbody>

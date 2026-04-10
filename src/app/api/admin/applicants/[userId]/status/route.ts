@@ -8,9 +8,9 @@ import { statusUpdateEmail } from '@/lib/email/templates';
 import { PRICING } from '@/lib/constants';
 import { createBgvInitiateTask } from '@/lib/admin/sync-tasks';
 
-type Action = 'mark_verification_paid' | 'mark_goocampus_verified' | 'move_to_pool';
+type Action = 'mark_verification_paid' | 'mark_goocampus_verified' | 'move_to_pool' | 'mark_membership_paid';
 
-const VALID_ACTIONS: Action[] = ['mark_verification_paid', 'mark_goocampus_verified', 'move_to_pool'];
+const VALID_ACTIONS: Action[] = ['mark_verification_paid', 'mark_goocampus_verified', 'move_to_pool', 'mark_membership_paid'];
 
 export async function POST(
   request: NextRequest,
@@ -145,6 +145,45 @@ export async function POST(
 
     notifyStatusChange(adminSupabase, userId, 'in_pool');
     return NextResponse.json({ success: true, newPaymentStatus: 'in_pool' });
+  }
+
+  // --- mark_membership_paid ---
+  if (action === 'mark_membership_paid') {
+    if (targetUser.payment_status !== 'awaiting_payment') {
+      return NextResponse.json({ error: `Cannot mark membership paid: status is "${targetUser.payment_status}".` }, { status: 400 });
+    }
+
+    // Create/update membership payment record
+    const { data: existingMembership } = await adminSupabase
+      .from('payments')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('payment_type', 'membership_fee' as never)
+      .maybeSingle();
+
+    if (existingMembership) {
+      await adminSupabase.from('payments').update({
+        paid_at: new Date().toISOString(),
+        status: 'captured' as never,
+        amount: PRICING.MEMBERSHIP_FEE_PAISE,
+      }).eq('id', existingMembership.id);
+    } else {
+      await adminSupabase.from('payments').insert({
+        user_id: userId,
+        payment_type: 'membership_fee' as never,
+        amount: PRICING.MEMBERSHIP_FEE_PAISE,
+        currency: 'INR',
+        paid_at: new Date().toISOString(),
+        status: 'captured' as never,
+        is_goocampus_member: targetUser.is_goocampus_member,
+      });
+    }
+
+    await adminSupabase.from('users').update({ payment_status: 'active_member' as never }).eq('id', userId);
+    await logActivity(admin.id, 'marked_membership_paid', 'user', userId, { amount: PRICING.MEMBERSHIP_FEE_PAISE });
+
+    notifyStatusChange(adminSupabase, userId, 'active_member');
+    return NextResponse.json({ success: true, newPaymentStatus: 'active_member' });
   }
 
   return NextResponse.json({ error: 'Unhandled action' }, { status: 400 });

@@ -106,7 +106,7 @@ export function CommunicationsHub() {
                 <div className="mb-4 flex justify-end">
                   <button
                     onClick={() => { setEditingTemplate(null); setShowEditor(true); }}
-                    className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 transition-all duration-150 hover:shadow-md active:scale-[0.98]"
+                    className="btn-primary"
                     aria-label="Create new template"
                   >
                     New Template

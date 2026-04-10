@@ -19,56 +19,55 @@ export function StageTimingTable({ data }: StageTimingTableProps) {
       {data.every((d) => d.sample_size === 0) ? (
         <p className="mt-4 text-sm text-gray-400">No timing data available yet.</p>
       ) : (
-        <div className="mt-4">
-          <table className="w-full text-sm">
-            <thead className="admin-table-thead">
-              <tr>
-                <th className="text-left">Stage Transition</th>
-                <th className="text-right">Avg. Days</th>
-                <th className="text-right">Sample</th>
-                <th className="w-40 pl-4 text-left"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {(() => {
-                const maxDays = Math.max(...data.map((d) => d.avg_days ?? 0), 1);
-                return data.map((entry) => {
-                  const days = entry.avg_days;
-                  const barColor =
-                    days === null
-                      ? ''
-                      : days <= 3
-                        ? 'bg-[#4F6EF7]'
-                        : days <= 7
-                          ? 'bg-amber-400'
-                          : 'bg-red-400';
-                  return (
-                    <tr key={entry.stage} className="transition-colors hover:bg-gray-50">
-                      <td className="py-2 text-gray-900">{entry.stage}</td>
-                      <td className="py-2 text-right font-medium text-gray-900">
-                        {days !== null ? `${days} days` : '—'}
-                      </td>
-                      <td className="py-2 text-right text-gray-500">
-                        {entry.sample_size > 0
-                          ? `${entry.sample_size} applicant${entry.sample_size !== 1 ? 's' : ''}`
-                          : '—'}
-                      </td>
-                      <td className="py-2 pl-4">
-                        {days !== null && (
-                          <div className="h-1.5 w-full rounded-full bg-gray-100">
-                            <div
-                              className={`h-full rounded-full ${barColor}`}
-                              style={{ width: `${(days / maxDays) * 100}%` }}
-                            />
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                });
-              })()}
-            </tbody>
-          </table>
+        <div className="mt-6 space-y-4">
+          {(() => {
+            const maxDays = Math.max(...data.map((d) => d.avg_days ?? 0), 1);
+            return data.map((entry) => {
+              const days = entry.avg_days;
+              const barColor =
+                days === null
+                  ? ''
+                  : days <= 3
+                    ? 'bg-[#4F6EF7]'
+                    : days <= 7
+                      ? 'bg-amber-400'
+                      : 'bg-red-400';
+              const barWidth = days !== null ? Math.max((days / maxDays) * 100, 5) : 0;
+              return (
+                <div key={entry.stage}>
+                  <div className="flex items-center gap-3">
+                    <span className="w-40 flex-shrink-0 truncate text-sm font-medium text-gray-900">
+                      {entry.stage}
+                    </span>
+                    {days !== null && (
+                      <div className="flex-1 overflow-hidden rounded-full bg-gray-100 h-6">
+                        <div
+                          className={`h-full rounded-full ${barColor} flex items-center justify-end pr-3 transition-all`}
+                          style={{ width: `${barWidth}%` }}
+                        >
+                          {barWidth > 20 && (
+                            <span className="text-xs font-semibold text-white tabular-nums">
+                              {days} {days === 1 ? 'day' : 'days'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {days !== null && barWidth <= 20 && (
+                      <span className="w-16 flex-shrink-0 text-right text-sm font-medium text-gray-700">
+                        {days} {days === 1 ? 'day' : 'days'}
+                      </span>
+                    )}
+                  </div>
+                  {entry.sample_size > 0 && (
+                    <p className="mt-1 ml-40 text-xs text-gray-400">
+                      {entry.sample_size} applicant{entry.sample_size !== 1 ? 's' : ''}
+                    </p>
+                  )}
+                </div>
+              );
+            });
+          })()}
         </div>
       )}
     </div>

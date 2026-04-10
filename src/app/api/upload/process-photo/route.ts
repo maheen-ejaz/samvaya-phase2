@@ -150,8 +150,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      // Clean up blurred file on DB failure
-      await supabase.storage.from('photos').remove([blurredPath]);
+      // Clean up both storage files on DB failure to prevent orphans
+      await supabase.storage.from('photos').remove([storagePath, blurredPath]);
       console.error('Failed to save photo record:', insertError.message, insertError.details, insertError.hint);
       return NextResponse.json(
         { error: 'Failed to save photo record. Please try again.' },

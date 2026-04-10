@@ -45,9 +45,8 @@ export async function GET(
       .maybeSingle(),
     adminSupabase
       .from('photos')
-      .select('storage_path, photo_type')
+      .select('blurred_path, storage_path')
       .eq('user_id', userId)
-      .eq('photo_type', 'blurred')
       .eq('is_primary', true)
       .maybeSingle(),
     adminSupabase.auth.admin.getUserById(userId),
@@ -66,24 +65,23 @@ export async function GET(
       .select('verification_status')
       .eq('user_id', userId),
     adminSupabase
-      .from('admin_notes')
+      .from('admin_notes' as never)
       .select('note_text, created_at, admin_user_id')
-      .eq('entity_type', 'user')
-      .eq('entity_id', userId)
-      .order('created_at', { ascending: false })
+      .eq('entity_type' as never, 'user' as never)
+      .eq('entity_id' as never, userId as never)
+      .order('created_at' as never, { ascending: false })
       .limit(1)
       .maybeSingle(),
     adminSupabase
-      .from('match_suggestions')
+      .from('match_suggestions' as never)
       .select('id, admin_status')
-      .or(`profile_a_id.eq.${userId},profile_b_id.eq.${userId}`),
+      .or(`profile_a_id.eq.${userId},profile_b_id.eq.${userId}` as never),
     adminSupabase
-      .from('match_presentations')
+      .from('match_presentations' as never)
       .select('status, match_suggestion_id')
       .in(
-        'match_suggestion_id',
-        // Will be filtered after match_suggestions loads — pass empty placeholder; handled below
-        ['00000000-0000-0000-0000-000000000000']
+        'match_suggestion_id' as never,
+        ['00000000-0000-0000-0000-000000000000'] as never
       ),
   ]);
 
@@ -93,10 +91,11 @@ export async function GET(
 
   // Signed URL for blurred photo
   let photoUrl: string | null = null;
-  if (photoResult.data?.storage_path) {
+  const blurredPath = photoResult.data?.blurred_path ?? photoResult.data?.storage_path;
+  if (blurredPath) {
     const { data: signed } = await adminSupabase.storage
       .from('photos')
-      .createSignedUrl(photoResult.data.storage_path, 3600);
+      .createSignedUrl(blurredPath, 3600);
     photoUrl = signed?.signedUrl ?? null;
   }
 
@@ -116,13 +115,13 @@ export async function GET(
   }
 
   // Match stats — re-query presentations with the actual suggestion IDs
-  const suggestionIds = (matchSuggestionsResult.data ?? []).map((s: { id: string }) => s.id);
+  const suggestionIds = ((matchSuggestionsResult.data ?? []) as Array<{ id: string }>).map((s) => s.id);
   let presentationRows: Array<{ status: string }> = [];
   if (suggestionIds.length > 0) {
     const { data: presentations } = await adminSupabase
-      .from('match_presentations')
+      .from('match_presentations' as never)
       .select('status')
-      .in('match_suggestion_id', suggestionIds);
+      .in('match_suggestion_id' as never, suggestionIds as never);
     presentationRows = (presentations ?? []) as Array<{ status: string }>;
   }
 
@@ -202,8 +201,8 @@ export async function GET(
     // Latest team note
     latestNote: latestNoteResult.data
       ? {
-          text: latestNoteResult.data.note_text,
-          createdAt: latestNoteResult.data.created_at,
+          text: (latestNoteResult.data as { note_text: string }).note_text,
+          createdAt: (latestNoteResult.data as { created_at: string }).created_at,
         }
       : null,
   });
