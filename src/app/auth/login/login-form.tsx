@@ -163,7 +163,7 @@ function CountdownRing({ seconds, total = 60 }: { seconds: number; total?: numbe
       <circle
         cx="14"
         cy="14"
-        r={radius}
+        r={radius.toString()}
         stroke="#e5e7eb"
         strokeWidth="2.5"
         fill="none"
@@ -172,13 +172,13 @@ function CountdownRing({ seconds, total = 60 }: { seconds: number; total?: numbe
       <circle
         cx="14"
         cy="14"
-        r={radius}
+        r={radius.toString()}
         stroke="currentColor"
         strokeWidth="2.5"
         fill="none"
         strokeLinecap="round"
-        strokeDasharray={circumference}
-        strokeDashoffset={strokeDashoffset}
+        strokeDasharray={circumference.toString()}
+        strokeDashoffset={strokeDashoffset.toString()}
         transform="rotate(-90 14 14)"
         style={{
           transition: "stroke-dashoffset 0.5s linear",
