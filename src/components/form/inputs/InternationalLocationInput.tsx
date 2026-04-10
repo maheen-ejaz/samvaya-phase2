@@ -174,7 +174,7 @@ function CountryCombobox({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoComplete="off"
-          className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-4 pr-10 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+          className="form-input pr-10"
         />
         {value ? (
           <button
@@ -196,7 +196,7 @@ function CountryCombobox({
         )}
       </div>
       {showDropdown && (
-        <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+        <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg">
           {filtered.map((option, idx) => (
             <li
               key={option.value}
@@ -205,10 +205,10 @@ function CountryCombobox({
                 selectOption(option.value, option.label);
               }}
               onMouseEnter={() => setHighlightedIndex(idx)}
-              className={`cursor-pointer px-4 py-2.5 text-base ${
+              className={`cursor-pointer px-4 py-3 text-[15px] ${
                 idx === highlightedIndex
-                  ? 'bg-samvaya-red/10 text-gray-900'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-primary)]'
+                  : 'text-[color:var(--color-form-text-secondary)] hover:bg-[color:var(--color-form-surface-muted)]'
               }`}
             >
               {option.label}
@@ -298,10 +298,10 @@ function CityAutocomplete({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoComplete="off"
-        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+        className="form-input"
       />
       {showDropdown && (
-        <ul className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+        <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg">
           {filtered.map((suggestion, idx) => (
             <li
               key={suggestion}
@@ -310,10 +310,10 @@ function CityAutocomplete({
                 selectSuggestion(suggestion);
               }}
               onMouseEnter={() => setHighlightedIndex(idx)}
-              className={`cursor-pointer px-4 py-2.5 text-base ${
+              className={`cursor-pointer px-4 py-3 text-[15px] ${
                 idx === highlightedIndex
-                  ? 'bg-samvaya-red/10 text-gray-900'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-primary)]'
+                  : 'text-[color:var(--color-form-text-secondary)] hover:bg-[color:var(--color-form-surface-muted)]'
               }`}
             >
               {suggestion}

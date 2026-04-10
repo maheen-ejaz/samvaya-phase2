@@ -33,17 +33,9 @@ export function SelectInput({ question, value, onChange, inputId, ariaDescribedB
               type="button"
               onClick={() => onChange(option.value)}
               aria-pressed={isSelected}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
-                isSelected
-                  ? 'bg-samvaya-red text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              data-selected={isSelected}
+              className="form-chip"
             >
-              {isSelected && (
-                <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              )}
               {option.label}
             </button>
           );

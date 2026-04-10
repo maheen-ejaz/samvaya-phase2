@@ -46,15 +46,15 @@ export function QuestionField({ question, value, onChange, hasError }: QuestionF
 
   return (
     <div id={question.id}>
-      <label htmlFor={inputId} className="mb-3 block type-subheading text-gray-900">
+      <label htmlFor={inputId} className="form-label block mb-2">
         {question.text}
         {!question.required && (
-          <span className="ml-1 text-sm font-normal text-gray-500">(optional)</span>
+          <span className="ml-1.5 form-caption">(optional)</span>
         )}
       </label>
 
       {hasHelpText && (
-        <p id={helpId} className="mb-3 text-sm text-gray-500">{question.helpText}</p>
+        <p id={helpId} className="form-helper mb-3">{question.helpText}</p>
       )}
 
       <InputSwitch
@@ -67,7 +67,9 @@ export function QuestionField({ question, value, onChange, hasError }: QuestionF
       />
 
       {hasError && (
-        <p id={errorId} role="alert" aria-live="assertive" className="mt-2 text-sm text-red-600">This field is required</p>
+        <p id={errorId} role="alert" aria-live="assertive" className="form-error mt-2">
+          This field is required
+        </p>
       )}
     </div>
   );

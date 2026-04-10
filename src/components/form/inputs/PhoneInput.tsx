@@ -84,47 +84,43 @@ export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy
 
   const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode) || COUNTRY_CODES[0];
 
+  // Avoid unused warnings on selectedCountry
+  void selectedCountry;
+
   return (
     <div>
       <div className="flex gap-2">
         {/* Country code selector */}
-        <div className="relative shrink-0">
-          <select
-            value={countryCode}
-            onChange={(e) => handleCodeChange(e.target.value)}
-            className="h-full appearance-none rounded-lg border border-gray-300 bg-white py-3 pl-3 pr-8 text-base text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
-            aria-label="Country code"
-          >
-            {COUNTRY_CODES.map((cc) => (
-              <option key={cc.code} value={cc.code}>
-                {cc.flag} {cc.code}
-              </option>
-            ))}
-          </select>
-          {/* Custom dropdown arrow */}
-          <div className="pointer-events-none absolute inset-y-0 right-1.5 flex items-center">
-            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-          </div>
-        </div>
+        <select
+          value={countryCode}
+          onChange={(e) => handleCodeChange(e.target.value)}
+          className="form-input form-select shrink-0 w-[7.5rem]"
+          aria-label="Country code"
+        >
+          {COUNTRY_CODES.map((cc) => (
+            <option key={cc.code} value={cc.code}>
+              {cc.flag} {cc.code}
+            </option>
+          ))}
+        </select>
 
         {/* Phone number input */}
         <input
           id={inputId}
           type="tel"
+          inputMode="tel"
           value={localNumber}
           onChange={(e) => handleNumberChange(e.target.value)}
           onBlur={() => setTouched(true)}
           placeholder={question.placeholder || '98765 43210'}
           aria-describedby={ariaDescribedBy}
           aria-invalid={ariaInvalid || undefined}
-          className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+          className="form-input min-w-0 flex-1"
         />
       </div>
 
       {showPhoneHint && (
-        <p className="mt-1.5 text-sm text-amber-600">
+        <p className="form-helper mt-2 text-[color:var(--color-form-error)]">
           Please enter a valid phone number (at least 10 digits).
         </p>
       )}

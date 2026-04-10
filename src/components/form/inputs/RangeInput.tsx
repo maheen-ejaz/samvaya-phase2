@@ -44,12 +44,13 @@ export function RangeInput({ question, value, onChange, inputId, ariaDescribedBy
 
   return (
     <div id={inputId}>
-      <div className="flex items-center gap-3">
+      <div className="flex items-end gap-3">
         <div className="flex-1">
-          <label htmlFor={minId} className="mb-1 block text-sm text-gray-500">Min</label>
+          <label htmlFor={minId} className="form-helper mb-1.5 block">Min</label>
           <input
             id={minId}
             type="number"
+            inputMode="decimal"
             value={min ?? ''}
             onChange={(e) => {
               const val = e.target.value === '' ? null : Number(e.target.value);
@@ -60,18 +61,19 @@ export function RangeInput({ question, value, onChange, inputId, ariaDescribedBy
             placeholder={question.placeholder}
             aria-describedby={minDescribedBy}
             aria-invalid={isInvalid}
-            className={`w-full rounded-lg border bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] ${hasError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-samvaya-red'}`}
+            className="form-input"
           />
           {isHeightField && min != null && cmToFeetInches(min) && (
-            <p className="mt-1 text-xs text-gray-400">{cmToFeetInches(min)}</p>
+            <p className="form-caption mt-1">{cmToFeetInches(min)}</p>
           )}
         </div>
-        <span className="mt-6 text-gray-500" aria-hidden="true">—</span>
+        <span className="form-caption pb-4" aria-hidden="true">—</span>
         <div className="flex-1">
-          <label htmlFor={maxId} className="mb-1 block text-sm text-gray-500">Max</label>
+          <label htmlFor={maxId} className="form-helper mb-1.5 block">Max</label>
           <input
             id={maxId}
             type="number"
+            inputMode="decimal"
             value={max ?? ''}
             onChange={(e) => {
               const val = e.target.value === '' ? null : Number(e.target.value);
@@ -81,15 +83,15 @@ export function RangeInput({ question, value, onChange, inputId, ariaDescribedBy
             max={constraints?.max}
             aria-describedby={maxDescribedBy}
             aria-invalid={isInvalid}
-            className={`w-full rounded-lg border bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] ${hasError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-samvaya-red'}`}
+            className="form-input"
           />
           {isHeightField && max != null && cmToFeetInches(max) && (
-            <p className="mt-1 text-xs text-gray-400">{cmToFeetInches(max)}</p>
+            <p className="form-caption mt-1">{cmToFeetInches(max)}</p>
           )}
         </div>
       </div>
       {hasError && (
-        <p id={rangeErrorId} className="mt-1.5 text-sm text-red-600">Min must be less than or equal to max</p>
+        <p id={rangeErrorId} className="form-error mt-2">Min must be less than or equal to max</p>
       )}
     </div>
   );

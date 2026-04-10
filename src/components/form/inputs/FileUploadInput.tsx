@@ -350,7 +350,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
   );
 
   if (!config) {
-    return <p className="text-gray-500">Upload configuration missing.</p>;
+    return <p className="form-helper">Upload configuration missing.</p>;
   }
 
   const canUploadMore = uploads.length < config.maxFiles;
@@ -390,10 +390,10 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
 
       {/* File count indicator for multi-upload */}
       {isMulti && (
-        <p className="text-center text-sm text-gray-500">
+        <p className="form-caption text-center">
           {uploads.length} of {config.maxFiles} {isPhoto ? 'photos' : 'files'} uploaded
           {uploads.length < config.minFiles && (
-            <span className="ml-1 text-rose-500">
+            <span className="ml-1 text-[color:var(--color-form-error)]">
               (minimum {config.minFiles} required)
             </span>
           )}
@@ -406,7 +406,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
           {uploads.map((upload) => (
             <div
               key={upload.id}
-              className="group relative overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+              className="group relative overflow-hidden rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)]"
             >
               {upload.signedUrl && isPhoto ? (
                 <img
@@ -418,7 +418,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
                 <div className="flex aspect-square items-center justify-center">
                   <div className="text-center">
                     <svg
-                      className="mx-auto h-10 w-10 text-gray-400"
+                      className="mx-auto h-10 w-10 text-[color:var(--color-form-text-tertiary)]"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
@@ -430,7 +430,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
                         d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
                       />
                     </svg>
-                    <p className="mt-1 text-xs text-gray-500">PDF</p>
+                    <p className="form-caption mt-1">PDF</p>
                   </div>
                 </div>
               ) : upload.signedUrl ? (
@@ -441,7 +441,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
                 />
               ) : (
                 <div className="flex aspect-square items-center justify-center">
-                  <p className="text-xs text-gray-400">Preview unavailable</p>
+                  <p className="form-caption">Preview unavailable</p>
                 </div>
               )}
 
@@ -475,9 +475,9 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-lg border border-[color:var(--color-form-error)]/20 bg-[color:var(--color-form-error)]/5 px-4 py-3">
           <svg
-            className="h-4 w-4 shrink-0 text-red-600"
+            className="h-4 w-4 shrink-0 text-[color:var(--color-form-error)]"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
@@ -489,10 +489,10 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
               d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
             />
           </svg>
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="form-error">{error}</p>
           <button
             onClick={() => setError(null)}
-            className="ml-auto text-red-600 hover:text-red-700"
+            className="ml-auto text-[color:var(--color-form-error)] hover:opacity-70"
             aria-label="Dismiss error"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">

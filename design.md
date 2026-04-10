@@ -22,9 +22,11 @@
 
 ## Typography
 
-**Font: Geist** (Vercel, via `geist` npm package)
+**Font: Geist** (Vercel, via `geist` npm package) — for `/admin/*` and post-onboarding `/app` dashboard surfaces.
 
-Replaces ApfelGrotezk. Geist is the active font across the entire Next.js app. It is a variable font supporting weights 100–900, making it ideal for the thin-weight display numbers that define the premium aesthetic. The Framer landing page will be updated to Geist separately.
+**Override (April 2026): Onboarding form pages use Inter.** Every page under `/app/onboarding/*` and the `/app` shell chrome load **Inter** via `next/font/google` (`--font-inter`). Inter was chosen for the Phase 2F mobile-first onboarding redesign because its quieter character and tighter letter spacing read better in long, generously-spaced forms than Geist's display character. Geist remains for `/admin/*` and the dashboard. See `MEMORY.md` → `project_form_redesign_inter.md` for the full rationale.
+
+Geist replaces ApfelGrotezk for everything outside the form. It is a variable font supporting weights 100–900, making it ideal for the thin-weight display numbers that define the premium aesthetic. The Framer landing page will be updated to Geist separately.
 
 | Usage | Weight | CSS |
 |-------|--------|-----|

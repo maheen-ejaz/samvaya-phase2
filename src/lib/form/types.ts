@@ -38,6 +38,16 @@ export interface QuestionOption {
   icon?: string;
 }
 
+/**
+ * Bento grid span — desktop tile placement.
+ * Mobile always renders single column regardless of these values.
+ * `col` and `row` are 1–3 (3-column grid on desktop).
+ */
+export interface BentoSpan {
+  col: 1 | 2 | 3;
+  row: 1 | 2 | 3;
+}
+
 export interface OptionGroup {
   key: string;            // e.g. 'arts_creativity'
   label: string;          // e.g. 'Arts & Creativity'
@@ -75,6 +85,7 @@ export interface QuestionConfig {
     documentType?: string;     // 'identity_document' | 'kundali' — for documents table
     isPrimary?: boolean;       // true for Q95 passport photo
   };
+  bentoSpan?: BentoSpan;       // Optional per-question override of the type→span default
 }
 
 export interface SectionConfig {
@@ -101,6 +112,7 @@ export interface FormState {
   currentSectionId: SectionId;  // Active section for section-level navigation
   saveStatus: 'idle' | 'saving' | 'saved' | 'error';
   saveError?: string;
+  lastSavedAt: number | null;   // ms epoch — last successful save, used by SaveStatusBadge
   isLoaded: boolean;
 }
 

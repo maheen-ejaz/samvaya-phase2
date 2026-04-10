@@ -54,12 +54,12 @@ export function UploadDropZone({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleClick}
-        className={`cursor-pointer rounded-lg border-2 border-dashed px-4 py-10 text-center transition-colors ${
+        className={`cursor-pointer rounded-xl border border-dashed px-4 py-12 text-center transition-colors ${
           disabled
-            ? 'cursor-not-allowed border-gray-200 bg-gray-50 opacity-60'
+            ? 'cursor-not-allowed border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] opacity-60'
             : dragOver
-              ? 'border-samvaya-red bg-samvaya-red/5'
-              : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+              ? 'border-[color:var(--color-samvaya-red)] bg-[color:var(--color-samvaya-red)]/5'
+              : 'border-[color:var(--color-form-border-strong)] hover:border-[color:var(--color-samvaya-red)] hover:bg-[color:var(--color-form-surface-muted)]'
         }`}
         role="button"
         tabIndex={disabled ? -1 : 0}
@@ -73,7 +73,7 @@ export function UploadDropZone({
       >
         {/* Upload icon */}
         <svg
-          className="mx-auto h-10 w-10 text-gray-400"
+          className="mx-auto h-9 w-9 text-[color:var(--color-form-text-tertiary)]"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
@@ -86,9 +86,9 @@ export function UploadDropZone({
           />
         </svg>
 
-        <p className="mt-3 text-sm text-gray-600">
+        <p className="form-helper mt-4">
           Drag files here or{' '}
-          <span className="font-semibold text-samvaya-red underline">tap to browse</span>
+          <span className="text-[color:var(--color-samvaya-red)] font-medium underline">tap to browse</span>
         </p>
 
         <input
@@ -108,7 +108,7 @@ export function UploadDropZone({
       </div>
 
       {/* Metadata row: formats left, size right */}
-      <div className="mt-2 flex justify-between px-1 text-xs text-gray-500">
+      <div className="mt-2 flex justify-between px-1 form-caption">
         <span>{formatLabel}</span>
         <span>{maxSizeLabel}</span>
       </div>

@@ -86,17 +86,17 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
                 type="button"
                 onClick={() => toggleGroup(group.key)}
                 aria-expanded={isExpanded}
-                className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-left transition-colors hover:bg-gray-100"
+                className="flex w-full items-center justify-between rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] px-4 py-3.5 text-left transition-colors hover:border-[color:var(--color-form-border-strong)]"
               >
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-3">
                   <span aria-hidden="true">
                     {getCategoryIcon(group.key) ?? <span className="text-xl">{group.icon}</span>}
                   </span>
-                  <span className="text-base font-medium text-gray-900">{group.label}</span>
+                  <span className="form-label">{group.label}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {selectedCount > 0 && (
-                    <span className="rounded-full bg-samvaya-red/10 px-2 py-0.5 text-xs font-medium text-samvaya-red">
+                    <span className="rounded-full bg-[color:var(--color-samvaya-red)]/10 px-2 py-0.5 text-[12px] font-medium text-[color:var(--color-samvaya-red)]">
                       {selectedCount}
                     </span>
                   )}
@@ -106,7 +106,7 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
 
               {/* Options as chips — visible when expanded */}
               {isExpanded && (
-                <div className="mt-2 flex flex-wrap gap-2 px-1">
+                <div className="mt-3 flex flex-wrap gap-2 px-1">
                   {group.optionValues.map((optValue) => {
                     const label = optionsMap.get(optValue) || optValue;
                     const isSelected = selected.includes(optValue);
@@ -122,20 +122,10 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
                         onClick={() => toggleOption(optValue)}
                         disabled={isDisabled}
                         aria-pressed={isSelected}
-                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
-                          isSelected
-                            ? 'bg-samvaya-red text-white'
-                            : isDisabled
-                              ? 'cursor-not-allowed bg-gray-100 text-gray-400 opacity-50'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
+                        data-selected={isSelected}
+                        className="form-chip disabled:opacity-40 disabled:cursor-not-allowed"
                       >
-                        {isSelected && (
-                          <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                        <span>{label}</span>
+                        {label}
                       </button>
                     );
                   })}
@@ -153,27 +143,16 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
             question.maxSelections !== undefined &&
             selected.length >= question.maxSelections;
           return (
-          <div className="mt-1 px-1">
+          <div className="mt-2 px-1">
             <button
               type="button"
               onClick={() => toggleOption(otherOption.value)}
               disabled={isOtherDisabled}
               aria-pressed={isOtherSelected}
-              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-1 ${
-                isOtherSelected
-                  ? 'bg-samvaya-red text-white'
-                  : isOtherDisabled
-                    ? 'cursor-not-allowed bg-gray-100 text-gray-400 opacity-50'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              data-selected={isOtherSelected}
+              className="form-chip disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isOtherSelected ? (
-                <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              ) : (
-                <span aria-hidden="true">{ICON_PLUS}</span>
-              )}
+              {!isOtherSelected && <span aria-hidden="true">{ICON_PLUS}</span>}
               <span>{otherOption.label}</span>
             </button>
           </div>
@@ -182,7 +161,7 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
       </div>
 
       {/* Total selected summary */}
-      <p className="mt-4 text-sm text-gray-500">
+      <p className="form-caption mt-4">
         {selected.length === 0
           ? 'No items selected yet'
           : question.maxSelections
@@ -196,7 +175,7 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
 function ChevronIcon({ expanded }: { expanded: boolean }) {
   return (
     <svg
-      className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+      className={`h-4 w-4 text-[color:var(--color-form-text-tertiary)] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"

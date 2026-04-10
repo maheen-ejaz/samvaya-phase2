@@ -88,7 +88,7 @@ export default async function ApplicantLayout({
   // Full PWA layout — only for users who are in_pool or beyond
   return (
     <UserStatusProvider value={userStatus}>
-      <div className="bg-page-warm">
+      <div className="form-surface min-h-[100dvh]">
         <AppHeader />
         <main className="mx-auto max-w-lg px-5 pb-24 pt-14">{children}</main>
         <BottomNav />

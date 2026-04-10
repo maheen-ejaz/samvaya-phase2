@@ -76,17 +76,9 @@ export function DualLocationInput({ question, value, onChange }: DualLocationInp
         type="button"
         onClick={toggleNoPreference}
         aria-pressed={current.noPreference}
-        className={`mb-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-base font-medium transition-colors ${
-          current.noPreference
-            ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
-            : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-        }`}
+        data-selected={current.noPreference}
+        className="form-chip w-full mb-4 justify-center"
       >
-        {current.noPreference && (
-          <svg className="h-5 w-5 text-samvaya-red" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-        )}
         No location preference
       </button>
 
@@ -96,43 +88,13 @@ export function DualLocationInput({ question, value, onChange }: DualLocationInp
           {current.states.map((sv) => {
             const label = INDIAN_STATES.find((s) => s.value === sv)?.label || sv;
             return (
-              <span
-                key={`s-${sv}`}
-                className="inline-flex items-center gap-1 rounded-full border border-samvaya-red/20 bg-samvaya-red/10 px-3 py-1 text-sm text-gray-900"
-              >
-                {label}
-                <button
-                  type="button"
-                  onClick={() => toggleState(sv)}
-                  className="ml-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-samvaya-red hover:bg-samvaya-red/20"
-                  aria-label={`Remove ${label}`}
-                >
-                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </span>
+              <SelectedPill key={`s-${sv}`} label={label} onRemove={() => toggleState(sv)} />
             );
           })}
           {current.countries.map((cv) => {
             const label = allCountries.find((c) => c.value === cv)?.label || cv;
             return (
-              <span
-                key={`c-${cv}`}
-                className="inline-flex items-center gap-1 rounded-full border border-samvaya-red/20 bg-samvaya-red/10 px-3 py-1 text-sm text-gray-900"
-              >
-                {label}
-                <button
-                  type="button"
-                  onClick={() => toggleCountry(cv)}
-                  className="ml-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-samvaya-red hover:bg-samvaya-red/20"
-                  aria-label={`Remove ${label}`}
-                >
-                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </span>
+              <SelectedPill key={`c-${cv}`} label={label} onRemove={() => toggleCountry(cv)} />
             );
           })}
         </div>
@@ -167,7 +129,7 @@ export function DualLocationInput({ question, value, onChange }: DualLocationInp
       )}
 
       {/* Summary */}
-      <p className="mt-4 text-sm text-gray-500">
+      <p className="form-caption mt-4">
         {current.noPreference
           ? 'Open to any location'
           : current.states.length + current.countries.length === 0
@@ -175,6 +137,24 @@ export function DualLocationInput({ question, value, onChange }: DualLocationInp
             : `${current.states.length + current.countries.length} location${current.states.length + current.countries.length === 1 ? '' : 's'} selected`}
       </p>
     </fieldset>
+  );
+}
+
+function SelectedPill({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[color:var(--color-samvaya-red)]/30 bg-[color:var(--color-samvaya-red)]/5 px-3 py-1.5 text-[14px] text-[color:var(--color-form-text-primary)]">
+      {label}
+      <button
+        type="button"
+        onClick={onRemove}
+        className="ml-0.5 inline-flex h-4 w-4 items-center justify-center text-[color:var(--color-samvaya-red)] hover:opacity-70"
+        aria-label={`Remove ${label}`}
+      >
+        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </span>
   );
 }
 
@@ -207,17 +187,17 @@ function LocationSection({
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         aria-expanded={isExpanded}
-        className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-left transition-colors hover:bg-gray-100"
+        className="flex w-full items-center justify-between rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] px-4 py-3.5 text-left transition-colors hover:border-[color:var(--color-form-border-strong)]"
       >
-        <span className="text-base font-medium text-gray-900">{title}</span>
-        <div className="flex items-center gap-2">
+        <span className="form-label">{title}</span>
+        <div className="flex items-center gap-3">
           {selected.length > 0 && (
-            <span className="rounded-full bg-samvaya-red/10 px-2 py-0.5 text-xs font-medium text-samvaya-red">
+            <span className="rounded-full bg-[color:var(--color-samvaya-red)]/10 px-2 py-0.5 text-[12px] font-medium text-[color:var(--color-samvaya-red)]">
               {selected.length}
             </span>
           )}
           <svg
-            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            className={`h-4 w-4 text-[color:var(--color-form-text-tertiary)] transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -229,7 +209,7 @@ function LocationSection({
       </button>
 
       {isExpanded && (
-        <div className="mt-2 px-1">
+        <div className="mt-3 px-1">
           {/* Search filter */}
           {allCount > 10 && (
             <input
@@ -237,7 +217,7 @@ function LocationSection({
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
-              className="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+              className="form-input mb-3"
             />
           )}
 
@@ -248,24 +228,21 @@ function LocationSection({
               return (
                 <label
                   key={option.value}
-                  className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-                    isSelected
-                      ? 'border-samvaya-red bg-samvaya-red/10 text-gray-900'
-                      : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
+                  data-selected={isSelected}
+                  className="form-chip w-full justify-start"
                 >
                   <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => onToggle(option.value)}
-                    className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                    className="h-4 w-4 rounded border-[color:var(--color-form-border-strong)] text-[color:var(--color-samvaya-red)] focus:ring-[color:var(--color-samvaya-red)]"
                   />
                   <span>{option.label}</span>
                 </label>
               );
             })}
             {options.length === 0 && (
-              <p className="py-2 text-center text-sm text-gray-400">No results found</p>
+              <p className="form-caption py-2 text-center">No results found</p>
             )}
           </div>
         </div>

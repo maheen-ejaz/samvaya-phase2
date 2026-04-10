@@ -123,6 +123,7 @@ function formReducer(state: FormState, action: FormAction): FormState {
         ...state,
         saveStatus: action.status,
         saveError: action.error,
+        lastSavedAt: action.status === 'saved' ? Date.now() : state.lastSavedAt,
       };
 
     case 'RECALCULATE_VISIBLE': {
@@ -172,6 +173,7 @@ export function FormProvider({
     visibleQuestions: initialVisible,
     currentSectionId: initialSectionId,
     saveStatus: 'idle',
+    lastSavedAt: null,
     isLoaded: true,
   } satisfies FormState);
 

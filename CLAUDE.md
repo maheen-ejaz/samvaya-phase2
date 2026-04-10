@@ -189,3 +189,4 @@ Admin dashboard overhaul is complete. User-facing PWA design is paused. See `pla
 | Mar 27 | Claude chats confirmed in Section M — all 3 grouped at end, not inline |
 | Mar 27 | Form fields temporarily optional — must restore before real applicants |
 | Mar 27 | `maheenejaz@goocampus.in` set as admin for testing |
+| Apr 10 | Onboarding form mobile-first redesign — section-by-section routing (`/app/onboarding/[section]`), bento grid on desktop (`grid-auto-flow: dense`), pure white aesthetic, **Inter typeface** for `/app/onboarding/*` and `/app` shell only (overrides Geist there). Legacy single-page `FormShell` + sidebar/drawer/panel deleted. Auto-save engine, conditional rules, and upload pipeline (Sharp blur) untouched. `GuidedPhotoUpload` replaced with simple drag-drop multi-upload via `FileUploadInput`. Full-screen Claude chats at `/onboarding/chat/[chatId]`. |

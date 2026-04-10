@@ -124,13 +124,13 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
           onKeyDown={handleKeyDown}
           placeholder={question.placeholder || 'Type to search...'}
           autoComplete="off"
-          className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-4 pr-10 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+          className="form-input pr-10"
         />
         {value ? (
           <button
             type="button"
             onClick={clearSelection}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[color:var(--color-form-text-tertiary)] hover:text-[color:var(--color-form-text-primary)]"
             aria-label="Clear selection"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,9 +138,9 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
             </svg>
           </button>
         ) : (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500">
-            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--color-form-text-tertiary)]">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </span>
         )}
@@ -149,7 +149,7 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+          className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
         >
           {filtered.map((option, idx) => (
             <li
@@ -162,17 +162,17 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
                 selectOption(option.value, option.label);
               }}
               onMouseEnter={() => setHighlightedIndex(idx)}
-              className={`cursor-pointer px-4 py-2.5 text-base ${
+              className={`cursor-pointer px-4 py-3 text-[15px] ${
                 idx === highlightedIndex
-                  ? 'bg-samvaya-red/10 text-gray-900'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-primary)]'
+                  : 'text-[color:var(--color-form-text-secondary)] hover:bg-[color:var(--color-form-surface-muted)]'
               }`}
             >
               {option.label}
             </li>
           ))}
           {filtered.length === 0 && (
-            <li role="option" aria-disabled="true" className="px-4 py-2.5 text-sm text-gray-400">No matches found</li>
+            <li role="option" aria-disabled="true" className="form-caption px-4 py-3">No matches found</li>
           )}
         </ul>
       )}

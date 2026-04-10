@@ -12,44 +12,24 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
   const isConsented = value === 'consented';
 
   return (
-    <div className="mx-auto max-w-lg">
-      {/* Shield icon */}
-      <div className="mb-5 flex justify-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-          <svg
-            className="h-8 w-8 text-emerald-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"
-            />
-          </svg>
-        </div>
-      </div>
-
+    <div className="mx-auto max-w-2xl">
       {/* Title */}
-      <h3 className="type-heading-lg mb-3 text-center text-gray-900">
-        Background Verification
+      <div className="form-eyebrow mb-3">Verification</div>
+      <h3 className="form-title mb-3" style={{ fontSize: '1.625rem' }}>
+        Background verification
       </h3>
 
       {/* Why paragraph */}
-      <p className="mb-6 text-center text-sm leading-relaxed text-gray-600">
-        At Samvaya, every member undergoes the same comprehensive verification.
-        This ensures every profile is genuine and every match is between two
-        verified individuals. No exceptions.
+      <p className="form-subtitle mb-8">
+        At Samvaya, every member undergoes the same comprehensive verification —
+        no exceptions. This is how we ensure every profile is genuine and every
+        match is between two verified people.
       </p>
 
       {/* What we verify */}
-      <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-5">
-        <h4 className="type-label mb-4 text-gray-900">
-          What we verify
-        </h4>
-        <div className="space-y-3">
+      <div className="mb-6 rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] p-5">
+        <h4 className="form-eyebrow mb-4">What we verify</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <VerifyItem icon="identity" label="Identity verification" />
           <VerifyItem icon="employment" label="Employment history" />
           <VerifyItem icon="education" label="Education credentials" />
@@ -61,46 +41,30 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
       </div>
 
       {/* Safety notes */}
-      <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <div className="space-y-3">
-          <div className="flex items-start gap-2.5">
-            <svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-            </svg>
-            <p className="text-sm leading-snug text-amber-900">
-              Your verification will <strong>only begin</strong> after you give
-              consent below <strong>and</strong> your verification fee
-              (&#x20B9;7,080) has been processed.
-            </p>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            <p className="text-sm leading-snug text-amber-900">
-              If consent is not provided, your profile will be deleted within
-              30 working days.
-            </p>
-          </div>
-        </div>
+      <div className="mb-6 space-y-3">
+        <p className="form-helper">
+          Your verification begins only after you give consent below
+          <strong className="text-[color:var(--color-form-text-primary)] font-medium"> and </strong>
+          your verification fee (&#x20B9;7,080) is processed.
+        </p>
+        <p className="form-helper">
+          If consent is not provided, your profile will be deleted within 30 working days.
+        </p>
+        <p className="form-caption">
+          All verification results are strictly confidential and never shared with other members or third parties.
+        </p>
       </div>
 
-      {/* Confidentiality note */}
-      <p className="mb-8 text-center text-xs text-gray-500">
-        All verification results are strictly confidential and are never shared
-        with other members or third parties.
-      </p>
-
       {/* Consent toggle */}
-      <div className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4">
+      <div className="flex items-center gap-4 rounded-xl border border-[color:var(--color-form-border)] bg-white p-5">
         <button
           type="button"
           role="switch"
           aria-checked={isConsented}
           aria-label="Consent to background verification"
           onClick={() => onChange(isConsented ? '' : 'consented')}
-          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${
-            isConsented ? 'bg-emerald-600' : 'bg-gray-300'
+          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--color-samvaya-red)]/20 ${
+            isConsented ? 'bg-[color:var(--color-samvaya-red)]' : 'bg-[color:var(--color-form-border-strong)]'
           }`}
         >
           <span
@@ -109,7 +73,7 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
             }`}
           />
         </button>
-        <span className="text-sm font-medium leading-snug text-gray-900">
+        <span className="form-label leading-snug">
           I consent to a comprehensive background verification
         </span>
       </div>
@@ -122,16 +86,16 @@ type VerifyIconType = 'identity' | 'employment' | 'education' | 'financial' | 'a
 function VerifyItem({ icon, label }: { icon: VerifyIconType; label: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white border border-[color:var(--color-form-border)]">
         <VerifyIcon type={icon} />
       </div>
-      <span className="text-sm text-gray-700">{label}</span>
+      <span className="form-helper text-[color:var(--color-form-text-primary)]">{label}</span>
     </div>
   );
 }
 
 function VerifyIcon({ type }: { type: VerifyIconType }) {
-  const cls = "h-4 w-4 text-gray-500";
+  const cls = "h-4 w-4 text-[color:var(--color-form-text-secondary)]";
 
   switch (type) {
     case 'identity':

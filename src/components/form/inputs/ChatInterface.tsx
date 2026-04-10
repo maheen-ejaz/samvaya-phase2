@@ -194,28 +194,28 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
   if (isComplete && !isExtracting) {
     return (
       <div className="flex flex-col">
-        <ChatHeader title={config.title} exchangeCount={config.maxExchanges} maxExchanges={config.maxExchanges} isComplete />
-        <div className="mb-4 max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <ChatHeader exchangeCount={config.maxExchanges} maxExchanges={config.maxExchanges} isComplete />
+        <div className="mb-4 max-h-[60vh] overflow-y-auto rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] p-5">
           {messages.map((msg) => (
             <MessageBubble key={msg.id} message={msg} />
           ))}
         </div>
         {extractionWarning && (
-          <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
+          <div className="mb-3 rounded-lg border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] px-4 py-2 form-helper">
             {extractionWarning}
           </div>
         )}
         {submitError && (
-          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-600">
+          <div className="mb-3 rounded-lg border border-[color:var(--color-form-error)]/20 bg-[color:var(--color-form-error)]/5 px-4 py-2 form-error">
             {submitError}
           </div>
         )}
         <button
           onClick={handleComplete}
           disabled={isSubmitting}
-          className="w-full rounded-lg bg-rose-600 py-3 text-sm font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-samvaya-red/30 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="form-btn-primary w-full"
         >
-          {isSubmitting ? 'Submitting...' : (completeButtonLabel || 'Continue to next question')}
+          {isSubmitting ? 'Submitting…' : (completeButtonLabel || 'Continue')}
         </button>
       </div>
     );
@@ -224,14 +224,13 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
   return (
     <div className="flex flex-col">
       <ChatHeader
-        title={config.title}
         exchangeCount={exchangeCount}
         maxExchanges={config.maxExchanges}
         isComplete={false}
       />
 
       {/* Messages area */}
-      <div ref={messagesContainerRef} role="log" aria-live="polite" className="mb-4 max-h-96 min-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <div ref={messagesContainerRef} role="log" aria-live="polite" className="mb-4 max-h-[60vh] min-h-[20rem] overflow-y-auto rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] p-5">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
@@ -241,7 +240,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
 
       {/* Error */}
       {error && (
-        <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-600">
+        <div className="mb-3 rounded-lg border border-[color:var(--color-form-error)]/20 bg-[color:var(--color-form-error)]/5 px-4 py-2 form-error">
           {error}
           <button
             onClick={() => setError(null)}
@@ -260,18 +259,18 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your response..."
+            placeholder="Type your response…"
             disabled={isLoading || messages.length === 0}
             maxLength={2000}
             rows={2}
             aria-label="Your response"
-            className="flex-1 resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] disabled:bg-gray-100 disabled:text-gray-400"
+            className="form-input form-textarea flex-1"
           />
           <button
             onClick={sendMessage}
             disabled={isLoading || !inputValue.trim() || messages.length === 0}
             aria-label="Send message"
-            className="shrink-0 rounded-lg bg-rose-600 px-4 py-3 text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-samvaya-red/30 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+            className="form-btn-primary shrink-0 px-4"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
@@ -280,44 +279,29 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
         </div>
       )}
 
-      {/* Skip button removed — testing mode only, must not appear in production */}
-
-      {/* Responses remaining pill */}
+      {/* Responses remaining + nudge */}
       {!isComplete && config.maxExchanges > 1 && (
-        <div className="mt-3 flex justify-center">
-          {exchangeCount === 0 ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-              </svg>
-              This conversation has {config.maxExchanges} exchanges — please complete all of them
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-samvaya-red">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-              </svg>
-              {config.maxExchanges - exchangeCount} {config.maxExchanges - exchangeCount === 1 ? 'response' : 'responses'} remaining in this conversation
-            </span>
-          )}
-        </div>
+        <p className="form-caption mt-3 text-center">
+          {exchangeCount === 0
+            ? `${config.maxExchanges} exchanges in this conversation`
+            : `${config.maxExchanges - exchangeCount} ${config.maxExchanges - exchangeCount === 1 ? 'response' : 'responses'} remaining`}
+        </p>
       )}
 
-      {/* Nudge text */}
       {!isComplete && (
-        <p className="mt-2 text-center text-xs text-gray-500">
+        <p className="form-caption mt-1 text-center">
           {config.nudgeText}
         </p>
       )}
 
       {/* Extracting indicator */}
       {isExtracting && (
-        <div className="mt-3 flex items-center justify-center gap-2 text-sm text-gray-500">
+        <div className="mt-3 flex items-center justify-center gap-2 form-caption">
           <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          Saving your conversation...
+          Saving your conversation…
         </div>
       )}
     </div>
@@ -329,43 +313,24 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
 // ============================================================
 
 function ChatHeader({
-  title,
   exchangeCount,
   maxExchanges,
   isComplete,
 }: {
-  title: string;
   exchangeCount: number;
   maxExchanges: number;
   isComplete: boolean;
 }) {
   return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-samvaya-red/10">
-            <svg className="h-4 w-4 text-samvaya-red" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-            </svg>
-          </div>
-          <h3 className="type-subheading text-gray-900">
-            {title}
-          </h3>
-        </div>
-        <span
-          className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
-          role="status"
-          aria-live="polite"
-          aria-label={isComplete ? 'Conversation complete' : `Exchange ${exchangeCount} of ${maxExchanges}`}
-        >
-          {isComplete ? 'Complete' : `${exchangeCount} of ${maxExchanges}`}
-        </span>
-      </div>
-      {!isComplete && (
-        <p className="mt-2 border-l-2 border-samvaya-red/40 pl-3 text-xs leading-relaxed text-gray-500">
-          Your honest, unhurried answers are what help us find the right match — not just a good profile. Take a few minutes to share what&apos;s really true for you.
-        </p>
-      )}
+    <div className="mb-4 flex items-center justify-end">
+      <span
+        className="form-caption"
+        role="status"
+        aria-live="polite"
+        aria-label={isComplete ? 'Conversation complete' : `Exchange ${exchangeCount} of ${maxExchanges}`}
+      >
+        {isComplete ? 'Complete' : `${exchangeCount} of ${maxExchanges}`}
+      </span>
     </div>
   );
 }
@@ -375,22 +340,15 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div
-      className={`animate-fade-in-up mb-3 flex ${isAssistant ? 'justify-start' : 'justify-end'}`}
+      className={`animate-fade-in-up mb-4 flex ${isAssistant ? 'justify-start' : 'justify-end'}`}
       role="article"
       aria-label={`${isAssistant ? 'Samvaya' : 'Your'} message`}
     >
-      {isAssistant && (
-        <div className="mr-2 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-samvaya-red/10" aria-hidden="true">
-          <svg className="h-3 w-3 text-samvaya-red" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-          </svg>
-        </div>
-      )}
       <div
-        className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[80%] ${
+        className={`max-w-[90%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed sm:max-w-[80%] ${
           isAssistant
-            ? 'rounded-bl-md bg-white text-gray-700 border border-gray-100'
-            : 'rounded-br-md bg-samvaya-red/10 text-gray-900 border border-samvaya-red/20'
+            ? 'rounded-bl-sm bg-white text-[color:var(--color-form-text-primary)] border border-[color:var(--color-form-border)]'
+            : 'rounded-br-sm bg-[color:var(--color-samvaya-red)] text-white'
         }`}
       >
         {message.content}
@@ -401,17 +359,12 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
 function TypingIndicator() {
   return (
-    <div className="animate-fade-in mb-3 flex items-start justify-start" role="status" aria-label="Samvaya is thinking...">
-      <div className="mr-2 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-samvaya-red/10" aria-hidden="true">
-        <svg className="h-3 w-3 text-samvaya-red" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-        </svg>
-      </div>
-      <div className="rounded-2xl rounded-bl-md bg-white px-4 py-3 border border-gray-100 shadow-sm">
+    <div className="animate-fade-in mb-4 flex items-start justify-start" role="status" aria-label="Samvaya is thinking…">
+      <div className="rounded-2xl rounded-bl-sm bg-white px-4 py-3 border border-[color:var(--color-form-border)]">
         <div className="flex gap-1.5">
-          <span className="h-2 w-2 animate-bounce rounded-full bg-samvaya-red/60" style={{ animationDelay: '0ms' }} />
-          <span className="h-2 w-2 animate-bounce rounded-full bg-samvaya-red/60" style={{ animationDelay: '150ms' }} />
-          <span className="h-2 w-2 animate-bounce rounded-full bg-samvaya-red/60" style={{ animationDelay: '300ms' }} />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-[color:var(--color-form-text-tertiary)]" style={{ animationDelay: '0ms' }} />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-[color:var(--color-form-text-tertiary)]" style={{ animationDelay: '150ms' }} />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-[color:var(--color-form-text-tertiary)]" style={{ animationDelay: '300ms' }} />
         </div>
       </div>
     </div>

@@ -118,18 +118,16 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
         return (
           <div
             key={entry.id}
-            className="relative rounded-xl border border-gray-200 bg-gray-50 p-4 shadow-sm"
+            className="relative rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] p-5"
           >
             {/* Entry header with remove button */}
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                Role {index + 1}
-              </span>
+            <div className="mb-4 flex items-center justify-between">
+              <span className="form-eyebrow">Role {index + 1}</span>
               {entries.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeEntry(index)}
-                  className="rounded-md p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                  className="rounded-md p-1 text-[color:var(--color-form-text-tertiary)] transition-colors hover:text-[color:var(--color-form-error)]"
                   aria-label={`Remove role ${index + 1}`}
                   title={`Remove role ${index + 1}`}
                 >
@@ -141,8 +139,8 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
             </div>
 
             {/* Organisation name */}
-            <div className="mb-3">
-              <label htmlFor={`org_${entry.id}`} className="mb-1 block text-sm font-medium text-gray-700">
+            <div className="mb-4">
+              <label htmlFor={`org_${entry.id}`} className="form-label block mb-2">
                 Organisation / Hospital
               </label>
               <input
@@ -157,13 +155,13 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                 defaultValue={entry.org_name}
                 onBlur={(e) => updateEntry(index, 'org_name', e.target.value)}
                 placeholder="e.g. AIIMS New Delhi"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+                className="form-input"
               />
             </div>
 
             {/* Designation */}
-            <div className="mb-3">
-              <label htmlFor={`desig_${entry.id}`} className="mb-1 block text-sm font-medium text-gray-700">
+            <div className="mb-4">
+              <label htmlFor={`desig_${entry.id}`} className="form-label block mb-2">
                 Designation / Role
               </label>
               <input
@@ -172,26 +170,24 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                 defaultValue={entry.designation}
                 onBlur={(e) => updateEntry(index, 'designation', e.target.value)}
                 placeholder="e.g. Senior Resident"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+                className="form-input"
               />
             </div>
 
             {/* Start date */}
-            <fieldset className="mb-3">
-              <legend className="mb-1 text-sm font-medium text-gray-700">Start date</legend>
+            <fieldset className="mb-4">
+              <legend className="form-label mb-2">Start date</legend>
               <div className="grid grid-cols-2 gap-2">
                 <select
                   id={`start_month_${entry.id}`}
                   aria-label="Start month"
                   value={entry.start_month || ''}
                   onChange={(e) => updateEntry(index, 'start_month', Number(e.target.value))}
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+                  className="form-input form-select"
                 >
                   <option value="">Month</option>
                   {MONTHS.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.label}
-                    </option>
+                    <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </select>
                 <select
@@ -199,35 +195,33 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                   aria-label="Start year"
                   value={entry.start_year || ''}
                   onChange={(e) => updateEntry(index, 'start_year', Number(e.target.value))}
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+                  className="form-input form-select"
                 >
                   <option value="">Year</option>
                   {YEARS.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
+                    <option key={y} value={y}>{y}</option>
                   ))}
                 </select>
               </div>
             </fieldset>
 
             {/* Currently working here checkbox */}
-            <div className="mb-3">
-              <label className="flex cursor-pointer items-center gap-2">
+            <div className="mb-4">
+              <label className="flex cursor-pointer items-center gap-2.5">
                 <input
                   type="checkbox"
                   checked={entry.is_current}
                   onChange={(e) => updateEntry(index, 'is_current', e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500"
+                  className="h-4 w-4 rounded border-[color:var(--color-form-border-strong)] text-[color:var(--color-samvaya-red)] focus:ring-[color:var(--color-samvaya-red)]"
                 />
-                <span className="text-sm text-gray-700">I currently work here</span>
+                <span className="form-helper text-[color:var(--color-form-text-primary)]">I currently work here</span>
               </label>
             </div>
 
             {/* End date (hidden when is_current) */}
             {!entry.is_current && (
               <fieldset>
-                <legend className="mb-1 text-sm font-medium text-gray-700">End date</legend>
+                <legend className="form-label mb-2">End date</legend>
                 <div className="grid grid-cols-2 gap-2">
                   <select
                     id={`end_month_${entry.id}`}
@@ -236,13 +230,11 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                     onChange={(e) =>
                       updateEntry(index, 'end_month', e.target.value ? Number(e.target.value) : null)
                     }
-                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+                    className="form-input form-select"
                   >
                     <option value="">Month</option>
                     {MONTHS.map((m) => (
-                      <option key={m.value} value={m.value}>
-                        {m.label}
-                      </option>
+                      <option key={m.value} value={m.value}>{m.label}</option>
                     ))}
                   </select>
                   <select
@@ -252,18 +244,16 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                     onChange={(e) =>
                       updateEntry(index, 'end_year', e.target.value ? Number(e.target.value) : null)
                     }
-                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+                    className="form-input form-select"
                   >
                     <option value="">Year</option>
                     {YEARS.map((y) => (
-                      <option key={y} value={y}>
-                        {y}
-                      </option>
+                      <option key={y} value={y}>{y}</option>
                     ))}
                   </select>
                 </div>
                 {dateError && (
-                  <p className="mt-1 text-xs text-red-600">End date must be after start date</p>
+                  <p className="form-error mt-2">End date must be after start date</p>
                 )}
               </fieldset>
             )}
@@ -276,7 +266,7 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
         <button
           type="button"
           onClick={addEntry}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 py-3 text-sm font-medium text-gray-500 transition-colors hover:border-samvaya-red/40 hover:text-samvaya-red"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[color:var(--color-form-border-strong)] py-4 form-helper hover:border-[color:var(--color-samvaya-red)] hover:text-[color:var(--color-samvaya-red)] transition-colors"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
