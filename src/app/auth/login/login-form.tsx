@@ -147,6 +147,47 @@ function CheckmarkIcon() {
   );
 }
 
+function CountdownRing({ seconds, total = 60 }: { seconds: number; total?: number }) {
+  const radius = 11;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - seconds / total);
+
+  return (
+    <svg
+      className="h-7 w-7"
+      viewBox="0 0 28 28"
+      fill="none"
+      aria-hidden="true"
+    >
+      {/* Background track */}
+      <circle
+        cx="14"
+        cy="14"
+        r={radius}
+        stroke="#e5e7eb"
+        strokeWidth="2.5"
+        fill="none"
+      />
+      {/* Progress arc */}
+      <circle
+        cx="14"
+        cy="14"
+        r={radius}
+        stroke="currentColor"
+        strokeWidth="2.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={strokeDashoffset}
+        transform="rotate(-90 14 14)"
+        style={{
+          transition: "stroke-dashoffset 0.5s linear",
+        }}
+      />
+    </svg>
+  );
+}
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -368,8 +409,9 @@ export function LoginForm() {
                         type="button"
                         onClick={handleResend}
                         disabled={resendCooldown > 0 || loading}
-                        className="btn-ghost !px-3 !py-2 !text-sm text-samvaya-red hover:text-samvaya-red-dark disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="btn-ghost !px-3 !py-2 !text-sm text-samvaya-red hover:text-samvaya-red-dark disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1.5"
                       >
+                        {resendCooldown > 0 && <CountdownRing seconds={resendCooldown} />}
                         {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
                       </button>
                     </div>
