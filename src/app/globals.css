@@ -1094,42 +1094,20 @@ h4 { font-weight: 600; }
   box-shadow: 0 0 0 4px rgba(163, 23, 31, 0.12);
 }
 
-/* Bento grid — desktop tile-pack, mobile single column */
+/* Single-column form layout */
 .bento-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;              /* 24px */
 }
-@media (min-width: 768px) {
-  .bento-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (min-width: 1024px) {
-  .bento-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-auto-flow: dense;
-  }
-}
 
-/* Bento span utility classes — applied to grid item wrapper.
-   Mobile always 1 column; desktop spans drive the bento layout. */
-.bento-col-1 { grid-column: span 1 / span 1; }
-.bento-col-2 { grid-column: span 1 / span 1; }
-.bento-col-3 { grid-column: span 1 / span 1; }
-.bento-row-1 { grid-row: span 1 / span 1; }
-.bento-row-2 { grid-row: span 1 / span 1; }
-.bento-row-3 { grid-row: span 1 / span 1; }
-@media (min-width: 768px) {
-  .bento-col-2 { grid-column: span 2 / span 2; }
-  .bento-col-3 { grid-column: span 2 / span 2; }
-  .bento-row-2 { grid-row: span 2 / span 2; }
-  .bento-row-3 { grid-row: span 2 / span 2; }
-}
-@media (min-width: 1024px) {
-  .bento-col-3 { grid-column: span 3 / span 3; }
-  .bento-row-3 { grid-row: span 3 / span 3; }
-}
+/* Span utilities no longer used in single-column layout */
+.bento-col-1 { /* unused */ }
+.bento-col-2 { /* unused */ }
+.bento-col-3 { /* unused */ }
+.bento-row-1 { /* unused */ }
+.bento-row-2 { /* unused */ }
+.bento-row-3 { /* unused */ }
 
 /* Conditional question reveal — soft fade-in */
 @keyframes formReveal {

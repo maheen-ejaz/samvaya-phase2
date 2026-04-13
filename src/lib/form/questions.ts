@@ -1,7 +1,8 @@
 import type { QuestionConfig, OptionGroup } from './types';
 import { INDIAN_STATES } from '@/lib/data/indian-states';
 import { RELIGIONS } from '@/lib/data/religions';
-// Required fields restored for launch — see plan.md
+// Temporary: All fields set to optional for testing — see CLAUDE.md
+// Required fields MUST be restored before real applicants
 
 // ============================================================
 // Shared option sets
@@ -277,7 +278,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'First name',
     type: 'text',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'first_name',
     placeholder: 'First name',
@@ -289,7 +290,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Last name',
     type: 'text',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'last_name',
     placeholder: 'Last name',
@@ -325,7 +326,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Gender',
     type: 'select',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'gender',
     options: [
@@ -339,7 +340,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'How did you hear about us?',
     type: 'select',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'referral_source',
     options: [
@@ -357,7 +358,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Have you been married before?',
     type: 'select',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'marital_status',
     options: [
@@ -386,7 +387,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Date of birth',
     type: 'date',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'date_of_birth',
   },
@@ -396,7 +397,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Know your time of birth?',
     type: 'select',
-    required: true,
+    required: false,
     targetTable: 'local',
     targetColumn: 'knows_time_of_birth',
     options: [
@@ -421,7 +422,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'State of birth',
     type: 'select',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'place_of_birth',
     options: [
@@ -484,7 +485,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Mother tongue',
     type: 'select',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'mother_tongue',
     options: MOTHER_TONGUE_OPTIONS,
@@ -496,7 +497,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Languages spoken fluently',
     type: 'multi_select',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'languages_spoken',
     options: [
@@ -627,7 +628,7 @@ const sectionG: QuestionConfig[] = [
     section: 'G',
     text: 'Hobbies and interests',
     type: 'multi_select',
-    required: true,
+    required: false,
     targetTable: 'profiles',
     targetColumn: 'hobbies_interests',
     helpText: 'Select all that apply. Tap a category to expand it.',

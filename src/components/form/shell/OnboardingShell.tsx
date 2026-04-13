@@ -50,7 +50,7 @@ export function OnboardingShell({
       <div className="form-surface min-h-[100dvh] flex flex-col">
         {/* Header chrome */}
         <header className="border-b border-[color:var(--color-form-border)]">
-          <div className="mx-auto max-w-6xl px-6 py-4 lg:px-12 flex items-center justify-between gap-4">
+          <div className="mx-auto max-w-2xl px-6 py-4 flex items-center justify-between gap-4">
             <Link href="/app" className="flex items-center gap-2">
               <span className="text-[15px] font-medium tracking-tight text-[color:var(--color-form-text-primary)]">
                 samvaya
@@ -78,7 +78,7 @@ export function OnboardingShell({
 
         {/* Main content area */}
         <main className="flex-1">
-          <div className="mx-auto max-w-6xl px-6 py-10 lg:px-12 lg:py-16">
+          <div className="mx-auto max-w-2xl px-6 py-10">
             {children}
           </div>
         </main>
