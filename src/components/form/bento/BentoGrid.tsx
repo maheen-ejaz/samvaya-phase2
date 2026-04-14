@@ -18,12 +18,22 @@ interface BentoTileProps {
   span: BentoSpan;
   children: ReactNode;
   id?: string;
+  /** Zero-based index used to stagger the entrance animation. Capped at 5 tiles (250ms max). */
+  animationIndex?: number;
 }
 
 /** A single tile in the bento grid. Use `span` to control desktop placement. */
-export function BentoTile({ span, children, id }: BentoTileProps) {
+export function BentoTile({ span, children, id, animationIndex }: BentoTileProps) {
+  const delay = animationIndex !== undefined
+    ? Math.min(animationIndex * 50, 250)
+    : undefined;
+
   return (
-    <div id={id} className={spanClassNames(span)}>
+    <div
+      id={id}
+      className={`${spanClassNames(span)} form-question-card animate-fade-in-up`}
+      style={delay !== undefined ? { animationDelay: `${delay}ms` } : undefined}
+    >
       {children}
     </div>
   );

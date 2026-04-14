@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from '../FormProvider';
@@ -30,6 +30,30 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
   const router = useRouter();
   const { state, setAnswer, navigateToSection, submitForm } = useForm();
   const [errors, setErrors] = useState<Set<string>>(new Set());
+  const [isExiting, setIsExiting] = useState(false);
+
+  // Resume banner — shown once per session on re-entry (not section A, not first visit)
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [bannerLeaving, setBannerLeaving] = useState(false);
+  const resumeBannerShown = useRef(false);
+  useEffect(() => {
+    if (resumeBannerShown.current) return;
+    const key = 'samvaya_resume_banner_shown';
+    const alreadyShown = sessionStorage.getItem(key);
+    const isReturningUser = sectionId !== 'A' || Object.keys(state.answers).length > 5;
+    if (!alreadyShown && isReturningUser) {
+      sessionStorage.setItem(key, '1');
+      resumeBannerShown.current = true;
+      setShowResumeBanner(true);
+      // Auto-dismiss after 4s — animate out 150ms before unmounting
+      const t = setTimeout(() => {
+        setBannerLeaving(true);
+        setTimeout(() => setShowResumeBanner(false), 150);
+      }, 4000);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Sync form state's currentSectionId with the URL on mount and when route changes.
   useEffect(() => {
@@ -55,6 +79,11 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
 
   if (!meta) return null;
 
+  function dismissResumeBanner() {
+    setBannerLeaving(true);
+    setTimeout(() => setShowResumeBanner(false), 150);
+  }
+
   function handleContinue() {
     // Validate every visible question; collect first invalid for focus
     const invalid = new Set<string>();
@@ -70,38 +99,71 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
       setErrors(invalid);
       if (firstInvalid) {
         const el = document.getElementById(`q-${firstInvalid}`);
-        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        const focusable = el?.querySelector<HTMLElement>('input, select, textarea, button');
-        focusable?.focus();
+        if (el) {
+          // Account for sticky header + 24px breathing room
+          const header = document.querySelector('.form-header-sticky') as HTMLElement | null;
+          const headerHeight = header ? header.getBoundingClientRect().height : 0;
+          const elTop = el.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: elTop - headerHeight - 24, behavior: 'smooth' });
+          // Shake animation on the card
+          el.classList.add('animate-shake');
+          el.addEventListener('animationend', () => el.classList.remove('animate-shake'), { once: true });
+          // Focus first focusable element after scroll settles
+          setTimeout(() => {
+            const focusable = el.querySelector<HTMLElement>('input, select, textarea, button');
+            focusable?.focus();
+          }, 350);
+        }
       }
       return;
     }
 
     setErrors(new Set());
+    setIsExiting(true);
 
-    if (isLastSection) {
-      void submitForm().then((ok) => {
-        if (ok) router.push('/app/onboarding/complete');
-      });
-      return;
-    }
-
-    const nextIdx = sectionIndex + 1;
-    const next = SECTIONS[nextIdx];
-    if (next) router.push(`${sectionPath(next.id)}/intro`);
+    setTimeout(() => {
+      if (isLastSection) {
+        void submitForm().then((ok) => {
+          if (ok) router.push('/app/onboarding/complete');
+        });
+        return;
+      }
+      const nextIdx = sectionIndex + 1;
+      const next = SECTIONS[nextIdx];
+      if (next) router.push(`${sectionPath(next.id)}/intro`);
+    }, 200);
   }
 
   function handleBack() {
-    if (sectionIndex === 0) {
-      router.push('/app/onboarding/welcome');
-      return;
-    }
-    const prev = SECTIONS[sectionIndex - 1];
-    if (prev) router.push(sectionPath(prev.id));
+    setIsExiting(true);
+    setTimeout(() => {
+      if (sectionIndex === 0) {
+        router.push('/app/onboarding/welcome');
+        return;
+      }
+      const prev = SECTIONS[sectionIndex - 1];
+      if (prev) router.push(sectionPath(prev.id));
+    }, 200);
   }
 
   return (
-    <>
+    <div className={isExiting ? 'form-section-exit' : 'form-section-enter'}>
+      {showResumeBanner && (
+        <div className={`form-resume-banner ${bannerLeaving ? 'animate-slide-out-left' : ''}`} role="status">
+          <span className="form-helper text-[color:var(--color-form-text-secondary)]">
+            Welcome back — you left off here. Your answers are saved.
+          </span>
+          <button
+            type="button"
+            onClick={dismissResumeBanner}
+            aria-label="Dismiss"
+            className="form-caption hover:text-[color:var(--color-form-text-primary)] transition-colors flex-shrink-0"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <SectionHeader
         positionLabel={positionLabel}
         totalLabel={totalLabel}
@@ -111,7 +173,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
       />
 
       <BentoGrid>
-        {visibleIds.map((id) => {
+        {visibleIds.map((id, index) => {
           const question = getQuestion(id);
           if (!question) return null;
           const span = getBentoSpan(question);
@@ -121,7 +183,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
             const href = CHAT_PATH[question.id];
             const done = state.answers[question.id] === 'complete';
             return (
-              <BentoTile key={id} span={span} id={`q-${id}`}>
+              <BentoTile key={id} span={span} id={`q-${id}`} animationIndex={index}>
                 <ChatLinkTile href={href} text={question.text} done={done} />
               </BentoTile>
             );
@@ -130,7 +192,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
           // BGV consent gets its own rich layout — bypass QuestionField wrapper
           if (question.type === 'bgv_consent') {
             return (
-              <BentoTile key={id} span={span} id={`q-${id}`}>
+              <BentoTile key={id} span={span} id={`q-${id}`} animationIndex={index}>
                 <BgvConsentInput
                   question={question}
                   value={(state.answers[id] as string) || ''}
@@ -141,7 +203,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
           }
 
           return (
-            <BentoTile key={id} span={span} id={`q-${id}`}>
+            <BentoTile key={id} span={span} id={`q-${id}`} animationIndex={index}>
               <QuestionField
                 question={question}
                 value={state.answers[id]}
@@ -164,8 +226,9 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
         onBack={handleBack}
         onContinue={handleContinue}
         continueLabel={isLastSection ? 'Submit application' : 'Continue'}
+        breadcrumb={`Section ${positionLabel} · ${meta.label}`}
       />
-    </>
+    </div>
   );
 }
 

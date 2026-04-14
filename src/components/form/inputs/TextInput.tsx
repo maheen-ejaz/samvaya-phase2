@@ -22,6 +22,15 @@ export function TextInput({ question, value, onChange, disabled, inputId, ariaDe
   const phoneDigits = isPhone ? (value || '').replace(/\D/g, '') : '';
   const showPhoneHint = isPhone && touched && phoneDigits.length > 0 && phoneDigits.length < 10;
 
+  // Map targetColumn → autocomplete hint for iOS/Android autofill
+  const autocompleteMap: Record<string, string> = {
+    first_name: 'given-name',
+    last_name: 'family-name',
+    email: 'email',
+    phone: 'tel',
+  };
+  const autocomplete = question.targetColumn ? (autocompleteMap[question.targetColumn] ?? 'off') : undefined;
+
   return (
     <div>
       <input
@@ -34,6 +43,7 @@ export function TextInput({ question, value, onChange, disabled, inputId, ariaDe
         disabled={disabled}
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid || undefined}
+        autoComplete={autocomplete}
         className="form-input"
       />
       {showPhoneHint && (

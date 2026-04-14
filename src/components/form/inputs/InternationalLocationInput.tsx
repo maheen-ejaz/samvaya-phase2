@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useCountries, useCitiesForCountry } from '@/lib/data/use-location-data';
+import { DropdownPortal } from './DropdownPortal';
 
 export interface InternationalLocationValue {
   country: string;
@@ -195,8 +196,8 @@ function CountryCombobox({
           </span>
         )}
       </div>
-      {showDropdown && (
-        <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg">
+      <DropdownPortal anchorRef={inputRef} isOpen={showDropdown}>
+        <ul className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg">
           {filtered.map((option, idx) => (
             <li
               key={option.value}
@@ -215,7 +216,7 @@ function CountryCombobox({
             </li>
           ))}
         </ul>
-      )}
+      </DropdownPortal>
     </div>
   );
 }
@@ -300,8 +301,8 @@ function CityAutocomplete({
         autoComplete="off"
         className="form-input"
       />
-      {showDropdown && (
-        <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg">
+      <DropdownPortal anchorRef={inputRef} isOpen={showDropdown}>
+        <ul className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg">
           {filtered.map((suggestion, idx) => (
             <li
               key={suggestion}
@@ -320,7 +321,7 @@ function CityAutocomplete({
             </li>
           ))}
         </ul>
-      )}
+      </DropdownPortal>
     </div>
   );
 }

@@ -33,7 +33,7 @@ export function SectionHeader({
       <h1 className="form-title mb-3">{title}</h1>
       {subtitle && <p className="form-subtitle max-w-2xl">{subtitle}</p>}
       <div className="form-progress-track mt-6 max-w-md">
-        <div className="form-progress-fill" style={{ width: `${pct}%` }} />
+        <div className="form-progress-fill form-progress-fill-animate" style={{ width: `${pct}%` }} />
       </div>
     </header>
   );

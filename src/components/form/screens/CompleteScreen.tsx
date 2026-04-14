@@ -6,6 +6,15 @@ interface CompleteScreenProps {
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919742811599';
 
+// Format today's date
+function formatDate(): string {
+  return new Date().toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
 /**
  * Post-submission screen. Replaces the old CompletionScreen.
  *
@@ -18,11 +27,33 @@ const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919742811599
  */
 export function CompleteScreen({ isGoocampus }: CompleteScreenProps) {
   return (
-    <div className="max-w-xl mx-auto py-12 lg:py-20">
+    <div className="max-w-xl mx-auto py-12 lg:py-20 pb-[calc(3rem+env(safe-area-inset-bottom))] lg:pb-20">
+      {/* Celebration check mark */}
+      <div className="flex justify-center mb-6">
+        <div className="relative flex items-center justify-center">
+          <div className="h-16 w-16 rounded-full bg-[color:var(--color-form-success)] flex items-center justify-center animate-scale-in">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-8 w-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="4 12 9 17 20 7" strokeDasharray="24" className="animate-checkmark" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
       <div className="form-eyebrow mb-4 text-center">Submitted</div>
       <h1 className="form-title text-center mb-4">Your application is in</h1>
-      <p className="form-subtitle text-center mb-10">
+      <p className="form-subtitle text-center mb-2">
         Thank you for completing your Samvaya profile.
+      </p>
+      <p className="form-caption text-center mb-10 text-[color:var(--color-form-text-tertiary)]">
+        All 14 sections complete · {formatDate()}
       </p>
 
       {isGoocampus ? (
@@ -43,9 +74,26 @@ function GooCampusBlock() {
         so you can skip the verification step. Your profile will enter our
         candidate pool shortly.
       </p>
-      <p className="form-helper">
+      <p className="form-helper mb-6">
         We&apos;ll reach out as soon as we have a compatible match for you.
       </p>
+      <div className="rounded-lg bg-white border border-[color:var(--color-form-border)] px-4 py-3">
+        <div className="form-eyebrow mb-1.5">What happens next</div>
+        <ol className="space-y-1.5">
+          {[
+            'Our team reviews your profile',
+            'We search for compatible matches',
+            'We contact you when we find one',
+          ].map((step, i) => (
+            <li key={i} className="flex items-start gap-2 form-helper">
+              <span className="form-caption font-medium text-[color:var(--color-samvaya-red)] mt-0.5 tabular-nums flex-shrink-0">
+                {i + 1}.
+              </span>
+              {step}
+            </li>
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }

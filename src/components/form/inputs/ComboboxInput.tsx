@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useCountries } from '@/lib/data/use-location-data';
+import { DropdownPortal } from './DropdownPortal';
 
 interface ComboboxInputProps {
   question: QuestionConfig;
@@ -145,11 +146,11 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
           </span>
         )}
       </div>
-      {showDropdown && (
+      <DropdownPortal anchorRef={inputRef} isOpen={showDropdown}>
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
+          className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
         >
           {filtered.map((option, idx) => (
             <li
@@ -175,7 +176,7 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
             <li role="option" aria-disabled="true" className="form-caption px-4 py-3">No matches found</li>
           )}
         </ul>
-      )}
+      </DropdownPortal>
     </div>
   );
 }

@@ -41,13 +41,15 @@ export function MultiSelectInput({ question, value, onChange, inputId, ariaDescr
           {selected.length} / {question.maxSelections} selected
         </p>
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="form-chip-grid flex flex-wrap gap-2">
         {question.options.map((option) => {
           const isSelected = selected.includes(option.value);
           const isDisabled =
             !isSelected &&
             question.maxSelections !== undefined &&
             selected.length >= question.maxSelections;
+          // Wide chip for labels > 20 chars (full-width on mobile grid)
+          const isWide = option.label.length > 20;
 
           return (
             <button
@@ -57,9 +59,23 @@ export function MultiSelectInput({ question, value, onChange, inputId, ariaDescr
               disabled={isDisabled}
               aria-pressed={isSelected}
               data-selected={isSelected}
-              className="form-chip disabled:opacity-40 disabled:cursor-not-allowed"
+              className={`form-chip disabled:opacity-40 disabled:cursor-not-allowed ${isWide ? 'form-chip-wide' : ''}`}
             >
               {option.label}
+              {isSelected && (
+                <svg
+                  viewBox="0 0 12 12"
+                  className="form-chip-check"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="2 6.5 5 9.5 10 3" />
+                </svg>
+              )}
             </button>
           );
         })}

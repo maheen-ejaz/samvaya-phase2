@@ -10,8 +10,11 @@ import { useForm } from '../FormProvider';
  * (set by the reducer when status transitions to 'saved').
  */
 export function SaveStatusBadge() {
-  const { state } = useForm();
+  const { state, flushNow } = useForm();
   const [, setTick] = useState(0);
+  // Track when we last transitioned to 'saved' to trigger the pulse animation
+  const [savedKey, setSavedKey] = useState(0);
+  const [prevStatus, setPrevStatus] = useState(state.saveStatus);
 
   // Tick every 30s so the relative timestamp ("just now" → "1m ago") refreshes.
   useEffect(() => {
@@ -19,10 +22,18 @@ export function SaveStatusBadge() {
     return () => clearInterval(id);
   }, []);
 
+  // Detect transition to 'saved' to trigger pulse
+  useEffect(() => {
+    if (state.saveStatus === 'saved' && prevStatus !== 'saved') {
+      setSavedKey((k) => k + 1);
+    }
+    setPrevStatus(state.saveStatus);
+  }, [state.saveStatus, prevStatus]);
+
   if (state.saveStatus === 'saving') {
     return (
       <span className="form-caption flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-pulse-soft" />
+        <span className="form-spinner" aria-hidden="true" />
         Saving…
       </span>
     );
@@ -33,6 +44,13 @@ export function SaveStatusBadge() {
       <span className="form-caption flex items-center gap-1.5 text-[color:var(--color-form-error)]">
         <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-form-error)]" />
         Save failed
+        <button
+          type="button"
+          onClick={() => void flushNow()}
+          className="underline underline-offset-2 hover:no-underline"
+        >
+          Retry
+        </button>
       </span>
     );
   }
@@ -40,7 +58,10 @@ export function SaveStatusBadge() {
   if (state.saveStatus === 'saved' && state.lastSavedAt) {
     return (
       <span className="form-caption flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-form-success)]" />
+        <span
+          key={savedKey}
+          className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-form-success)] form-saved-dot"
+        />
         Saved {formatTimeAgo(state.lastSavedAt)}
       </span>
     );

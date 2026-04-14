@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useForm } from '@/components/form/FormProvider';
 import { useCitiesForState, useCountries, useCommunities } from '@/lib/data/use-location-data';
+import { DropdownPortal } from './DropdownPortal';
 
 interface AutocompleteInputProps {
   question: QuestionConfig;
@@ -107,11 +108,11 @@ export function AutocompleteInput({ question, value, onChange, disabled, inputId
         autoComplete="off"
         className="form-input"
       />
-      {showDropdown && (
+      <DropdownPortal anchorRef={inputRef} isOpen={showDropdown}>
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
+          className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
         >
           {filtered.map((suggestion, idx) => (
             <li
@@ -134,7 +135,7 @@ export function AutocompleteInput({ question, value, onChange, disabled, inputId
             </li>
           ))}
         </ul>
-      )}
+      </DropdownPortal>
     </div>
   );
 }

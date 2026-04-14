@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useCountries } from '@/lib/data/use-location-data';
+import { DropdownPortal } from './DropdownPortal';
 
 interface TagInputProps {
   question: QuestionConfig;
@@ -165,12 +166,12 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
       )}
 
       {/* Dropdown */}
-      {showDropdown && (
+      <DropdownPortal anchorRef={inputRef} isOpen={showDropdown}>
         <ul
           id={listboxId}
           role="listbox"
           aria-multiselectable="true"
-          className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
+          className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
         >
           {filtered.map((option, idx) => (
             <li
@@ -193,7 +194,7 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
             </li>
           ))}
         </ul>
-      )}
+      </DropdownPortal>
     </div>
   );
 }
