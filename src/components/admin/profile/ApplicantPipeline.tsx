@@ -37,14 +37,11 @@ export function ApplicantPipeline({ paymentStatus, membershipStatus }: Applicant
 
           let fill: string;
           if (isActive && isExpired) {
-            // Expired state — red stripes
-            fill = 'repeating-linear-gradient(-45deg, #F87171, #F87171 3px, #FCA5A5 3px, #FCA5A5 6px)';
+            fill = 'repeating-linear-gradient(-45deg, hsl(var(--destructive)), hsl(var(--destructive)) 3px, hsl(var(--destructive) / 0.6) 3px, hsl(var(--destructive) / 0.6) 6px)';
           } else if (isActive) {
-            // Completed / current — green stripes
             fill = 'repeating-linear-gradient(-45deg, #66BB6A, #66BB6A 3px, #81C784 3px, #81C784 6px)';
           } else {
-            // Future — gray stripes
-            fill = 'repeating-linear-gradient(-45deg, #E5E7EB, #E5E7EB 3px, #F3F4F6 3px, #F3F4F6 6px)';
+            fill = 'repeating-linear-gradient(-45deg, hsl(var(--muted)), hsl(var(--muted)) 3px, hsl(var(--muted-foreground) / 0.1) 3px, hsl(var(--muted-foreground) / 0.1) 6px)';
           }
 
           return (
@@ -53,8 +50,8 @@ export function ApplicantPipeline({ paymentStatus, membershipStatus }: Applicant
               {/* Needle marker on current stage */}
               {isCurrent && (
                 <div className="absolute -bottom-1.5 right-0 flex flex-col items-center">
-                  <div className="h-3 w-0.5 bg-gray-900" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-gray-900" />
+                  <div className="h-3 w-0.5 bg-foreground" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
                 </div>
               )}
             </div>
@@ -69,7 +66,7 @@ export function ApplicantPipeline({ paymentStatus, membershipStatus }: Applicant
             key={stage.key}
             className={[
               'flex-1 text-[11px]',
-              i <= currentStep ? 'font-medium text-gray-700' : 'text-gray-400',
+              i <= currentStep ? 'font-medium text-foreground' : 'text-muted-foreground',
               i === 0 ? 'text-left' : i === STAGES.length - 1 ? 'text-right' : 'text-center',
             ].join(' ')}
           >

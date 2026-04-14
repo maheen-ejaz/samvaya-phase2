@@ -1,12 +1,12 @@
 export const DONUT_COLORS = [
-  '#4F6EF7', // admin-blue-600 (primary)
-  '#818CF8', // admin-blue-400
-  '#A5B4FC', // admin-blue-300
-  '#C7D2FE', // admin-blue-200
-  '#2563EB', // admin-blue-700
-  '#6B8AF9', // admin-blue-500
-  '#1D4ED8', // admin-blue-800
-  '#E0E7FF', // admin-blue-100
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--chart-5))',
+  'hsl(var(--primary))',
+  'hsl(var(--muted-foreground))',
+  'hsl(var(--accent))',
 ];
 
 export interface DonutSlice {
@@ -82,10 +82,10 @@ export function DonutChart({ data, size = 120, strokeWidth = 18 }: DonutChartPro
         className="absolute inset-0 flex flex-col items-center justify-center"
         aria-hidden="true"
       >
-        <p className="text-lg font-semibold tabular-nums text-gray-900 leading-none">
+        <p className="text-lg font-semibold tabular-nums text-foreground leading-none">
           {total > 0 ? total.toLocaleString('en-IN') : '—'}
         </p>
-        <p className="mt-0.5 text-[10px] text-gray-400">total</p>
+        <p className="mt-0.5 text-[10px] text-muted-foreground">total</p>
       </div>
     </div>
   );

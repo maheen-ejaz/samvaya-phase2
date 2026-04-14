@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation';
 import type { DashboardMatch, MatchStageCounts } from '@/types/dashboard';
 import { MatchStageCard } from './MatchStageCard';
 import { MatchTable } from './MatchTable';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 
 type StageFilter = 'all' | 'pending_review' | 'approved' | 'presented' | 'mutual_interest';
 type SortField = 'score' | 'days' | 'stage';
@@ -21,6 +26,15 @@ const STAGE_ORDER: Record<string, number> = {
   presented: 2,
   mutual_interest: 3,
 };
+
+const SORT_OPTIONS = [
+  { value: 'score-desc', label: 'Score (High \u2192 Low)' },
+  { value: 'score-asc', label: 'Score (Low \u2192 High)' },
+  { value: 'days-desc', label: 'Days (Most \u2192 Least)' },
+  { value: 'days-asc', label: 'Days (Least \u2192 Most)' },
+  { value: 'stage-asc', label: 'Stage (Early \u2192 Late)' },
+  { value: 'stage-desc', label: 'Stage (Late \u2192 Early)' },
+];
 
 export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommandCenterProps) {
   const router = useRouter();
@@ -88,87 +102,88 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
     }
   }
 
+  function handleSortChange(value: string) {
+    const [f, d] = value.split('-') as [SortField, SortDir];
+    setSortField(f);
+    setSortDir(d);
+  }
+
   return (
-    <div className="rounded-xl border border-gray-200/60 bg-white shadow-sm">
-      {/* Header */}
-      <div className="border-b border-gray-100 px-6 py-4">
-        <h3 className="type-heading-lg text-gray-900">Match Command Center</h3>
-        <p className="mt-0.5 text-sm text-gray-500">All active matches across the pipeline.</p>
-      </div>
+    <Card>
+      <CardHeader className="border-b">
+        <CardTitle className="text-xl font-semibold">Match Command Center</CardTitle>
+        <CardDescription>All active matches across the pipeline.</CardDescription>
+      </CardHeader>
 
       {/* Stage cards */}
-      <div className="grid grid-cols-4 gap-3 px-6 py-4">
-        <MatchStageCard
-          label="Pending Review"
-          count={stageCounts.pendingReview}
-          isActive={stageFilter === 'pending_review'}
-          onClick={() => handleStageClick('pending_review')}
-          bgColor="bg-admin-blue-50"
-          borderColor="border-admin-blue-200"
-        />
-        <MatchStageCard
-          label="Approved & Ready"
-          count={stageCounts.approvedReady}
-          isActive={stageFilter === 'approved'}
-          onClick={() => handleStageClick('approved')}
-          bgColor="bg-admin-blue-100"
-          borderColor="border-admin-blue-300"
-        />
-        <MatchStageCard
-          label="Awaiting Response"
-          count={stageCounts.presentedPending}
-          isActive={stageFilter === 'presented'}
-          onClick={() => handleStageClick('presented')}
-          bgColor="bg-admin-blue-50"
-          borderColor="border-admin-blue-200"
-        />
-        <MatchStageCard
-          label="Mutual Interest"
-          count={stageCounts.mutualInterest}
-          isActive={stageFilter === 'mutual_interest'}
-          onClick={() => handleStageClick('mutual_interest')}
-          bgColor="bg-admin-blue-100"
-          borderColor="border-admin-blue-300"
-        />
-      </div>
+      <CardContent>
+        <div className="grid grid-cols-4 gap-3">
+          <MatchStageCard
+            label="Pending Review"
+            count={stageCounts.pendingReview}
+            isActive={stageFilter === 'pending_review'}
+            onClick={() => handleStageClick('pending_review')}
+          />
+          <MatchStageCard
+            label="Approved & Ready"
+            count={stageCounts.approvedReady}
+            isActive={stageFilter === 'approved'}
+            onClick={() => handleStageClick('approved')}
+          />
+          <MatchStageCard
+            label="Awaiting Response"
+            count={stageCounts.presentedPending}
+            isActive={stageFilter === 'presented'}
+            onClick={() => handleStageClick('presented')}
+          />
+          <MatchStageCard
+            label="Mutual Interest"
+            count={stageCounts.mutualInterest}
+            isActive={stageFilter === 'mutual_interest'}
+            onClick={() => handleStageClick('mutual_interest')}
+          />
+        </div>
+      </CardContent>
+
+      <Separator />
 
       {/* Filter bar */}
-      <div className="flex items-center gap-4 border-t border-gray-100 px-6 py-3">
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-64 rounded-lg border border-gray-200 px-3 py-1.5 text-sm placeholder-gray-400 focus:border-admin-blue-400 focus:ring-1 focus:ring-admin-blue-400/30 focus:outline-none"
-        />
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>Sort by:</span>
-          <select
-            value={`${sortField}-${sortDir}`}
-            onChange={(e) => {
-              const [f, d] = e.target.value.split('-') as [SortField, SortDir];
-              setSortField(f);
-              setSortDir(d);
-            }}
-            className="rounded-lg border border-gray-200 px-2 py-1 text-sm focus:border-admin-blue-400 focus:outline-none"
-          >
-            <option value="score-desc">Score (High → Low)</option>
-            <option value="score-asc">Score (Low → High)</option>
-            <option value="days-desc">Days (Most → Least)</option>
-            <option value="days-asc">Days (Least → Most)</option>
-            <option value="stage-asc">Stage (Early → Late)</option>
-            <option value="stage-desc">Stage (Late → Early)</option>
-          </select>
+      <CardContent>
+        <div className="flex items-center gap-4">
+          <Input
+            type="text"
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-64"
+          />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>Sort by:</span>
+            <Select value={`${sortField}-${sortDir}`} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <span className="ml-auto text-xs text-muted-foreground">
+            {hasMore
+              ? `Showing 6 of ${filteredMatches.length}`
+              : `${filteredMatches.length} match${filteredMatches.length !== 1 ? 'es' : ''}`}
+          </span>
         </div>
-        <span className="ml-auto text-xs text-gray-400">
-          {hasMore
-            ? `Showing 6 of ${filteredMatches.length}`
-            : `${filteredMatches.length} match${filteredMatches.length !== 1 ? 'es' : ''}`}
-        </span>
-      </div>
+      </CardContent>
+
+      <Separator />
 
       {/* Table */}
-      <div className="border-t border-gray-100">
+      <CardContent className="p-0">
         <MatchTable
           matches={displayedMatches}
           expandedId={expandedId}
@@ -176,19 +191,22 @@ export function MatchCommandCenter({ initialMatches, stageCounts }: MatchCommand
           onAction={handleAction}
           actionLoading={actionLoading}
         />
-      </div>
+      </CardContent>
 
       {/* Show all matches CTA */}
       {hasMore && (
-        <div className="border-t border-gray-100 px-6 py-4 text-center">
-          <button
-            onClick={() => router.push('/admin/matching?status=all')}
-            className="rounded-full border border-admin-blue-300 bg-admin-blue-50 px-6 py-2 text-sm font-medium text-admin-blue-900 hover:bg-admin-blue-100 transition-colors"
-          >
-            Show all matches ({filteredMatches.length} total)
-          </button>
-        </div>
+        <>
+          <Separator />
+          <CardContent className="text-center">
+            <Button
+              variant="outline"
+              onClick={() => router.push('/admin/matching?status=all')}
+            >
+              Show all matches ({filteredMatches.length} total)
+            </Button>
+          </CardContent>
+        </>
       )}
-    </div>
+    </Card>
   );
 }

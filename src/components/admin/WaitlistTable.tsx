@@ -3,6 +3,18 @@
 import { useState, useMemo } from 'react';
 import { capitalize } from '@/lib/utils';
 import { WaitlistEntryDrawer } from './WaitlistEntryDrawer';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 
 export interface WaitlistEntry {
   id: string;
@@ -73,13 +85,15 @@ export function WaitlistTable({ entries, title }: WaitlistTableProps) {
     }
   }
 
-  const sortIndicator = (field: SortField) => {
-    if (sortField !== field) return <span className="ml-1 text-gray-300">↕</span>;
-    return <span className="ml-1 text-gray-500">{sortDir === 'asc' ? '↑' : '↓'}</span>;
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDownIcon className="ml-1 inline h-3.5 w-3.5 text-gray-300" />;
+    return sortDir === 'asc'
+      ? <ArrowUpIcon className="ml-1 inline h-3.5 w-3.5 text-gray-500" />
+      : <ArrowDownIcon className="ml-1 inline h-3.5 w-3.5 text-gray-500" />;
   };
 
   function formatDate(dateStr: string): string {
-    if (!dateStr) return '—';
+    if (!dateStr) return '\u2014';
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   }
@@ -87,135 +101,132 @@ export function WaitlistTable({ entries, title }: WaitlistTableProps) {
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
-        <h1 className="type-heading-xl text-gray-900">{title}</h1>
-        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-normal text-gray-600">
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
+        <Badge variant="secondary" className="text-sm font-normal">
           {entries.length}
-        </span>
+        </Badge>
       </div>
 
       <div className="mb-4">
-        <input
+        <Input
           type="text"
           placeholder="Search by name or email..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="w-full max-w-sm rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-1.5 text-sm text-gray-700 placeholder:text-gray-400 focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-0"
+          className="w-full max-w-sm"
         />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-        <table className="min-w-full">
-          <thead className="admin-table-thead">
-            <tr className="border-b border-gray-100">
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('fullName')}>
-                <span className="inline-flex items-center">Name {sortIndicator('fullName')}</span>
-              </th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                Email
-              </th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                Phone
-              </th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('specialty')}>
-                <span className="inline-flex items-center">Specialty {sortIndicator('specialty')}</span>
-              </th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('city')}>
-                <span className="inline-flex items-center">City {sortIndicator('city')}</span>
-              </th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('status')}>
-                <span className="inline-flex items-center">Status {sortIndicator('status')}</span>
-              </th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500 cursor-pointer select-none" onClick={() => toggleSort('createdAt')}>
-                <span className="inline-flex items-center">Date {sortIndicator('createdAt')}</span>
-              </th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">
-                {/* actions column */}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
+      <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b border-gray-100">
+              <TableHead className="cursor-pointer select-none px-5" onClick={() => toggleSort('fullName')}>
+                <span className="inline-flex items-center">Name <SortIcon field="fullName" /></span>
+              </TableHead>
+              <TableHead className="px-5">Email</TableHead>
+              <TableHead className="px-5">Phone</TableHead>
+              <TableHead className="cursor-pointer select-none px-5" onClick={() => toggleSort('specialty')}>
+                <span className="inline-flex items-center">Specialty <SortIcon field="specialty" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none px-5" onClick={() => toggleSort('city')}>
+                <span className="inline-flex items-center">City <SortIcon field="city" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none px-5" onClick={() => toggleSort('status')}>
+                <span className="inline-flex items-center">Status <SortIcon field="status" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none px-5" onClick={() => toggleSort('createdAt')}>
+                <span className="inline-flex items-center">Date <SortIcon field="createdAt" /></span>
+              </TableHead>
+              <TableHead className="px-5">{/* actions column */}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {paginated.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="px-5 py-8 text-center text-sm text-gray-500">
+              <TableRow>
+                <TableCell colSpan={8} className="px-5 py-8 text-center text-gray-500">
                   No entries match the current filters.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               paginated.map((entry) => {
                 const style = STATUS_STYLES[entry.status] || { bg: 'bg-gray-100', dot: 'bg-gray-400', text: 'text-gray-600' };
                 const label = entry.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
                 const isSelected = drawerEntry?.id === entry.id;
                 return (
-                  <tr
+                  <TableRow
                     key={entry.id}
                     onClick={() => setDrawerEntry(entry)}
                     className={`group relative cursor-pointer border-l-2 transition-all duration-150 ${
                       isSelected
-                        ? 'border-l-admin-blue-400 bg-admin-blue-50'
-                        : 'border-l-transparent hover:border-l-admin-blue-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
+                        ? 'border-l-primary/30 bg-muted'
+                        : 'border-l-transparent hover:border-l-primary/30 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
                     }`}
                   >
-                    <td className="whitespace-nowrap px-5 py-4 text-sm font-medium text-gray-900">
+                    <TableCell className="px-5 py-4 font-medium text-gray-900">
                       {entry.fullName}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-gray-500">
                       {entry.email}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
-                      {entry.phone || '—'}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
-                      {entry.specialty ? capitalize(entry.specialty) : '—'}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
-                      {entry.city ? capitalize(entry.city) : '—'}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm">
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-gray-500">
+                      {entry.phone || '\u2014'}
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-gray-500">
+                      {entry.specialty ? capitalize(entry.specialty) : '\u2014'}
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-gray-500">
+                      {entry.city ? capitalize(entry.city) : '\u2014'}
+                    </TableCell>
+                    <TableCell className="px-5 py-4">
                       <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style.bg} ${style.text}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
                         {label}
                       </span>
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-gray-500">
                       {formatDate(entry.createdAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm">
-                      <button
-                        type="button"
+                    </TableCell>
+                    <TableCell className="px-5 py-4">
+                      <Button
+                        variant="outline"
+                        size="xs"
                         onClick={(e) => { e.stopPropagation(); setDrawerEntry(entry); }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity rounded-md border border-gray-200 px-2.5 py-1 text-xs text-gray-600 hover:border-gray-300 hover:text-gray-900"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         View
-                      </button>
-                    </td>
-                  </tr>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 );
               })
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <p className="text-sm text-gray-400">
-            Showing {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}
+            Showing {(page - 1) * PER_PAGE + 1}\u2013{Math.min(page * PER_PAGE, filtered.length)} of {filtered.length}
           </p>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Previous
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       )}

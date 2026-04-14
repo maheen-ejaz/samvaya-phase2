@@ -1,6 +1,28 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { CheckCircle2Icon, XCircleIcon } from 'lucide-react';
 
 interface BgvCheck {
   id: string;
@@ -39,7 +61,7 @@ const CHECK_LABELS: Record<string, string> = {
 
 const STATUS_OPTIONS = ['pending', 'in_progress', 'verified', 'flagged'] as const;
 
-const STATUS_STYLES: Record<string, string> = {
+const STATUS_BADGE_CLASSES: Record<string, string> = {
   pending: 'bg-gray-100 text-gray-600',
   in_progress: 'bg-blue-100 text-blue-700',
   verified: 'bg-green-100 text-green-700',
@@ -47,10 +69,10 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const STATUS_ICONS: Record<string, string> = {
-  pending: '⬜',
-  in_progress: '🔄',
-  verified: '✅',
-  flagged: '🚩',
+  pending: '\u2b1c',
+  in_progress: '\ud83d\udd04',
+  verified: '\u2705',
+  flagged: '\ud83d\udea9',
 };
 
 export function BgvTracker({ userId }: BgvTrackerProps) {
@@ -148,63 +170,88 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
 
   const verifiedCount = checks.filter((c) => c.status === 'verified').length;
   const flaggedCount = checks.filter((c) => c.status === 'flagged').length;
+  const progressPercent = Math.round((verifiedCount / 13) * 100);
 
   return (
     <div>
-      {/* Summary */}
-      <div className="mb-4 flex items-center gap-4">
-        <span className="text-sm text-gray-500">
-          {verifiedCount}/13 verified
-        </span>
-        {flaggedCount > 0 && (
-          <span className="text-sm text-red-600">{flaggedCount} flagged</span>
-        )}
-        {userInfo?.isBgvComplete && (
-          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-            BGV Complete
-          </span>
-        )}
-      </div>
+      {/* Summary with progress */}
+      <Card className="mb-4">
+        <CardContent className="p-4">
+          <div className="mb-2 flex items-center gap-4">
+            <span className="text-sm text-gray-500">
+              {verifiedCount}/13 verified
+            </span>
+            {flaggedCount > 0 && (
+              <span className="text-sm text-red-600">{flaggedCount} flagged</span>
+            )}
+            {userInfo?.isBgvComplete && (
+              <Badge variant="default" className="bg-green-100 text-green-800">
+                BGV Complete
+              </Badge>
+            )}
+          </div>
+          <Progress value={progressPercent} className="h-2" />
+        </CardContent>
+      </Card>
 
       {/* Prerequisites warning */}
       {!canEditChecks && (
-        <div className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-          BGV checks cannot be edited until both conditions are met:
-          <ul className="mt-1 list-inside list-disc">
-            <li>Verification fee paid: {feePaid ? '✓' : '✗'}</li>
-            <li>BGV consent given: {consentGiven ? '✓' : '✗'}</li>
-          </ul>
-        </div>
+        <Card className="mb-4 border-amber-200 bg-amber-50">
+          <CardContent className="p-3 text-sm text-amber-800">
+            BGV checks cannot be edited until both conditions are met:
+            <ul className="mt-1 space-y-0.5">
+              <li className="flex items-center gap-1.5">
+                {feePaid ? (
+                  <CheckCircle2Icon className="h-3.5 w-3.5 text-green-600" />
+                ) : (
+                  <XCircleIcon className="h-3.5 w-3.5 text-red-500" />
+                )}
+                Verification fee paid
+              </li>
+              <li className="flex items-center gap-1.5">
+                {consentGiven ? (
+                  <CheckCircle2Icon className="h-3.5 w-3.5 text-green-600" />
+                ) : (
+                  <XCircleIcon className="h-3.5 w-3.5 text-red-500" />
+                )}
+                BGV consent given
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
       )}
 
       {/* Bulk controls */}
       {canEditChecks && (
         <div className="mb-4 flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700">Set all to:</label>
-          <select
-            onChange={(e) => {
-              if (!e.target.value) return;
-              const newStatus = e.target.value;
-              setChecks((prev) => prev.map((c) => ({ ...c, status: newStatus })));
+          <Label className="text-sm font-medium text-gray-700">Set all to:</Label>
+          <Select
+            onValueChange={(val) => {
+              if (!val) return;
+              setChecks((prev) => prev.map((c) => ({ ...c, status: val })));
               setHasUnsavedChanges(true);
-              e.target.value = '';
             }}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-            defaultValue=""
+            value=""
           >
-            <option value="" disabled>Choose status...</option>
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>{s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</option>
-            ))}
-          </select>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Choose status..." />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {hasUnsavedChanges && (
-            <button
+            <Button
               onClick={saveAllChanges}
               disabled={isSavingAll}
-              className="rounded-md bg-gray-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-400"
+              size="sm"
             >
               {isSavingAll ? 'Saving...' : 'Save All Changes'}
-            </button>
+            </Button>
           )}
           {saveSuccess && (
             <span className="text-sm text-green-600">Saved</span>
@@ -213,17 +260,17 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
       )}
 
       {/* Checks Table */}
-      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-        <table className="min-w-full">
-          <thead className="admin-table-thead">
-            <tr className="border-b border-gray-100">
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Check</th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Status</th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Notes</th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50 bg-white">
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b border-gray-100">
+              <TableHead className="px-5">Check</TableHead>
+              <TableHead className="px-5">Status</TableHead>
+              <TableHead className="px-5">Notes</TableHead>
+              <TableHead className="px-5">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {checks.map((check) => (
               <BgvCheckRow
                 key={check.check_type}
@@ -237,9 +284,9 @@ export function BgvTracker({ userId }: BgvTrackerProps) {
                 }}
               />
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }
@@ -259,71 +306,82 @@ function BgvCheckRow({
   const [localNotes, setLocalNotes] = useState(check.notes || '');
 
   return (
-    <tr className={`border-l-2 border-l-transparent transition-colors hover:border-l-admin-blue-300 hover:bg-gray-50 ${isUpdating ? 'opacity-50' : ''}`}>
-      <td className="whitespace-nowrap px-5 py-4 text-sm font-medium text-gray-900">
+    <TableRow className={`border-l-2 border-l-transparent transition-colors hover:border-l-primary/20 hover:bg-gray-50 ${isUpdating ? 'opacity-50' : ''}`}>
+      <TableCell className="px-5 py-4 font-medium text-gray-900">
         {CHECK_LABELS[check.check_type] || check.check_type}
-      </td>
-      <td className="whitespace-nowrap px-5 py-4 text-sm">
-        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[check.status]}`}>
-          <span>{STATUS_ICONS[check.status]}</span>
+      </TableCell>
+      <TableCell className="px-5 py-4">
+        <Badge
+          variant="secondary"
+          className={STATUS_BADGE_CLASSES[check.status] || 'bg-gray-100 text-gray-600'}
+        >
+          <span className="mr-1">{STATUS_ICONS[check.status]}</span>
           {check.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-        </span>
-      </td>
-      <td className="px-5 py-4 text-sm text-gray-600">
+        </Badge>
+      </TableCell>
+      <TableCell className="px-5 py-4 text-gray-600">
         {editingNotes ? (
           <div className="flex gap-2">
-            <input
+            <Input
               type="text"
               value={localNotes}
               onChange={(e) => setLocalNotes(e.target.value)}
-              className="w-48 rounded border border-gray-300 px-2 py-1 text-sm"
+              className="h-7 w-48 text-sm"
               aria-label={`Notes for ${CHECK_LABELS[check.check_type] || check.check_type}`}
               autoFocus
             />
-            <button
+            <Button
+              variant="link"
+              size="xs"
               onClick={() => {
                 onUpdate(check.check_type, check.status, localNotes);
                 setEditingNotes(false);
               }}
-              className="text-xs text-blue-600 hover:underline"
             >
               Save
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
               onClick={() => setEditingNotes(false)}
-              className="text-xs text-gray-400 hover:underline"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         ) : (
           <span
             className={canEdit ? 'cursor-pointer hover:text-blue-600' : ''}
             onClick={() => canEdit && setEditingNotes(true)}
           >
-            {check.notes || <span className="text-gray-300">—</span>}
+            {check.notes || <span className="text-gray-300">{'\u2014'}</span>}
           </span>
         )}
-      </td>
-      <td className="whitespace-nowrap px-5 py-4 text-sm">
+      </TableCell>
+      <TableCell className="px-5 py-4">
         {canEdit ? (
-          <select
+          <Select
             value={check.status}
-            onChange={(e) => onUpdate(check.check_type, e.target.value)}
+            onValueChange={(val) => onUpdate(check.check_type, val)}
             disabled={isUpdating}
-            aria-label={`Status for ${CHECK_LABELS[check.check_type] || check.check_type}`}
-            className="rounded border border-gray-300 px-2 py-1 text-xs"
           >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger
+              className="h-7 w-32 text-xs"
+              aria-label={`Status for ${CHECK_LABELS[check.check_type] || check.check_type}`}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ) : (
           <span className="text-xs text-gray-400">Locked</span>
         )}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

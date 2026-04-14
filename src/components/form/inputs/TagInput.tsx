@@ -3,7 +3,11 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useCountries } from '@/lib/data/use-location-data';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { DropdownPortal } from './DropdownPortal';
+import { cn } from '@/lib/utils';
+import { XIcon, SearchIcon } from 'lucide-react';
 
 interface TagInputProps {
   question: QuestionConfig;
@@ -55,8 +59,6 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
     onChange([...value, optionValue]);
     setInputValue('');
     setHighlightedIndex(-1);
-    // Re-assert dropdown open after React re-render and any browser click events
-    // that may fire on the now-removed <li>, triggering the outside-click handler.
     requestAnimationFrame(() => {
       setIsOpen(true);
       inputRef.current?.focus();
@@ -69,7 +71,6 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !inputValue && value.length > 0) {
-      // Remove last pill on backspace in empty input
       onChange(value.slice(0, -1));
       return;
     }
@@ -105,29 +106,28 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
       {selectedLabels.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-2">
           {selectedLabels.map((item) => (
-            <span
+            <Badge
               key={item.value}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[color:var(--color-samvaya-red)]/30 bg-[color:var(--color-samvaya-red)]/5 px-3 py-1.5 text-[14px] text-[color:var(--color-form-text-primary)]"
+              variant="secondary"
+              className="h-auto gap-1.5 rounded-lg px-3 py-1.5 text-sm font-normal"
             >
               {item.label}
               <button
                 type="button"
                 onClick={() => removeOption(item.value)}
-                className="ml-0.5 inline-flex h-4 w-4 items-center justify-center text-[color:var(--color-samvaya-red)] hover:opacity-70"
+                className="ml-0.5 inline-flex size-4 items-center justify-center rounded-full text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={`Remove ${item.label}`}
               >
-                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <XIcon className="size-3" />
               </button>
-            </span>
+            </Badge>
           ))}
         </div>
       )}
 
       {/* Search input */}
       <div className="relative">
-        <input
+        <Input
           ref={inputRef}
           id={resolvedInputId}
           type="text"
@@ -149,18 +149,19 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
           placeholder={atMax ? 'Maximum reached' : (question.placeholder || 'Type to search...')}
           disabled={atMax}
           autoComplete="off"
-          className="form-input pr-10"
+          className={cn(
+            'h-11 rounded-xl border-input bg-transparent pr-10 pl-4 text-[15px]',
+            'focus-visible:ring-primary/30',
+          )}
         />
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--color-form-text-tertiary)]">
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          <SearchIcon className="size-4" />
         </span>
       </div>
 
       {/* Count indicator */}
       {value.length > 0 && (
-        <p className="form-caption mt-2">
+        <p className="mt-2 text-xs text-muted-foreground">
           {value.length} selected{question.maxSelections ? ` (max ${question.maxSelections})` : ''}
         </p>
       )}
@@ -171,7 +172,7 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
           id={listboxId}
           role="listbox"
           aria-multiselectable="true"
-          className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
+          className="max-h-60 overflow-auto rounded-xl border border-border bg-popover shadow-lg ring-1 ring-foreground/5"
         >
           {filtered.map((option, idx) => (
             <li
@@ -184,11 +185,12 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
                 addOption(option.value);
               }}
               onMouseEnter={() => setHighlightedIndex(idx)}
-              className={`cursor-pointer px-4 py-3 text-[15px] ${
+              className={cn(
+                'cursor-pointer px-4 py-2.5 text-sm transition-colors',
                 idx === highlightedIndex
-                  ? 'bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-primary)]'
-                  : 'text-[color:var(--color-form-text-secondary)] hover:bg-[color:var(--color-form-surface-muted)]'
-              }`}
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-foreground hover:bg-accent/50',
+              )}
             >
               {option.label}
             </li>

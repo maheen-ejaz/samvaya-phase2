@@ -1,4 +1,5 @@
 import type { DistributionEntry } from '@/types/dashboard';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DonutChart, DONUT_COLORS, type DonutSlice } from './DonutChart';
 import { DonutLegend } from './DonutLegend';
 
@@ -27,22 +28,25 @@ function DonutCard({ title, subtitle, slices }: DonutCardProps) {
   const total = slices.reduce((s, d) => s + d.count, 0);
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-        Distribution
-      </p>
-      <h3 className="mt-1 text-base font-semibold text-gray-900">{title}</h3>
-      <p className="mt-0.5 text-xs text-gray-400">{subtitle}</p>
-
-      {total === 0 ? (
-        <p className="mt-6 text-sm text-gray-400">No data yet.</p>
-      ) : (
-        <div className="mt-5 flex items-center gap-5">
-          <DonutChart data={slices} size={110} strokeWidth={16} />
-          <DonutLegend data={slices} total={total} maxItems={6} />
-        </div>
-      )}
-    </div>
+    <Card>
+      <CardHeader>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Distribution
+        </p>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{subtitle}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {total === 0 ? (
+          <p className="text-sm text-muted-foreground">No data yet.</p>
+        ) : (
+          <div className="flex items-center gap-5">
+            <DonutChart data={slices} size={110} strokeWidth={16} />
+            <DonutLegend data={slices} total={total} maxItems={6} />
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

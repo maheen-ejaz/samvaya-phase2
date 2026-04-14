@@ -1,21 +1,13 @@
+import { Separator } from '@/components/ui/separator';
+
 interface SectionHeaderProps {
-  /** "04" — section number, padded */
   positionLabel: string;
-  /** 14 — total section count */
   totalLabel: string;
-  /** "About your family" */
   title: string;
-  /** "A few questions about your family background and values." */
   subtitle?: string;
-  /** Progress through the current section, 0–1 */
   progress: number;
 }
 
-/**
- * Section header that appears at the top of every section screen.
- * Renders the section number eyebrow, the title, an optional subtitle,
- * and a thin red progress bar showing position within the current section.
- */
 export function SectionHeader({
   positionLabel,
   totalLabel,
@@ -27,13 +19,18 @@ export function SectionHeader({
 
   return (
     <header className="mb-10 lg:mb-14">
-      <div className="form-eyebrow mb-3">
+      <div className="mb-3 text-xs font-medium uppercase tracking-widest text-muted-foreground">
         Section {positionLabel} of {totalLabel}
       </div>
-      <h1 className="form-title mb-3">{title}</h1>
-      {subtitle && <p className="form-subtitle max-w-2xl">{subtitle}</p>}
-      <div className="form-progress-track mt-6 max-w-md">
-        <div className="form-progress-fill form-progress-fill-animate" style={{ width: `${pct}%` }} />
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground lg:text-3xl mb-3">{title}</h1>
+      {subtitle && <p className="text-sm text-muted-foreground max-w-2xl">{subtitle}</p>}
+      <div className="mt-6 max-w-md">
+        <div className="h-1 w-full rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-500"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
       </div>
     </header>
   );

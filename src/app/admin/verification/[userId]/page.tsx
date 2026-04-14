@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { BgvTracker } from '@/components/admin/verification/BgvTracker';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 async function loadUserData(userId: string): Promise<{ name: string }> {
   const adminSupabase = createAdminClient();
@@ -56,22 +58,20 @@ export default async function BgvTrackerPage({
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6 flex items-center gap-4">
-        <Link
-          href="/admin/verification"
-          className="text-sm text-gray-500 hover:text-gray-700"
-        >
-          &larr; Verification Queue
-        </Link>
-        <span className="text-gray-300">|</span>
-        <Link
-          href={`/admin/applicants/${userId}`}
-          className="text-sm text-gray-500 hover:text-gray-700"
-        >
-          View Profile
-        </Link>
+        <Button variant="link" size="sm" asChild className="px-0 text-gray-500 hover:text-gray-700">
+          <Link href="/admin/verification">
+            &larr; Verification Queue
+          </Link>
+        </Button>
+        <Separator orientation="vertical" className="h-4" />
+        <Button variant="link" size="sm" asChild className="px-0 text-gray-500 hover:text-gray-700">
+          <Link href={`/admin/applicants/${userId}`}>
+            View Profile
+          </Link>
+        </Button>
       </div>
 
-      <h1 className="type-heading-xl text-gray-900">BGV Tracker — {name}</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-gray-900">BGV Tracker — {name}</h1>
       <p className="mb-6 mt-1 text-sm text-gray-500">13 OnGrid checks</p>
 
       <BgvTracker userId={userId} />

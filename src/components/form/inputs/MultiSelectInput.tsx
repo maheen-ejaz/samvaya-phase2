@@ -2,6 +2,9 @@
 
 import type { QuestionConfig } from '@/lib/form/types';
 import { TagInput } from './TagInput';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { CheckIcon } from 'lucide-react';
 
 interface MultiSelectInputProps {
   question: QuestionConfig;
@@ -37,46 +40,35 @@ export function MultiSelectInput({ question, value, onChange, inputId, ariaDescr
     <fieldset id={inputId} aria-describedby={ariaDescribedBy} aria-invalid={ariaInvalid || undefined}>
       <legend className="sr-only">{question.text}</legend>
       {question.maxSelections && (
-        <p className="form-caption mb-3">
+        <p className="mb-3 text-xs text-muted-foreground">
           {selected.length} / {question.maxSelections} selected
         </p>
       )}
-      <div className="form-chip-grid flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         {question.options.map((option) => {
           const isSelected = selected.includes(option.value);
           const isDisabled =
             !isSelected &&
             question.maxSelections !== undefined &&
             selected.length >= question.maxSelections;
-          // Wide chip for labels > 20 chars (full-width on mobile grid)
-          const isWide = option.label.length > 20;
 
           return (
-            <button
+            <Button
               key={option.value}
               type="button"
+              variant={isSelected ? 'default' : 'outline'}
               onClick={() => toggle(option.value)}
               disabled={isDisabled}
               aria-pressed={isSelected}
-              data-selected={isSelected}
-              className={`form-chip disabled:opacity-40 disabled:cursor-not-allowed ${isWide ? 'form-chip-wide' : ''}`}
+              className={cn(
+                'h-auto rounded-xl px-4 py-2.5 text-[14px] font-normal transition-all',
+                isSelected && 'gap-1.5',
+                option.label.length > 20 && 'w-full sm:w-auto',
+              )}
             >
               {option.label}
-              {isSelected && (
-                <svg
-                  viewBox="0 0 12 12"
-                  className="form-chip-check"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="2 6.5 5 9.5 10 3" />
-                </svg>
-              )}
-            </button>
+              {isSelected && <CheckIcon className="size-3.5" />}
+            </Button>
           );
         })}
       </div>

@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { ApplicantList, type Applicant } from '@/components/admin/ApplicantList';
 import { WaitlistTable, type WaitlistEntry } from '@/components/admin/WaitlistTable';
 import { ApplicantDashboard } from '@/components/admin/applicants/ApplicantDashboard';
+import { Button } from '@/components/ui/button';
 
 const STAGE_TITLES: Record<string, string> = {
   waitlist: 'Waitlist',
@@ -125,7 +126,7 @@ export default async function ApplicantsPage({
         <div className="mx-auto max-w-7xl space-y-12">
           <ApplicantDashboard stageCounts={stageCounts} />
           <div>
-            <h2 className="type-heading-lg mb-4 text-gray-900">All Applicants</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-900">All Applicants</h2>
             <ApplicantList applicants={allApplicants} title="" />
           </div>
         </div>
@@ -158,9 +159,9 @@ export default async function ApplicantsPage({
 
       return (
         <div className="mx-auto max-w-7xl">
-          <Link href="/admin/applicants" className="mb-4 inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-            ← Back to Applicants
-          </Link>
+          <Button variant="link" size="sm" asChild className="mb-4 px-0 text-gray-500 hover:text-gray-700">
+            <Link href="/admin/applicants">&larr; Back to Applicants</Link>
+          </Button>
           <WaitlistTable entries={entries} title={STAGE_TITLES[stage] || 'Waitlist'} />
         </div>
       );
@@ -225,7 +226,7 @@ export default async function ApplicantsPage({
               ← Back to Applicants
             </Link>
           )}
-          <h1 className="type-heading-xl text-gray-900">{pageTitle}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{pageTitle}</h1>
           <p className="mt-4 text-sm text-gray-500">No applicants found for this stage.</p>
         </div>
       );
@@ -278,9 +279,9 @@ export default async function ApplicantsPage({
     return (
       <div className="mx-auto max-w-7xl">
         {stage && (
-          <Link href="/admin/applicants" className="mb-4 inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-            ← Back to Applicants
-          </Link>
+          <Button variant="link" size="sm" asChild className="mb-4 px-0 text-gray-500 hover:text-gray-700">
+            <Link href="/admin/applicants">&larr; Back to Applicants</Link>
+          </Button>
         )}
         <ApplicantList applicants={applicants} title={pageTitle} />
       </div>

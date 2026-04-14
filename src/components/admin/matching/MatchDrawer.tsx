@@ -5,6 +5,13 @@ import type { MatchSuggestionWithProfiles, CompatibilityReport } from '@/types/m
 import { CompatibilityBreakdown } from './CompatibilityBreakdown';
 import { capitalize } from '@/lib/utils';
 import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MatchDrawerProps {
   suggestions: MatchSuggestionWithProfiles[];
@@ -31,22 +38,22 @@ function getRecommendationLabel(rec: string): string {
   }
 }
 
-function getRecommendationStyle(rec: string): string {
+function getRecommendationVariant(rec: string): 'default' | 'secondary' | 'destructive' | 'outline' {
   switch (rec) {
-    case 'strongly_recommend': return 'bg-admin-blue-100 text-admin-blue-900 border-admin-blue-200';
-    case 'recommend': return 'bg-admin-blue-50 text-admin-blue-800 border-admin-blue-100';
-    case 'worth_considering': return 'bg-amber-50 text-amber-800 border-amber-200';
-    case 'not_recommended': return 'bg-red-50 text-red-700 border-red-200';
-    default: return 'bg-gray-50 text-gray-600 border-gray-200';
+    case 'strongly_recommend': return 'default';
+    case 'recommend': return 'secondary';
+    case 'worth_considering': return 'outline';
+    case 'not_recommended': return 'destructive';
+    default: return 'outline';
   }
 }
 
-function getStatusStyle(status: string): string {
+function getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
   switch (status) {
-    case 'approved': return 'bg-admin-blue-100 text-admin-blue-900 border-admin-blue-200';
-    case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-    case 'pending_review': return 'bg-amber-50 text-amber-800 border-amber-200';
-    default: return 'bg-gray-50 text-gray-600 border-gray-200';
+    case 'approved': return 'default';
+    case 'rejected': return 'destructive';
+    case 'pending_review': return 'outline';
+    default: return 'outline';
   }
 }
 
@@ -76,8 +83,8 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="type-display-sm type-stat text-gray-900">{score}</span>
-      <div className="relative h-4 flex-1 overflow-hidden rounded-md bg-gray-100">
+      <span className="text-3xl font-light tabular-nums tracking-tight text-foreground">{score}</span>
+      <div className="relative h-4 flex-1 overflow-hidden rounded-md bg-muted">
         <div
           className="absolute inset-y-0 left-0 rounded-md"
           style={{
@@ -108,17 +115,17 @@ function ProfileCard({ person }: { person: MatchSuggestionWithProfiles['profile_
 
   return (
     <div className={`flex-1 rounded-2xl border p-4 shadow-sm ${cardStyle}`}>
-      <div className="aspect-[4/5] w-full overflow-hidden rounded-xl bg-gray-100">
+      <div className="aspect-[4/5] w-full overflow-hidden rounded-xl bg-muted">
         <img src={photoSrc} alt={person.full_name} className="h-full w-full object-cover" />
       </div>
       <div className="mt-3 px-1">
-        <p className="inline-flex items-center gap-1.5 text-base font-bold text-gray-900">
+        <p className="inline-flex items-center gap-1.5 text-base font-bold text-foreground">
           {person.full_name}
           <ApplicantStatusIcons isGooCampusMember={person.is_goocampus_member ?? false} paymentStatus={person.payment_status} size={13} />
         </p>
-        {details.length > 0 && <p className="mt-1 text-sm text-gray-500">{details.join(', ')}</p>}
+        {details.length > 0 && <p className="mt-1 text-sm text-muted-foreground">{details.join(', ')}</p>}
         {(age || location) && (
-          <div className="mt-1 flex items-center justify-between text-sm text-gray-400">
+          <div className="mt-1 flex items-center justify-between text-sm text-muted-foreground/70">
             {age && <span>{age}</span>}
             {location && <span>{location}</span>}
           </div>
@@ -151,12 +158,11 @@ export function MatchDrawer({
     setActionSuccess(null);
   }, [suggestion?.id, suggestion?.match_narrative]);
 
-  // Escape key closes drawer
+  // Arrow key navigation
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') onClose();
     if (e.key === 'ArrowLeft' && currentIndex > 0) onNavigate(currentIndex - 1);
     if (e.key === 'ArrowRight' && currentIndex < suggestions.length - 1) onNavigate(currentIndex + 1);
-  }, [onClose, onNavigate, currentIndex, suggestions.length]);
+  }, [onNavigate, currentIndex, suggestions.length]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -203,61 +209,63 @@ export function MatchDrawer({
   };
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Drawer panel */}
-      <div className="fixed inset-y-0 right-0 z-50 flex w-[55vw] min-w-[640px] max-w-[900px] flex-col bg-white shadow-2xl">
-
+    <Sheet open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <SheetContent
+        side="right"
+        className="w-[55vw] min-w-[640px] max-w-[900px] p-0 [&>button:last-child]:hidden"
+        showCloseButton={false}
+      >
         {/* Header */}
-        <div className="flex shrink-0 items-center gap-4 border-b border-gray-100 px-6 py-4">
+        <div className="flex shrink-0 items-center gap-4 border-b px-6 py-4">
           {/* Prev/Next navigation */}
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="icon-sm"
               onClick={() => onNavigate(currentIndex - 1)}
               disabled={currentIndex === 0}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-admin-blue-300 hover:text-admin-blue-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Previous match (←)"
+              className="rounded-full"
             >
               ←
-            </button>
-            <span className="min-w-[60px] text-center text-xs text-gray-400">
+            </Button>
+            <span className="min-w-[60px] text-center text-xs text-muted-foreground">
               {currentIndex + 1} of {suggestions.length}
             </span>
-            <button
+            <Button
+              variant="outline"
+              size="icon-sm"
               onClick={() => onNavigate(currentIndex + 1)}
               disabled={currentIndex === suggestions.length - 1}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-admin-blue-300 hover:text-admin-blue-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Next match (→)"
+              className="rounded-full"
             >
               →
-            </button>
+            </Button>
           </div>
 
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-gray-900">
+          <SheetHeader className="flex-1 space-y-0">
+            <SheetTitle className="text-sm">
               {firstProfile.full_name} &amp; {secondProfile.full_name}
-            </p>
-            <p className="text-xs text-gray-400">Created {daysAgo === 0 ? 'today' : `${daysAgo}d ago`}</p>
-          </div>
+            </SheetTitle>
+            <SheetDescription className="text-xs">
+              Created {daysAgo === 0 ? 'today' : `${daysAgo}d ago`}
+            </SheetDescription>
+          </SheetHeader>
 
-          <button
+          <Button
+            variant="outline"
+            size="icon-sm"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 transition-colors"
             title="Close (Esc)"
+            className="rounded-full"
           >
             ✕
-          </button>
+          </Button>
         </div>
 
         {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto">
-
+        <ScrollArea className="flex-1 h-[calc(100vh-73px)]">
           {/* Profile cards — female always on the left */}
           <div className="flex gap-4 px-6 pt-6">
             <ProfileCard person={firstProfile} />
@@ -269,17 +277,17 @@ export function MatchDrawer({
             <ScoreBar score={suggestion.overall_compatibility_score} />
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {suggestion.recommendation && (
-                <span className={`rounded-full border px-3 py-0.5 text-xs font-medium ${getRecommendationStyle(suggestion.recommendation)}`}>
+                <Badge variant={getRecommendationVariant(suggestion.recommendation)}>
                   {getRecommendationLabel(suggestion.recommendation)}
-                </span>
+                </Badge>
               )}
-              <span className={`rounded-full border px-3 py-0.5 text-xs font-medium ${getStatusStyle(suggestion.admin_status)}`}>
+              <Badge variant={getStatusVariant(suggestion.admin_status)}>
                 {getStatusLabel(suggestion.admin_status)}
-              </span>
+              </Badge>
               {suggestion.is_stale && (
-                <span className="rounded-full border border-yellow-200 bg-yellow-50 px-3 py-0.5 text-xs text-yellow-700">
+                <Badge variant="outline" className="border-yellow-200 bg-yellow-50 text-yellow-700">
                   Stale — profiles updated
-                </span>
+                </Badge>
               )}
             </div>
           </div>
@@ -287,96 +295,95 @@ export function MatchDrawer({
           {/* Compatibility breakdown */}
           {report && (
             <div className="px-6 pt-6">
-              <h3 className="mb-3 text-sm font-semibold text-gray-700">Compatibility Breakdown</h3>
+              <h3 className="mb-3 text-sm font-semibold text-foreground">Compatibility Breakdown</h3>
               <CompatibilityBreakdown report={report} />
             </div>
           )}
 
           {/* Review form */}
           <div className="px-6 py-6">
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 space-y-4">
-              <h3 className="text-sm font-semibold text-gray-700">
-                {isPending ? 'Review Decision' : 'Admin Review'}
-              </h3>
+            <Card className="bg-muted/50 p-5">
+              <CardContent className="space-y-4 p-0">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {isPending ? 'Review Decision' : 'Admin Review'}
+                </h3>
 
-              {/* Narrative preview — styled read-only card */}
-              {narrative && (
-                <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">Match Narrative</p>
-                  <p className="text-sm leading-relaxed text-gray-700 italic">&ldquo;{narrative}&rdquo;</p>
-                </div>
-              )}
+                {/* Narrative preview — styled read-only card */}
+                {narrative && (
+                  <Card className="px-4 py-3">
+                    <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Match Narrative</p>
+                    <p className="text-sm leading-relaxed text-foreground/80 italic">&ldquo;{narrative}&rdquo;</p>
+                  </Card>
+                )}
 
-              <div>
-                <label className="block text-xs font-medium uppercase tracking-wide text-gray-400">
-                  Edit Narrative {!isPending && '(read-only)'}
-                </label>
-                <textarea
-                  value={narrative}
-                  onChange={(e) => setNarrative(e.target.value)}
-                  readOnly={!isPending}
-                  rows={4}
-                  className={`mt-1.5 w-full rounded-lg border px-3 py-2 text-sm ${
-                    isPending
-                      ? 'border-gray-200 bg-white focus:border-admin-blue-400 focus:ring-1 focus:ring-admin-blue-400/30 focus:outline-none'
-                      : 'border-transparent bg-white/60 text-gray-500 cursor-default'
-                  }`}
-                  placeholder="AI-generated narrative about why these two are compatible…"
-                />
-              </div>
-
-              {isPending && (
                 <div>
-                  <label className="block text-xs font-medium uppercase tracking-wide text-gray-400">
-                    Admin Notes (required for rejection)
-                  </label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={3}
-                    className="mt-1.5 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:border-admin-blue-400 focus:ring-1 focus:ring-admin-blue-400/30 focus:outline-none"
-                    placeholder="Notes or rejection reason…"
+                  <Label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Edit Narrative {!isPending && '(read-only)'}
+                  </Label>
+                  <Textarea
+                    value={narrative}
+                    onChange={(e) => setNarrative(e.target.value)}
+                    readOnly={!isPending}
+                    rows={4}
+                    className={`mt-1.5 ${!isPending ? 'opacity-60 cursor-default' : ''}`}
+                    placeholder="AI-generated narrative about why these two are compatible..."
                   />
                 </div>
-              )}
 
-              {suggestion.admin_notes && !isPending && (
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-wide text-gray-400">Admin Notes</label>
-                  <p className="mt-1.5 rounded-lg border border-transparent bg-white/60 px-3 py-2 text-sm text-gray-500">{suggestion.admin_notes}</p>
-                </div>
-              )}
+                {isPending && (
+                  <div>
+                    <Label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Admin Notes (required for rejection)
+                    </Label>
+                    <Textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      rows={3}
+                      className="mt-1.5"
+                      placeholder="Notes or rejection reason..."
+                    />
+                  </div>
+                )}
 
-              {validationError && (
-                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{validationError}</p>
-              )}
+                {suggestion.admin_notes && !isPending && (
+                  <div>
+                    <Label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Admin Notes</Label>
+                    <p className="mt-1.5 rounded-lg bg-background/60 px-3 py-2 text-sm text-muted-foreground">{suggestion.admin_notes}</p>
+                  </div>
+                )}
 
-              {actionSuccess && (
-                <p className="rounded-lg bg-admin-blue-50 px-3 py-2 text-sm text-admin-blue-900" role="status">{actionSuccess}</p>
-              )}
+                {validationError && (
+                  <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{validationError}</p>
+                )}
 
-              {isPending && !actionSuccess && (
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={handleApprove}
-                    disabled={loading}
-                    className="rounded-full bg-admin-blue-900 px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {loading ? 'Processing…' : 'Approve Match'}
-                  </button>
-                  <button
-                    onClick={handleReject}
-                    disabled={loading}
-                    className="rounded-full border border-red-200 bg-red-50 px-6 py-2 text-sm font-medium text-red-700 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {loading ? 'Processing…' : 'Reject'}
-                  </button>
-                </div>
-              )}
-            </div>
+                {actionSuccess && (
+                  <p className="rounded-lg bg-muted px-3 py-2 text-sm text-primary" role="status">{actionSuccess}</p>
+                )}
+
+                {isPending && !actionSuccess && (
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      onClick={handleApprove}
+                      disabled={loading}
+                      className="rounded-full"
+                    >
+                      {loading ? 'Processing...' : 'Approve Match'}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={handleReject}
+                      disabled={loading}
+                      className="rounded-full"
+                    >
+                      {loading ? 'Processing...' : 'Reject'}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      </div>
-    </>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
   );
 }

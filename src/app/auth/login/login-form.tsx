@@ -1,9 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { sendOtp, verifyOtp } from "./actions";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@/components/ui/input-otp";
+import { Spinner } from "@/components/ui/spinner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
+import { CheckCircle2Icon, AlertCircleIcon } from "lucide-react";
 
 type Step = "email" | "otp";
 
@@ -16,173 +25,21 @@ function isSafeRedirectPath(path: string | null): boolean {
   return path === "/app" || path.startsWith("/app/") || path === "/admin" || path.startsWith("/admin/");
 }
 
-function OtpInput({
-  value,
-  onChange,
-  disabled,
-  hasError,
-  shakeKey,
-  isSuccess,
-}: {
-  value: string;
-  onChange: (val: string) => void;
-  disabled: boolean;
-  hasError: boolean;
-  shakeKey: number;
-  isSuccess: boolean;
-}) {
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const digits = value.padEnd(6, " ").split("").slice(0, 6);
-  const [filledIndices, setFilledIndices] = useState<Set<number>>(new Set());
-
-  const handleChange = (index: number, char: string) => {
-    const cleaned = char.replace(/\D/g, "");
-    if (!cleaned) return;
-    const newDigits = [...digits];
-    newDigits[index] = cleaned[0];
-    const newVal = newDigits.join("").replace(/ /g, "");
-    onChange(newVal);
-
-    setFilledIndices((prev) => new Set(prev).add(index));
-    setTimeout(() => {
-      setFilledIndices((prev) => {
-        const next = new Set(prev);
-        next.delete(index);
-        return next;
-      });
-    }, 200);
-
-    if (index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace") {
-      e.preventDefault();
-      const newDigits = [...digits];
-      if (digits[index] && digits[index] !== " ") {
-        newDigits[index] = " ";
-        onChange(newDigits.join("").trimEnd());
-      } else if (index > 0) {
-        newDigits[index - 1] = " ";
-        onChange(newDigits.join("").trimEnd());
-        inputRefs.current[index - 1]?.focus();
-      }
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    } else if (e.key === "ArrowRight" && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (pasted) {
-      onChange(pasted);
-      const focusIdx = Math.min(pasted.length, 5);
-      inputRefs.current[focusIdx]?.focus();
-    }
-  };
-
-  const getBorderClass = (index: number) => {
-    if (isSuccess) return "border-green-500 bg-green-50";
-    if (hasError) return "border-red-400 bg-red-50/30";
-    if (filledIndices.has(index)) return "border-samvaya-red scale-105";
-    return "border-gray-200 bg-white";
-  };
-
-  return (
-    <div
-      key={shakeKey}
-      className={`flex justify-center gap-2.5 ${hasError ? "animate-shake" : ""}`}
-      onPaste={handlePaste}
-    >
-      {digits.map((digit, i) => (
-        <input
-          key={i}
-          ref={(el) => { inputRefs.current[i] = el; }}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          disabled={disabled || isSuccess}
-          value={digit === " " ? "" : digit}
-          onChange={(e) => handleChange(i, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(i, e)}
-          onFocus={(e) => e.target.select()}
-          autoComplete={i === 0 ? "one-time-code" : "off"}
-          autoFocus={i === 0}
-          aria-label={`Digit ${i + 1} of 6`}
-          className={`h-12 w-10 rounded-xl border-2 text-center text-lg font-semibold text-gray-900 shadow-sm transition-all duration-150 focus:border-samvaya-red focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.15)] focus:outline-none disabled:opacity-50 sm:h-14 sm:w-12 sm:text-xl ${getBorderClass(i)}`}
-        />
-      ))}
-    </div>
-  );
-}
-
-function Spinner({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg className={`animate-spin ${className}`} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="8" />
-    </svg>
-  );
-}
-
-function CheckmarkIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" className="text-green-500" />
-      <path
-        d="M6 10.5 8.5 13 14 7.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="text-green-500 animate-checkmark"
-        strokeDasharray="24"
-        strokeDashoffset="24"
-      />
-    </svg>
-  );
-}
-
 function CountdownRing({ seconds, total = 60 }: { seconds: number; total?: number }) {
   const radius = 11;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - seconds / total);
 
   return (
-    <svg
-      className="h-7 w-7"
-      viewBox="0 0 28 28"
-      fill="none"
-      aria-hidden="true"
-    >
-      {/* Background track */}
+    <svg className="size-7" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <circle cx="14" cy="14" r={radius.toString()} stroke="#e5e7eb" strokeWidth="2.5" fill="none" />
       <circle
-        cx="14"
-        cy="14"
-        r={radius.toString()}
-        stroke="#e5e7eb"
-        strokeWidth="2.5"
-        fill="none"
-      />
-      {/* Progress arc */}
-      <circle
-        cx="14"
-        cy="14"
-        r={radius.toString()}
-        stroke="currentColor"
-        strokeWidth="2.5"
-        fill="none"
-        strokeLinecap="round"
+        cx="14" cy="14" r={radius.toString()}
+        stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round"
         strokeDasharray={circumference.toString()}
         strokeDashoffset={strokeDashoffset.toString()}
         transform="rotate(-90 14 14)"
-        style={{
-          transition: "stroke-dashoffset 0.5s linear",
-        }}
+        style={{ transition: "stroke-dashoffset 0.5s linear" }}
       />
     </svg>
   );
@@ -198,7 +55,6 @@ export function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [shakeKey, setShakeKey] = useState(0);
   const [otpError, setOtpError] = useState(false);
   const [verifySuccess, setVerifySuccess] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
@@ -240,7 +96,6 @@ export function LoginForm() {
         setLoading(false);
         setError(result.error);
         setOtpError(true);
-        setShakeKey((k) => k + 1);
         return;
       }
       setVerifySuccess(true);
@@ -265,171 +120,194 @@ export function LoginForm() {
   }, [email, resendCooldown, loading]);
 
   return (
-    <div className="flex min-h-screen">
-      {/* ═══ LEFT PANEL — Brand Visual ═══ */}
-      <div className="relative hidden w-1/2 flex-col items-center justify-center gap-8 overflow-hidden bg-samvaya-gradient-2 p-12 lg:flex">
-        {/* Decorative dot pattern */}
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
-          <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.5" fill="white" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#dots)" />
-          </svg>
-        </div>
+    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+      <div className="flex w-full max-w-4xl">
+        <Card className="overflow-hidden p-0 w-full">
+          <CardContent className="grid p-0 md:grid-cols-2">
+            {/* ═══ LEFT — Brand Visual ═══ */}
+            <div className="relative hidden flex-col items-center justify-center gap-8 overflow-hidden bg-samvaya-gradient-2 p-12 md:flex">
+              {/* Decorative dot pattern */}
+              <div className="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
+                <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+                      <circle cx="2" cy="2" r="1.5" fill="white" />
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#dots)" />
+                </svg>
+              </div>
 
-        {/* Logo */}
-        <div className="relative z-10 animate-fade-in">
-          <Image
-            src="/samvaya-logo-white.png"
-            alt="Samvaya"
-            width={160}
-            height={44}
-            className="drop-shadow-lg"
-            priority
-          />
-        </div>
+              <div className="relative z-10 animate-fade-in">
+                <Image
+                  src="/samvaya-logo-white.png"
+                  alt="Samvaya"
+                  width={160}
+                  height={44}
+                  className="drop-shadow-lg"
+                  priority
+                />
+              </div>
 
-        {/* Hero text */}
-        <div className="relative z-10 animate-fade-in-up text-center">
-          <h1 className="type-heading-xl leading-tight tracking-tight text-white xl:text-5xl">
-            Where Exceptional<br />
-            Doctors Find<br />
-            Exceptional Partners
-          </h1>
-          <p className="mx-auto mt-4 max-w-md text-base text-white/70">
-            A premium, curated matrimony platform exclusively for medical professionals in India.
-          </p>
-        </div>
+              <div className="relative z-10 animate-fade-in-up text-center">
+                <h1 className="text-3xl font-light leading-tight tracking-tight text-white xl:text-4xl">
+                  Where Exceptional<br />
+                  Doctors Find<br />
+                  Exceptional Partners
+                </h1>
+                <p className="mx-auto mt-4 max-w-md text-sm text-white/70">
+                  A premium, curated matrimony platform exclusively for medical professionals in India.
+                </p>
+              </div>
 
-        {/* Footer */}
-        <div className="relative z-10 mt-4">
-          <p className="text-sm text-white/40">&copy; 2026 Samvaya Matrimony</p>
-        </div>
-      </div>
-
-      {/* ═══ RIGHT PANEL — Login Form ═══ */}
-      <div className="flex w-full flex-col justify-center bg-[#FAFAF9] px-6 py-12 lg:w-1/2 lg:px-16 xl:px-24">
-        {/* Mobile logo (hidden on desktop) */}
-        <div className="mb-10 lg:hidden">
-          <Image
-            src="/samvaya-logo-red.png"
-            alt="Samvaya"
-            width={140}
-            height={38}
-            className="mx-auto"
-            priority
-          />
-        </div>
-
-        <div className="mx-auto w-full max-w-md">
-          {/* Glass form card */}
-          <div className="card-glass animate-scale-in p-8 sm:p-10">
-            <h2 className="type-heading-lg text-gray-900">
-              {step === "email" ? "Sign in to your account" : "Enter verification code"}
-            </h2>
-            <p className="mt-2 text-sm text-gray-500">
-              {step === "email"
-                ? "We\u2019ll send a 6-digit code to your email"
-                : `Code sent to ${email}`}
-            </p>
-
-            {step === "otp" && (
-              <p className="mt-3 rounded-lg bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">
-                Can&apos;t find it? Check your <strong>spam or junk folder</strong>. The code may take up to 3 minutes to arrive — please wait before requesting a new one.
-              </p>
-            )}
-
-            <div className={`transition-opacity duration-150 ${transitioning ? "opacity-0" : "opacity-100"}`}>
-              {step === "email" ? (
-                <form onSubmit={handleSendOtp} className="mt-8 space-y-5">
-                  <div>
-                    <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                      Email address
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      required
-                      autoComplete="email"
-                      autoFocus
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
-                      placeholder="you@example.com"
-                      className="input-glass"
-                    />
-                  </div>
-
-                  {error && (
-                    <p className="animate-fade-in-up text-sm text-red-600" role="alert">{error}</p>
-                  )}
-
-                  <button type="submit" disabled={loading} className="btn-dark">
-                    {loading ? (<><Spinner /> Sending code...</>) : "Send verification code"}
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyOtp} className="animate-fade-in mt-8 space-y-5">
-                  <OtpInput
-                    value={otpCode}
-                    onChange={setOtpCode}
-                    disabled={loading}
-                    hasError={otpError}
-                    shakeKey={shakeKey}
-                    isSuccess={verifySuccess}
-                  />
-
-                  {error && (
-                    <p className="animate-fade-in-up text-center text-sm text-red-600" role="alert">{error}</p>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={loading || otpCode.length < 6 || verifySuccess}
-                    className={verifySuccess
-                      ? "btn-dark !bg-green-600 hover:!bg-green-600"
-                      : "btn-dark"
-                    }
-                  >
-                    {verifySuccess ? (<><CheckmarkIcon /> Verified!</>) : loading ? (<><Spinner /> Verifying...</>) : "Verify and sign in"}
-                  </button>
-
-                  {!verifySuccess && (
-                    <div className="flex items-center justify-between text-sm">
-                      <button
-                        type="button"
-                        onClick={() => { setStep("email"); setOtpCode(""); setError(""); setOtpError(false); setVerifySuccess(false); }}
-                        className="btn-ghost !px-3 !py-2 !text-sm text-samvaya-red hover:text-samvaya-red-dark"
-                      >
-                        Change email
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleResend}
-                        disabled={resendCooldown > 0 || loading}
-                        className="btn-ghost !px-3 !py-2 !text-sm text-samvaya-red hover:text-samvaya-red-dark disabled:text-gray-400 disabled:cursor-not-allowed flex items-center gap-1.5"
-                      >
-                        {resendCooldown > 0 && <CountdownRing seconds={resendCooldown} />}
-                        {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
-                      </button>
-                    </div>
-                  )}
-                </form>
-              )}
+              <p className="relative z-10 mt-4 text-xs text-white/40">&copy; 2026 Samvaya Matrimony</p>
             </div>
-          </div>
 
-          {/* Legal footer */}
-          <p className="mt-8 text-center text-xs text-gray-400">
-            By signing in, you agree to our{" "}
-            <a href="/legal/terms" className="text-gray-500 underline transition-colors hover:text-gray-700">Terms</a>
-            {" "}and{" "}
-            <a href="/legal/privacy" className="text-gray-500 underline transition-colors hover:text-gray-700">Privacy Policy</a>
-          </p>
-        </div>
+            {/* ═══ RIGHT — Login Form ═══ */}
+            <div className="flex flex-col justify-center p-6 md:p-8">
+              {/* Mobile logo */}
+              <div className="mb-8 md:hidden">
+                <Image
+                  src="/samvaya-logo-red.png"
+                  alt="Samvaya"
+                  width={140}
+                  height={38}
+                  className="mx-auto"
+                  priority
+                />
+              </div>
+
+              <div className="flex flex-col items-center gap-2 text-center mb-6">
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  {step === "email" ? "Sign in to your account" : "Enter verification code"}
+                </h2>
+                <p className="text-sm text-muted-foreground text-balance">
+                  {step === "email"
+                    ? "We\u2019ll send a 6-digit code to your email"
+                    : <>Code sent to <span className="font-medium text-foreground">{email}</span></>}
+                </p>
+              </div>
+
+              {step === "otp" && (
+                <Alert className="mb-6 border-amber-200 bg-amber-50 text-amber-800">
+                  <AlertCircleIcon className="size-4 text-amber-600" />
+                  <AlertDescription className="text-xs leading-relaxed">
+                    Can&apos;t find it? Check your <strong>spam or junk folder</strong>. The code may take up to 3 minutes to arrive.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className={cn("transition-opacity duration-150", transitioning ? "opacity-0" : "opacity-100")}>
+                {step === "email" ? (
+                  <form onSubmit={handleSendOtp} className="space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email address</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        autoFocus
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
+                        placeholder="you@example.com"
+                        className="h-11 rounded-xl"
+                      />
+                    </div>
+
+                    {error && (
+                      <p className="animate-fade-in-up text-sm text-destructive" role="alert">{error}</p>
+                    )}
+
+                    <Button type="submit" disabled={loading} className="w-full rounded-xl">
+                      {loading ? (<><Spinner className="size-4" /> Sending code...</>) : "Send verification code"}
+                    </Button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleVerifyOtp} className="animate-fade-in space-y-5">
+                    <div className="flex justify-center">
+                      <InputOTP
+                        maxLength={6}
+                        value={otpCode}
+                        onChange={setOtpCode}
+                        disabled={loading || verifySuccess}
+                        autoFocus
+                        aria-invalid={otpError || undefined}
+                        className={cn(otpError && "animate-shake")}
+                      >
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
+                          <InputOTPSlot index={1} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
+                          <InputOTPSlot index={2} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
+                        </InputOTPGroup>
+                        <InputOTPSeparator />
+                        <InputOTPGroup>
+                          <InputOTPSlot index={3} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
+                          <InputOTPSlot index={4} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
+                          <InputOTPSlot index={5} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
+
+                    {error && (
+                      <p className="animate-fade-in-up text-center text-sm text-destructive" role="alert">{error}</p>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={loading || otpCode.length < 6 || verifySuccess}
+                      className={cn(
+                        "w-full rounded-xl",
+                        verifySuccess && "bg-emerald-600 hover:bg-emerald-600",
+                      )}
+                    >
+                      {verifySuccess ? (
+                        <><CheckCircle2Icon className="size-5" /> Verified!</>
+                      ) : loading ? (
+                        <><Spinner className="size-4" /> Verifying...</>
+                      ) : (
+                        "Verify and sign in"
+                      )}
+                    </Button>
+
+                    {!verifySuccess && (
+                      <div className="flex items-center justify-between">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => { setStep("email"); setOtpCode(""); setError(""); setOtpError(false); setVerifySuccess(false); }}
+                          className="text-primary"
+                        >
+                          Change email
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleResend}
+                          disabled={resendCooldown > 0 || loading}
+                          className="gap-1.5 text-primary"
+                        >
+                          {resendCooldown > 0 && <CountdownRing seconds={resendCooldown} />}
+                          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
+                        </Button>
+                      </div>
+                    )}
+                  </form>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      <p className="text-center text-xs text-muted-foreground">
+        By signing in, you agree to our{" "}
+        <a href="/legal/terms" className="underline underline-offset-4 hover:text-foreground">Terms</a>
+        {" "}and{" "}
+        <a href="/legal/privacy" className="underline underline-offset-4 hover:text-foreground">Privacy Policy</a>
+      </p>
     </div>
   );
 }

@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 interface Presentation {
   id: string;
@@ -55,24 +61,24 @@ export function PresentationTracker() {
     fetchPresentations();
   }, [fetchPresentations]);
 
-  const getResponseBadge = (response: string) => {
+  const getResponseVariant = (response: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     switch (response) {
-      case 'interested': return 'bg-green-100 text-green-800';
-      case 'not_interested': return 'bg-red-100 text-red-800';
-      case 'pending': return 'bg-gray-100 text-gray-600';
-      case 'expired': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-600';
+      case 'interested': return 'secondary';
+      case 'not_interested': return 'destructive';
+      case 'pending': return 'outline';
+      case 'expired': return 'outline';
+      default: return 'outline';
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     switch (status) {
-      case 'mutual_interest': return 'bg-green-100 text-green-800';
-      case 'one_sided': return 'bg-amber-100 text-amber-800';
-      case 'declined': return 'bg-red-100 text-red-800';
-      case 'expired': return 'bg-gray-100 text-gray-600';
-      case 'pending': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-600';
+      case 'mutual_interest': return 'secondary';
+      case 'one_sided': return 'outline';
+      case 'declined': return 'destructive';
+      case 'expired': return 'outline';
+      case 'pending': return 'default';
+      default: return 'outline';
     }
   };
 
@@ -122,165 +128,163 @@ export function PresentationTracker() {
     <div className="space-y-4">
       {/* Filter */}
       <div className="flex items-center gap-4">
-        <label htmlFor="pres-status" className="text-sm font-medium text-gray-700">Status:</label>
-        <select
-          id="pres-status"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-        >
-          <option value="all">All</option>
-          <option value="pending">Pending</option>
-          <option value="mutual_interest">Mutual Interest</option>
-          <option value="one_sided">One-Sided</option>
-          <option value="expired">Expired</option>
-          <option value="declined">Declined</option>
-        </select>
+        <Label htmlFor="pres-status" className="text-sm font-medium">Status:</Label>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="mutual_interest">Mutual Interest</SelectItem>
+            <SelectItem value="one_sided">One-Sided</SelectItem>
+            <SelectItem value="expired">Expired</SelectItem>
+            <SelectItem value="declined">Declined</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</div>}
+      {error && <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" role="alert">{error}</div>}
       {successMessage && <div className="rounded-md bg-green-50 p-3 text-sm text-green-700" role="status">{successMessage}</div>}
 
       {loading && (
         <div className="flex items-center justify-center py-8">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-rose-600" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
         </div>
       )}
 
       {!loading && presentations.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-sm text-gray-500">No presentations found.</p>
-        </div>
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-sm text-muted-foreground">No presentations found.</p>
+          </CardContent>
+        </Card>
       )}
 
       {!loading && presentations.length > 0 && (
         <div className="space-y-3">
           {presentations.map((p) => (
-            <div key={p.id} className="rounded-lg border border-gray-200 bg-white p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="inline-flex items-center gap-1 text-sm font-medium text-gray-900">
-                      {p.profile_a_name}
-                      <ApplicantStatusIcons isGooCampusMember={p.profile_a_is_goocampus ?? false} paymentStatus={p.profile_a_payment_status} size={12} />
-                    </p>
-                    <span className={`mt-1 inline-block rounded px-2 py-0.5 text-xs ${getResponseBadge(p.member_a_response)}`}>
-                      {p.member_a_response}
-                    </span>
+            <Card key={p.id}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="inline-flex items-center gap-1 text-sm font-medium text-foreground">
+                        {p.profile_a_name}
+                        <ApplicantStatusIcons isGooCampusMember={p.profile_a_is_goocampus ?? false} paymentStatus={p.profile_a_payment_status} size={12} />
+                      </p>
+                      <Badge variant={getResponseVariant(p.member_a_response)} className="mt-1 block w-fit">
+                        {p.member_a_response}
+                      </Badge>
+                    </div>
+                    <span className="text-muted-foreground">×</span>
+                    <div>
+                      <p className="inline-flex items-center gap-1 text-sm font-medium text-foreground">
+                        {p.profile_b_name}
+                        <ApplicantStatusIcons isGooCampusMember={p.profile_b_is_goocampus ?? false} paymentStatus={p.profile_b_payment_status} size={12} />
+                      </p>
+                      <Badge variant={getResponseVariant(p.member_b_response)} className="mt-1 block w-fit">
+                        {p.member_b_response}
+                      </Badge>
+                    </div>
                   </div>
-                  <span className="text-gray-400">×</span>
-                  <div>
-                    <p className="inline-flex items-center gap-1 text-sm font-medium text-gray-900">
-                      {p.profile_b_name}
-                      <ApplicantStatusIcons isGooCampusMember={p.profile_b_is_goocampus ?? false} paymentStatus={p.profile_b_payment_status} size={12} />
+                  <div className="text-right">
+                    <Badge variant={getStatusVariant(p.status)}>
+                      {p.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                    </Badge>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Score: {p.match_suggestions.overall_compatibility_score}
                     </p>
-                    <span className={`mt-1 inline-block rounded px-2 py-0.5 text-xs ${getResponseBadge(p.member_b_response)}`}>
-                      {p.member_b_response}
-                    </span>
+                    {p.status === 'pending' && (
+                      <p className="text-xs text-muted-foreground">{getDaysRemaining(p.expires_at)}</p>
+                    )}
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className={`rounded px-2 py-1 text-xs font-medium ${getStatusBadge(p.status)}`}>
-                    {p.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                  </span>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Score: {p.match_suggestions.overall_compatibility_score}
-                  </p>
-                  {p.status === 'pending' && (
-                    <p className="text-xs text-gray-400">{getDaysRemaining(p.expires_at)}</p>
-                  )}
-                </div>
-              </div>
 
-              {/* Record response buttons */}
-              {p.status === 'pending' && (
-                <div className="mt-3 flex gap-2 border-t border-gray-100 pt-3">
-                  {p.member_a_response === 'pending' && (
-                    <button
-                      onClick={() => setRespondingTo({
-                        presentationId: p.id,
-                        memberId: p.match_suggestions.profile_a_id,
-                        memberLabel: p.profile_a_name,
-                      })}
-                      className="rounded-md border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50"
-                    >
-                      Record {p.profile_a_name}&apos;s Response
-                    </button>
-                  )}
-                  {p.member_b_response === 'pending' && (
-                    <button
-                      onClick={() => setRespondingTo({
-                        presentationId: p.id,
-                        memberId: p.match_suggestions.profile_b_id,
-                        memberLabel: p.profile_b_name,
-                      })}
-                      className="rounded-md border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50"
-                    >
-                      Record {p.profile_b_name}&apos;s Response
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+                {/* Record response buttons */}
+                {p.status === 'pending' && (
+                  <div className="mt-3 flex gap-2 border-t pt-3">
+                    {p.member_a_response === 'pending' && (
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        onClick={() => setRespondingTo({
+                          presentationId: p.id,
+                          memberId: p.match_suggestions.profile_a_id,
+                          memberLabel: p.profile_a_name,
+                        })}
+                      >
+                        Record {p.profile_a_name}&apos;s Response
+                      </Button>
+                    )}
+                    {p.member_b_response === 'pending' && (
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        onClick={() => setRespondingTo({
+                          presentationId: p.id,
+                          memberId: p.match_suggestions.profile_b_id,
+                          memberLabel: p.profile_b_name,
+                        })}
+                      >
+                        Record {p.profile_b_name}&apos;s Response
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
       {/* Response dialog */}
-      {respondingTo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div
-            className="w-full max-w-sm rounded-lg bg-white p-6 shadow-md"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="response-dialog-title"
-          >
-            <h3 id="response-dialog-title" className="text-lg font-semibold text-gray-900">
-              Record Response
-            </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Recording response for <strong>{respondingTo.memberLabel}</strong>
-            </p>
-            <div className="mt-4 space-y-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="response"
-                  value="interested"
-                  checked={responseValue === 'interested'}
-                  onChange={() => setResponseValue('interested')}
-                />
-                <span className="text-sm">Interested</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="response"
-                  value="not_interested"
-                  checked={responseValue === 'not_interested'}
-                  onChange={() => setResponseValue('not_interested')}
-                />
-                <span className="text-sm">Not Interested</span>
-              </label>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button
-                onClick={handleRecordResponse}
-                disabled={actionLoading}
-                className="rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {actionLoading ? 'Saving...' : 'Save'}
-              </button>
-              <button
-                onClick={() => setRespondingTo(null)}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-            </div>
+      <Dialog open={!!respondingTo} onOpenChange={(open) => { if (!open) setRespondingTo(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Record Response</DialogTitle>
+            <DialogDescription>
+              Recording response for <strong>{respondingTo?.memberLabel}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="response"
+                value="interested"
+                checked={responseValue === 'interested'}
+                onChange={() => setResponseValue('interested')}
+              />
+              <span className="text-sm">Interested</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="response"
+                value="not_interested"
+                checked={responseValue === 'not_interested'}
+                onChange={() => setResponseValue('not_interested')}
+              />
+              <span className="text-sm">Not Interested</span>
+            </label>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setRespondingTo(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRecordResponse}
+              disabled={actionLoading}
+            >
+              {actionLoading ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

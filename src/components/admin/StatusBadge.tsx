@@ -1,3 +1,7 @@
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { ShieldCheckIcon, StarIcon } from 'lucide-react';
+
 const PAYMENT_STATUS_STYLES: Record<string, { bg: string; dot: string; text: string }> = {
   unverified:           { bg: 'bg-gray-100',     dot: 'bg-gray-400',    text: 'text-gray-700' },
   verification_pending: { bg: 'bg-amber-50',     dot: 'bg-amber-400',   text: 'text-amber-800' },
@@ -8,64 +12,62 @@ const PAYMENT_STATUS_STYLES: Record<string, { bg: string; dot: string; text: str
   membership_expired:   { bg: 'bg-gray-100',     dot: 'bg-gray-400',    text: 'text-gray-600' },
 };
 
-const PAYMENT_STATUS_LABELS: Record<string, string> = {
-  unverified:           'Unverified',
-  verification_pending: 'Pending',
-  in_pool:              'In Pool',
-  match_presented:      'Match Presented',
-  awaiting_payment:     'Awaiting Payment',
-  active_member:        'Active',
-  membership_expired:   'Expired',
-};
-
 export function PaymentStatusBadge({ status }: { status: string }) {
-  const style = PAYMENT_STATUS_STYLES[status] || { bg: 'bg-gray-100', dot: 'bg-gray-400', text: 'text-gray-600' };
+  const style = PAYMENT_STATUS_STYLES[status] || PAYMENT_STATUS_STYLES.unverified;
+  const label = status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style.bg} ${style.text}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
-      {PAYMENT_STATUS_LABELS[status] || status}
-    </span>
+    <Badge variant="outline" className={cn('gap-1.5 border-0 font-medium', style.bg, style.text)}>
+      <span className={cn('size-1.5 rounded-full', style.dot)} />
+      {label}
+    </Badge>
   );
 }
 
 export function ConsentBadge({ consent }: { consent: string }) {
-  if (consent === 'consented') {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-        Consented
-      </span>
-    );
+  const consented = consent === 'consented' || consent === 'consented_wants_call';
+  if (!consented) {
+    return <span className="text-xs text-muted-foreground">Not given</span>;
   }
-  return <span className="text-xs text-gray-400">Not given</span>;
-}
-
-export function GooCampusBadge({ isMember }: { isMember: boolean }) {
-  if (!isMember) return <span className="text-gray-300">—</span>;
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700">
-      <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
-      GooCampus
-    </span>
+    <Badge variant="outline" className="gap-1 border-0 bg-emerald-50 text-emerald-800 font-medium">
+      Consented
+    </Badge>
   );
 }
 
-export function BgvBadge({ isComplete, isFlagged }: { isComplete: boolean; isFlagged: boolean }) {
-  if (isFlagged) {
+export function GooCampusBadge({ isMember = true }: { isMember?: boolean } = {}) {
+  if (!isMember) return null;
+  return (
+    <Badge variant="outline" className="gap-1 border-0 bg-violet-50 text-violet-700 font-medium">
+      <StarIcon className="size-3" />
+      GooCampus
+    </Badge>
+  );
+}
+
+export function BgvBadge({ status, isComplete, isFlagged }: { status?: string | null; isComplete?: boolean; isFlagged?: boolean }) {
+  // Support both prop styles: { status } or { isComplete, isFlagged }
+  const resolvedStatus = status ?? (isFlagged ? 'flagged' : isComplete ? 'complete' : null);
+  if (!resolvedStatus) return null;
+
+  if (resolvedStatus === 'flagged') {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">
-        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+      <Badge variant="outline" className="gap-1 border-0 bg-red-50 text-red-700 font-medium">
+        <ShieldCheckIcon className="size-3" />
         Flagged
-      </span>
+      </Badge>
     );
   }
-  if (isComplete) {
+
+  if (resolvedStatus === 'complete') {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
-        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-        BGV Complete
-      </span>
+      <Badge variant="outline" className="gap-1 border-0 bg-green-50 text-green-700 font-medium">
+        <ShieldCheckIcon className="size-3" />
+        Verified
+      </Badge>
     );
   }
+
   return null;
 }

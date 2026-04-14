@@ -1,4 +1,5 @@
 import { Section } from './IdentitySnapshot';
+import { Badge } from '@/components/ui/badge';
 
 const IconInterests = () => (
   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -23,28 +24,22 @@ export function InterestsBlock({ hobbies, hobbiesRegular }: InterestsBlockProps)
       {hobbies.length > 0 ? (
         <div className="flex flex-wrap gap-2">
           {hobbies.map((h) => (
-            <span
-              key={h}
-              className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
-            >
+            <Badge key={h} variant="secondary">
               {h}
-            </span>
+            </Badge>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-400">No hobbies listed</p>
+        <p className="text-sm text-muted-foreground">No hobbies listed</p>
       )}
       {regularList.length > 0 && (
         <div className="mt-3">
-          <p className="text-xs text-gray-400">What they regularly spend time on</p>
+          <p className="text-xs text-muted-foreground">What they regularly spend time on</p>
           <div className="mt-1 flex flex-wrap gap-2">
             {regularList.map((h) => (
-              <span
-                key={h}
-                className="rounded-full bg-rose-100 px-3 py-1 text-sm font-medium text-rose-700"
-              >
+              <Badge key={h} variant="default">
                 {h}
-              </span>
+              </Badge>
             ))}
           </div>
         </div>

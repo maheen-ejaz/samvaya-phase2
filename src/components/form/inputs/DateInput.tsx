@@ -1,6 +1,8 @@
 'use client';
 
 import type { QuestionConfig } from '@/lib/form/types';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface DateInputProps {
   question: QuestionConfig;
@@ -35,7 +37,7 @@ export function DateInput({ question, value, onChange, inputId, ariaDescribedBy,
 
   return (
     <div>
-      <input
+      <Input
         id={inputId}
         type="date"
         value={value || ''}
@@ -45,11 +47,14 @@ export function DateInput({ question, value, onChange, inputId, ariaDescribedBy,
         max={maxDate}
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid || undefined}
-        className="form-input"
+        className={cn(
+          'h-11 rounded-xl border-input bg-transparent px-4 text-[15px]',
+          'focus-visible:ring-primary/30',
+        )}
       />
       {age !== null && age > 0 && (
-        <p className="form-helper mt-2">
-          Age: <span className="text-[color:var(--color-form-text-primary)] font-medium">{age} years</span>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Age: <span className="font-medium text-foreground">{age} years</span>
         </p>
       )}
     </div>

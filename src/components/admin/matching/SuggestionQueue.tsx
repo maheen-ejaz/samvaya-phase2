@@ -8,6 +8,11 @@ import { MatchDrawer } from './MatchDrawer';
 import { MatchStageCard } from '@/components/admin/dashboard/MatchStageCard';
 import { DonutChart, DONUT_COLORS, type DonutSlice } from '@/components/admin/analytics/DonutChart';
 import { DonutLegend } from '@/components/admin/analytics/DonutLegend';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface PoolHealth {
   active_pool: number;
@@ -215,18 +220,18 @@ export function SuggestionQueue() {
     <div className="space-y-5">
 
       {/* Pipeline Controls card */}
-      <div className="rounded-xl border border-gray-200/60 bg-white shadow-sm">
-        <div className="border-b border-gray-100 px-6 py-4">
-          <h3 className="text-base font-semibold text-gray-900">Pipeline Controls</h3>
-        </div>
-        <div className="px-6 py-4 space-y-4">
+      <Card>
+        <CardHeader className="border-b">
+          <CardTitle>Pipeline Controls</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 pt-4">
 
           {/* Queue Status & Pool Health Donuts */}
           {statusCounts && poolHealth && (
             <div className="grid grid-cols-2 gap-4">
               {/* Queue Status Donut */}
-              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Queue Status</p>
+              <Card className="bg-muted/50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Queue Status</p>
                 <div className="flex flex-col items-center gap-4">
                   <DonutChart
                     data={[
@@ -247,11 +252,11 @@ export function SuggestionQueue() {
                     maxItems={3}
                   />
                 </div>
-              </div>
+              </Card>
 
               {/* Pool Health Donut */}
-              <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Pool Health</p>
+              <Card className="bg-muted/50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Pool Health</p>
                 <div className="flex flex-col items-center gap-4">
                   <DonutChart
                     data={[
@@ -272,7 +277,7 @@ export function SuggestionQueue() {
                     maxItems={3}
                   />
                 </div>
-              </div>
+              </Card>
             </div>
           )}
 
@@ -284,28 +289,22 @@ export function SuggestionQueue() {
               count={statusCounts?.pending_review ?? 0}
               isActive={statusFilter === 'pending_review'}
               onClick={() => { setStatusFilter('pending_review'); setPage(1); setDrawerIndex(null); }}
-              bgColor="bg-amber-50/50"
-              borderColor="border-amber-100"
             />
             <MatchStageCard
               label="Approved"
               count={statusCounts?.approved ?? 0}
               isActive={statusFilter === 'approved'}
               onClick={() => { setStatusFilter('approved'); setPage(1); setDrawerIndex(null); }}
-              bgColor="bg-admin-blue-50"
-              borderColor="border-admin-blue-200"
             />
             <MatchStageCard
               label="Rejected"
               count={statusCounts?.rejected ?? 0}
               isActive={statusFilter === 'rejected'}
               onClick={() => { setStatusFilter('rejected'); setPage(1); setDrawerIndex(null); }}
-              bgColor="bg-red-50/50"
-              borderColor="border-red-100"
             />
 
             {/* Divider */}
-            <div className="mx-1 self-stretch border-l border-gray-200" />
+            <Separator orientation="vertical" className="mx-1 self-stretch" />
 
             {/* Pool group */}
             <MatchStageCard
@@ -313,8 +312,6 @@ export function SuggestionQueue() {
               count={poolHealth?.active_pool ?? 0}
               isActive={false}
               onClick={() => {}}
-              bgColor="bg-admin-blue-50"
-              borderColor="border-admin-blue-200"
             />
             {poolHealth && poolHealth.paused > 0 && (
               <MatchStageCard
@@ -322,8 +319,6 @@ export function SuggestionQueue() {
                 count={poolHealth.paused}
                 isActive={false}
                 onClick={() => {}}
-                bgColor="bg-amber-50/50"
-                borderColor="border-amber-100"
               />
             )}
             <MatchStageCard
@@ -331,64 +326,65 @@ export function SuggestionQueue() {
               count={poolHealth?.not_verified ?? 0}
               isActive={false}
               onClick={() => {}}
-              bgColor="bg-gray-50"
-              borderColor="border-gray-200"
             />
           </div>
 
           {/* Last run timestamps */}
-          <div className="flex items-center gap-6 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Last Pre-filter</span>
-              {lastPreFilter ? (() => {
-                const { date, time } = formatIST(lastPreFilter);
-                return (
-                  <span className="text-sm font-medium text-gray-700">
-                    {date} &nbsp;<span className="text-gray-400">·</span>&nbsp; {time}
-                  </span>
-                );
-              })() : (
-                <span className="text-sm text-gray-400 italic">Never run</span>
-              )}
+          <Card className="bg-muted/50 px-4 py-3">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Last Pre-filter</span>
+                {lastPreFilter ? (() => {
+                  const { date, time } = formatIST(lastPreFilter);
+                  return (
+                    <span className="text-sm font-medium text-foreground">
+                      {date} &nbsp;<span className="text-muted-foreground">·</span>&nbsp; {time}
+                    </span>
+                  );
+                })() : (
+                  <span className="text-sm text-muted-foreground italic">Never run</span>
+                )}
+              </div>
+              <Separator orientation="vertical" className="h-4" />
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Last Full Pipeline</span>
+                {lastFullPipeline ? (() => {
+                  const { date, time } = formatIST(lastFullPipeline);
+                  return (
+                    <span className="text-sm font-medium text-foreground">
+                      {date} &nbsp;<span className="text-muted-foreground">·</span>&nbsp; {time}
+                    </span>
+                  );
+                })() : (
+                  <span className="text-sm text-muted-foreground italic">Never run</span>
+                )}
+              </div>
             </div>
-            <span className="text-gray-200">|</span>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Last Full Pipeline</span>
-              {lastFullPipeline ? (() => {
-                const { date, time } = formatIST(lastFullPipeline);
-                return (
-                  <span className="text-sm font-medium text-gray-700">
-                    {date} &nbsp;<span className="text-gray-400">·</span>&nbsp; {time}
-                  </span>
-                );
-              })() : (
-                <span className="text-sm text-gray-400 italic">Never run</span>
-              )}
-            </div>
-          </div>
+          </Card>
 
           {/* Pipeline buttons */}
           <div className="flex items-center gap-3">
-            <button
+            <Button
               onClick={() => runPipeline('pre-filter')}
               disabled={pipelineLoading}
-              className="rounded-full bg-admin-blue-900 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full"
             >
-              {pipelineLoading ? 'Running…' : 'Run Pre-filter'}
-            </button>
-            <button
+              {pipelineLoading ? 'Running...' : 'Run Pre-filter'}
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => runPipeline('batch-score')}
               disabled={pipelineLoading}
-              className="rounded-full border border-admin-blue-300 bg-admin-blue-50 px-5 py-2 text-sm font-medium text-admin-blue-900 hover:bg-admin-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full"
             >
-              {pipelineLoading ? 'Running…' : 'Run Full Pipeline'}
-            </button>
+              {pipelineLoading ? 'Running...' : 'Run Full Pipeline'}
+            </Button>
           </div>
 
           {/* Pipeline result */}
           {pipelineResult && (
             <div
-              className={`rounded-lg px-4 py-2.5 text-sm ${pipelineResult.isError ? 'bg-red-50 text-red-700' : 'bg-admin-blue-50 text-admin-blue-900'}`}
+              className={`rounded-lg px-4 py-2.5 text-sm ${pipelineResult.isError ? 'bg-destructive/10 text-destructive' : 'bg-muted text-primary'}`}
               role={pipelineResult.isError ? 'alert' : 'status'}
             >
               {pipelineResult.message}
@@ -399,52 +395,54 @@ export function SuggestionQueue() {
               )}
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Suggestions list card */}
-      <div className="rounded-xl border border-gray-200/60 bg-white shadow-sm">
+      <Card>
         {/* Header: filter tabs + sort */}
-        <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
+        <CardHeader className="flex-row items-center gap-2 border-b">
           <div className="flex items-center gap-2 flex-wrap">
             {STATUS_TABS.map((tab) => (
-              <button
+              <Button
                 key={tab.value}
                 onClick={() => { setStatusFilter(tab.value); setPage(1); setDrawerIndex(null); }}
-                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                  statusFilter === tab.value
-                    ? 'bg-admin-blue-900 text-white shadow-sm'
-                    : 'border border-gray-200 text-gray-500 hover:border-admin-blue-300 hover:text-admin-blue-900'
-                }`}
+                variant={statusFilter === tab.value ? 'default' : 'outline'}
+                size="sm"
+                className="rounded-full"
               >
                 {getTabLabel(tab)}
-              </button>
+              </Button>
             ))}
           </div>
 
           {/* Sort control */}
-          <div className="ml-auto flex items-center gap-2 text-sm text-gray-500">
+          <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
             <span className="text-xs">Sort:</span>
-            <select
+            <Select
               value={`${sortField}-${sortDir}`}
-              onChange={(e) => {
-                const [f, d] = e.target.value.split('-') as [SortField, SortDir];
+              onValueChange={(value) => {
+                const [f, d] = value.split('-') as [SortField, SortDir];
                 setSortField(f);
                 setSortDir(d);
               }}
-              className="rounded-lg border border-gray-200 px-2 py-1 text-sm focus:border-admin-blue-400 focus:outline-none"
             >
-              <option value="score-desc">Score (High → Low)</option>
-              <option value="score-asc">Score (Low → High)</option>
-              <option value="date-desc">Newest first</option>
-              <option value="date-asc">Oldest first</option>
-            </select>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="score-desc">Score (High → Low)</SelectItem>
+                <SelectItem value="score-asc">Score (Low → High)</SelectItem>
+                <SelectItem value="date-desc">Newest first</SelectItem>
+                <SelectItem value="date-asc">Oldest first</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </div>
+        </CardHeader>
 
         {/* Error */}
         {error && (
-          <div className="mx-6 mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          <div className="mx-6 mt-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
             {error}
           </div>
         )}
@@ -452,21 +450,21 @@ export function SuggestionQueue() {
         {/* Loading */}
         {loading && (
           <div className="flex items-center justify-center py-16">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-200 border-t-admin-blue-600" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
           </div>
         )}
 
         {/* Empty state */}
         {!loading && sortedSuggestions.length === 0 && (
           <div className="py-16 text-center">
-            <p className="text-sm text-gray-400">No match suggestions in this category.</p>
-            <p className="mt-1 text-xs text-gray-300">Run the pipeline to generate new suggestions.</p>
+            <p className="text-sm text-muted-foreground">No match suggestions in this category.</p>
+            <p className="mt-1 text-xs text-muted-foreground/60">Run the pipeline to generate new suggestions.</p>
           </div>
         )}
 
         {/* Suggestion cards */}
         {!loading && sortedSuggestions.length > 0 && (
-          <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 p-6">
+          <CardContent className="grid grid-cols-2 xl:grid-cols-3 gap-4 pt-4">
             {sortedSuggestions.map((s, idx) => (
               <SuggestionCard
                 key={s.id}
@@ -474,30 +472,34 @@ export function SuggestionQueue() {
                 onOpen={() => setDrawerIndex(idx)}
               />
             ))}
-          </div>
+          </CardContent>
         )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 border-t border-gray-100 px-6 py-4">
-            <button
+          <div className="flex items-center justify-center gap-3 border-t px-6 py-4">
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => { setPage(Math.max(1, page - 1)); setDrawerIndex(null); }}
               disabled={page === 1}
-              className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:border-admin-blue-300 hover:text-admin-blue-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full"
             >
               Previous
-            </button>
-            <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
-            <button
+            </Button>
+            <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => { setPage(Math.min(totalPages, page + 1)); setDrawerIndex(null); }}
               disabled={page === totalPages}
-              className="rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 hover:border-admin-blue-300 hover:text-admin-blue-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full"
             >
               Next
-            </button>
+            </Button>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Match drawer */}
       {drawerIndex !== null && (

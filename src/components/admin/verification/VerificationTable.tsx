@@ -5,6 +5,16 @@ import Link from 'next/link';
 import { PaymentStatusBadge, ConsentBadge } from '@/components/admin/StatusBadge';
 import { ApplicantPreviewDrawer } from '@/components/admin/applicants/ApplicantPreviewDrawer';
 import type { Applicant } from '@/components/admin/ApplicantList';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 export interface VerificationRow {
   id: string;
@@ -42,32 +52,32 @@ export function VerificationTable({ rows }: VerificationTableProps) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-        <table className="min-w-full">
-          <thead className="admin-table-thead">
-            <tr className="border-b border-gray-100">
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Name</th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Status</th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">BGV Consent</th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">BGV</th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Documents</th>
-              <th className="px-5 py-3.5 text-left text-sm font-normal text-gray-500">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
+      <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b border-gray-100">
+              <TableHead className="px-5">Name</TableHead>
+              <TableHead className="px-5">Status</TableHead>
+              <TableHead className="px-5">BGV Consent</TableHead>
+              <TableHead className="px-5">BGV</TableHead>
+              <TableHead className="px-5">Documents</TableHead>
+              <TableHead className="px-5">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rows.map((row) => {
               const name = `${row.firstName ?? ''} ${row.lastName ?? ''}`.trim() || 'Unknown';
 
               const bgvBadge = row.isBgvComplete ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-800">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                <Badge variant="secondary" className="bg-green-50 text-green-800">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-green-500" />
                   Complete
-                </span>
+                </Badge>
               ) : row.bgvFlagged ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-800">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                <Badge variant="destructive">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-red-500" />
                   Flagged
-                </span>
+                </Badge>
               ) : (
                 <span className="text-xs text-gray-400">Pending</span>
               );
@@ -75,16 +85,16 @@ export function VerificationTable({ rows }: VerificationTableProps) {
               const isSelected = drawerRow?.id === row.id;
 
               return (
-                <tr
+                <TableRow
                   key={row.id}
                   onClick={() => setDrawerRow(row)}
                   className={`group relative cursor-pointer border-l-2 transition-all duration-150 hover:shadow-sm hover:-translate-y-px ${
                     isSelected
-                      ? 'border-l-admin-blue-400 bg-admin-blue-50'
-                      : 'border-l-transparent hover:border-l-admin-blue-300 hover:bg-gray-50'
+                      ? 'border-l-primary/30 bg-muted'
+                      : 'border-l-transparent hover:border-l-primary/30 hover:bg-gray-50'
                   }`}
                 >
-                  <td className="whitespace-nowrap px-5 py-4 text-sm">
+                  <TableCell className="px-5 py-4">
                     <Link
                       href={`/admin/applicants/${row.id}`}
                       onClick={(e) => e.stopPropagation()}
@@ -92,33 +102,39 @@ export function VerificationTable({ rows }: VerificationTableProps) {
                     >
                       {name}
                     </Link>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-sm">
+                  </TableCell>
+                  <TableCell className="px-5 py-4">
                     <PaymentStatusBadge status={row.paymentStatus} />
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-sm">
+                  </TableCell>
+                  <TableCell className="px-5 py-4">
                     <ConsentBadge consent={row.bgvConsent ?? ''} />
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-sm">
+                  </TableCell>
+                  <TableCell className="px-5 py-4">
                     {bgvBadge}
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-gray-500">
                     {row.docsTotal > 0 ? `${row.docsPending} pending / ${row.docsTotal} total` : '0 docs'}
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-4 text-sm">
-                    <Link
-                      href={`/admin/verification/${row.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs text-gray-700 hover:border-gray-300 hover:text-gray-900"
+                  </TableCell>
+                  <TableCell className="px-5 py-4">
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      asChild
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      BGV Tracker →
-                    </Link>
-                  </td>
-                </tr>
+                      <Link
+                        href={`/admin/verification/${row.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        BGV Tracker &rarr;
+                      </Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {drawerRow && drawerBasicInfo && (

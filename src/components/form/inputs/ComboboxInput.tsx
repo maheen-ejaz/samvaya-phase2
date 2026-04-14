@@ -3,7 +3,10 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useCountries } from '@/lib/data/use-location-data';
+import { Input } from '@/components/ui/input';
 import { DropdownPortal } from './DropdownPortal';
+import { cn } from '@/lib/utils';
+import { XIcon, ChevronDownIcon, CheckIcon } from 'lucide-react';
 
 interface ComboboxInputProps {
   question: QuestionConfig;
@@ -52,7 +55,6 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
-        // Reset input to selected label if user didn't pick anything
         setInputValue(selectedOption?.label || '');
       }
     }
@@ -100,7 +102,7 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <input
+        <Input
           ref={inputRef}
           id={resolvedInputId}
           type="text"
@@ -119,30 +121,28 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
           }}
           onFocus={() => {
             setIsOpen(true);
-            // Select all text on focus so user can type over to search
             if (inputValue) inputRef.current?.select();
           }}
           onKeyDown={handleKeyDown}
           placeholder={question.placeholder || 'Type to search...'}
           autoComplete="off"
-          className="form-input pr-10"
+          className={cn(
+            'h-11 rounded-xl border-input bg-transparent pr-10 pl-4 text-[15px]',
+            'focus-visible:ring-primary/30',
+          )}
         />
         {value ? (
           <button
             type="button"
             onClick={clearSelection}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[color:var(--color-form-text-tertiary)] hover:text-[color:var(--color-form-text-primary)]"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Clear selection"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <XIcon className="size-4" />
           </button>
         ) : (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--color-form-text-tertiary)]">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <ChevronDownIcon className="size-4" />
           </span>
         )}
       </div>
@@ -150,7 +150,7 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
         <ul
           id={listboxId}
           role="listbox"
-          className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
+          className="max-h-60 overflow-auto rounded-xl border border-border bg-popover shadow-lg ring-1 ring-foreground/5"
         >
           {filtered.map((option, idx) => (
             <li
@@ -163,17 +163,19 @@ export function ComboboxInput({ question, value, onChange, inputId, ariaDescribe
                 selectOption(option.value, option.label);
               }}
               onMouseEnter={() => setHighlightedIndex(idx)}
-              className={`cursor-pointer px-4 py-3 text-[15px] ${
+              className={cn(
+                'flex cursor-pointer items-center gap-2 px-4 py-2.5 text-sm transition-colors',
                 idx === highlightedIndex
-                  ? 'bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-primary)]'
-                  : 'text-[color:var(--color-form-text-secondary)] hover:bg-[color:var(--color-form-surface-muted)]'
-              }`}
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-foreground hover:bg-accent/50',
+              )}
             >
-              {option.label}
+              <span className="flex-1">{option.label}</span>
+              {option.value === value && <CheckIcon className="size-4 text-primary" />}
             </li>
           ))}
           {filtered.length === 0 && (
-            <li role="option" aria-disabled="true" className="form-caption px-4 py-3">No matches found</li>
+            <li role="option" aria-disabled="true" className="px-4 py-3 text-sm text-muted-foreground">No matches found</li>
           )}
         </ul>
       </DropdownPortal>

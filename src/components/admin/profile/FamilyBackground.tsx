@@ -1,4 +1,5 @@
 import { Section, Grid, Field } from './IdentitySnapshot';
+import { Separator } from '@/components/ui/separator';
 
 const IconFamily = () => (
   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -33,9 +34,12 @@ export function FamilyBackground({
         <Field label="Siblings" value={siblingsCount !== null ? String(siblingsCount) : null} />
       </Grid>
       {keyQuote && (
-        <blockquote className="mt-4 border-l-2 border-rose-300 pl-3 text-sm italic text-gray-600">
-          &ldquo;{keyQuote}&rdquo;
-        </blockquote>
+        <>
+          <Separator className="my-4" />
+          <blockquote className="border-l-2 border-primary/40 pl-3 text-sm italic text-muted-foreground">
+            &ldquo;{keyQuote}&rdquo;
+          </blockquote>
+        </>
       )}
     </Section>
   );

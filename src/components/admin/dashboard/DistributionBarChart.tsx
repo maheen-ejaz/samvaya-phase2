@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import type { DistributionEntry } from '@/types/dashboard';
 
 interface DonutChartProps {
@@ -14,12 +15,12 @@ const COLORS = [
 
 export function DistributionBarChart({ data, emptyMessage = 'No data available' }: DonutChartProps) {
   if (data.length === 0) {
-    return <p className="py-8 text-center text-sm text-gray-400">{emptyMessage}</p>;
+    return <p className="py-8 text-center text-sm text-muted-foreground">{emptyMessage}</p>;
   }
 
   const total = data.reduce((sum, d) => sum + d.count, 0);
   if (total === 0) {
-    return <p className="py-8 text-center text-sm text-gray-400">{emptyMessage}</p>;
+    return <p className="py-8 text-center text-sm text-muted-foreground">{emptyMessage}</p>;
   }
 
   // SVG donut parameters
@@ -92,17 +93,17 @@ export function DistributionBarChart({ data, emptyMessage = 'No data available' 
             );
           })}
           {/* Center text */}
-          <text x={cx} y={cy - 6} textAnchor="middle" className="text-lg font-semibold" fill="#111827">
+          <text x={cx} y={cy - 6} textAnchor="middle" className="text-lg font-semibold" fill="currentColor">
             {total}
           </text>
-          <text x={cx} y={cy + 10} textAnchor="middle" className="text-[10px]" fill="#9CA3AF">
+          <text x={cx} y={cy + 10} textAnchor="middle" className="text-[10px]" fill="currentColor" opacity={0.5}>
             total
           </text>
         </svg>
       </div>
 
       {/* Legend */}
-      <div className="flex-1 max-h-[160px] overflow-y-auto space-y-1">
+      <div className="max-h-[160px] flex-1 space-y-1 overflow-y-auto">
         {segments.map((seg, i) => {
           const pct = Math.round((seg.count / total) * 100);
           return (
@@ -111,8 +112,8 @@ export function DistributionBarChart({ data, emptyMessage = 'No data available' 
                 className="inline-block h-3 w-3 flex-shrink-0 rounded-sm"
                 style={{ backgroundColor: seg.color }}
               />
-              <span className="flex-1 truncate text-gray-700">{seg.label}</span>
-              <span className="flex-shrink-0 text-xs text-gray-500">{seg.count} ({pct}%)</span>
+              <span className={cn('flex-1 truncate text-foreground')}>{seg.label}</span>
+              <span className="flex-shrink-0 text-xs text-muted-foreground">{seg.count} ({pct}%)</span>
             </div>
           );
         })}

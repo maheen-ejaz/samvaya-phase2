@@ -1,6 +1,17 @@
 'use client';
 
 import type { TaskStatus, TaskPriority, TaskCategory } from '@/types/dashboard';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { LayoutGrid, Eye } from 'lucide-react';
 
 interface TaskFiltersProps {
   filterPriority: TaskPriority | 'all';
@@ -40,56 +51,52 @@ export function TaskFilters({
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {/* Group: Status label */}
-      <span className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-          <rect x="1" y="1" width="4" height="4" rx="0.5" />
-          <rect x="7" y="1" width="4" height="4" rx="0.5" />
-          <rect x="1" y="7" width="4" height="4" rx="0.5" />
-          <rect x="7" y="7" width="4" height="4" rx="0.5" />
-        </svg>
+      <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground">
+        <LayoutGrid className="h-3 w-3" />
         Group: Status
       </span>
 
       {/* Priority filter */}
-      <select
+      <Select
         value={filterPriority}
-        onChange={(e) => onPriorityChange(e.target.value as TaskPriority | 'all')}
-        className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/30 cursor-pointer"
-        aria-label="Filter by priority"
+        onValueChange={(v) => onPriorityChange(v as TaskPriority | 'all')}
       >
-        {PRIORITY_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
+        <SelectTrigger className="w-[140px] h-8 text-xs" aria-label="Filter by priority">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {PRIORITY_OPTIONS.map((o) => (
+            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       {/* Category / Type filter */}
-      <select
+      <Select
         value={filterCategory}
-        onChange={(e) => onCategoryChange(e.target.value as TaskCategory | 'all')}
-        className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/30 cursor-pointer"
-        aria-label="Filter by type"
+        onValueChange={(v) => onCategoryChange(v as TaskCategory | 'all')}
       >
-        {CATEGORY_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
+        <SelectTrigger className="w-[130px] h-8 text-xs" aria-label="Filter by type">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {CATEGORY_OPTIONS.map((o) => (
+            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       {/* Show closed toggle */}
-      <button
-        onClick={() => onShowClosedChange(!showClosed)}
-        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-          showClosed
-            ? 'border-[#1B4332] bg-[#1B4332]/5 text-[#1B4332]'
-            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-        }`}
-        aria-pressed={showClosed}
-      >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-          <path d="M1 6s2-4 5-4 5 4 5 4-2 4-5 4-5-4-5-4z" />
-          <circle cx="6" cy="6" r="1.5" />
-        </svg>
-        Show closed
-      </button>
+      <div className="flex items-center gap-2">
+        <Switch
+          id="show-closed"
+          checked={showClosed}
+          onCheckedChange={onShowClosedChange}
+        />
+        <Label htmlFor="show-closed" className="text-xs text-muted-foreground cursor-pointer">
+          Show closed
+        </Label>
+      </div>
     </div>
   );
 }

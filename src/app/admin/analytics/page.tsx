@@ -127,10 +127,10 @@ export default async function AnalyticsPage() {
     <div className="mx-auto max-w-6xl">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="type-heading-xl text-gray-900">Analytics</h1>
-          <p className="mt-1 text-sm text-gray-500">Platform metrics and applicant funnel.</p>
+          <h1 className="text-2xl font-semibold text-foreground">Analytics</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Platform metrics and applicant funnel.</p>
         </div>
-        <p className="text-xs text-gray-400">Live data · refreshes on load</p>
+        <p className="text-xs text-muted-foreground">Live data · refreshes on load</p>
       </div>
 
       <div className="mt-6 space-y-6">

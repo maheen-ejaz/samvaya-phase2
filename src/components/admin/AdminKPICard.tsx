@@ -1,66 +1,67 @@
-import Link from 'next/link';
+'use client';
 
-function ChevronRightIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 3l4 4-4 4" />
-    </svg>
-  );
-}
+import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { ChevronRightIcon, TrendingUpIcon, TrendingDownIcon } from 'lucide-react';
 
 interface AdminKPICardProps {
   label: string;
   count: number;
   icon: React.ReactNode;
   href: string;
-  trend?: {
-    value: number;
-    direction: 'up' | 'down';
-    comparedTo: string;
-  };
-  /** Override icon circle bg color (CSS color string). Defaults to indigo #4F6EF7. */
-  iconColor?: string;
+  trend?: { value: number; direction: 'up' | 'down'; comparedTo: string };
 }
 
-export function AdminKPICard({
-  label,
-  count,
-  icon,
-  href,
-  trend,
-  iconColor = '#4F6EF7',
-}: AdminKPICardProps) {
+export function AdminKPICard({ label, count, icon, href, trend }: AdminKPICardProps) {
   return (
-    <Link href={href} className="admin-kpi-card block group">
-      {/* Top row: icon + label + chevron */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="admin-kpi-icon flex-shrink-0" style={{ backgroundColor: iconColor }}>
-            {icon}
+    <Card className="group transition-all hover:shadow-md hover:-translate-y-0.5">
+      <CardContent>
+        <Link href={href} className="block">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                {icon}
+              </div>
+              <span className="text-xs font-medium text-muted-foreground leading-tight">{label}</span>
+            </div>
+            <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+              <ChevronRightIcon className="size-3.5" />
+            </div>
           </div>
-          <p className="text-xs font-medium text-gray-500 leading-tight">{label}</p>
-        </div>
-        <span className="flex-shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-400 group-hover:bg-blue-50 group-hover:text-[#4F6EF7] transition-colors">
-          <ChevronRightIcon />
-        </span>
-      </div>
 
-      {/* Count + trend badge */}
-      <div className="mt-3 flex items-end gap-2">
-        <p className="type-display-sm type-stat text-gray-900 leading-none">
-          {count.toLocaleString('en-IN')}
-        </p>
-        {trend && (
-          <span className={trend.direction === 'up' ? 'admin-badge-trend-up mb-0.5' : 'admin-badge-trend-down mb-0.5'}>
-            {trend.direction === 'up' ? '↑' : '↓'}{trend.value}%
-          </span>
-        )}
-      </div>
+          <div className="mt-3 flex items-end gap-2">
+            <span className="text-3xl font-light tracking-tight tabular-nums text-foreground leading-none">
+              {count.toLocaleString('en-IN')}
+            </span>
+            {trend && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  'mb-0.5 gap-1 text-[10px] font-semibold border-0',
+                  trend.direction === 'up'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'bg-red-50 text-red-600',
+                )}
+              >
+                {trend.direction === 'up' ? (
+                  <TrendingUpIcon className="size-3" />
+                ) : (
+                  <TrendingDownIcon className="size-3" />
+                )}
+                {trend.direction === 'up' ? '+' : ''}{trend.value}%
+              </Badge>
+            )}
+          </div>
 
-      {/* Footer */}
-      <p className="mt-1.5 text-xs text-gray-400">
-        {trend ? `Compared to ${trend.comparedTo}` : '\u00a0'}
-      </p>
-    </Link>
+          {trend && (
+            <p className="mt-1.5 text-[11px] text-muted-foreground">
+              vs. {trend.comparedTo}
+            </p>
+          )}
+        </Link>
+      </CardContent>
+    </Card>
   );
 }

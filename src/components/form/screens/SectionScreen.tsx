@@ -15,6 +15,9 @@ import { getVisibleQuestionsForSection, isQuestionAnswered } from '@/lib/form/se
 import { getSectionMeta, getSectionPosition, sectionPath } from '@/lib/form/section-routing';
 import { SECTIONS, getSectionIndex } from '@/lib/form/sections';
 import type { SectionId } from '@/lib/form/types';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { ArrowRightIcon, CheckIcon, XIcon } from 'lucide-react';
 
 interface SectionScreenProps {
   sectionId: SectionId;
@@ -32,7 +35,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [isExiting, setIsExiting] = useState(false);
 
-  // Resume banner — shown once per session on re-entry (not section A, not first visit)
+  // Resume banner
   const [showResumeBanner, setShowResumeBanner] = useState(false);
   const [bannerLeaving, setBannerLeaving] = useState(false);
   const resumeBannerShown = useRef(false);
@@ -45,7 +48,6 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
       sessionStorage.setItem(key, '1');
       resumeBannerShown.current = true;
       setShowResumeBanner(true);
-      // Auto-dismiss after 4s — animate out 150ms before unmounting
       const t = setTimeout(() => {
         setBannerLeaving(true);
         setTimeout(() => setShowResumeBanner(false), 150);
@@ -55,7 +57,6 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync form state's currentSectionId with the URL on mount and when route changes.
   useEffect(() => {
     if (state.currentSectionId !== sectionId) {
       navigateToSection(sectionId);
@@ -85,7 +86,6 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
   }
 
   function handleContinue() {
-    // Validate every visible question; collect first invalid for focus
     const invalid = new Set<string>();
     let firstInvalid: string | null = null;
     for (const id of visibleIds) {
@@ -100,15 +100,12 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
       if (firstInvalid) {
         const el = document.getElementById(`q-${firstInvalid}`);
         if (el) {
-          // Account for sticky header + 24px breathing room
-          const header = document.querySelector('.form-header-sticky') as HTMLElement | null;
+          const header = document.querySelector('.form-header-sticky, header.sticky') as HTMLElement | null;
           const headerHeight = header ? header.getBoundingClientRect().height : 0;
           const elTop = el.getBoundingClientRect().top + window.scrollY;
           window.scrollTo({ top: elTop - headerHeight - 24, behavior: 'smooth' });
-          // Shake animation on the card
           el.classList.add('animate-shake');
           el.addEventListener('animationend', () => el.classList.remove('animate-shake'), { once: true });
-          // Focus first focusable element after scroll settles
           setTimeout(() => {
             const focusable = el.querySelector<HTMLElement>('input, select, textarea, button');
             focusable?.focus();
@@ -149,17 +146,23 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
   return (
     <div className={isExiting ? 'form-section-exit' : 'form-section-enter'}>
       {showResumeBanner && (
-        <div className={`form-resume-banner ${bannerLeaving ? 'animate-slide-out-left' : ''}`} role="status">
-          <span className="form-helper text-[color:var(--color-form-text-secondary)]">
+        <div
+          className={cn(
+            'mb-6 flex items-center justify-between gap-3 rounded-xl border bg-muted/50 px-4 py-3',
+            bannerLeaving && 'animate-slide-out-left',
+          )}
+          role="status"
+        >
+          <span className="text-sm text-muted-foreground">
             Welcome back — you left off here. Your answers are saved.
           </span>
           <button
             type="button"
             onClick={dismissResumeBanner}
             aria-label="Dismiss"
-            className="form-caption hover:text-[color:var(--color-form-text-primary)] transition-colors flex-shrink-0"
+            className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
           >
-            ✕
+            <XIcon className="size-4" />
           </button>
         </div>
       )}
@@ -178,7 +181,6 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
           if (!question) return null;
           const span = getBentoSpan(question);
 
-          // Chats render as link tiles in Phase 3; Phase 5 wires the full-screen ChatScreen.
           if (question.type === 'claude_chat') {
             const href = CHAT_PATH[question.id];
             const done = state.answers[question.id] === 'complete';
@@ -189,7 +191,6 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
             );
           }
 
-          // BGV consent gets its own rich layout — bypass QuestionField wrapper
           if (question.type === 'bgv_consent') {
             return (
               <BentoTile key={id} span={span} id={`q-${id}`} animationIndex={index}>
@@ -236,22 +237,31 @@ function ChatLinkTile({ href, text, done }: { href: string; text: string; done: 
   return (
     <Link
       href={href}
-      className="flex items-center justify-between gap-4 rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] px-5 py-5 hover:border-[color:var(--color-form-border-strong)] transition-colors"
+      className="flex items-center justify-between gap-4 rounded-xl border bg-muted/50 px-5 py-5 hover:border-border/80 transition-colors"
     >
       <div className="flex-1 min-w-0">
-        <div className="form-eyebrow mb-1.5">Conversation</div>
-        <p className="form-label">{text}</p>
+        <div className="mb-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          Conversation
+        </div>
+        <p className="text-sm font-medium text-foreground">{text}</p>
       </div>
       <span
-        className={`form-caption flex items-center gap-1.5 ${
-          done ? 'text-[color:var(--color-form-success)]' : ''
-        }`}
+        className={cn(
+          'flex items-center gap-1.5 text-xs shrink-0',
+          done ? 'text-emerald-600' : 'text-muted-foreground',
+        )}
       >
-        {done ? 'Complete' : 'Open'}
-        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="2" y1="8" x2="13" y2="8" />
-          <polyline points="9 4 13 8 9 12" />
-        </svg>
+        {done ? (
+          <>
+            <CheckIcon className="size-3.5" />
+            Complete
+          </>
+        ) : (
+          <>
+            Open
+            <ArrowRightIcon className="size-3.5" />
+          </>
+        )}
       </span>
     </Link>
   );

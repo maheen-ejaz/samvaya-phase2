@@ -9,6 +9,13 @@ import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
 import { PaymentStatusBadge, GooCampusBadge, BgvBadge } from '@/components/admin/StatusBadge';
 import { capitalize } from '@/lib/utils';
 import { DrawerBgvTracker } from '@/components/admin/applicants/DrawerBgvTracker';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ExternalLinkIcon } from 'lucide-react';
 
 interface PartnerPrefs {
   ageMin: number | null;
@@ -74,15 +81,11 @@ interface ApplicantPreviewDrawerProps {
   onClose: () => void;
 }
 
-function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded bg-gray-100 ${className ?? ''}`} />;
-}
-
 function cmToFeetInches(cm: number): string {
   const totalInches = cm / 2.54;
   const feet = Math.floor(totalInches / 12);
   const inches = Math.round(totalInches % 12);
-  return `${feet}′${inches}″`;
+  return `${feet}\u2032${inches}\u2033`;
 }
 
 function timeAgo(iso: string): string {
@@ -98,14 +101,16 @@ function timeAgo(iso: string): string {
 
 function SectionCard({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
-      <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">{label}</p>
-      {children}
-    </div>
+    <Card className="border-gray-100 bg-gray-50/60">
+      <CardContent className="p-4">
+        <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">{label}</p>
+        {children}
+      </CardContent>
+    </Card>
   );
 }
 
-// ─── Journey milestones ───────────────────────────────────────────────────────
+// --- Journey milestones ---
 
 const PAYMENT_STATUS_ORDER = [
   'unverified',
@@ -160,9 +165,9 @@ function JourneyTimeline({
                 <div
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold transition-colors ${
                     isCurrent
-                      ? 'border-admin-blue-500 bg-admin-blue-500 text-white'
+                      ? 'border-primary bg-primary text-white'
                       : isPast
-                      ? 'border-admin-blue-300 bg-admin-blue-50 text-admin-blue-600'
+                      ? 'border-primary/30 bg-muted text-primary'
                       : 'border-gray-200 bg-white text-gray-300'
                   }`}
                 >
@@ -176,7 +181,7 @@ function JourneyTimeline({
                 </div>
                 {!isLast && (
                   <div
-                    className={`my-0.5 w-px flex-1 ${isPast || isCurrent ? 'bg-admin-blue-200' : 'bg-gray-100'}`}
+                    className={`my-0.5 w-px flex-1 ${isPast || isCurrent ? 'bg-primary/20' : 'bg-gray-100'}`}
                     style={{ minHeight: '20px' }}
                   />
                 )}
@@ -187,7 +192,7 @@ function JourneyTimeline({
                 <p
                   className={`text-sm leading-tight ${
                     isCurrent
-                      ? 'font-semibold text-admin-blue-900'
+                      ? 'font-semibold text-primary'
                       : isPast
                       ? 'text-gray-600'
                       : 'text-gray-300'
@@ -196,7 +201,7 @@ function JourneyTimeline({
                   {MILESTONE_LABELS[status]}
                 </p>
                 {isCurrent && (
-                  <p className="mt-0.5 text-[11px] text-admin-blue-600">Current stage</p>
+                  <p className="mt-0.5 text-[11px] text-primary">Current stage</p>
                 )}
                 {status === 'unverified' && joinedDate && (
                   <p className="mt-0.5 text-[11px] text-gray-400">{joinedDate}</p>
@@ -213,13 +218,12 @@ function JourneyTimeline({
   );
 }
 
-// ─── Main drawer ──────────────────────────────────────────────────────────────
+// --- Main drawer ---
 
 export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: ApplicantPreviewDrawerProps) {
   const [preview, setPreview] = useState<ApplicantPreview | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'verification'>('overview');
 
   const fetchPreview = useCallback(async (id: string) => {
     setLoading(true);
@@ -241,12 +245,6 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
     fetchPreview(userId);
   }, [userId, fetchPreview]);
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [onClose]);
-
   // Derived display values
   const name = preview
     ? `${preview.firstName ?? ''} ${preview.lastName ?? ''}`.trim() || basicInfo.firstName
@@ -257,45 +255,36 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
   const specialty = preview?.specialty ?? basicInfo.specialty;
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Drawer panel */}
-      <div
-        className="fixed right-0 top-0 z-50 flex h-full w-[35%] flex-col bg-white shadow-2xl"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Preview: ${name}`}
+    <Sheet open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <SheetContent
+        side="right"
+        showCloseButton={false}
+        className="flex w-[35%] flex-col gap-0 p-0 sm:max-w-none"
       >
         {/* Sticky header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-3.5">
-          <button
+        <SheetHeader className="flex-row items-center justify-between border-b border-gray-100 px-5 py-3.5 gap-0">
+          <SheetTitle className="sr-only">Preview: {name}</SheetTitle>
+          <SheetDescription className="sr-only">Applicant preview drawer</SheetDescription>
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
             aria-label="Close preview"
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-          </button>
+          </Button>
 
-          <Link
-            href={`/admin/applicants/${userId}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-admin-blue-900 px-3.5 py-1.5 text-xs font-medium text-white transition-all hover:bg-admin-blue-800 hover:shadow-md"
-          >
-            View Full Profile
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M5 11L11 5M11 5H6M11 5V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Link>
-        </div>
+          <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
+            <Link href={`/admin/applicants/${userId}`}>
+              View Full Profile
+              <ExternalLinkIcon className="ml-1.5 h-3 w-3" />
+            </Link>
+          </Button>
+        </SheetHeader>
 
-        {/* Hero — photo + identity */}
+        {/* Hero -- photo + identity */}
         <div className="flex shrink-0 gap-4 px-5 py-4">
           {loading ? (
             <Skeleton className="h-16 w-16 rounded-xl" />
@@ -324,7 +313,7 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
                     preview?.age ? `${preview.age} yrs` : null,
                     preview?.gender ? capitalize(preview.gender) : null,
                     preview?.heightCm ? cmToFeetInches(preview.heightCm) : null,
-                  ].filter(Boolean).join(' · ')}
+                  ].filter(Boolean).join(' \u00b7 ')}
                 </p>
                 {(preview?.city || preview?.state) && (
                   <p className="text-xs text-gray-500">
@@ -338,282 +327,279 @@ export function ApplicantPreviewDrawer({ userId, basicInfo, onClose }: Applicant
         </div>
 
         {/* Tabs */}
-        <div className="flex shrink-0 border-b border-gray-100">
-          {(['overview', 'timeline', 'verification'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 text-xs font-medium capitalize transition-colors ${
-                activeTab === tab
-                  ? 'border-b-2 border-admin-blue-500 text-admin-blue-900'
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        <Tabs defaultValue="overview" className="flex flex-1 flex-col gap-0 overflow-hidden">
+          <TabsList variant="line" className="w-full shrink-0 rounded-none border-b border-gray-100 px-5">
+            <TabsTrigger value="overview" className="flex-1 capitalize">Overview</TabsTrigger>
+            <TabsTrigger value="timeline" className="flex-1 capitalize">Timeline</TabsTrigger>
+            <TabsTrigger value="verification" className="flex-1 capitalize">Verification</TabsTrigger>
+          </TabsList>
 
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto">
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto">
 
-          {/* ── OVERVIEW TAB ─────────────────────────────────────────── */}
-          {activeTab === 'overview' && (
-            <div className="space-y-3 px-5 py-4 pb-8">
+            {/* OVERVIEW TAB */}
+            <TabsContent value="overview" className="mt-0">
+              <div className="space-y-3 px-5 py-4 pb-8">
 
-              {/* Pipeline stage */}
-              <SectionCard label="Pipeline Stage">
-                <ApplicantPipeline paymentStatus={paymentStatus} membershipStatus={membershipStatus} />
-                <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  <PaymentStatusBadge status={paymentStatus} />
+                {/* Pipeline stage */}
+                <SectionCard label="Pipeline Stage">
+                  <ApplicantPipeline paymentStatus={paymentStatus} membershipStatus={membershipStatus} />
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    <PaymentStatusBadge status={paymentStatus} />
+                    {loading ? (
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    ) : (
+                      <>
+                        <GooCampusBadge isMember={preview?.isGooCampusMember ?? basicInfo.isGooCampusMember} />
+                        <BgvBadge
+                          isComplete={preview?.isBgvComplete ?? false}
+                          isFlagged={preview?.bgvFlagged ?? false}
+                        />
+                      </>
+                    )}
+                  </div>
+                </SectionCard>
+
+                {/* Quick actions -- only shown for unverified applicants */}
+                {!loading && basicInfo.paymentStatus === 'unverified' && (
+                  <Card className="border-gray-100 bg-gray-50/60">
+                    <CardContent className="p-4">
+                      <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Actions</p>
+                      <ApplicantActions
+                        userId={userId}
+                        paymentStatus={basicInfo.paymentStatus}
+                        bgvConsent={basicInfo.bgvConsent}
+                        isGooCampusMember={basicInfo.isGooCampusMember}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Medical */}
+                <SectionCard label="Medical">
                   {loading ? (
-                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
                   ) : (
                     <>
-                      <GooCampusBadge isMember={preview?.isGooCampusMember ?? basicInfo.isGooCampusMember} />
-                      <BgvBadge
-                        isComplete={preview?.isBgvComplete ?? false}
-                        isFlagged={preview?.bgvFlagged ?? false}
-                      />
+                      {specialty && <p className="text-sm font-medium text-gray-800">{capitalize(specialty)}</p>}
+                      {preview?.medicalStatus && (
+                        <p className="mt-0.5 text-xs text-gray-500">{capitalize(preview.medicalStatus.replace(/_/g, ' '))}</p>
+                      )}
+                      {preview?.designation && (
+                        <p className="mt-0.5 text-xs text-gray-500">{preview.designation}</p>
+                      )}
+                      {preview?.phone && (
+                        <p className="mt-1.5 text-xs text-gray-400">{'\u260e'} {preview.phone}</p>
+                      )}
                     </>
                   )}
-                </div>
-              </SectionCard>
+                </SectionCard>
 
-              {/* Quick actions — only shown for unverified applicants */}
-              {!loading && basicInfo.paymentStatus === 'unverified' && (
-                <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
-                  <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Actions</p>
-                  <ApplicantActions
-                    userId={userId}
-                    paymentStatus={basicInfo.paymentStatus}
-                    bgvConsent={basicInfo.bgvConsent}
-                    isGooCampusMember={basicInfo.isGooCampusMember}
-                  />
-                </div>
-              )}
-
-              {/* Medical */}
-              <SectionCard label="Medical">
-                {loading ? (
-                  <div className="space-y-1.5">
-                    <Skeleton className="h-4 w-40" />
-                    <Skeleton className="h-3 w-32" />
-                  </div>
-                ) : (
-                  <>
-                    {specialty && <p className="text-sm font-medium text-gray-800">{capitalize(specialty)}</p>}
-                    {preview?.medicalStatus && (
-                      <p className="mt-0.5 text-xs text-gray-500">{capitalize(preview.medicalStatus.replace(/_/g, ' '))}</p>
-                    )}
-                    {preview?.designation && (
-                      <p className="mt-0.5 text-xs text-gray-500">{preview.designation}</p>
-                    )}
-                    {preview?.phone && (
-                      <p className="mt-1.5 text-xs text-gray-400">✆ {preview.phone}</p>
-                    )}
-                  </>
+                {/* Personal */}
+                {!loading && preview && (preview.religion || preview.maritalStatus) && (
+                  <SectionCard label="Personal">
+                    <div className="flex flex-wrap gap-x-5 gap-y-2">
+                      {preview.religion && (
+                        <div>
+                          <p className="text-[10px] text-gray-400">Religion</p>
+                          <p className="text-sm text-gray-700">{capitalize(preview.religion)}</p>
+                        </div>
+                      )}
+                      {preview.maritalStatus && (
+                        <div>
+                          <p className="text-[10px] text-gray-400">Marital Status</p>
+                          <p className="text-sm text-gray-700">{capitalize(preview.maritalStatus.replace(/_/g, ' '))}</p>
+                        </div>
+                      )}
+                    </div>
+                  </SectionCard>
                 )}
-              </SectionCard>
 
-              {/* Personal */}
-              {!loading && preview && (preview.religion || preview.maritalStatus) && (
-                <SectionCard label="Personal">
-                  <div className="flex flex-wrap gap-x-5 gap-y-2">
-                    {preview.religion && (
-                      <div>
-                        <p className="text-[10px] text-gray-400">Religion</p>
-                        <p className="text-sm text-gray-700">{capitalize(preview.religion)}</p>
+                {/* Match stats */}
+                {!loading && preview && (
+                  <SectionCard label="Matches">
+                    {preview.matchStats.totalSuggestions === 0 ? (
+                      <p className="text-sm text-gray-400">No matches suggested yet</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-gray-500">Suggestions reviewed</p>
+                          <p className="text-sm font-medium text-gray-900">{preview.matchStats.approvedSuggestions} / {preview.matchStats.totalSuggestions}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-gray-500">Presented to applicant</p>
+                          <p className="text-sm font-medium text-gray-900">{preview.matchStats.totalPresented}</p>
+                        </div>
+                        {preview.matchStats.mutualInterest > 0 && (
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-500">Mutual interest</p>
+                            <Badge variant="secondary" className="bg-muted text-primary">
+                              <span className="mr-1 h-1.5 w-1.5 rounded-full bg-primary" />
+                              {preview.matchStats.mutualInterest}
+                            </Badge>
+                          </div>
+                        )}
+                        {preview.matchStats.pendingResponse > 0 && (
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-500">Awaiting response</p>
+                            <Badge variant="secondary" className="bg-amber-50 text-amber-800">
+                              <span className="mr-1 h-1.5 w-1.5 rounded-full bg-amber-400" />
+                              {preview.matchStats.pendingResponse}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                     )}
-                    {preview.maritalStatus && (
-                      <div>
-                        <p className="text-[10px] text-gray-400">Marital Status</p>
-                        <p className="text-sm text-gray-700">{capitalize(preview.maritalStatus.replace(/_/g, ' '))}</p>
+                  </SectionCard>
+                )}
+
+                {/* Documents */}
+                {!loading && preview && (
+                  <SectionCard label="Documents">
+                    {preview.docStats.totalDocs === 0 ? (
+                      <p className="text-sm text-gray-400">No documents uploaded</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-gray-500">Verified</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {preview.docStats.verifiedDocs} / {preview.docStats.totalDocs}
+                          </p>
+                        </div>
+                        {preview.docStats.pendingDocs > 0 && (
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-500">Pending review</p>
+                            <span className="text-xs text-amber-600">{preview.docStats.pendingDocs}</span>
+                          </div>
+                        )}
+                        {preview.docStats.rejectedDocs > 0 && (
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-500">Rejected</p>
+                            <span className="text-xs text-red-600">{preview.docStats.rejectedDocs}</span>
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                </SectionCard>
-              )}
+                  </SectionCard>
+                )}
 
-              {/* Match stats */}
-              {!loading && preview && (
-                <SectionCard label="Matches">
-                  {preview.matchStats.totalSuggestions === 0 ? (
-                    <p className="text-sm text-gray-400">No matches suggested yet</p>
-                  ) : (
+                {/* Partner preferences */}
+                {!loading && preview?.partnerPrefs && (
+                  <SectionCard label="Partner Preferences">
                     <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-gray-500">Suggestions reviewed</p>
-                        <p className="text-sm font-medium text-gray-900">{preview.matchStats.approvedSuggestions} / {preview.matchStats.totalSuggestions}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-gray-500">Presented to applicant</p>
-                        <p className="text-sm font-medium text-gray-900">{preview.matchStats.totalPresented}</p>
-                      </div>
-                      {preview.matchStats.mutualInterest > 0 && (
+                      {(preview.partnerPrefs.ageMin || preview.partnerPrefs.ageMax) && (
                         <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500">Mutual interest</p>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-admin-blue-50 px-2 py-0.5 text-xs font-medium text-admin-blue-800">
-                            <span className="h-1.5 w-1.5 rounded-full bg-admin-blue-500" />
-                            {preview.matchStats.mutualInterest}
-                          </span>
+                          <p className="text-xs text-gray-500">Age range</p>
+                          <p className="text-sm text-gray-800">
+                            {preview.partnerPrefs.ageMin ?? '\u2014'} \u2013 {preview.partnerPrefs.ageMax ?? '\u2014'} yrs
+                          </p>
                         </div>
                       )}
-                      {preview.matchStats.pendingResponse > 0 && (
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500">Awaiting response</p>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">
-                            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                            {preview.matchStats.pendingResponse}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </SectionCard>
-              )}
-
-              {/* Documents */}
-              {!loading && preview && (
-                <SectionCard label="Documents">
-                  {preview.docStats.totalDocs === 0 ? (
-                    <p className="text-sm text-gray-400">No documents uploaded</p>
-                  ) : (
-                    <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs text-gray-500">Verified</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {preview.docStats.verifiedDocs} / {preview.docStats.totalDocs}
-                        </p>
-                      </div>
-                      {preview.docStats.pendingDocs > 0 && (
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500">Pending review</p>
-                          <span className="text-xs text-amber-600">{preview.docStats.pendingDocs}</span>
-                        </div>
-                      )}
-                      {preview.docStats.rejectedDocs > 0 && (
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500">Rejected</p>
-                          <span className="text-xs text-red-600">{preview.docStats.rejectedDocs}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </SectionCard>
-              )}
-
-              {/* Partner preferences */}
-              {!loading && preview?.partnerPrefs && (
-                <SectionCard label="Partner Preferences">
-                  <div className="space-y-1.5">
-                    {(preview.partnerPrefs.ageMin || preview.partnerPrefs.ageMax) && (
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-gray-500">Age range</p>
+                        <p className="text-xs text-gray-500">Location</p>
                         <p className="text-sm text-gray-800">
-                          {preview.partnerPrefs.ageMin ?? '—'} – {preview.partnerPrefs.ageMax ?? '—'} yrs
+                          {preview.partnerPrefs.noLocationPreference
+                            ? 'Any location'
+                            : preview.partnerPrefs.states.length > 0
+                            ? preview.partnerPrefs.states.slice(0, 2).map(capitalize).join(', ') + (preview.partnerPrefs.states.length > 2 ? ` +${preview.partnerPrefs.states.length - 2}` : '')
+                            : '\u2014'}
                         </p>
                       </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-500">Location</p>
-                      <p className="text-sm text-gray-800">
-                        {preview.partnerPrefs.noLocationPreference
-                          ? 'Any location'
-                          : preview.partnerPrefs.states.length > 0
-                          ? preview.partnerPrefs.states.slice(0, 2).map(capitalize).join(', ') + (preview.partnerPrefs.states.length > 2 ? ` +${preview.partnerPrefs.states.length - 2}` : '')
-                          : '—'}
+                      {preview.partnerPrefs.motherTongue.length > 0 && (
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-gray-500">Language</p>
+                          <p className="text-sm text-gray-800">
+                            {preview.partnerPrefs.motherTongue.slice(0, 2).map(capitalize).join(', ')}
+                            {preview.partnerPrefs.motherTongue.length > 2 ? ` +${preview.partnerPrefs.motherTongue.length - 2}` : ''}
+                          </p>
+                        </div>
+                      )}
+                      {preview.partnerPrefs.familyType && (
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-gray-500">Family type</p>
+                          <p className="text-sm text-gray-800">{capitalize(preview.partnerPrefs.familyType.replace(/_/g, ' '))}</p>
+                        </div>
+                      )}
+                      {preview.partnerPrefs.partnerQualities.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {preview.partnerPrefs.partnerQualities.slice(0, 4).map((q) => (
+                            <Badge key={q} variant="outline" className="text-[10px] font-normal text-gray-600">
+                              {capitalize(q.replace(/_/g, ' '))}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </SectionCard>
+                )}
+
+                {/* Team notes */}
+                {!loading && preview?.latestNote && (
+                  <SectionCard label="Latest Team Note">
+                    <p className="text-sm leading-relaxed text-gray-700">&ldquo;{preview.latestNote.text}&rdquo;</p>
+                    <p className="mt-1.5 text-[11px] text-gray-400">{timeAgo(preview.latestNote.createdAt)}</p>
+                  </SectionCard>
+                )}
+
+                {/* AI personality summary */}
+                {!loading && preview?.personalitySummary && (
+                  <Card className="border-primary/20 bg-muted">
+                    <CardContent className="p-4">
+                      <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-primary">
+                        AI Personality Summary
                       </p>
-                    </div>
-                    {preview.partnerPrefs.motherTongue.length > 0 && (
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-gray-500">Language</p>
-                        <p className="text-sm text-gray-800">
-                          {preview.partnerPrefs.motherTongue.slice(0, 2).map(capitalize).join(', ')}
-                          {preview.partnerPrefs.motherTongue.length > 2 ? ` +${preview.partnerPrefs.motherTongue.length - 2}` : ''}
-                        </p>
-                      </div>
-                    )}
-                    {preview.partnerPrefs.familyType && (
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-gray-500">Family type</p>
-                        <p className="text-sm text-gray-800">{capitalize(preview.partnerPrefs.familyType.replace(/_/g, ' '))}</p>
-                      </div>
-                    )}
-                    {preview.partnerPrefs.partnerQualities.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {preview.partnerPrefs.partnerQualities.slice(0, 4).map((q) => (
-                          <span key={q} className="rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[10px] text-gray-600">
-                            {capitalize(q.replace(/_/g, ' '))}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                      <p className="text-sm leading-relaxed text-gray-700">{preview.personalitySummary}</p>
+                      {preview.compatibilityKeywords.length > 0 && (
+                        <div className="mt-2.5 flex flex-wrap gap-1.5">
+                          {preview.compatibilityKeywords.map((kw) => (
+                            <Badge
+                              key={kw}
+                              variant="outline"
+                              className="border-primary/20 bg-white text-[11px] font-medium text-primary"
+                            >
+                              {kw}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {loading && (
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-4/5" />
+                    <Skeleton className="h-3 w-3/5" />
                   </div>
-                </SectionCard>
-              )}
+                )}
 
-              {/* Team notes */}
-              {!loading && preview?.latestNote && (
-                <SectionCard label="Latest Team Note">
-                  <p className="text-sm leading-relaxed text-gray-700">&ldquo;{preview.latestNote.text}&rdquo;</p>
-                  <p className="mt-1.5 text-[11px] text-gray-400">{timeAgo(preview.latestNote.createdAt)}</p>
-                </SectionCard>
-              )}
-
-              {/* AI personality summary */}
-              {!loading && preview?.personalitySummary && (
-                <div className="rounded-xl border border-admin-blue-200 bg-admin-blue-50 p-4">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-admin-blue-800">
-                    AI Personality Summary
+                {error && (
+                  <p className="text-center text-sm text-gray-400">
+                    Could not load details.{' '}
+                    <Link href={`/admin/applicants/${userId}`} className="text-rose-500 underline">
+                      Open full profile
+                    </Link>
                   </p>
-                  <p className="text-sm leading-relaxed text-gray-700">{preview.personalitySummary}</p>
-                  {preview.compatibilityKeywords.length > 0 && (
-                    <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      {preview.compatibilityKeywords.map((kw) => (
-                        <span
-                          key={kw}
-                          className="rounded-full border border-admin-blue-200 bg-white px-2.5 py-0.5 text-[11px] font-medium text-admin-blue-800"
-                        >
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
+            </TabsContent>
 
-              {loading && (
-                <div className="space-y-2">
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-4/5" />
-                  <Skeleton className="h-3 w-3/5" />
-                </div>
-              )}
+            {/* TIMELINE TAB */}
+            <TabsContent value="timeline" className="mt-0">
+              <JourneyTimeline preview={preview} loading={loading} basicInfo={basicInfo} />
+            </TabsContent>
 
-              {error && (
-                <p className="text-center text-sm text-gray-400">
-                  Could not load details.{' '}
-                  <Link href={`/admin/applicants/${userId}`} className="text-rose-500 underline">
-                    Open full profile
-                  </Link>
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* ── TIMELINE TAB ─────────────────────────────────────────── */}
-          {activeTab === 'timeline' && (
-            <JourneyTimeline preview={preview} loading={loading} basicInfo={basicInfo} />
-          )}
-
-          {/* ── VERIFICATION TAB ─────────────────────────────────────── */}
-          {activeTab === 'verification' && (
-            <DrawerBgvTracker userId={userId} />
-          )}
-        </div>
-      </div>
-    </>
+            {/* VERIFICATION TAB */}
+            <TabsContent value="verification" className="mt-0">
+              <DrawerBgvTracker userId={userId} />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </SheetContent>
+    </Sheet>
   );
 }

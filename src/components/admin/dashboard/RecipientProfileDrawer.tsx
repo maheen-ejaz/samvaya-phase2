@@ -2,8 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { formatDateIN } from '@/lib/utils';
+import { cn, formatDateIN } from '@/lib/utils';
 import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface UserSummary {
   name: string | null;
@@ -23,7 +31,8 @@ interface UserSummary {
 
 interface RecipientProfileDrawerProps {
   userId: string;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const PAYMENT_STATUS_LABELS: Record<string, string> = {
@@ -42,11 +51,11 @@ const PAYMENT_STATUS_COLORS: Record<string, string> = {
   in_pool: 'bg-blue-100 text-blue-800',
   match_presented: 'bg-purple-100 text-purple-800',
   awaiting_payment: 'bg-orange-100 text-orange-800',
-  active_member: 'bg-admin-blue-100 text-admin-blue-900',
+  active_member: 'bg-muted text-primary',
   membership_expired: 'bg-red-100 text-red-800',
 };
 
-export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDrawerProps) {
+export function RecipientProfileDrawer({ userId, open, onOpenChange }: RecipientProfileDrawerProps) {
   const [summary, setSummary] = useState<UserSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [emailState, setEmailState] = useState<{ open: boolean; subject: string; body: string }>({
@@ -57,14 +66,7 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
   const [emailSuccess, setEmailSuccess] = useState(false);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-
-  useEffect(() => {
+    if (!open) return;
     setLoading(true);
     setSummary(null);
     fetch(`/api/admin/users/${userId}/summary`)
@@ -72,7 +74,7 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
       .then((data) => setSummary(data))
       .catch(() => setSummary(null))
       .finally(() => setLoading(false));
-  }, [userId]);
+  }, [userId, open]);
 
   async function handleSendEmail() {
     if (!emailState.subject.trim() || !emailState.body.trim()) return;
@@ -100,21 +102,13 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
   }
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 z-50 flex w-[420px] flex-col bg-white shadow-2xl">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-[420px] sm:max-w-[420px] flex flex-col p-0">
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-gray-100 p-5">
+        <SheetHeader className="border-b border-border p-5">
           <div className="flex items-center gap-4">
             {/* Photo */}
-            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-gray-100">
+            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-muted">
               {summary?.photoUrl ? (
                 <Image
                   src={summary.photoUrl}
@@ -123,7 +117,7 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
                   className="object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-gray-400">
+                <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-muted-foreground">
                   {summary?.name?.charAt(0)?.toUpperCase() ?? '?'}
                 </div>
               )}
@@ -132,40 +126,30 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
             {/* Name + specialty */}
             <div>
               {loading ? (
-                <div className="h-5 w-32 animate-pulse rounded bg-gray-200" />
+                <div className="h-5 w-32 animate-pulse rounded bg-muted" />
               ) : (
-                <h2 className="inline-flex items-center gap-1.5 text-base font-semibold text-gray-900">
+                <SheetTitle className="inline-flex items-center gap-1.5">
                   {summary?.name || 'Unknown'}
                   <ApplicantStatusIcons isGooCampusMember={summary?.isGoocampusMember ?? false} paymentStatus={summary?.paymentStatus} size={14} />
-                </h2>
+                </SheetTitle>
               )}
               {summary?.specialty && summary.specialty.length > 0 && (
-                <p className="mt-0.5 text-sm text-gray-500">{summary.specialty.join(', ')}</p>
+                <SheetDescription>{summary.specialty.join(', ')}</SheetDescription>
               )}
             </div>
           </div>
-
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-            aria-label="Close"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+        </SheetHeader>
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {loading ? (
             <div className="space-y-3">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-4 animate-pulse rounded bg-gray-100" style={{ width: `${60 + (i % 3) * 15}%` }} />
+                <div key={i} className="h-4 animate-pulse rounded bg-muted" style={{ width: `${60 + (i % 3) * 15}%` }} />
               ))}
             </div>
           ) : !summary ? (
-            <p className="text-sm text-gray-400">Could not load profile data.</p>
+            <p className="text-sm text-muted-foreground">Could not load profile data.</p>
           ) : (
             <>
               {/* Info grid */}
@@ -175,107 +159,106 @@ export function RecipientProfileDrawer({ userId, onClose }: RecipientProfileDraw
                 <InfoItem label="Location" value={summary.location} />
                 <InfoItem label="Religion" value={summary.religion ? capitalize(summary.religion) : null} />
                 <InfoItem label="Registered" value={formatDateIN(summary.registrationDate)} />
-                <InfoItem label="BGV" value={summary.bgvStatus ? 'Complete' : 'Pending'} valueClass={summary.bgvStatus ? 'text-admin-blue-700' : 'text-yellow-700'} />
+                <InfoItem label="BGV" value={summary.bgvStatus ? 'Complete' : 'Pending'} valueClass={summary.bgvStatus ? 'text-primary' : 'text-yellow-700'} />
               </div>
 
               {/* Payment status */}
               <div>
-                <p className="type-label text-gray-500 mb-1.5">Payment Status</p>
-                <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${PAYMENT_STATUS_COLORS[summary.paymentStatus] || 'bg-gray-100 text-gray-700'}`}>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">Payment Status</p>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    'rounded-full',
+                    PAYMENT_STATUS_COLORS[summary.paymentStatus] || 'bg-gray-100 text-gray-700'
+                  )}
+                >
                   {PAYMENT_STATUS_LABELS[summary.paymentStatus] || capitalize(summary.paymentStatus)}
-                </span>
+                </Badge>
               </div>
 
               {/* Form progress */}
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <p className="type-label text-gray-500">Form Progress</p>
-                  <span className="text-xs font-medium text-gray-700">{summary.formProgress}%</span>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Form Progress</p>
+                  <span className="text-xs font-medium text-foreground">{summary.formProgress}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                  <div
-                    className="h-full rounded-full bg-admin-blue-600 transition-all"
-                    style={{ width: `${summary.formProgress}%` }}
-                  />
-                </div>
+                <Progress value={summary.formProgress} className="h-2" />
               </div>
 
-              {/* Divider */}
-              <div className="border-t border-gray-100" />
+              <Separator />
 
               {/* Actions */}
               <div className="space-y-3">
-                <p className="type-label text-gray-500">Actions</p>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</p>
 
                 {emailSuccess && (
-                  <p className="rounded-lg bg-admin-blue-50 px-3 py-2 text-sm text-admin-blue-800">
-                    Email sent successfully.
-                  </p>
+                  <Alert>
+                    <AlertDescription>Email sent successfully.</AlertDescription>
+                  </Alert>
                 )}
 
                 {!emailState.open ? (
-                  <button
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
                     onClick={() => setEmailState((s) => ({ ...s, open: true }))}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
                   >
                     Send Email
-                  </button>
+                  </Button>
                 ) : (
                   <div className="space-y-2">
-                    <input
+                    <Input
                       type="text"
                       placeholder="Subject"
                       value={emailState.subject}
                       onChange={(e) => setEmailState((s) => ({ ...s, subject: e.target.value }))}
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-admin-blue-500 focus:ring-1 focus:ring-admin-blue-500"
                     />
-                    <textarea
+                    <Textarea
                       placeholder="Message..."
                       value={emailState.body}
                       onChange={(e) => setEmailState((s) => ({ ...s, body: e.target.value }))}
                       rows={4}
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-admin-blue-500 focus:ring-1 focus:ring-admin-blue-500 resize-none"
+                      className="resize-none"
                     />
-                    {emailError && <p className="text-xs text-red-600">{emailError}</p>}
+                    {emailError && <p className="text-xs text-destructive">{emailError}</p>}
                     <div className="flex gap-2">
-                      <button
+                      <Button
                         onClick={handleSendEmail}
                         disabled={emailSending || !emailState.subject.trim() || !emailState.body.trim()}
-                        className="flex-1 rounded-lg bg-admin-blue-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-admin-blue-800 disabled:opacity-50"
+                        className="flex-1"
                       >
-                        {emailSending ? 'Sending…' : 'Send'}
-                      </button>
-                      <button
+                        {emailSending ? 'Sending\u2026' : 'Send'}
+                      </Button>
+                      <Button
+                        variant="outline"
                         onClick={() => setEmailState({ open: false, subject: '', body: '' })}
-                        className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
                       >
                         Cancel
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
 
-                <a
-                  href={`/admin/applicants/${userId}`}
-                  className="block w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-                >
-                  View Full Profile →
-                </a>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <a href={`/admin/applicants/${userId}`}>
+                    View Full Profile &rarr;
+                  </a>
+                </Button>
               </div>
             </>
           )}
         </div>
-      </div>
-    </>
+      </SheetContent>
+    </Sheet>
   );
 }
 
 function InfoItem({ label, value, valueClass }: { label: string; value: string | null | undefined; valueClass?: string }) {
   return (
     <div>
-      <p className="type-label text-gray-500">{label}</p>
-      <p className={`mt-0.5 text-sm font-medium text-gray-900 ${valueClass ?? ''}`}>
-        {value || <span className="font-normal text-gray-400">—</span>}
+      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className={cn('mt-0.5 text-sm font-medium text-foreground', valueClass)}>
+        {value || <span className="font-normal text-muted-foreground">&mdash;</span>}
       </p>
     </div>
   );

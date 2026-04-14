@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface TextInputProps {
   question: QuestionConfig;
@@ -33,7 +35,7 @@ export function TextInput({ question, value, onChange, disabled, inputId, ariaDe
 
   return (
     <div>
-      <input
+      <Input
         id={inputId}
         type={inputType}
         value={value || ''}
@@ -44,10 +46,14 @@ export function TextInput({ question, value, onChange, disabled, inputId, ariaDe
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid || undefined}
         autoComplete={autocomplete}
-        className="form-input"
+        className={cn(
+          'h-11 rounded-xl border-input bg-transparent px-4 text-[15px]',
+          'placeholder:text-muted-foreground',
+          'focus-visible:ring-primary/30',
+        )}
       />
       {showPhoneHint && (
-        <p className="form-helper mt-2 text-[color:var(--color-form-error)]">
+        <p className="mt-2 text-sm text-destructive">
           Please enter a valid phone number (at least 10 digits).
         </p>
       )}

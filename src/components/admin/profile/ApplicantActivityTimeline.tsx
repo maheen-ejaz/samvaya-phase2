@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent, CardAction } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Clock } from 'lucide-react';
 
 interface LogEntry {
   id: string;
@@ -121,9 +124,9 @@ function getIconColor(action: string): string {
   }
   if (a.includes('bgv')) return 'bg-blue-50 text-blue-600';
   if (a.includes('match')) return 'bg-violet-50 text-violet-600';
-  if (a.includes('form_complete') || a.includes('onboarding')) return 'bg-rose-50 text-rose-600';
+  if (a.includes('form_complete') || a.includes('onboarding')) return 'bg-primary/10 text-primary';
   if (a.includes('form_start') || a.includes('form_begin')) return 'bg-orange-50 text-orange-600';
-  return 'bg-gray-100 text-gray-500';
+  return 'bg-muted text-muted-foreground';
 }
 
 export function ApplicantActivityTimeline({ userId }: { userId: string }) {
@@ -153,88 +156,97 @@ export function ApplicantActivityTimeline({ userId }: { userId: string }) {
   }, [userId]);
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      {/* Header */}
-      <div className="mb-5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100">
-            <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted">
+            <Clock className="h-4 w-4 text-muted-foreground" />
           </div>
-          <h3 className="text-sm font-semibold text-gray-900">Activity History</h3>
-        </div>
-        <a
-          href="/admin/activity"
-          className="text-xs text-rose-600 hover:text-rose-700 hover:underline"
-        >
-          View all →
-        </a>
-      </div>
+          <span className="text-sm font-semibold text-foreground">Activity History</span>
+        </CardTitle>
+        <CardAction>
+          <a
+            href="/admin/activity"
+            className="text-xs text-primary hover:text-primary/80 hover:underline"
+          >
+            View all →
+          </a>
+        </CardAction>
+      </CardHeader>
 
-      {/* Loading */}
-      {loading && (
-        <div className="flex items-center justify-center py-8">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-200 border-t-rose-600" />
-        </div>
-      )}
+      <CardContent>
+        {/* Loading */}
+        {loading && (
+          <div className="space-y-3 py-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex gap-4">
+                <Skeleton className="h-[34px] w-[34px] rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
-      {/* Error */}
-      {error && !loading && (
-        <p className="py-4 text-center text-sm text-gray-400">{error}</p>
-      )}
+        {/* Error */}
+        {error && !loading && (
+          <p className="py-4 text-center text-sm text-muted-foreground">{error}</p>
+        )}
 
-      {/* Empty state */}
-      {!loading && !error && logs.length === 0 && (
-        <div className="py-8 text-center">
-          <p className="text-sm text-gray-400">No activity recorded yet.</p>
-          <p className="mt-1 text-xs text-gray-300">Events will appear here as the applicant progresses.</p>
-        </div>
-      )}
+        {/* Empty state */}
+        {!loading && !error && logs.length === 0 && (
+          <div className="py-8 text-center">
+            <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Events will appear here as the applicant progresses.</p>
+          </div>
+        )}
 
-      {/* Timeline */}
-      {!loading && logs.length > 0 && (
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-[17px] top-2 bottom-2 w-px bg-gray-100" aria-hidden="true" />
+        {/* Timeline */}
+        {!loading && logs.length > 0 && (
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="absolute left-[17px] top-2 bottom-2 w-px bg-border" aria-hidden="true" />
 
-          <div className="space-y-4">
-            {logs.map((log) => {
-              const snippet = formatMetadataSnippet(log.metadata);
-              return (
-                <div key={log.id} className="relative flex gap-4">
-                  {/* Icon dot */}
-                  <div
-                    className={`relative z-10 flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-full ${getIconColor(log.action)}`}
-                  >
-                    {getIconForAction(log.action)}
-                  </div>
+            <div className="space-y-4">
+              {logs.map((log) => {
+                const snippet = formatMetadataSnippet(log.metadata);
+                return (
+                  <div key={log.id} className="relative flex gap-4">
+                    {/* Icon dot */}
+                    <div
+                      className={`relative z-10 flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-full ${getIconColor(log.action)}`}
+                    >
+                      {getIconForAction(log.action)}
+                    </div>
 
-                  {/* Content */}
-                  <div className="flex-1 pt-1.5 pb-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-800">
-                          {formatAction(log.action)}
-                        </p>
-                        {snippet && (
-                          <p className="mt-0.5 text-xs text-gray-400">{snippet}</p>
-                        )}
-                        {log.actor_name && log.actor_name !== 'Unknown' && (
-                          <p className="mt-0.5 text-xs text-gray-400">by {log.actor_name}</p>
-                        )}
+                    {/* Content */}
+                    <div className="flex-1 pt-1.5 pb-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground">
+                            {formatAction(log.action)}
+                          </p>
+                          {snippet && (
+                            <p className="mt-0.5 text-xs text-muted-foreground">{snippet}</p>
+                          )}
+                          {log.actor_name && log.actor_name !== 'Unknown' && (
+                            <p className="mt-0.5 text-xs text-muted-foreground">by {log.actor_name}</p>
+                          )}
+                        </div>
+                        <span className="flex-shrink-0 text-xs text-muted-foreground">
+                          {timeAgo(log.created_at)}
+                        </span>
                       </div>
-                      <span className="flex-shrink-0 text-xs text-gray-400">
-                        {timeAgo(log.created_at)}
-                      </span>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

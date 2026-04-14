@@ -1,4 +1,7 @@
 import { Section } from './IdentitySnapshot';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardHeader, CardTitle, CardAction, CardContent } from '@/components/ui/card';
 
 interface ChatMessage {
   id: string;
@@ -29,49 +32,55 @@ export function ChatTranscriptViewer({ transcripts }: ChatTranscriptViewerProps)
   return (
     <Section title="AI Conversation Transcripts">
       {transcripts.length === 0 ? (
-        <p className="text-sm text-gray-400">No conversations recorded.</p>
+        <p className="text-sm text-muted-foreground">No conversations recorded.</p>
       ) : (
         <div className="space-y-6">
           {transcripts.map((transcript) => {
             const info = CHAT_INFO[transcript.chatId] || { title: transcript.chatId, description: '' };
             return (
-              <div key={transcript.chatId} className="rounded-lg border border-gray-100 bg-gray-50">
+              <Card key={transcript.chatId}>
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">{info.title}</h4>
-                    <p className="text-xs text-gray-500">{info.description}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">{transcript.exchangeCount} exchanges</span>
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${transcript.isComplete ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-                      {transcript.isComplete ? 'Complete' : 'Incomplete'}
-                    </span>
-                  </div>
-                </div>
+                <CardHeader className="border-b">
+                  <CardTitle>
+                    <span className="text-sm font-medium text-foreground">{info.title}</span>
+                    <p className="text-xs font-normal text-muted-foreground">{info.description}</p>
+                  </CardTitle>
+                  <CardAction>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">{transcript.exchangeCount} exchanges</span>
+                      <Badge variant={transcript.isComplete ? 'default' : 'secondary'}>
+                        {transcript.isComplete ? 'Complete' : 'Incomplete'}
+                      </Badge>
+                    </div>
+                  </CardAction>
+                </CardHeader>
 
                 {/* Messages */}
-                <div className="max-h-96 overflow-y-auto px-4 py-3 space-y-3">
-                  {transcript.messages.length === 0 ? (
-                    <p className="text-xs text-gray-400 italic">No messages in this conversation.</p>
-                  ) : (
-                    transcript.messages.map((msg) => (
-                      <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                          msg.role === 'user'
-                            ? 'bg-rose-50 text-gray-800 border border-rose-100'
-                            : 'bg-white text-gray-700 border border-gray-200'
-                        }`}>
-                          <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-gray-400">
-                            {msg.role === 'user' ? 'Applicant' : 'Claude'}
-                          </p>
-                          <p className="whitespace-pre-wrap">{msg.content}</p>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+                <CardContent className="p-0">
+                  <ScrollArea className="max-h-96">
+                    <div className="space-y-3 px-4 py-3">
+                      {transcript.messages.length === 0 ? (
+                        <p className="text-xs italic text-muted-foreground">No messages in this conversation.</p>
+                      ) : (
+                        transcript.messages.map((msg) => (
+                          <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                              msg.role === 'user'
+                                ? 'border border-primary/20 bg-primary/10 text-foreground'
+                                : 'border border-border bg-card text-foreground'
+                            }`}>
+                              <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                                {msg.role === 'user' ? 'Applicant' : 'Claude'}
+                              </p>
+                              <p className="whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
             );
           })}
         </div>

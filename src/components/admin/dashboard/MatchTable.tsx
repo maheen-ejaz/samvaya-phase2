@@ -1,7 +1,11 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import type { DashboardMatch } from '@/types/dashboard';
 import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface MatchTableProps {
   matches: DashboardMatch[];
@@ -22,8 +26,8 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="type-display-sm type-stat text-gray-900">{score}</span>
-      <div className="relative h-5 flex-1 overflow-hidden rounded-md bg-gray-100">
+      <span className="text-3xl font-light tabular-nums tracking-tight text-foreground">{score}</span>
+      <div className="relative h-5 flex-1 overflow-hidden rounded-md bg-muted">
         {/* Filled portion — diagonal stripes */}
         <div
           className="absolute inset-y-0 left-0 rounded-md"
@@ -53,7 +57,7 @@ const STAGE_PIPELINE = [
   { key: 'mutual_interest', label: 'Mutual Interest' },
 ] as const;
 
-/** Horizontal stepper — filled stages get green diagonal stripes, future stages get gray stripes */
+/** Horizontal stepper — filled stages get blue diagonal stripes, future stages get gray stripes */
 function StageStepper({ currentStage }: { currentStage: string }) {
   const currentIdx = STAGE_PIPELINE.findIndex((s) => s.key === currentStage);
 
@@ -69,15 +73,15 @@ function StageStepper({ currentStage }: { currentStage: string }) {
                 className="absolute inset-0"
                 style={{
                   background: isCompleted
-                    ? 'repeating-linear-gradient(-45deg, #4F6EF7, #4F6EF7 3px, #818CF8 3px, #818CF8 6px)'
-                    : 'repeating-linear-gradient(-45deg, #E5E7EB, #E5E7EB 3px, #F3F4F6 3px, #F3F4F6 6px)',
+                    ? 'hsl(var(--primary))'
+                    : 'hsl(var(--muted))',
                 }}
               />
               {/* Needle marker on current stage */}
               {i === currentIdx && (
                 <div className="absolute -bottom-1.5 right-0 flex flex-col items-center">
-                  <div className="h-3 w-0.5 bg-gray-900" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-gray-900" />
+                  <div className="h-3 w-0.5 bg-foreground" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
                 </div>
               )}
             </div>
@@ -89,7 +93,11 @@ function StageStepper({ currentStage }: { currentStage: string }) {
         {STAGE_PIPELINE.map((stage, i) => (
           <span
             key={stage.key}
-            className={`flex-1 text-[11px] ${i <= currentIdx ? 'font-medium text-gray-700' : 'text-gray-400'} ${i === 0 ? 'text-left' : i === STAGE_PIPELINE.length - 1 ? 'text-right' : 'text-center'}`}
+            className={cn(
+              'flex-1 text-[11px]',
+              i <= currentIdx ? 'font-medium text-foreground' : 'text-muted-foreground',
+              i === 0 ? 'text-left' : i === STAGE_PIPELINE.length - 1 ? 'text-right' : 'text-center'
+            )}
           >
             {stage.label}
           </span>
@@ -102,7 +110,7 @@ function StageStepper({ currentStage }: { currentStage: string }) {
 export function MatchTable({ matches, expandedId, onToggleExpand, onAction, actionLoading }: MatchTableProps) {
   if (matches.length === 0) {
     return (
-      <div className="py-12 text-center text-sm text-gray-400">
+      <div className="py-12 text-center text-sm text-muted-foreground">
         No matches in this stage.
       </div>
     );
@@ -140,7 +148,7 @@ function getCardStyle(gender?: string): string {
   const g = gender?.toLowerCase();
   if (g === 'male') return 'border-blue-200 bg-gradient-to-b from-blue-50/80 to-white';
   if (g === 'female') return 'border-pink-200 bg-gradient-to-b from-pink-50/80 to-white';
-  return 'border-gray-200 bg-white';
+  return 'border-border bg-card';
 }
 
 /** Profile card — contained card with photo, name, and structured details */
@@ -149,7 +157,7 @@ function ProfileCard({ person }: { person: DashboardMatch['personA'] }) {
   const cardStyle = getCardStyle(person.gender);
 
   // Parse details: "28y · Female · Anesthesiology · Bangalore" → extract parts, skip gender
-  const parts = person.details?.split(' · ') || [];
+  const parts = person.details?.split(' \u00b7 ') || [];
   const genderValues = ['male', 'female', 'Male', 'Female'];
   const age = parts.find((p) => p.match(/^\d+y$/));
   const location = parts.find((p) => !p.match(/^\d+y$/) && !genderValues.includes(p) && parts.indexOf(p) === parts.length - 1) || parts[parts.length - 1];
@@ -157,33 +165,33 @@ function ProfileCard({ person }: { person: DashboardMatch['personA'] }) {
 
   return (
     <div className="flex-1">
-      <div className={`rounded-xl border p-2.5 shadow-sm ${cardStyle}`}>
+      <Card className={cn('p-2.5 shadow-sm', cardStyle)}>
         {/* Photo */}
-        <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-100">
+        <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted">
           <img src={photoSrc} alt={person.name} className="h-full w-full object-cover" />
         </div>
 
         {/* Name + details — left-aligned */}
         <div className="mt-2 px-0.5">
-          <p className="inline-flex items-center gap-1 type-subheading text-gray-900">
+          <p className="inline-flex items-center gap-1 text-sm font-semibold text-foreground">
             {person.name}
             <ApplicantStatusIcons isGooCampusMember={person.isGooCampusMember ?? false} paymentStatus={person.paymentStatus} size={13} />
           </p>
 
           {/* Specialty */}
           {specialty && (
-            <p className="mt-1 text-sm text-gray-500">{specialty}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{specialty}</p>
           )}
 
           {/* Age + Location in a 2-column row */}
           {(age || location) && (
-            <div className="mt-1 flex items-center justify-between text-sm text-gray-400">
+            <div className="mt-1 flex items-center justify-between text-sm text-muted-foreground">
               {age && <span>{age}</span>}
               {location && <span>{location}</span>}
             </div>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -202,9 +210,12 @@ function MatchCard({
   actionLoading: boolean;
 }) {
   return (
-    <div className={`rounded-2xl border transition-shadow ${isExpanded ? 'border-admin-blue-300 shadow-md' : 'border-gray-200 hover:shadow-sm'}`}>
+    <Card className={cn(
+      'rounded-2xl transition-shadow',
+      isExpanded ? 'ring-2 ring-ring shadow-md' : 'hover:shadow-sm'
+    )}>
       {/* Match layout: profiles on top, gauge + CTA on bottom */}
-      <div className="cursor-pointer px-4 py-4" onClick={onToggle}>
+      <CardContent className="cursor-pointer" onClick={onToggle}>
         {/* Row 1: Two profile cards side by side — female always on the left */}
         {(() => {
           const [first, second] = match.personA?.gender?.toLowerCase() === 'female'
@@ -230,25 +241,27 @@ function MatchCard({
 
         {/* Row 4: CTA right-aligned */}
         <div className="mt-3 flex items-center justify-end gap-3">
-          <span className="text-xs text-gray-400">{match.daysInStage}d in stage</span>
-          <button
+          <span className="text-xs text-muted-foreground">{match.daysInStage}d in stage</span>
+          <Button
             onClick={(e) => { e.stopPropagation(); onAction(); }}
             disabled={actionLoading}
-            className="rounded-full bg-admin-blue-900 px-5 py-2 text-sm font-medium text-white shadow-sm hover:bg-admin-blue-800 disabled:bg-gray-300"
+            size="sm"
           >
             {actionLoading ? '...' : match.nextAction}
-          </button>
+          </Button>
         </div>
-      </div>
+      </CardContent>
 
       {/* Expanded detail */}
       {isExpanded && (
-        <div className="border-t border-gray-100 bg-gray-50 px-8 py-5">
+        <div className="border-t border-border bg-muted/50 px-8 py-5">
           {match.fullNarrative && (
-            <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
-              <h4 className="text-xs font-semibold uppercase text-gray-500">Why This Match</h4>
-              <p className="mt-2 text-sm leading-relaxed text-gray-700">{match.fullNarrative}</p>
-            </div>
+            <Card className="mb-4">
+              <CardContent>
+                <h4 className="text-xs font-semibold uppercase text-muted-foreground">Why This Match</h4>
+                <p className="mt-2 text-sm leading-relaxed text-foreground">{match.fullNarrative}</p>
+              </CardContent>
+            </Card>
           )}
 
           {match.compatibilityReport && (
@@ -256,14 +269,16 @@ function MatchCard({
           )}
 
           {match.adminNotes && (
-            <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3">
-              <h4 className="text-xs font-semibold uppercase text-gray-500">Admin Notes</h4>
-              <p className="mt-1 text-sm text-gray-600">{match.adminNotes}</p>
-            </div>
+            <Card className="mt-3">
+              <CardContent>
+                <h4 className="text-xs font-semibold uppercase text-muted-foreground">Admin Notes</h4>
+                <p className="mt-1 text-sm text-foreground">{match.adminNotes}</p>
+              </CardContent>
+            </Card>
           )}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -276,24 +291,28 @@ function HighlightsConcerns({ report }: { report: Record<string, unknown> }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {highlights.length > 0 && (
-        <div className="rounded-lg border border-admin-blue-200 bg-admin-blue-50 p-3">
-          <h5 className="text-xs font-semibold text-admin-blue-900">Highlights</h5>
-          <ul className="mt-1.5 space-y-1">
-            {highlights.map((h, i) => (
-              <li key={i} className="text-xs text-admin-blue-800">+ {h}</li>
-            ))}
-          </ul>
-        </div>
+        <Card className="border-border bg-muted">
+          <CardContent>
+            <h5 className="text-xs font-semibold text-primary">Highlights</h5>
+            <ul className="mt-1.5 space-y-1">
+              {highlights.map((h, i) => (
+                <li key={i} className="text-xs text-primary">+ {h}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
       )}
       {concerns.length > 0 && (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-          <h5 className="text-xs font-semibold text-gray-700">Concerns</h5>
-          <ul className="mt-1.5 space-y-1">
-            {concerns.map((c, i) => (
-              <li key={i} className="text-xs text-gray-600">! {c}</li>
-            ))}
-          </ul>
-        </div>
+        <Card className="border-border bg-muted/50">
+          <CardContent>
+            <h5 className="text-xs font-semibold text-foreground">Concerns</h5>
+            <ul className="mt-1.5 space-y-1">
+              {concerns.map((c, i) => (
+                <li key={i} className="text-xs text-muted-foreground">! {c}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

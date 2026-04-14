@@ -1,3 +1,5 @@
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { BgvBadge } from '../StatusBadge';
 import { ApplicantStatusIcons } from '../ApplicantStatusIcons';
 import { capitalize } from '@/lib/utils';
@@ -52,61 +54,61 @@ export function ProfileHeader({
   const specialtyStr = specialty.length > 0 ? specialty.map((s) => capitalize(s)).join(', ') : '';
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      {/* Top row: photo + info + pipeline */}
-      <div className="flex gap-5">
-        {/* Photo */}
-        <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100 ring-2 ring-gray-100">
-          {photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={photoUrl} alt={`${firstName} ${lastName}`} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-3xl font-light text-gray-300">
+    <Card>
+      <CardContent>
+        {/* Top row: photo + info + pipeline */}
+        <div className="flex gap-5">
+          {/* Photo */}
+          <Avatar className="h-24 w-24 rounded-2xl">
+            {photoUrl ? (
+              <AvatarImage src={photoUrl} alt={`${firstName} ${lastName}`} className="rounded-2xl" />
+            ) : null}
+            <AvatarFallback className="rounded-2xl text-3xl font-light">
               {firstName?.[0] || '?'}
-            </div>
-          )}
-        </div>
+            </AvatarFallback>
+          </Avatar>
 
-        {/* Name + details */}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start gap-8">
-            {/* Left: name block — fixed width so pipeline gets the rest */}
-            <div className="w-56 flex-shrink-0">
-              <h2 className="inline-flex items-center gap-1.5 text-xl font-semibold text-gray-900">
-                {firstName} {lastName}
-                <ApplicantStatusIcons isGooCampusMember={isGooCampusMember} paymentStatus={paymentStatus} size={16} />
-              </h2>
-              <p className="mt-0.5 text-sm text-gray-500">
-                {age ? `${age} yrs` : ''}
-                {age && gender ? ' · ' : ''}
-                {gender ? capitalize(gender) : ''}
-                {location ? ` · ${location}` : ''}
-              </p>
-              {(statusLabel || specialtyStr) && (
-                <p className="mt-1 text-sm font-medium text-gray-700">
-                  {statusLabel}{statusLabel && specialtyStr ? ' — ' : ''}{specialtyStr}
+          {/* Name + details */}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start gap-8">
+              {/* Left: name block — fixed width so pipeline gets the rest */}
+              <div className="w-56 flex-shrink-0">
+                <h2 className="inline-flex items-center gap-1.5 text-xl font-semibold text-foreground">
+                  {firstName} {lastName}
+                  <ApplicantStatusIcons isGooCampusMember={isGooCampusMember} paymentStatus={paymentStatus} size={16} />
+                </h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {age ? `${age} yrs` : ''}
+                  {age && gender ? ' · ' : ''}
+                  {gender ? capitalize(gender) : ''}
+                  {location ? ` · ${location}` : ''}
                 </p>
-              )}
-              <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
-                <span>{email}</span>
-                {phone && <span>{phone}</span>}
+                {(statusLabel || specialtyStr) && (
+                  <p className="mt-1 text-sm font-medium text-foreground">
+                    {statusLabel}{statusLabel && specialtyStr ? ' — ' : ''}{specialtyStr}
+                  </p>
+                )}
+                <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                  <span>{email}</span>
+                  {phone && <span>{phone}</span>}
+                </div>
               </div>
-            </div>
 
-            {/* Right: pipeline fills all remaining space */}
-            <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 self-stretch">
-              <ApplicantPipeline
-                paymentStatus={paymentStatus}
-                membershipStatus={membershipStatus}
-              />
-              {/* Indicator badges */}
-              <div className="flex items-center gap-2">
-                <BgvBadge isComplete={isBgvComplete} isFlagged={bgvFlagged} />
+              {/* Right: pipeline fills all remaining space */}
+              <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 self-stretch">
+                <ApplicantPipeline
+                  paymentStatus={paymentStatus}
+                  membershipStatus={membershipStatus}
+                />
+                {/* Indicator badges */}
+                <div className="flex items-center gap-2">
+                  <BgvBadge isComplete={isBgvComplete} isFlagged={bgvFlagged} />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

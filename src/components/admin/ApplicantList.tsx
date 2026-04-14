@@ -5,6 +5,24 @@ import { PaymentStatusBadge, ConsentBadge } from './StatusBadge';
 import { ApplicantStatusIcons } from './ApplicantStatusIcons';
 import { capitalize } from '@/lib/utils';
 import { ApplicantPreviewDrawer } from './applicants/ApplicantPreviewDrawer';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 export interface Applicant {
   id: string;
@@ -31,6 +49,15 @@ const STATUS_OPTIONS = [
   { value: 'match_presented', label: 'Match Presented' },
   { value: 'awaiting_payment', label: 'Awaiting Payment' },
   { value: 'active_member', label: 'Active Member' },
+] as const;
+
+const SORT_OPTIONS = [
+  { value: 'submittedAt:desc', label: 'Newest first' },
+  { value: 'submittedAt:asc', label: 'Oldest first' },
+  { value: 'name:asc', label: 'Name A\u2013Z' },
+  { value: 'name:desc', label: 'Name Z\u2013A' },
+  { value: 'specialty:asc', label: 'Specialty A\u2013Z' },
+  { value: 'paymentStatus:asc', label: 'Status A\u2013Z' },
 ] as const;
 
 type SortField = 'name' | 'specialty' | 'submittedAt' | 'paymentStatus';
@@ -106,47 +133,46 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <h1 className="type-heading-xl text-gray-900">{title}</h1>
-        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-normal text-gray-600">
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
+        <Badge variant="secondary" className="text-sm font-normal">
           {applicants.length}
-        </span>
+        </Badge>
       </div>
 
       {/* Search + Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <input
+        <Input
           type="search"
           value={search}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search by name or email…"
-          className="w-64 rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-1.5 text-sm text-gray-700 placeholder:text-gray-400 focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-0"
+          placeholder="Search by name or email\u2026"
+          className="w-64"
           aria-label="Search applicants"
         />
-        <select
-          value={statusFilter}
-          onChange={(e) => handleStatusFilter(e.target.value)}
-          className="rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-1.5 text-sm text-gray-600 focus:border-gray-400 focus:outline-none focus:ring-0"
-          aria-label="Filter by payment status"
-        >
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        <select
-          value={`${sortField}:${sortDir}`}
-          onChange={(e) => handleSortChange(e.target.value)}
-          className="rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-1.5 text-sm text-gray-600 focus:border-gray-400 focus:outline-none focus:ring-0"
-          aria-label="Sort by"
-        >
-          <option value="submittedAt:desc">Newest first</option>
-          <option value="submittedAt:asc">Oldest first</option>
-          <option value="name:asc">Name A–Z</option>
-          <option value="name:desc">Name Z–A</option>
-          <option value="specialty:asc">Specialty A–Z</option>
-          <option value="paymentStatus:asc">Status A–Z</option>
-        </select>
+        <Select value={statusFilter} onValueChange={handleStatusFilter}>
+          <SelectTrigger className="w-48" aria-label="Filter by payment status">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={`${sortField}:${sortDir}`} onValueChange={handleSortChange}>
+          <SelectTrigger className="w-44" aria-label="Sort by">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SORT_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {(search || statusFilter !== 'all') && (
           <span className="text-sm text-gray-400">
             {filtered.length} result{filtered.length !== 1 ? 's' : ''}
@@ -167,36 +193,36 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
 
       {/* Table */}
       {filtered.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-          <table className="min-w-full" role="table">
-            <thead className="admin-table-thead">
-              <tr>
-                <th scope="col" className="text-left">Name</th>
-                <th scope="col" className="text-left">Email</th>
-                <th scope="col" className="text-left">Specialty</th>
-                <th scope="col" className="text-left">Submitted</th>
-                <th scope="col" className="text-left">Status</th>
-                <th scope="col" className="text-left">BGV Consent</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
+        <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="px-5">Name</TableHead>
+                <TableHead className="px-5">Email</TableHead>
+                <TableHead className="px-5">Specialty</TableHead>
+                <TableHead className="px-5">Submitted</TableHead>
+                <TableHead className="px-5">Status</TableHead>
+                <TableHead className="px-5">BGV Consent</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {paginated.map((applicant) => {
                 const isSelected = drawerUserId === applicant.id;
                 return (
-                  <tr
+                  <TableRow
                     key={applicant.id}
                     onClick={() => setDrawerUserId(applicant.id)}
                     className={`group relative cursor-pointer border-l-2 transition-all duration-150 ${
                       isSelected
-                        ? 'border-l-admin-blue-400 bg-admin-blue-50'
-                        : 'border-l-transparent hover:border-l-admin-blue-300 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
+                        ? 'border-l-primary/30 bg-muted'
+                        : 'border-l-transparent hover:border-l-primary/30 hover:bg-gray-50 hover:shadow-sm hover:-translate-y-px'
                     }`}
                   >
-                    <td className="whitespace-nowrap px-5 py-4 text-sm">
+                    <TableCell className="px-5 py-4">
                       <span className="inline-flex items-center gap-1.5">
                         <a
                           href={`/admin/applicants/${applicant.id}`}
-                          className={`font-medium transition-colors hover:text-rose-700 ${isSelected ? 'text-admin-blue-900' : 'text-gray-900'}`}
+                          className={`font-medium transition-colors hover:text-rose-700 ${isSelected ? 'text-primary' : 'text-gray-900'}`}
                           onClick={(e) => e.stopPropagation()}
                         >
                           {applicant.firstName} {applicant.lastName}
@@ -206,27 +232,27 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
                           paymentStatus={applicant.paymentStatus}
                         />
                       </span>
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-gray-500">
                       {applicant.email}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
-                      {applicant.specialty ? capitalize(applicant.specialty) : '—'}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-gray-500">
+                      {applicant.specialty ? capitalize(applicant.specialty) : '\u2014'}
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-gray-500">
                       {formatDate(applicant.submittedAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm">
+                    </TableCell>
+                    <TableCell className="px-5 py-4">
                       <PaymentStatusBadge status={applicant.paymentStatus} />
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm">
+                    </TableCell>
+                    <TableCell className="px-5 py-4">
                       <ConsentBadge consent={applicant.bgvConsent} />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 
@@ -234,26 +260,28 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <p className="text-sm text-gray-400">
-            Showing {paginatedStart + 1}–{Math.min(paginatedStart + PER_PAGE, filtered.length)} of {filtered.length}
+            Showing {paginatedStart + 1}\u2013{Math.min(paginatedStart + PER_PAGE, filtered.length)} of {filtered.length}
           </p>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Previous
-            </button>
+            </Button>
             <span className="text-sm text-gray-400">
               Page {page} of {totalPages}
             </span>
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       )}

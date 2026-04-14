@@ -1,5 +1,7 @@
 'use client';
 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+
 interface FunnelStage {
   stage: string;
   count: number;
@@ -19,11 +21,11 @@ const CHART_BOTTOM = 200;  // bottom of the wave area
 const LABEL_Y = 228;       // y position of stage labels
 const MAX_BAR_H = CHART_BOTTOM - CHART_TOP; // 160px max bar height
 
-// Blue depth layers: back → front, each with a scale factor for height
+// Depth layers: back → front, each with a scale factor for height
 const LAYERS = [
-  { color: '#C7D2FE', scale: 1.00 },   // back  — admin-blue-200
-  { color: '#818CF8', scale: 0.78 },   // mid   — admin-blue-400
-  { color: '#4F6EF7', scale: 0.56 },   // front — admin-blue-600
+  { color: 'hsl(var(--chart-3))', scale: 1.00 },
+  { color: 'hsl(var(--chart-2))', scale: 0.78 },
+  { color: 'hsl(var(--chart-1))', scale: 0.56 },
 ] as const;
 
 /** Cardinal spline → smooth SVG cubic bezier path through points */
@@ -79,107 +81,110 @@ export function HorizontalWaveFunnel({ data }: HorizontalWaveFunnelProps) {
   const frontScale = LAYERS[2].scale;
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Funnel</p>
-      <h2 className="mt-1 text-lg font-semibold text-gray-900">Applicant Pipeline</h2>
-      <p className="mt-0.5 text-sm text-gray-500">Stage-by-stage progression through the pipeline.</p>
-
-      <div className="mt-6 overflow-x-auto">
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          className="w-full"
-          style={{ minWidth: 480 }}
-          aria-label="Horizontal funnel chart"
-        >
-          {/* Vertical stage marker lines */}
-          {stagePoints.map((pt, i) => (
-            <line
-              key={`marker-${i}`}
-              x1={pt.x} y1={CHART_TOP}
-              x2={pt.x} y2={CHART_BOTTOM}
-              stroke="#E0E7FF"
-              strokeWidth="1"
-              strokeDasharray="3 3"
-            />
-          ))}
-
-          {/* Wave layers — back to front */}
-          {LAYERS.map((layer, li) => {
-            const pts = stagePoints.map((pt) => ({
-              x: pt.x,
-              y: CHART_BOTTOM - pt.barH * layer.scale,
-            }));
-            return (
-              <path
-                key={`layer-${li}`}
-                d={smoothPath(pts, true, CHART_BOTTOM)}
-                fill={layer.color}
-                opacity={0.9}
+    <Card>
+      <CardHeader>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Funnel</p>
+        <CardTitle>Applicant Pipeline</CardTitle>
+        <CardDescription>Stage-by-stage progression through the pipeline.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            className="w-full"
+            style={{ minWidth: 480 }}
+            aria-label="Horizontal funnel chart"
+          >
+            {/* Vertical stage marker lines */}
+            {stagePoints.map((pt, i) => (
+              <line
+                key={`marker-${i}`}
+                x1={pt.x} y1={CHART_TOP}
+                x2={pt.x} y2={CHART_BOTTOM}
+                stroke="#E0E7FF"
+                strokeWidth="1"
+                strokeDasharray="3 3"
               />
-            );
-          })}
+            ))}
 
-          {/* Count bubbles — above front layer peaks */}
-          {stagePoints.map((pt, i) => {
-            const frontY = CHART_BOTTOM - pt.barH * frontScale;
-            const bubbleY = frontY - 14;
-            const label = pt.count.toLocaleString('en-IN');
-            // Approximate text width: ~6.5px per char + 16px padding
-            const bw = Math.max(label.length * 6.5 + 16, 36);
-            const bh = 20;
-            const bx = pt.x - bw / 2;
-            const by = bubbleY - bh;
-
-            return (
-              <g key={`bubble-${i}`}>
-                <rect
-                  x={bx} y={by}
-                  width={bw} height={bh}
-                  rx="10" ry="10"
-                  fill="white"
-                  stroke="#E0E7FF"
-                  strokeWidth="1.5"
-                  filter="url(#bubble-shadow)"
+            {/* Wave layers — back to front */}
+            {LAYERS.map((layer, li) => {
+              const pts = stagePoints.map((pt) => ({
+                x: pt.x,
+                y: CHART_BOTTOM - pt.barH * layer.scale,
+              }));
+              return (
+                <path
+                  key={`layer-${li}`}
+                  d={smoothPath(pts, true, CHART_BOTTOM)}
+                  fill={layer.color}
+                  opacity={0.9}
                 />
-                <text
-                  x={pt.x} y={by + bh / 2 + 4}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="600"
-                  fill="#1E3A8A"
-                  fontFamily="inherit"
-                >
-                  {label}
-                </text>
-              </g>
-            );
-          })}
+              );
+            })}
 
-          {/* Stage labels */}
-          {stagePoints.map((pt, i) => (
-            <text
-              key={`label-${i}`}
-              x={pt.x}
-              y={LABEL_Y}
-              textAnchor="middle"
-              fontSize="9"
-              fontWeight="600"
-              fill="#9CA3AF"
-              fontFamily="inherit"
-              style={{ textTransform: 'uppercase', letterSpacing: '0.06em' }}
-            >
-              {pt.label.length > 10 ? pt.label.slice(0, 9) + '…' : pt.label}
-            </text>
-          ))}
+            {/* Count bubbles — above front layer peaks */}
+            {stagePoints.map((pt, i) => {
+              const frontY = CHART_BOTTOM - pt.barH * frontScale;
+              const bubbleY = frontY - 14;
+              const label = pt.count.toLocaleString('en-IN');
+              // Approximate text width: ~6.5px per char + 16px padding
+              const bw = Math.max(label.length * 6.5 + 16, 36);
+              const bh = 20;
+              const bx = pt.x - bw / 2;
+              const by = bubbleY - bh;
 
-          {/* Drop shadow filter for bubbles */}
-          <defs>
-            <filter id="bubble-shadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#4F6EF7" floodOpacity="0.12" />
-            </filter>
-          </defs>
-        </svg>
-      </div>
-    </div>
+              return (
+                <g key={`bubble-${i}`}>
+                  <rect
+                    x={bx} y={by}
+                    width={bw} height={bh}
+                    rx="10" ry="10"
+                    fill="white"
+                    stroke="#E0E7FF"
+                    strokeWidth="1.5"
+                    filter="url(#bubble-shadow)"
+                  />
+                  <text
+                    x={pt.x} y={by + bh / 2 + 4}
+                    textAnchor="middle"
+                    fontSize="10"
+                    fontWeight="600"
+                    fill="hsl(var(--foreground))"
+                    fontFamily="inherit"
+                  >
+                    {label}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Stage labels */}
+            {stagePoints.map((pt, i) => (
+              <text
+                key={`label-${i}`}
+                x={pt.x}
+                y={LABEL_Y}
+                textAnchor="middle"
+                fontSize="9"
+                fontWeight="600"
+                fill="hsl(var(--muted-foreground))"
+                fontFamily="inherit"
+                style={{ textTransform: 'uppercase', letterSpacing: '0.06em' }}
+              >
+                {pt.label.length > 10 ? pt.label.slice(0, 9) + '...' : pt.label}
+              </text>
+            ))}
+
+            {/* Drop shadow filter for bubbles */}
+            <defs>
+              <filter id="bubble-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#4F6EF7" floodOpacity="0.12" />
+              </filter>
+            </defs>
+          </svg>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

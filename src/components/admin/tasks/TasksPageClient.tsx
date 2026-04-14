@@ -7,6 +7,10 @@ import { TaskFilters } from './TaskFilters';
 import { TaskCreateModal } from './TaskCreateModal';
 import { DonutChart, DONUT_COLORS } from '@/components/admin/analytics/DonutChart';
 import { DonutLegend } from '@/components/admin/analytics/DonutLegend';
+import { toast } from 'sonner';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 interface TasksPageClientProps {
   initialTasks: AdminTask[];
@@ -80,8 +84,10 @@ export function TasksPageClient({ initialTasks }: TasksPageClientProps) {
 
       const { task: updated } = await res.json();
       setTasks((prev) => prev.map((t) => (t.id === taskId ? updated : t)));
+      toast.success('Status updated');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update task');
+      toast.error(err instanceof Error ? err.message : 'Failed to update task');
       // Revert
       setTasks(initialTasks);
     }
@@ -89,6 +95,7 @@ export function TasksPageClient({ initialTasks }: TasksPageClientProps) {
 
   const handleTaskCreated = useCallback((task: AdminTask) => {
     setTasks((prev) => [task, ...prev]);
+    toast.success('Task created');
   }, []);
 
   const visibleStatuses = showClosed ? STATUS_ORDER : STATUS_ORDER.filter((s) => s !== 'closed');
@@ -98,21 +105,19 @@ export function TasksPageClient({ initialTasks }: TasksPageClientProps) {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">Tasks</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-xl font-semibold text-foreground">Tasks</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             {counts.open + counts.in_progress + counts.in_review} active
             {counts.closed > 0 && ` · ${counts.closed} closed`}
           </p>
         </div>
-        <button
+        <Button
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 rounded-full bg-[#1B4332] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1B4332]/90 transition-colors"
+          className="gap-2"
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-            <path d="M7 1.75v10.5M1.75 7h10.5" />
-          </svg>
+          <Plus className="h-4 w-4" />
           Add Task
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}
@@ -127,38 +132,40 @@ export function TasksPageClient({ initialTasks }: TasksPageClientProps) {
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {/* Status summary donut */}
       {(counts.open + counts.in_progress + counts.in_review + counts.closed) > 0 && (
-        <div className="rounded-lg border border-gray-100 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Task Status Overview</p>
-          <div className="flex items-center gap-5">
-            <DonutChart
-              data={[
-                { label: 'Open', count: counts.open, color: DONUT_COLORS[3] },
-                { label: 'In Progress', count: counts.in_progress, color: DONUT_COLORS[0] },
-                { label: 'In Review', count: counts.in_review, color: DONUT_COLORS[1] },
-                { label: 'Closed', count: counts.closed, color: DONUT_COLORS[2] },
-              ]}
-              size={90}
-              strokeWidth={14}
-            />
-            <DonutLegend
-              data={[
-                { label: 'Open', count: counts.open, color: DONUT_COLORS[3] },
-                { label: 'In Progress', count: counts.in_progress, color: DONUT_COLORS[0] },
-                { label: 'In Review', count: counts.in_review, color: DONUT_COLORS[1] },
-                { label: 'Closed', count: counts.closed, color: DONUT_COLORS[2] },
-              ]}
-              total={counts.open + counts.in_progress + counts.in_review + counts.closed}
-              maxItems={4}
-            />
-          </div>
-        </div>
+        <Card>
+          <CardContent className="pt-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Task Status Overview</p>
+            <div className="flex items-center gap-5">
+              <DonutChart
+                data={[
+                  { label: 'Open', count: counts.open, color: DONUT_COLORS[3] },
+                  { label: 'In Progress', count: counts.in_progress, color: DONUT_COLORS[0] },
+                  { label: 'In Review', count: counts.in_review, color: DONUT_COLORS[1] },
+                  { label: 'Closed', count: counts.closed, color: DONUT_COLORS[2] },
+                ]}
+                size={90}
+                strokeWidth={14}
+              />
+              <DonutLegend
+                data={[
+                  { label: 'Open', count: counts.open, color: DONUT_COLORS[3] },
+                  { label: 'In Progress', count: counts.in_progress, color: DONUT_COLORS[0] },
+                  { label: 'In Review', count: counts.in_review, color: DONUT_COLORS[1] },
+                  { label: 'Closed', count: counts.closed, color: DONUT_COLORS[2] },
+                ]}
+                total={counts.open + counts.in_progress + counts.in_review + counts.closed}
+                maxItems={4}
+              />
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Task groups */}

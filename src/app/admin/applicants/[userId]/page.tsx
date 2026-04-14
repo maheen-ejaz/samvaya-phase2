@@ -2,6 +2,15 @@ import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from '@/components/ui/breadcrumb';
 import { ProfileHeader } from '@/components/admin/profile/ProfileHeader';
 import { ApplicantActivityTimeline } from '@/components/admin/profile/ApplicantActivityTimeline';
 import { IdentitySnapshot } from '@/components/admin/profile/IdentitySnapshot';
@@ -18,6 +27,7 @@ import { ClosingNote } from '@/components/admin/profile/ClosingNote';
 import { DocumentViewer } from '@/components/admin/profile/DocumentViewer';
 import { ChatTranscriptViewer } from '@/components/admin/profile/ChatTranscriptViewer';
 import { StatusManagement } from '@/components/admin/profile/StatusManagement';
+import { ImageIcon } from 'lucide-react';
 import type { WorkExperienceEntry } from '@/lib/form/types';
 
 export default async function ApplicantDetailPage({
@@ -164,14 +174,23 @@ export default async function ApplicantDetailPage({
 
     return (
       <div className="mx-auto max-w-7xl">
-        {/* Back nav */}
+        {/* Breadcrumb nav */}
         <div className="mb-5">
-          <Link
-            href="/admin/applicants"
-            className="text-sm text-gray-400 hover:text-gray-600"
-          >
-            &larr; Back to Applicants
-          </Link>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/admin/applicants">Applicants</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>
+                  {profile?.first_name || 'Unknown'} {profile?.last_name || ''}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
 
         <div className="space-y-4">
@@ -335,32 +354,34 @@ export default async function ApplicantDetailPage({
 
           {/* All Photos Gallery */}
           {allPhotoUrls.length > 1 && (
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-sm font-semibold text-gray-900">
-                  Photos ({allPhotoUrls.length})
-                </h3>
-              </div>
-              <div className="grid grid-cols-4 gap-3 lg:grid-cols-6">
-                {allPhotoUrls.map((photo) => (
-                  <div key={photo.id} className="space-y-1">
-                    <div className="overflow-hidden rounded-xl border border-gray-100">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={photo.url} alt="" className="aspect-[3/4] w-full object-cover" />
-                    </div>
-                    <p className="text-center text-xs capitalize text-gray-400">
-                      {photo.photoType.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                      {photo.isPrimary && <span className="ml-1 text-rose-500">·</span>}
-                    </p>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <ImageIcon className="h-4 w-4" />
                   </div>
-                ))}
-              </div>
-            </div>
+                  <span className="text-sm font-semibold text-foreground">
+                    Photos ({allPhotoUrls.length})
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-4 gap-3 lg:grid-cols-6">
+                  {allPhotoUrls.map((photo) => (
+                    <div key={photo.id} className="space-y-1">
+                      <div className="overflow-hidden rounded-xl border border-border">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photo.url} alt="" className="aspect-[3/4] w-full object-cover" />
+                      </div>
+                      <p className="text-center text-xs capitalize text-muted-foreground">
+                        {photo.photoType.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                        {photo.isPrimary && <span className="ml-1 text-primary">·</span>}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           <ChatTranscriptViewer transcripts={chatTranscripts} />

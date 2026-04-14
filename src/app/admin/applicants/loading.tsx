@@ -1,15 +1,17 @@
+import { Skeleton } from '@/components/ui/skeleton';
+
 export default function ApplicantsLoading() {
   return (
     <div role="status" aria-label="Loading applicants">
       <div className="mb-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
-        <div className="mt-2 h-4 w-32 animate-pulse rounded bg-gray-100" />
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="mt-2 h-4 w-32" />
       </div>
 
       {/* Search + Filter skeleton */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="h-10 w-64 animate-pulse rounded-lg bg-gray-200" />
-        <div className="h-10 w-44 animate-pulse rounded-lg bg-gray-200" />
+        <Skeleton className="h-10 w-64 rounded-lg" />
+        <Skeleton className="h-10 w-44 rounded-lg" />
       </div>
 
       {/* Table skeleton */}
@@ -17,21 +19,21 @@ export default function ApplicantsLoading() {
         <div className="bg-gray-50 px-4 py-3">
           <div className="flex gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-4 w-20 animate-pulse rounded bg-gray-200" />
+              <Skeleton key={i} className="h-4 w-20" />
             ))}
           </div>
         </div>
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="border-t border-gray-200 px-4 py-3">
             <div className="flex gap-4">
-              <div className="h-4 w-28 animate-pulse rounded bg-gray-100" />
-              <div className="h-4 w-40 animate-pulse rounded bg-gray-100" />
-              <div className="h-4 w-24 animate-pulse rounded bg-gray-100" />
-              <div className="h-4 w-20 animate-pulse rounded bg-gray-100" />
-              <div className="h-5 w-24 animate-pulse rounded-full bg-gray-100" />
-              <div className="h-5 w-20 animate-pulse rounded-full bg-gray-100" />
-              <div className="h-5 w-16 animate-pulse rounded-full bg-gray-100" />
-              <div className="h-8 w-20 animate-pulse rounded bg-gray-100" />
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-5 w-24 rounded-full" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="h-8 w-20" />
             </div>
           </div>
         ))}

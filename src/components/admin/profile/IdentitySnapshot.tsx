@@ -1,3 +1,5 @@
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
 interface IdentitySnapshotProps {
   religion: string | null;
   religiousObservance: string | null;
@@ -11,12 +13,6 @@ interface IdentitySnapshotProps {
   casteComfort: boolean | null;
   caste: string | null;
 }
-
-const IconPerson = () => (
-  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
 
 export function IdentitySnapshot({
   religion,
@@ -52,6 +48,12 @@ export function IdentitySnapshot({
 
 // Shared helpers used across profile blocks
 
+const IconPerson = () => (
+  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);
+
 export function Section({
   title,
   icon,
@@ -62,17 +64,19 @@ export function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <div className="mb-5 flex items-center gap-2">
-        {icon && (
-          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
-            {icon}
-          </div>
-        )}
-        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-      </div>
-      {children}
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          {icon && (
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              {icon}
+            </div>
+          )}
+          <span className="text-sm font-semibold text-foreground">{title}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
   );
 }
 
@@ -83,8 +87,8 @@ export function Grid({ children }: { children: React.ReactNode }) {
 export function Field({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div>
-      <p className="text-xs text-gray-400">{label}</p>
-      <p className="mt-0.5 text-sm font-medium text-gray-900">{value || '—'}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-sm font-medium text-foreground">{value || '—'}</p>
     </div>
   );
 }

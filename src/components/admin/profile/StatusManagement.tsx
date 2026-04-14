@@ -2,6 +2,23 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+import { Settings } from 'lucide-react';
 import { PRICING } from '@/lib/constants';
 import { formatEnum } from './IdentitySnapshot';
 
@@ -40,11 +57,9 @@ export function StatusManagement({
   const [isComplementary, setIsComplementary] = useState(isGooCampusMember);
   const [customAmount, setCustomAmount] = useState('');
   const [savingPricing, setSavingPricing] = useState(false);
-  const [pricingSaved, setPricingSaved] = useState(false);
 
   async function saveCustomPricing() {
     setSavingPricing(true);
-    setPricingSaved(false);
     try {
       const amount = isComplementary ? 0 : parseInt(customAmount || '0', 10);
       const res = await fetch(`/api/admin/applicants/${userId}/status`, {
@@ -57,14 +72,13 @@ export function StatusManagement({
         }),
       });
       if (res.ok) {
-        setPricingSaved(true);
-        setTimeout(() => setPricingSaved(false), 3000);
+        toast.success('Pricing saved successfully');
       } else {
         const data = await res.json();
-        setError(data.error || 'Failed to save pricing');
+        toast.error(data.error || 'Failed to save pricing');
       }
     } catch {
-      setError('Network error');
+      toast.error('Network error');
     } finally {
       setSavingPricing(false);
     }
@@ -76,16 +90,22 @@ export function StatusManagement({
     paymentStatus === 'verification_pending' &&
     isBgvComplete;
 
-  const CONFIRM_MESSAGES: Record<string, string> = {
-    mark_verification_paid: `Mark verification fee (${PRICING.VERIFICATION_FEE_DISPLAY}) as paid? This moves the applicant to verification_pending.`,
-    mark_goocampus_verified: 'Verify as GooCampus member? This moves them directly to the candidate pool (skips verification).',
-    move_to_pool: 'Move to candidate pool? They will be eligible for matching. Ensure BGV is fully complete.',
+  const CONFIRM_MESSAGES: Record<string, { title: string; description: string }> = {
+    mark_verification_paid: {
+      title: 'Mark verification fee as paid?',
+      description: `This will mark the verification fee (${PRICING.VERIFICATION_FEE_DISPLAY}) as paid and move the applicant to verification_pending status.`,
+    },
+    mark_goocampus_verified: {
+      title: 'Verify as GooCampus member?',
+      description: 'This moves them directly to the candidate pool (skips verification fee).',
+    },
+    move_to_pool: {
+      title: 'Move to candidate pool?',
+      description: 'They will be eligible for matching. Ensure BGV is fully complete.',
+    },
   };
 
   async function handleStatusChange(action: string) {
-    const confirmMsg = CONFIRM_MESSAGES[action] || `Proceed with: ${action}?`;
-    if (!window.confirm(confirmMsg)) return;
-
     setLoading(true);
     setError(null);
 
@@ -99,130 +119,138 @@ export function StatusManagement({
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || 'Failed to update status');
+        toast.error(data.error || 'Failed to update status');
         return;
       }
 
+      toast.success('Status updated successfully');
       router.refresh();
     } catch {
       setError('Network error. Please try again.');
+      toast.error('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
   }
 
+  function renderActionButton(action: string, label: string, variant: 'default' | 'destructive' | 'secondary' = 'default') {
+    const confirm = CONFIRM_MESSAGES[action];
+    return (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant={variant} disabled={loading}>
+            {label}
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirm?.title || `Proceed with ${action}?`}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirm?.description || 'This action will update the applicant status.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => handleStatusChange(action)}>
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  }
+
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <div className="mb-5 flex items-center gap-2">
-        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </div>
-        <h3 className="text-sm font-semibold text-gray-900">Status Management</h3>
-      </div>
-
-      <div className="space-y-3">
-        {/* Current Status */}
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-gray-500">Payment Status:</span>
-          <span className="font-medium text-gray-900">
-            {PAYMENT_STATUS_LABELS[paymentStatus] || paymentStatus}
-          </span>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-gray-500">Membership Status:</span>
-          <span className="font-medium text-gray-900">{formatEnum(membershipStatus)}</span>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-gray-500">BGV Consent:</span>
-          <span className="font-medium text-gray-900">{formatEnum(bgvConsent)}</span>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-2 pt-2">
-          {canMarkFeePaid && (
-            <button
-              onClick={() => handleStatusChange('mark_verification_paid')}
-              disabled={loading}
-              className="rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
-            >
-              Mark Fee Paid ({PRICING.VERIFICATION_FEE_DISPLAY})
-            </button>
-          )}
-          {canMarkGooCampus && (
-            <button
-              onClick={() => handleStatusChange('mark_goocampus_verified')}
-              disabled={loading}
-              className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
-            >
-              Verify GooCampus → In Pool
-            </button>
-          )}
-          {canMoveToPool && (
-            <button
-              onClick={() => handleStatusChange('move_to_pool')}
-              disabled={loading}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              Move to Pool (BGV Complete)
-            </button>
-          )}
-        </div>
-
-        {/* BGV prerequisite warning */}
-        {paymentStatus === 'verification_pending' && !isBgvComplete && (
-          <p className="text-xs text-amber-600">
-            BGV must be complete before moving to pool.
-            {bgvConsent === 'not_given' && ' (Consent not yet given)'}
-            {bgvConsent === 'consented_wants_call' && ' (Wants call first)'}
-          </p>
-        )}
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
-
-        {/* Custom Pricing */}
-        <div className="mt-4 border-t border-gray-100 pt-4">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Pricing Override</h4>
-          <div className="mt-2 flex items-center gap-3">
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={isComplementary}
-                onChange={(e) => {
-                  setIsComplementary(e.target.checked);
-                  if (e.target.checked) setCustomAmount('0');
-                }}
-                className="rounded border-gray-300"
-              />
-              Complementary (₹0)
-            </label>
-            {!isComplementary && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Custom amount:</span>
-                <input
-                  type="text"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value.replace(/[^0-9]/g, ''))}
-                  placeholder={PRICING.VERIFICATION_FEE_DISPLAY}
-                  className="w-32 rounded border border-gray-300 px-2 py-1 text-sm"
-                />
-              </div>
-            )}
-            <button
-              onClick={saveCustomPricing}
-              disabled={savingPricing}
-              className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:bg-gray-400"
-            >
-              {savingPricing ? 'Saving...' : 'Save Pricing'}
-            </button>
-            {pricingSaved && <span className="text-xs text-green-600">Saved</span>}
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Settings className="h-4 w-4" />
           </div>
-          <p className="mt-1 text-xs text-gray-400">
-            Standard fee: {PRICING.VERIFICATION_FEE_DISPLAY}. Override only if this applicant has a special arrangement.
-          </p>
+          <span className="text-sm font-semibold text-foreground">Status Management</span>
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        <div className="space-y-3">
+          {/* Current Status */}
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-muted-foreground">Payment Status:</span>
+            <span className="font-medium text-foreground">
+              {PAYMENT_STATUS_LABELS[paymentStatus] || paymentStatus}
+            </span>
+          </div>
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-muted-foreground">Membership Status:</span>
+            <span className="font-medium text-foreground">{formatEnum(membershipStatus)}</span>
+          </div>
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-muted-foreground">BGV Consent:</span>
+            <span className="font-medium text-foreground">{formatEnum(bgvConsent)}</span>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-2 pt-2">
+            {canMarkFeePaid && renderActionButton('mark_verification_paid', `Mark Fee Paid (${PRICING.VERIFICATION_FEE_DISPLAY})`)}
+            {canMarkGooCampus && renderActionButton('mark_goocampus_verified', 'Verify GooCampus → In Pool', 'secondary')}
+            {canMoveToPool && renderActionButton('move_to_pool', 'Move to Pool (BGV Complete)', 'secondary')}
+          </div>
+
+          {/* BGV prerequisite warning */}
+          {paymentStatus === 'verification_pending' && !isBgvComplete && (
+            <p className="text-xs text-amber-600">
+              BGV must be complete before moving to pool.
+              {bgvConsent === 'not_given' && ' (Consent not yet given)'}
+              {bgvConsent === 'consented_wants_call' && ' (Wants call first)'}
+            </p>
+          )}
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+
+          {/* Custom Pricing */}
+          <Separator className="my-4" />
+          <div>
+            <h4 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Pricing Override</h4>
+            <div className="mt-2 flex items-center gap-3">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={isComplementary}
+                  onChange={(e) => {
+                    setIsComplementary(e.target.checked);
+                    if (e.target.checked) setCustomAmount('0');
+                  }}
+                  className="rounded border-border"
+                />
+                Complementary (₹0)
+              </label>
+              {!isComplementary && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Custom amount:</span>
+                  <Input
+                    type="text"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value.replace(/[^0-9]/g, ''))}
+                    placeholder={PRICING.VERIFICATION_FEE_DISPLAY}
+                    className="w-32"
+                  />
+                </div>
+              )}
+              <Button
+                onClick={saveCustomPricing}
+                disabled={savingPricing}
+                variant="default"
+                size="sm"
+              >
+                {savingPricing ? 'Saving...' : 'Save Pricing'}
+              </Button>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Standard fee: {PRICING.VERIFICATION_FEE_DISPLAY}. Override only if this applicant has a special arrangement.
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

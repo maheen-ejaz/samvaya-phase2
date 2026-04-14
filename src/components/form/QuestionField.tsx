@@ -24,6 +24,7 @@ import type { InternationalLocationValue } from './inputs/InternationalLocationI
 import { useForm } from './FormProvider';
 import { getQuestion } from '@/lib/form/questions';
 import type { QuestionConfig, QuestionOption } from '@/lib/form/types';
+import { Label } from '@/components/ui/label';
 
 interface QuestionFieldProps {
   question: QuestionConfig;
@@ -46,15 +47,15 @@ export function QuestionField({ question, value, onChange, hasError }: QuestionF
 
   return (
     <div id={question.id}>
-      <label htmlFor={inputId} className="form-label block mb-2">
+      <Label htmlFor={inputId} className="mb-2 block text-sm font-medium text-foreground">
         {question.text}
         {!question.required && (
-          <span className="ml-1.5 form-caption">(optional)</span>
+          <span className="ml-1.5 text-xs text-muted-foreground font-normal">(optional)</span>
         )}
-      </label>
+      </Label>
 
       {hasHelpText && (
-        <p id={helpId} className="form-helper mb-3">{question.helpText}</p>
+        <p id={helpId} className="mb-3 text-sm text-muted-foreground">{question.helpText}</p>
       )}
 
       <InputSwitch
@@ -67,7 +68,7 @@ export function QuestionField({ question, value, onChange, hasError }: QuestionF
       />
 
       {hasError && (
-        <p id={errorId} role="alert" aria-live="assertive" className="form-error mt-2">
+        <p id={errorId} role="alert" aria-live="assertive" className="mt-2 text-sm text-destructive">
           This field is required
         </p>
       )}
@@ -276,7 +277,6 @@ export function InputSwitch({ question, value, onChange, inputId, ariaDescribedB
       return <GuidedPhotoUpload question={question} value={value} onChange={onChange} />;
 
     case 'claude_chat':
-      // Handled separately — should not reach here
       return null;
 
     case 'bgv_consent':
@@ -310,6 +310,6 @@ export function InputSwitch({ question, value, onChange, inputId, ariaDescribedB
       );
 
     default:
-      return <p className="text-gray-500">Unsupported question type</p>;
+      return <p className="text-muted-foreground">Unsupported question type</p>;
   }
 }

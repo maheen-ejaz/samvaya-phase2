@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { VerificationTable } from '@/components/admin/verification/VerificationTable';
+import { Badge } from '@/components/ui/badge';
 
 type VerificationUser = {
   id: string;
@@ -92,10 +93,10 @@ export default async function VerificationPage() {
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-6 flex items-center gap-3">
-        <h1 className="type-heading-xl text-gray-900">Verification Queue</h1>
-        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-normal text-gray-600">
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">Verification Queue</h1>
+        <Badge variant="secondary" className="text-sm font-normal">
           {users.length}
-        </span>
+        </Badge>
       </div>
 
       {users.length === 0 ? (

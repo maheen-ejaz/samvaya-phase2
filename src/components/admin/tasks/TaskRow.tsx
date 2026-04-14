@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import type { AdminTask, TaskStatus } from '@/types/dashboard';
 import { EmailComposeModal } from './EmailComposeModal';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Phone, Mail, ExternalLink } from 'lucide-react';
 
 interface TaskRowProps {
   task: AdminTask;
@@ -16,11 +20,11 @@ const STATUS_CYCLE: Record<TaskStatus, TaskStatus> = {
   closed: 'open',
 };
 
-const PRIORITY_FLAGS: Record<string, { label: string; color: string; bg: string }> = {
-  urgent: { label: 'Urgent', color: 'text-red-600', bg: 'bg-red-50' },
-  high: { label: 'High', color: 'text-orange-500', bg: 'bg-orange-50' },
-  normal: { label: 'Normal', color: 'text-blue-500', bg: 'bg-blue-50' },
-  low: { label: 'Low', color: 'text-green-600', bg: 'bg-green-50' },
+const PRIORITY_FLAGS: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  urgent: { label: 'Urgent', variant: 'destructive' },
+  high: { label: 'High', variant: 'default' },
+  normal: { label: 'Normal', variant: 'secondary' },
+  low: { label: 'Low', variant: 'outline' },
 };
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -89,12 +93,12 @@ export function TaskRow({ task, onStatusChange }: TaskRowProps) {
   return (
     <>
       <div
-        className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-gray-50/80 ${
+        className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/50 ${
           isClosed ? 'opacity-50' : ''
         }`}
       >
         {/* Drag handle (decorative) */}
-        <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 cursor-grab select-none" aria-hidden="true">
+        <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground cursor-grab select-none" aria-hidden="true">
           <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
             <circle cx="3" cy="3" r="1.2" /><circle cx="7" cy="3" r="1.2" />
             <circle cx="3" cy="7" r="1.2" /><circle cx="7" cy="7" r="1.2" />
@@ -103,105 +107,105 @@ export function TaskRow({ task, onStatusChange }: TaskRowProps) {
         </div>
 
         {/* Checkbox */}
-        <input
-          type="checkbox"
+        <Checkbox
           checked={isClosed}
-          onChange={handleCheckboxChange}
-          className="h-4 w-4 flex-shrink-0 rounded border-gray-300 text-[#1B4332] focus:ring-[#1B4332]/30 cursor-pointer"
+          onCheckedChange={handleCheckboxChange}
           aria-label={`Mark task "${task.title}" complete`}
         />
 
         {/* Category icon */}
-        <span className="flex-shrink-0 text-gray-400">
+        <span className="flex-shrink-0 text-muted-foreground">
           {CATEGORY_ICONS[task.taskCategory] ?? CATEGORY_ICONS.manual}
         </span>
 
         {/* Task name */}
         <div className="flex-1 min-w-0">
-          <p className={`text-sm font-medium truncate ${isClosed ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+          <p className={`text-sm font-medium truncate ${isClosed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
             {task.title}
           </p>
           {task.notes && !isClosed && (
-            <p className="mt-0.5 text-xs text-gray-500 truncate">{task.notes}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground truncate">{task.notes}</p>
           )}
         </div>
 
         {/* Linked applicant */}
         {task.applicantName && (
           <div className="hidden sm:flex flex-shrink-0 items-center gap-2 min-w-[130px]">
-            <div className="h-6 w-6 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600 uppercase select-none">
+            <div className="h-6 w-6 flex-shrink-0 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground uppercase select-none">
               {task.applicantName.charAt(0)}
             </div>
-            <span className="text-xs text-gray-600 truncate max-w-[100px]">{task.applicantName}</span>
+            <span className="text-xs text-muted-foreground truncate max-w-[100px]">{task.applicantName}</span>
           </div>
         )}
 
         {/* Due date */}
         <div className="hidden md:block flex-shrink-0 w-24 text-right">
           {task.dueDate ? (
-            <span className={`text-xs ${isDueSoon(task.dueDate) && !isClosed ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+            <span className={`text-xs ${isDueSoon(task.dueDate) && !isClosed ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
               {formatDate(task.dueDate)}
             </span>
           ) : (
-            <span className="text-xs text-gray-300">—</span>
+            <span className="text-xs text-muted-foreground/50">—</span>
           )}
         </div>
 
         {/* Priority flag */}
         <div className="flex-shrink-0">
-          <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium ${flag.color} ${flag.bg}`}>
-            <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true">
-              <path d="M1 1h6L5.5 4 7 7H1V1z" />
-            </svg>
+          <Badge variant={flag.variant}>
             {flag.label}
-          </span>
+          </Badge>
         </div>
 
         {/* Action icons */}
         <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           {/* Call */}
           {task.applicantPhone && (
-            <a
-              href={`tel:${task.applicantPhone}`}
-              className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-              title={`Call ${task.applicantName ?? 'applicant'}: ${task.applicantPhone}`}
-              aria-label={`Call ${task.applicantName ?? 'applicant'}`}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              asChild
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12.25 9.625v1.75A1.167 1.167 0 0 1 10.98 12.5a11.537 11.537 0 0 1-5.03-1.902A11.36 11.36 0 0 1 2.4 7.05 11.537 11.537 0 0 1 .5 2.008 1.167 1.167 0 0 1 1.659.75H3.41a1.167 1.167 0 0 1 1.167 1.004c.073.56.21 1.109.402 1.634a1.167 1.167 0 0 1-.263 1.23L4.005 5.25A9.333 9.333 0 0 0 6.917 8.162l.712-.714a1.167 1.167 0 0 1 1.23-.262c.525.192 1.073.328 1.633.402a1.167 1.167 0 0 1 1.004 1.179l-.246.858z" />
-              </svg>
-            </a>
+              <a
+                href={`tel:${task.applicantPhone}`}
+                title={`Call ${task.applicantName ?? 'applicant'}: ${task.applicantPhone}`}
+                aria-label={`Call ${task.applicantName ?? 'applicant'}`}
+              >
+                <Phone className="h-3.5 w-3.5" />
+              </a>
+            </Button>
           )}
 
           {/* Email */}
           {(task.applicantEmail || task.entityId) && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
               onClick={() => setShowEmail(true)}
-              className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
               title="Send email to applicant"
               aria-label="Send email"
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1.75" y="3.5" width="10.5" height="7" rx="1" />
-                <path d="M1.75 5.25l5.25 3 5.25-3" />
-              </svg>
-            </button>
+              <Mail className="h-3.5 w-3.5" />
+            </Button>
           )}
 
           {/* Action link */}
           {task.actionHref && (
-            <a
-              href={task.actionHref}
-              className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-              title="Open applicant profile"
-              aria-label="View"
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              asChild
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5.25 2.625H2.625A.875.875 0 0 0 1.75 3.5v7.875A.875.875 0 0 0 2.625 12.25H10.5a.875.875 0 0 0 .875-.875V8.75" />
-                <path d="M8.75 1.75h3.5v3.5" />
-                <path d="M5.833 8.167l6.417-6.417" />
-              </svg>
-            </a>
+              <a
+                href={task.actionHref}
+                title="Open applicant profile"
+                aria-label="View"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </Button>
           )}
         </div>
       </div>

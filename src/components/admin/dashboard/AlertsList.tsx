@@ -3,8 +3,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import type { DashboardAlert, AlertType } from '@/types/dashboard';
 import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { X } from 'lucide-react';
 
 interface AlertsListProps {
   alerts: DashboardAlert[];
@@ -226,229 +234,229 @@ export function AlertsList({ alerts }: AlertsListProps) {
   const showBulkActions = activeTab === 'payment' && paymentAlerts.length > 1;
 
   return (
-    <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm h-full flex flex-col">
+    <Card className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="type-heading text-gray-900">
-          Alerts & Action Items
+      <CardHeader>
+        <CardTitle className="text-base font-semibold flex items-center gap-2">
+          Alerts &amp; Action Items
           {nonDismissed.length > 0 && (
-            <span className="ml-2 inline-flex items-center justify-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+            <Badge variant="destructive" className="rounded-full">
               {nonDismissed.length}
-            </span>
+            </Badge>
           )}
-        </h3>
-      </div>
+        </CardTitle>
+      </CardHeader>
 
-      {/* Filter tabs — curved pill buttons */}
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {TABS.map((tab) => {
-          const count = tabCounts[tab.key] || 0;
-          if (tab.key !== 'all' && count === 0) return null;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => { setActiveTab(tab.key); setSelectedIds(new Set()); setExpandedId(null); }}
-              className={`rounded-full px-3.5 py-1 text-xs font-medium border transition-colors ${
-                activeTab === tab.key
-                  ? 'bg-admin-blue-900 text-white border-admin-blue-900'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              {tab.label}
-              {count > 0 && (
-                <span className={`ml-1 ${activeTab === tab.key ? 'text-white/60' : 'text-gray-400'}`}>
-                  {count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Bulk actions bar */}
-      {showBulkActions && (
-        <div className="mt-3 flex items-center gap-3 rounded-lg bg-gray-50 px-3 py-2">
-          <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={allPaymentsSelected}
-              onChange={toggleSelectAll}
-              className="rounded border-gray-300 text-admin-blue-900 focus:ring-admin-blue-500"
-            />
-            Select all
-          </label>
-          {selectedIds.size > 0 && (
-            <button
-              onClick={handleBulkMarkPaid}
-              disabled={bulkLoading}
-              className="rounded-full bg-admin-blue-900 px-3 py-1 text-xs font-medium text-white hover:bg-admin-blue-800 disabled:bg-gray-400"
-            >
-              {bulkLoading ? 'Processing...' : `Mark ${selectedIds.size} Fee Paid`}
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Alert list */}
-      {visibleAlerts.length === 0 ? (
-        <p className="mt-4 text-sm text-gray-400 flex-1 flex items-center justify-center">No pending actions. All clear.</p>
-      ) : (
-        <div className="mt-3 space-y-1 flex-1 overflow-y-auto max-h-[500px]">
-          {visibleAlerts.map((alert) => {
-            const isExpanded = expandedId === alert.id;
-
+      <CardContent className="flex flex-1 flex-col gap-3 overflow-hidden">
+        {/* Filter tabs -- pill buttons */}
+        <div className="flex flex-wrap gap-1.5">
+          {TABS.map((tab) => {
+            const count = tabCounts[tab.key] || 0;
+            if (tab.key !== 'all' && count === 0) return null;
             return (
-              <div key={alert.id}>
-                {/* Collapsed row — clickable summary */}
-                <div
-                  onClick={() => toggleExpand(alert.id)}
-                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 cursor-pointer transition-colors ${
-                    isExpanded
-                      ? 'bg-gray-50 border border-gray-200'
-                      : 'hover:bg-gray-50 border border-transparent'
-                  }`}
-                >
-                  {/* Bulk checkbox */}
-                  {showBulkActions && alert.alertType === 'payment' && alert.actionEndpoint && (
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(alert.id)}
-                      onClick={(e) => toggleSelect(e, alert.id)}
-                      onChange={() => {}}
-                      className="rounded border-gray-300 text-admin-blue-900 focus:ring-admin-blue-500 flex-shrink-0"
-                    />
-                  )}
-
-                  {/* Priority dot */}
-                  <span className={`h-2 w-2 rounded-full flex-shrink-0 ${PRIORITY_DOT[alert.priority]}`} />
-
-                  {/* Summary text */}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm text-gray-900 truncate">
-                      <span className="inline-flex items-center gap-1 font-medium">
-                        {alert.name}
-                        <ApplicantStatusIcons isGooCampusMember={alert.isGooCampusMember ?? false} paymentStatus={alert.paymentStatus} size={12} />
-                      </span>{' '}
-                      <span className="text-gray-500">{alert.message}</span>
-                    </p>
-                  </div>
-
-                  {/* Tag */}
-                  <span className={`flex-shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${TAG_STYLES[alert.alertType]}`}>
-                    {TAG_LABELS[alert.alertType]}
+              <Button
+                key={tab.key}
+                variant={activeTab === tab.key ? 'default' : 'outline'}
+                size="xs"
+                className="rounded-full"
+                onClick={() => { setActiveTab(tab.key); setSelectedIds(new Set()); setExpandedId(null); }}
+              >
+                {tab.label}
+                {count > 0 && (
+                  <span className={cn('ml-1', activeTab === tab.key ? 'text-primary-foreground/60' : 'text-muted-foreground')}>
+                    {count}
                   </span>
-
-                  {/* Time ago */}
-                  {alert.daysStuck !== undefined && alert.daysStuck > 0 && (
-                    <span className="flex-shrink-0 text-[11px] text-gray-400">{alert.daysStuck}d</span>
-                  )}
-
-                  {/* Dismiss */}
-                  <button
-                    onClick={(e) => handleDismiss(e, alert.id)}
-                    className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors"
-                    title="Dismiss for 24 hours"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Expanded panel — context + actions */}
-                {isExpanded && (
-                  <div className="ml-[52px] mr-2 mb-2 rounded-lg border border-gray-100 bg-white p-3 space-y-3">
-                    {/* Profile context */}
-                    {(alert.age || alert.specialty || alert.city) && (
-                      <p className="text-xs text-gray-500">
-                        {[
-                          alert.age ? `${alert.age}y` : null,
-                          alert.gender,
-                          alert.specialty,
-                          alert.city,
-                        ].filter(Boolean).join(' · ')}
-                      </p>
-                    )}
-
-                    {/* Match-specific details */}
-                    {alert.compatibilityScore !== undefined && (
-                      <div className="text-xs text-gray-500 space-y-0.5">
-                        <p>{alert.compatibilityScore}% compatible{alert.hoursRemaining !== undefined && ` · ${alert.hoursRemaining}h remaining`}</p>
-                        {alert.waitingOn && (
-                          <p className="text-amber-600">Waiting on: {alert.waitingOn}</p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {/* Primary action (non-nudge) */}
-                      {(alert.actionEndpoint || alert.actionHref) && !alert.nudgeEmailTo && (
-                        <button
-                          onClick={(e) => handleAction(e, alert)}
-                          disabled={loadingId === alert.id}
-                          className="rounded-full bg-admin-blue-900 px-4 py-1.5 text-xs font-medium text-white hover:bg-admin-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        >
-                          {loadingId === alert.id ? '...' : alert.actionLabel}
-                        </button>
-                      )}
-
-                      {/* Secondary action */}
-                      {alert.secondaryActionHref && (
-                        <Link
-                          href={alert.secondaryActionHref}
-                          className="rounded-full border border-gray-200 px-4 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
-                        >
-                          {alert.secondaryActionLabel}
-                        </Link>
-                      )}
-                    </div>
-
-                    {/* Nudge email form (two-step) */}
-                    {alert.nudgeEmailTo && (
-                      <div className="space-y-2 border-t border-gray-100 pt-3">
-                        {nudgeSuccess === alert.id ? (
-                          <p className="text-xs text-emerald-600 font-medium">Email sent successfully!</p>
-                        ) : (
-                          <>
-                            <div>
-                              <label className="text-[11px] text-gray-400 block mb-0.5">Subject</label>
-                              <input
-                                type="text"
-                                value={nudgeSubject}
-                                onChange={(e) => setNudgeSubject(e.target.value)}
-                                className="w-full rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-300"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-[11px] text-gray-400 block mb-0.5">Message</label>
-                              <textarea
-                                value={nudgeBody}
-                                onChange={(e) => setNudgeBody(e.target.value)}
-                                rows={3}
-                                className="w-full rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-300 resize-none"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2 justify-end">
-                              <button
-                                onClick={() => sendNudge(alert)}
-                                disabled={nudgeSending || !nudgeSubject.trim() || !nudgeBody.trim()}
-                                className="rounded-full bg-admin-blue-900 px-4 py-1.5 text-xs font-medium text-white hover:bg-admin-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                              >
-                                {nudgeSending ? 'Sending...' : 'Send Email'}
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
                 )}
-              </div>
+              </Button>
             );
           })}
         </div>
-      )}
-    </div>
+
+        {/* Bulk actions bar */}
+        {showBulkActions && (
+          <div className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2">
+            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+              <Checkbox
+                checked={allPaymentsSelected}
+                onCheckedChange={toggleSelectAll}
+              />
+              Select all
+            </label>
+            {selectedIds.size > 0 && (
+              <Button
+                size="xs"
+                onClick={handleBulkMarkPaid}
+                disabled={bulkLoading}
+              >
+                {bulkLoading ? 'Processing...' : `Mark ${selectedIds.size} Fee Paid`}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Alert list */}
+        {visibleAlerts.length === 0 ? (
+          <p className="flex flex-1 items-center justify-center text-sm text-muted-foreground">No pending actions. All clear.</p>
+        ) : (
+          <div className="flex-1 space-y-1 overflow-y-auto max-h-[500px]">
+            {visibleAlerts.map((alert) => {
+              const isExpanded = expandedId === alert.id;
+
+              return (
+                <div key={alert.id}>
+                  {/* Collapsed row -- clickable summary */}
+                  <div
+                    onClick={() => toggleExpand(alert.id)}
+                    className={cn(
+                      'flex items-center gap-2.5 rounded-lg px-3 py-2.5 cursor-pointer transition-colors',
+                      isExpanded
+                        ? 'bg-muted border border-border'
+                        : 'hover:bg-muted border border-transparent'
+                    )}
+                  >
+                    {/* Bulk checkbox */}
+                    {showBulkActions && alert.alertType === 'payment' && alert.actionEndpoint && (
+                      <Checkbox
+                        checked={selectedIds.has(alert.id)}
+                        onClick={(e) => toggleSelect(e, alert.id)}
+                        onCheckedChange={() => {}}
+                        className="flex-shrink-0"
+                      />
+                    )}
+
+                    {/* Priority dot */}
+                    <span className={cn('h-2 w-2 rounded-full flex-shrink-0', PRIORITY_DOT[alert.priority])} />
+
+                    {/* Summary text */}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-foreground truncate">
+                        <span className="inline-flex items-center gap-1 font-medium">
+                          {alert.name}
+                          <ApplicantStatusIcons isGooCampusMember={alert.isGooCampusMember ?? false} paymentStatus={alert.paymentStatus} size={12} />
+                        </span>{' '}
+                        <span className="text-muted-foreground">{alert.message}</span>
+                      </p>
+                    </div>
+
+                    {/* Tag */}
+                    <Badge
+                      variant="outline"
+                      className={cn('flex-shrink-0 rounded-full text-[10px]', TAG_STYLES[alert.alertType])}
+                    >
+                      {TAG_LABELS[alert.alertType]}
+                    </Badge>
+
+                    {/* Time ago */}
+                    {alert.daysStuck !== undefined && alert.daysStuck > 0 && (
+                      <span className="flex-shrink-0 text-[11px] text-muted-foreground">{alert.daysStuck}d</span>
+                    )}
+
+                    {/* Dismiss */}
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={(e) => handleDismiss(e, alert.id)}
+                      title="Dismiss for 24 hours"
+                      className="flex-shrink-0 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+
+                  {/* Expanded panel -- context + actions */}
+                  {isExpanded && (
+                    <div className="ml-[52px] mr-2 mb-2 rounded-lg border border-border bg-card p-3 space-y-3">
+                      {/* Profile context */}
+                      {(alert.age || alert.specialty || alert.city) && (
+                        <p className="text-xs text-muted-foreground">
+                          {[
+                            alert.age ? `${alert.age}y` : null,
+                            alert.gender,
+                            alert.specialty,
+                            alert.city,
+                          ].filter(Boolean).join(' \u00b7 ')}
+                        </p>
+                      )}
+
+                      {/* Match-specific details */}
+                      {alert.compatibilityScore !== undefined && (
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <p>{alert.compatibilityScore}% compatible{alert.hoursRemaining !== undefined && ` \u00b7 ${alert.hoursRemaining}h remaining`}</p>
+                          {alert.waitingOn && (
+                            <p className="text-amber-600">Waiting on: {alert.waitingOn}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* Primary action (non-nudge) */}
+                        {(alert.actionEndpoint || alert.actionHref) && !alert.nudgeEmailTo && (
+                          <Button
+                            size="xs"
+                            onClick={(e) => handleAction(e, alert)}
+                            disabled={loadingId === alert.id}
+                          >
+                            {loadingId === alert.id ? '...' : alert.actionLabel}
+                          </Button>
+                        )}
+
+                        {/* Secondary action */}
+                        {alert.secondaryActionHref && (
+                          <Button variant="outline" size="xs" asChild>
+                            <Link href={alert.secondaryActionHref}>
+                              {alert.secondaryActionLabel}
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Nudge email form (two-step) */}
+                      {alert.nudgeEmailTo && (
+                        <div className="space-y-2 border-t border-border pt-3">
+                          {nudgeSuccess === alert.id ? (
+                            <p className="text-xs text-emerald-600 font-medium">Email sent successfully!</p>
+                          ) : (
+                            <>
+                              <div>
+                                <label className="text-[11px] text-muted-foreground block mb-0.5">Subject</label>
+                                <Input
+                                  type="text"
+                                  value={nudgeSubject}
+                                  onChange={(e) => setNudgeSubject(e.target.value)}
+                                  className="h-7 text-xs"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[11px] text-muted-foreground block mb-0.5">Message</label>
+                                <Textarea
+                                  value={nudgeBody}
+                                  onChange={(e) => setNudgeBody(e.target.value)}
+                                  rows={3}
+                                  className="text-xs resize-none min-h-0"
+                                />
+                              </div>
+                              <div className="flex items-center gap-2 justify-end">
+                                <Button
+                                  size="xs"
+                                  onClick={() => sendNudge(alert)}
+                                  disabled={nudgeSending || !nudgeSubject.trim() || !nudgeBody.trim()}
+                                >
+                                  {nudgeSending ? 'Sending...' : 'Send Email'}
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

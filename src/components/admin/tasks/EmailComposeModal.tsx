@@ -3,6 +3,26 @@
 import { useState } from 'react';
 import { TASK_EMAIL_TEMPLATES } from '@/lib/email/task-templates';
 import type { AdminTask } from '@/types/dashboard';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CheckCircle } from 'lucide-react';
 
 interface EmailComposeModalProps {
   task: AdminTask;
@@ -19,9 +39,10 @@ export function EmailComposeModal({ task, onClose }: EmailComposeModalProps) {
   const [sent, setSent] = useState(false);
 
   function applyTemplate(id: string) {
-    setTemplateId(id);
-    if (!id) return;
-    const tpl = TASK_EMAIL_TEMPLATES.find((t) => t.id === id);
+    const realId = id === '__none__' ? '' : id;
+    setTemplateId(realId);
+    if (!realId) return;
+    const tpl = TASK_EMAIL_TEMPLATES.find((t) => t.id === realId);
     if (!tpl) return;
     const name = task.applicantName?.split(' ')[0] ?? 'there';
     setSubject(tpl.subject);
@@ -56,128 +77,105 @@ export function EmailComposeModal({ task, onClose }: EmailComposeModalProps) {
       }
 
       setSent(true);
+      toast.success('Email sent successfully');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Send failed');
+      toast.error(err instanceof Error ? err.message : 'Send failed');
     } finally {
       setSending(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="text-sm font-semibold text-gray-900">Compose Email</h2>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-            aria-label="Close"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M4 4l8 8M12 4l-8 8" />
-            </svg>
-          </button>
-        </div>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Compose Email</DialogTitle>
+        </DialogHeader>
 
         {sent ? (
-          <div className="px-6 py-12 text-center">
+          <div className="py-8 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 10l4 4 8-8" />
-              </svg>
+              <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
-            <p className="text-sm font-medium text-gray-900">Email sent successfully</p>
-            <p className="mt-1 text-xs text-gray-500">Logged to communication history.</p>
-            <button
-              onClick={onClose}
-              className="mt-6 rounded-lg bg-[#1B4332] px-4 py-2 text-sm font-medium text-white hover:bg-[#1B4332]/90"
-            >
+            <p className="text-sm font-medium text-foreground">Email sent successfully</p>
+            <p className="mt-1 text-xs text-muted-foreground">Logged to communication history.</p>
+            <Button onClick={onClose} className="mt-6">
               Done
-            </button>
+            </Button>
           </div>
         ) : (
-          <form onSubmit={handleSend} className="divide-y divide-gray-100">
+          <form onSubmit={handleSend} className="space-y-4">
             {/* Template selector */}
-            <div className="px-6 py-3">
-              <label className="block text-xs font-medium text-gray-500 mb-1.5">Template</label>
-              <select
-                value={templateId}
-                onChange={(e) => applyTemplate(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/30"
-              >
-                <option value="">— Free-form (no template) —</option>
-                {TASK_EMAIL_TEMPLATES.map((t) => (
-                  <option key={t.id} value={t.id}>{t.label}</option>
-                ))}
-              </select>
+            <div>
+              <Label>Template</Label>
+              <Select value={templateId || '__none__'} onValueChange={applyTemplate}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="— Free-form (no template) —" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">— Free-form (no template) —</SelectItem>
+                  {TASK_EMAIL_TEMPLATES.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* To */}
-            <div className="px-6 py-3">
-              <label className="block text-xs font-medium text-gray-500 mb-1.5">To</label>
-              <input
+            <div>
+              <Label>To</Label>
+              <Input
                 type="email"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
                 placeholder="applicant@email.com"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/30"
+                className="mt-1.5"
                 required
               />
             </div>
 
             {/* Subject */}
-            <div className="px-6 py-3">
-              <label className="block text-xs font-medium text-gray-500 mb-1.5">Subject</label>
-              <input
+            <div>
+              <Label>Subject</Label>
+              <Input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="Email subject"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/30"
+                className="mt-1.5"
                 required
               />
             </div>
 
             {/* Body */}
-            <div className="px-6 py-3">
-              <label className="block text-xs font-medium text-gray-500 mb-1.5">Message</label>
-              <textarea
+            <div>
+              <Label>Message</Label>
+              <Textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your message..."
                 rows={8}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1B4332]/30 resize-none"
+                className="mt-1.5 resize-none"
                 required
               />
             </div>
 
             {error && (
-              <div className="px-6 py-2">
-                <p className="text-xs text-red-600">{error}</p>
-              </div>
+              <p className="text-xs text-destructive">{error}</p>
             )}
 
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-2 px-6 py-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={sending}
-                className="rounded-lg bg-[#1B4332] px-4 py-2 text-sm font-medium text-white hover:bg-[#1B4332]/90 disabled:opacity-60"
-              >
-                {sending ? 'Sending…' : 'Send Email'}
-              </button>
-            </div>
+              </Button>
+              <Button type="submit" disabled={sending}>
+                {sending ? 'Sending...' : 'Send Email'}
+              </Button>
+            </DialogFooter>
           </form>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

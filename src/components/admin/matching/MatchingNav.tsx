@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const TABS = [
   { label: 'Suggestions', href: '/admin/matching' },
@@ -14,7 +16,7 @@ export function MatchingNav() {
   const pathname = usePathname();
 
   return (
-    <div className="rounded-xl border border-gray-200/60 bg-white px-4 py-3 shadow-sm">
+    <Card className="px-4 py-3">
       <div className="flex items-center gap-2">
         {TABS.map((tab) => {
           const isActive = tab.href === '/admin/matching'
@@ -22,20 +24,20 @@ export function MatchingNav() {
             : pathname.startsWith(tab.href);
 
           return (
-            <Link
+            <Button
               key={tab.href}
-              href={tab.href}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-admin-blue-900 text-white shadow-sm'
-                  : 'border border-gray-200 text-gray-500 hover:border-admin-blue-300 hover:text-admin-blue-900'
-              }`}
+              variant={isActive ? 'default' : 'outline'}
+              size="sm"
+              className="rounded-full"
+              asChild
             >
-              {tab.label}
-            </Link>
+              <Link href={tab.href}>
+                {tab.label}
+              </Link>
+            </Button>
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

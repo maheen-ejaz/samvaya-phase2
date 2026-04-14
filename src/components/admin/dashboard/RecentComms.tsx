@@ -2,6 +2,18 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import type { DashboardCommLog } from '@/types/dashboard';
 import { formatDateIN } from '@/lib/utils';
 import { RecipientProfileDrawer } from './RecipientProfileDrawer';
@@ -23,82 +35,86 @@ export function RecentComms({ communications }: RecentCommsProps) {
 
   return (
     <>
-      <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <Card className="shadow-sm ring-1 ring-gray-200/60">
+        <CardHeader>
           <div className="flex items-center gap-3">
-            <h3 className="type-heading text-gray-900">Recent Communications</h3>
+            <CardTitle className="text-base font-semibold text-foreground">Recent Communications</CardTitle>
             {communications.length > 0 && (
-              <span className="flex h-6 min-w-[24px] items-center justify-center rounded-full bg-admin-blue-100 px-2 text-xs font-semibold text-admin-blue-900">
+              <Badge variant="secondary" className="h-6 min-w-[24px] rounded-full bg-muted px-2 text-xs font-semibold text-primary border-0">
                 {communications.length}
-              </span>
+              </Badge>
             )}
           </div>
-          <Link
-            href="/admin/communications"
-            className="text-xs font-medium text-admin-blue-800 hover:text-admin-blue-700"
-          >
-            View all
-          </Link>
-        </div>
+          <CardAction>
+            <Button variant="link" size="sm" asChild className="text-xs font-medium text-primary hover:text-primary p-0 h-auto no-underline hover:no-underline">
+              <Link href="/admin/communications">View all</Link>
+            </Button>
+          </CardAction>
+        </CardHeader>
 
-        {communications.length === 0 ? (
-          <p className="mt-4 text-sm text-gray-400">No communications sent yet.</p>
-        ) : (
-          <div className="mt-4">
-            <table className="w-full text-sm">
-              <thead className="admin-table-thead">
-                <tr className="border-b border-gray-100">
-                  <th className="pb-3 text-left">Recipient</th>
-                  <th className="pb-3 text-left">Subject</th>
-                  <th className="pb-3 text-left">Date</th>
-                  <th className="pb-3 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
+        <CardContent>
+          {communications.length === 0 ? (
+            <p className="text-sm text-gray-400">No communications sent yet.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-gray-100">
+                  <TableHead className="">Recipient</TableHead>
+                  <TableHead className="">Subject</TableHead>
+                  <TableHead className="">Date</TableHead>
+                  <TableHead className="">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {communications.map((comm) => {
                   const cfg = STATUS_CONFIG[comm.status] ?? {
                     label: comm.status.charAt(0).toUpperCase() + comm.status.slice(1),
                     bg: 'bg-gray-100', dot: 'bg-gray-400', text: 'text-gray-600',
                   };
                   return (
-                    <tr
+                    <TableRow
                       key={comm.id}
-                      className="group relative border-l-2 border-l-transparent transition-all duration-150 hover:border-l-admin-blue-300 hover:bg-gray-50 hover:-translate-y-px"
+                      className="group relative border-l-2 border-l-transparent transition-all duration-150 hover:border-l-primary/20 hover:bg-gray-50 hover:-translate-y-px"
                     >
-                      <td className="py-3.5 pr-4">
+                      <TableCell className="py-3.5 pr-4">
                         <button
                           onClick={() => setSelectedUserId(comm.userId)}
-                          className="font-medium text-gray-900 transition-colors hover:text-admin-blue-700"
+                          className="font-medium text-gray-900 transition-colors hover:text-primary"
                         >
                           {comm.recipientName}
                         </button>
-                      </td>
-                      <td className="py-3.5 pr-4 max-w-[240px]">
+                      </TableCell>
+                      <TableCell className="py-3.5 pr-4 max-w-[240px]">
                         <span className="block truncate text-gray-500">{comm.subject || '(no subject)'}</span>
-                      </td>
-                      <td className="py-3.5 pr-4 whitespace-nowrap text-gray-500">{formatDateIN(comm.sentAt)}</td>
-                      <td className="py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cfg.bg} ${cfg.text}`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+                      </TableCell>
+                      <TableCell className="py-3.5 pr-4 text-gray-500">{formatDateIN(comm.sentAt)}</TableCell>
+                      <TableCell className="py-3.5">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium h-auto border-0',
+                            cfg.bg,
+                            cfg.text
+                          )}
+                        >
+                          <span className={cn('h-1.5 w-1.5 rounded-full', cfg.dot)} />
                           {cfg.label}
-                        </span>
-                      </td>
-                    </tr>
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
-      {selectedUserId && (
-        <RecipientProfileDrawer
-          userId={selectedUserId}
-          onClose={() => setSelectedUserId(null)}
-        />
-      )}
+      <RecipientProfileDrawer
+        userId={selectedUserId ?? ''}
+        open={!!selectedUserId}
+        onOpenChange={(open) => { if (!open) setSelectedUserId(null); }}
+      />
     </>
   );
 }

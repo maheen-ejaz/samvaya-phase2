@@ -21,10 +21,10 @@ export function DonutLegend({ data, total, maxItems = 6 }: DonutLegendProps) {
               className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
               style={{ backgroundColor: slice.color }}
             />
-            <span className="min-w-0 flex-1 truncate text-xs text-gray-600">
+            <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
               {slice.label}
             </span>
-            <span className="flex-shrink-0 text-xs font-medium tabular-nums text-gray-900">
+            <span className="flex-shrink-0 text-xs font-medium tabular-nums text-foreground">
               {pct}%
             </span>
           </div>
@@ -32,11 +32,11 @@ export function DonutLegend({ data, total, maxItems = 6 }: DonutLegendProps) {
       })}
       {rest.length > 0 && (
         <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-gray-200" />
-          <span className="min-w-0 flex-1 truncate text-xs text-gray-400">
+          <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-muted" />
+          <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
             +{rest.length} more
           </span>
-          <span className="flex-shrink-0 text-xs font-medium tabular-nums text-gray-400">
+          <span className="flex-shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
             {total > 0 ? Math.round((restCount / total) * 100) : 0}%
           </span>
         </div>

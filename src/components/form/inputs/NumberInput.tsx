@@ -1,6 +1,8 @@
 'use client';
 
 import type { QuestionConfig } from '@/lib/form/types';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface NumberInputProps {
   question: QuestionConfig;
@@ -33,7 +35,7 @@ export function NumberInput({ question, value, onChange, inputId, ariaDescribedB
 
   return (
     <div>
-      <input
+      <Input
         id={inputId}
         type="number"
         inputMode="decimal"
@@ -53,10 +55,13 @@ export function NumberInput({ question, value, onChange, inputId, ariaDescribedB
         max={constraints?.max}
         step={constraints?.step}
         placeholder={question.placeholder}
-        className="form-input"
+        className={cn(
+          'h-11 rounded-xl border-input bg-transparent px-4 text-[15px]',
+          'focus-visible:ring-primary/30',
+        )}
       />
       {heightConversion && (
-        <p className="form-helper mt-2">{heightConversion}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{heightConversion}</p>
       )}
     </div>
   );

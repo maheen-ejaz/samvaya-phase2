@@ -41,15 +41,15 @@ export function CompatibilityProfile({
       {/* Dimension Details */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {dimensions.map((d) => (
-          <div key={d.label} className="rounded border border-gray-100 bg-gray-50 p-3">
+          <div key={d.label} className="rounded border border-border bg-muted p-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-500">{d.label}</span>
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-xs font-medium text-muted-foreground">{d.label}</span>
+              <span className="text-sm font-semibold text-foreground">
                 {d.score !== null ? d.score : '—'}
               </span>
             </div>
             {d.notes && (
-              <p className="mt-1 text-xs text-gray-500">{d.notes}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{d.notes}</p>
             )}
           </div>
         ))}
@@ -94,13 +94,13 @@ function SpiderWebChart({ dimensions }: { dimensions: Dimension[] }) {
       const p = pointAt(i, r);
       return `${p.x},${p.y}`;
     }).join(' ');
-    return <polygon key={l} points={points} fill="none" stroke="#e5e7eb" strokeWidth="1" />;
+    return <polygon key={l} points={points} fill="none" stroke="hsl(var(--border))" strokeWidth="1" />;
   });
 
   // Axis lines
   const axes = Array.from({ length: n }, (_, i) => {
     const p = pointAt(i, maxRadius);
-    return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e5e7eb" strokeWidth="1" />;
+    return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="hsl(var(--border))" strokeWidth="1" />;
   });
 
   // Data polygon
@@ -121,7 +121,7 @@ function SpiderWebChart({ dimensions }: { dimensions: Dimension[] }) {
         y={p.y}
         textAnchor="middle"
         dominantBaseline="middle"
-        className="fill-gray-500 text-xs"
+        className="fill-muted-foreground text-xs"
       >
         {d.label}
       </text>
@@ -134,12 +134,12 @@ function SpiderWebChart({ dimensions }: { dimensions: Dimension[] }) {
       {axes}
       <polygon
         points={dataPolygonStr}
-        fill="rgba(244, 63, 94, 0.15)"
-        stroke="rgb(244, 63, 94)"
+        fill="hsl(var(--primary) / 0.15)"
+        stroke="hsl(var(--primary))"
         strokeWidth="2"
       />
       {dataPoints.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="3" fill="rgb(244, 63, 94)" />
+        <circle key={i} cx={p.x} cy={p.y} r="3" fill="hsl(var(--primary))" />
       ))}
       {labels}
     </svg>

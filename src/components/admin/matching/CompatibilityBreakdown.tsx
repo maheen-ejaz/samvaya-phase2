@@ -3,6 +3,7 @@
 import type { CompatibilityReport } from '@/types/matching';
 import { SCORING_DIMENSIONS } from '@/types/matching';
 import { InteractiveSpiderChart } from '@/components/admin/dashboard/InteractiveSpiderChart';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface CompatibilityBreakdownProps {
   report: CompatibilityReport;
@@ -28,7 +29,7 @@ export function CompatibilityBreakdown({ report }: CompatibilityBreakdownProps) 
       {/* Highlights + Concerns: Two Column Row */}
       <div className="grid grid-cols-2 gap-4">
         {/* Highlights */}
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+        <Card className="border-green-200 bg-green-50 p-4">
           <h4 className="flex items-center gap-2 text-sm font-semibold text-green-800">
             <span>✓</span> Highlights
           </h4>
@@ -44,10 +45,10 @@ export function CompatibilityBreakdown({ report }: CompatibilityBreakdownProps) 
           ) : (
             <p className="mt-2 text-sm text-green-600">No highlights noted.</p>
           )}
-        </div>
+        </Card>
 
         {/* Concerns */}
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+        <Card className="border-red-200 bg-red-50 p-4">
           <h4 className="flex items-center gap-2 text-sm font-semibold text-red-800">
             <span>⚠</span> Concerns
           </h4>
@@ -63,7 +64,7 @@ export function CompatibilityBreakdown({ report }: CompatibilityBreakdownProps) 
           ) : (
             <p className="mt-2 text-sm text-red-600">No concerns noted.</p>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

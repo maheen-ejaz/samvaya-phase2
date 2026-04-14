@@ -8,11 +8,11 @@ export function ClosingNote({ closingNote }: ClosingNoteProps) {
   return (
     <Section title="Closing Note (Q100)">
       {closingNote ? (
-        <blockquote className="border-l-2 border-gray-300 pl-3 text-sm italic text-gray-700">
+        <blockquote className="border-l-2 border-border pl-3 text-sm italic text-muted-foreground">
           {closingNote}
         </blockquote>
       ) : (
-        <p className="text-sm text-gray-400">No closing note recorded.</p>
+        <p className="text-sm text-muted-foreground">No closing note recorded.</p>
       )}
     </Section>
   );

@@ -2,24 +2,27 @@
 
 import { useState, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 // Countries most relevant to Indian medical professionals
 const COUNTRY_CODES = [
-  { code: '+91', flag: '🇮🇳', name: 'India' },
-  { code: '+1', flag: '🇺🇸', name: 'US / Canada' },
-  { code: '+44', flag: '🇬🇧', name: 'UK' },
-  { code: '+971', flag: '🇦🇪', name: 'UAE' },
-  { code: '+61', flag: '🇦🇺', name: 'Australia' },
-  { code: '+65', flag: '🇸🇬', name: 'Singapore' },
-  { code: '+49', flag: '🇩🇪', name: 'Germany' },
-  { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
-  { code: '+968', flag: '🇴🇲', name: 'Oman' },
-  { code: '+974', flag: '🇶🇦', name: 'Qatar' },
-  { code: '+973', flag: '🇧🇭', name: 'Bahrain' },
-  { code: '+965', flag: '🇰🇼', name: 'Kuwait' },
-  { code: '+64', flag: '🇳🇿', name: 'New Zealand' },
-  { code: '+353', flag: '🇮🇪', name: 'Ireland' },
-  { code: '+60', flag: '🇲🇾', name: 'Malaysia' },
+  { code: '+91', flag: '\u{1F1EE}\u{1F1F3}', name: 'India' },
+  { code: '+1', flag: '\u{1F1FA}\u{1F1F8}', name: 'US / Canada' },
+  { code: '+44', flag: '\u{1F1EC}\u{1F1E7}', name: 'UK' },
+  { code: '+971', flag: '\u{1F1E6}\u{1F1EA}', name: 'UAE' },
+  { code: '+61', flag: '\u{1F1E6}\u{1F1FA}', name: 'Australia' },
+  { code: '+65', flag: '\u{1F1F8}\u{1F1EC}', name: 'Singapore' },
+  { code: '+49', flag: '\u{1F1E9}\u{1F1EA}', name: 'Germany' },
+  { code: '+966', flag: '\u{1F1F8}\u{1F1E6}', name: 'Saudi Arabia' },
+  { code: '+968', flag: '\u{1F1F4}\u{1F1F2}', name: 'Oman' },
+  { code: '+974', flag: '\u{1F1F6}\u{1F1E6}', name: 'Qatar' },
+  { code: '+973', flag: '\u{1F1E7}\u{1F1ED}', name: 'Bahrain' },
+  { code: '+965', flag: '\u{1F1F0}\u{1F1FC}', name: 'Kuwait' },
+  { code: '+64', flag: '\u{1F1F3}\u{1F1FF}', name: 'New Zealand' },
+  { code: '+353', flag: '\u{1F1EE}\u{1F1EA}', name: 'Ireland' },
+  { code: '+60', flag: '\u{1F1F2}\u{1F1FE}', name: 'Malaysia' },
 ] as const;
 
 const DEFAULT_CODE = '+91';
@@ -28,7 +31,6 @@ const DEFAULT_CODE = '+91';
 function parsePhoneValue(value: string): { code: string; number: string } {
   if (!value) return { code: DEFAULT_CODE, number: '' };
 
-  // Try to match a known country code at the start
   const trimmed = value.trim();
   for (const cc of COUNTRY_CODES) {
     if (trimmed.startsWith(cc.code)) {
@@ -37,14 +39,11 @@ function parsePhoneValue(value: string): { code: string; number: string } {
     }
   }
 
-  // Fallback: if starts with + but no known code, try extracting digits after +
   if (trimmed.startsWith('+')) {
-    // Try 1-4 digit codes
     const match = trimmed.match(/^(\+\d{1,4})\s*(.*)/);
     if (match) return { code: match[1], number: match[2] };
   }
 
-  // No code found — treat entire value as the number
   return { code: DEFAULT_CODE, number: trimmed };
 }
 
@@ -78,34 +77,26 @@ export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy
     emitChange(countryCode, num);
   };
 
-  // Validation hint: strip non-digits for length check
   const phoneDigits = localNumber.replace(/\D/g, '');
   const showPhoneHint = touched && phoneDigits.length > 0 && phoneDigits.length < 10;
-
-  const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode) || COUNTRY_CODES[0];
-
-  // Avoid unused warnings on selectedCountry
-  void selectedCountry;
 
   return (
     <div>
       <div className="flex gap-2">
-        {/* Country code selector */}
-        <select
-          value={countryCode}
-          onChange={(e) => handleCodeChange(e.target.value)}
-          className="form-input form-select shrink-0 w-[7.5rem]"
-          aria-label="Country code"
-        >
-          {COUNTRY_CODES.map((cc) => (
-            <option key={cc.code} value={cc.code}>
-              {cc.flag} {cc.code}
-            </option>
-          ))}
-        </select>
+        <Select value={countryCode} onValueChange={handleCodeChange}>
+          <SelectTrigger className="h-11 w-[7.5rem] shrink-0 rounded-xl" aria-label="Country code">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {COUNTRY_CODES.map((cc) => (
+              <SelectItem key={cc.code} value={cc.code}>
+                {cc.flag} {cc.code}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        {/* Phone number input */}
-        <input
+        <Input
           id={inputId}
           type="tel"
           inputMode="tel"
@@ -115,12 +106,15 @@ export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy
           placeholder={question.placeholder || '98765 43210'}
           aria-describedby={ariaDescribedBy}
           aria-invalid={ariaInvalid || undefined}
-          className="form-input min-w-0 flex-1"
+          className={cn(
+            'h-11 min-w-0 flex-1 rounded-xl border-input bg-transparent px-4 text-[15px]',
+            'focus-visible:ring-primary/30',
+          )}
         />
       </div>
 
       {showPhoneHint && (
-        <p className="form-helper mt-2 text-[color:var(--color-form-error)]">
+        <p className="mt-2 text-sm text-destructive">
           Please enter a valid phone number (at least 10 digits).
         </p>
       )}

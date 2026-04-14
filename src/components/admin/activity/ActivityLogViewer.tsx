@@ -1,6 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface LogEntry {
   id: string;
@@ -119,158 +131,159 @@ export function ActivityLogViewer() {
   return (
     <div>
       {/* Filter bar */}
-      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4">
-        <div>
-          <label className="block text-xs font-medium text-gray-500" htmlFor="filter-action">
-            Action
-          </label>
-          <select
-            id="filter-action"
-            value={filterAction}
-            onChange={(e) => { setFilterAction(e.target.value); setPage(1); }}
-            className="mt-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+      <Card>
+        <CardContent className="flex flex-wrap items-end gap-3 pt-4">
+          <div>
+            <Label htmlFor="filter-action">Action</Label>
+            <Select
+              value={filterAction}
+              onValueChange={(v) => { setFilterAction(v === '__all__' ? '' : v); setPage(1); }}
+            >
+              <SelectTrigger id="filter-action" className="mt-1 w-[180px]">
+                <SelectValue placeholder="All actions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">All actions</SelectItem>
+                {actions.map((a) => (
+                  <SelectItem key={a} value={a}>{formatAction(a)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="filter-from">From</Label>
+            <Input
+              id="filter-from"
+              type="date"
+              value={filterFrom}
+              onChange={(e) => { setFilterFrom(e.target.value); setPage(1); }}
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="filter-to">To</Label>
+            <Input
+              id="filter-to"
+              type="date"
+              value={filterTo}
+              onChange={(e) => { setFilterTo(e.target.value); setPage(1); }}
+              className="mt-1"
+            />
+          </div>
+
+          <Button
+            variant="outline"
+            onClick={resetFilters}
+            aria-label="Reset all filters"
           >
-            <option value="">All actions</option>
-            {actions.map((a) => (
-              <option key={a} value={a}>{formatAction(a)}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-500" htmlFor="filter-from">
-            From
-          </label>
-          <input
-            id="filter-from"
-            type="date"
-            value={filterFrom}
-            onChange={(e) => { setFilterFrom(e.target.value); setPage(1); }}
-            className="mt-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-500" htmlFor="filter-to">
-            To
-          </label>
-          <input
-            id="filter-to"
-            type="date"
-            value={filterTo}
-            onChange={(e) => { setFilterTo(e.target.value); setPage(1); }}
-            className="mt-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-          />
-        </div>
-
-        <button
-          onClick={resetFilters}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
-          aria-label="Reset all filters"
-        >
-          Reset
-        </button>
-      </div>
+            Reset
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Error state */}
       {error && (
-        <div className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>
+        <div className="mt-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
       )}
 
       {/* Loading state */}
       {loading && (
         <div className="mt-6 flex justify-center">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-rose-600" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
         </div>
       )}
 
       {/* Empty state */}
       {!loading && logs.length === 0 && (
-        <div className="mt-6 rounded-lg border border-gray-200 bg-white p-8 text-center">
-          <p className="text-sm text-gray-500">No activity log entries found.</p>
-        </div>
+        <Card className="mt-6">
+          <CardContent className="p-8 text-center">
+            <p className="text-sm text-muted-foreground">No activity log entries found.</p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Log entries */}
       {!loading && logs.length > 0 && (
         <div className="mt-4 space-y-2">
           {logs.map((log) => (
-            <div
-              key={log.id}
-              className="rounded-lg border border-gray-200 bg-white px-4 py-3"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {log.actor_name}
-                  </span>
-                  <span className="ml-2 text-sm text-gray-500">
-                    {formatAction(log.action)}
-                  </span>
-                  <span className="ml-2 text-xs text-gray-400 capitalize">
-                    on {log.entity_type}
+            <Card key={log.id}>
+              <CardContent className="px-4 py-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-sm font-medium text-foreground">
+                      {log.actor_name}
+                    </span>
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {formatAction(log.action)}
+                    </span>
+                    <Badge variant="secondary" className="ml-2 capitalize">
+                      {log.entity_type}
+                    </Badge>
+                  </div>
+                  <span className="flex-shrink-0 text-xs text-muted-foreground">
+                    {timeAgo(log.created_at)}
                   </span>
                 </div>
-                <span className="flex-shrink-0 text-xs text-gray-400">
-                  {timeAgo(log.created_at)}
-                </span>
-              </div>
-              {log.metadata && Object.keys(log.metadata).length > 0 && (
-                <div className="mt-1.5">
-                  <p className="rounded bg-gray-50 px-3 py-2 text-xs text-gray-600">
-                    {formatMetadata(log.metadata)}
-                  </p>
-                </div>
-              )}
-            </div>
+                {log.metadata && Object.keys(log.metadata).length > 0 && (
+                  <div className="mt-1.5">
+                    <p className="rounded bg-muted px-3 py-2 text-xs text-muted-foreground">
+                      {formatMetadata(log.metadata)}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <p className="text-sm text-gray-500">
-            Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} of {total}
-          </p>
-          <div className="flex gap-1">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="rounded-md border border-gray-300 px-3 py-1 text-sm disabled:opacity-50"
-              aria-label="Previous page"
-            >
-              Prev
-            </button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              const p = page <= 3 ? i + 1 : page - 2 + i;
-              if (p > totalPages) return null;
-              return (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`rounded-md border px-3 py-1 text-sm ${
-                    p === page
-                      ? 'border-rose-600 bg-rose-50 text-rose-700'
-                      : 'border-gray-300 text-gray-600 hover:bg-gray-50'
-                  }`}
-                  aria-label={`Page ${p}`}
-                  aria-current={p === page ? 'page' : undefined}
-                >
-                  {p}
-                </button>
-              );
-            })}
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="rounded-md border border-gray-300 px-3 py-1 text-sm disabled:opacity-50"
-              aria-label="Next page"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        <Card className="mt-4">
+          <CardContent className="flex items-center justify-between px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} of {total}
+            </p>
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                aria-label="Previous page"
+              >
+                Prev
+              </Button>
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                const p = page <= 3 ? i + 1 : page - 2 + i;
+                if (p > totalPages) return null;
+                return (
+                  <Button
+                    key={p}
+                    variant={p === page ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setPage(p)}
+                    aria-label={`Page ${p}`}
+                    aria-current={p === page ? 'page' : undefined}
+                  >
+                    {p}
+                  </Button>
+                );
+              })}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                aria-label="Next page"
+              >
+                Next
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

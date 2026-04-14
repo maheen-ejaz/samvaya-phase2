@@ -4,6 +4,8 @@ import { useMemo, useRef } from 'react';
 import type { MatchSuggestionWithProfiles } from '@/types/matching';
 import { capitalize } from '@/lib/utils';
 import { ApplicantStatusIcons } from '@/components/admin/ApplicantStatusIcons';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface SuggestionCardProps {
   suggestion: MatchSuggestionWithProfiles;
@@ -33,22 +35,22 @@ function getRecommendationLabel(rec: string): string {
   }
 }
 
-function getRecommendationStyle(rec: string): string {
+function getRecommendationVariant(rec: string): 'default' | 'secondary' | 'destructive' | 'outline' {
   switch (rec) {
-    case 'strongly_recommend': return 'bg-admin-blue-100 text-admin-blue-900 border-admin-blue-200';
-    case 'recommend': return 'bg-admin-blue-50 text-admin-blue-800 border-admin-blue-100';
-    case 'worth_considering': return 'bg-amber-50 text-amber-800 border-amber-200';
-    case 'not_recommended': return 'bg-red-50 text-red-700 border-red-200';
-    default: return 'bg-gray-50 text-gray-600 border-gray-200';
+    case 'strongly_recommend': return 'default';
+    case 'recommend': return 'secondary';
+    case 'worth_considering': return 'outline';
+    case 'not_recommended': return 'destructive';
+    default: return 'outline';
   }
 }
 
-function getStatusStyle(status: string): string {
+function getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
   switch (status) {
-    case 'approved': return 'bg-admin-blue-100 text-admin-blue-900 border-admin-blue-200';
-    case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-    case 'pending_review': return 'bg-amber-50 text-amber-800 border-amber-200';
-    default: return 'bg-gray-50 text-gray-600 border-gray-200';
+    case 'approved': return 'default';
+    case 'rejected': return 'destructive';
+    case 'pending_review': return 'outline';
+    default: return 'outline';
   }
 }
 
@@ -71,8 +73,8 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="type-display-sm type-stat text-gray-900">{score}</span>
-      <div className="relative h-4 flex-1 overflow-hidden rounded-md bg-gray-100">
+      <span className="text-3xl font-light tabular-nums tracking-tight text-foreground">{score}</span>
+      <div className="relative h-4 flex-1 overflow-hidden rounded-md bg-muted">
         <div
           className="absolute inset-y-0 left-0 rounded-md"
           style={{
@@ -102,17 +104,17 @@ function ProfileMiniCard({ person }: { person: MatchSuggestionWithProfiles['prof
 
   return (
     <div className={`flex-1 rounded-xl border p-2.5 ${cardStyle}`}>
-      <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-100">
+      <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted">
         <img src={photoSrc} alt={person.full_name} className="h-full w-full object-cover" />
       </div>
       <div className="mt-2 px-0.5">
-        <p className="inline-flex items-center gap-1 truncate text-sm font-bold text-gray-900">
+        <p className="inline-flex items-center gap-1 truncate text-sm font-bold text-foreground">
           {person.full_name}
           <ApplicantStatusIcons isGooCampusMember={person.is_goocampus_member ?? false} paymentStatus={person.payment_status} size={12} />
         </p>
-        {specialty && <p className="mt-0.5 truncate text-xs text-gray-500">{specialty}</p>}
+        {specialty && <p className="mt-0.5 truncate text-xs text-muted-foreground">{specialty}</p>}
         {(age || location) && (
-          <div className="mt-0.5 flex items-center justify-between text-xs text-gray-400">
+          <div className="mt-0.5 flex items-center justify-between text-xs text-muted-foreground/70">
             {age && <span>{age}</span>}
             {location && <span className="truncate ml-1 text-right">{location}</span>}
           </div>
@@ -133,8 +135,8 @@ export function SuggestionCard({ suggestion, onOpen }: SuggestionCardProps) {
   );
 
   return (
-    <div
-      className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+    <Card
+      className="cursor-pointer p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
       onClick={onOpen}
       role="button"
       tabIndex={0}
@@ -159,24 +161,24 @@ export function SuggestionCard({ suggestion, onOpen }: SuggestionCardProps) {
 
         <div className="flex flex-wrap items-center gap-1.5">
           {suggestion.recommendation && (
-            <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${getRecommendationStyle(suggestion.recommendation)}`}>
+            <Badge variant={getRecommendationVariant(suggestion.recommendation)}>
               {getRecommendationLabel(suggestion.recommendation)}
-            </span>
+            </Badge>
           )}
-          <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${getStatusStyle(suggestion.admin_status)}`}>
+          <Badge variant={getStatusVariant(suggestion.admin_status)}>
             {getStatusLabel(suggestion.admin_status)}
-          </span>
+          </Badge>
           {suggestion.is_stale && (
-            <span className="rounded-full border border-yellow-200 bg-yellow-50 px-2 py-0.5 text-xs text-yellow-700">
+            <Badge variant="outline" className="border-yellow-200 bg-yellow-50 text-yellow-700">
               Stale
-            </span>
+            </Badge>
           )}
         </div>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-muted-foreground">
           {daysAgo === 0 ? 'Today' : `${daysAgo}d ago`} · Click to review
         </p>
       </div>
-    </div>
+    </Card>
   );
 }

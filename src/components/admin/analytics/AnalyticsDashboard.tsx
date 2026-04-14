@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { HorizontalWaveFunnel } from './HorizontalWaveFunnel';
 import { SpecialtyDistribution } from './SpecialtyDistribution';
 import { StageTimingTable } from './StageTimingTable';
@@ -37,10 +39,10 @@ export function AnalyticsDashboard() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="animate-pulse rounded-xl bg-gray-100 h-64" />
+        <Skeleton className="rounded-xl h-64" />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="animate-pulse rounded-xl bg-gray-100 h-56" />
-          <div className="animate-pulse rounded-xl bg-gray-100 h-56" />
+          <Skeleton className="rounded-xl h-56" />
+          <Skeleton className="rounded-xl h-56" />
         </div>
       </div>
     );
@@ -48,7 +50,7 @@ export function AnalyticsDashboard() {
 
   if (error || !data) {
     return (
-      <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+      <div className="rounded-md bg-destructive/10 p-4 text-sm text-destructive">
         {error || 'Failed to load analytics'}
       </div>
     );
@@ -74,25 +76,29 @@ export function AnalyticsDashboard() {
         <StageTimingTable data={data.stage_timing} />
       </div>
       {topStates.length > 0 && (
-        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Geography</p>
-          <h2 className="mt-1 text-lg font-semibold text-gray-900">Top States</h2>
-          <p className="mt-0.5 text-sm text-gray-500">Applicant distribution by state (top 10).</p>
-          <div className="mt-5 space-y-3">
-            {topStates.map((row) => (
-              <div key={row.state} className="flex items-center gap-3">
-                <span className="w-32 shrink-0 truncate text-sm text-gray-700">{row.state || 'Unknown'}</span>
-                <div className="flex-1 overflow-hidden rounded-full bg-indigo-50 h-2">
-                  <div
-                    className="h-2 rounded-full bg-indigo-500"
-                    style={{ width: `${Math.round((row.count / maxStateCount) * 100)}%` }}
-                  />
+        <Card>
+          <CardHeader>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Geography</p>
+            <CardTitle>Top States</CardTitle>
+            <CardDescription>Applicant distribution by state (top 10).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {topStates.map((row) => (
+                <div key={row.state} className="flex items-center gap-3">
+                  <span className="w-32 shrink-0 truncate text-sm text-foreground">{row.state || 'Unknown'}</span>
+                  <div className="flex-1 overflow-hidden rounded-full bg-muted h-2">
+                    <div
+                      className="h-2 rounded-full bg-primary"
+                      style={{ width: `${Math.round((row.count / maxStateCount) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="w-8 shrink-0 text-right text-sm font-medium text-muted-foreground">{row.count}</span>
                 </div>
-                <span className="w-8 shrink-0 text-right text-sm font-medium text-gray-600">{row.count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

@@ -4,7 +4,9 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useForm } from '@/components/form/FormProvider';
 import { useCitiesForState, useCountries, useCommunities } from '@/lib/data/use-location-data';
+import { Input } from '@/components/ui/input';
 import { DropdownPortal } from './DropdownPortal';
+import { cn } from '@/lib/utils';
 
 interface AutocompleteInputProps {
   question: QuestionConfig;
@@ -84,7 +86,7 @@ export function AutocompleteInput({ question, value, onChange, disabled, inputId
 
   return (
     <div ref={containerRef} className="relative">
-      <input
+      <Input
         ref={inputRef}
         id={resolvedInputId}
         type="text"
@@ -106,13 +108,16 @@ export function AutocompleteInput({ question, value, onChange, disabled, inputId
         placeholder={question.placeholder}
         disabled={disabled}
         autoComplete="off"
-        className="form-input"
+        className={cn(
+          'h-11 rounded-xl border-input bg-transparent px-4 text-[15px]',
+          'focus-visible:ring-primary/30',
+        )}
       />
       <DropdownPortal anchorRef={inputRef} isOpen={showDropdown}>
         <ul
           id={listboxId}
           role="listbox"
-          className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg"
+          className="max-h-60 overflow-auto rounded-xl border border-border bg-popover shadow-lg ring-1 ring-foreground/5"
         >
           {filtered.map((suggestion, idx) => (
             <li
@@ -125,11 +130,12 @@ export function AutocompleteInput({ question, value, onChange, disabled, inputId
                 selectSuggestion(suggestion);
               }}
               onMouseEnter={() => setHighlightedIndex(idx)}
-              className={`cursor-pointer px-4 py-3 text-[15px] ${
+              className={cn(
+                'cursor-pointer px-4 py-2.5 text-sm transition-colors',
                 idx === highlightedIndex
-                  ? 'bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-primary)]'
-                  : 'text-[color:var(--color-form-text-secondary)] hover:bg-[color:var(--color-form-surface-muted)]'
-              }`}
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-foreground hover:bg-accent/50',
+              )}
             >
               {suggestion}
             </li>
@@ -149,18 +155,15 @@ function useAutocompleteSuggestions(
   answers: Record<string, unknown>,
   questionId: string
 ): string[] {
-  // Determine which state value to use for indian_cities filtering
   const stateQuestionMap: Record<string, string> = {
-    'Q14': 'Q12',  // birth city → birth state
-    'Q23': 'Q22',  // current city → current state
+    'Q14': 'Q12',
+    'Q23': 'Q22',
   };
   const stateQuestionId = stateQuestionMap[questionId];
   const stateValue = stateQuestionId ? (answers[stateQuestionId] as string) : undefined;
 
-  // Resolve religion for community filtering
   const religionValue = source === 'communities' ? (answers['Q27'] as string | undefined) : undefined;
 
-  // Load data via hooks (these are no-ops when source doesn't match)
   const indianCities = useCitiesForState(
     source === 'indian_cities' ? stateValue : undefined
   );

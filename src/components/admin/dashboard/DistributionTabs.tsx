@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import type { DistributionEntry } from '@/types/dashboard';
 import { DistributionBarChart } from './DistributionBarChart';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 type TabKey = 'location' | 'education' | 'age' | 'gender';
 
@@ -21,8 +23,6 @@ interface DistributionTabsProps {
 }
 
 export function DistributionTabs({ locationData, educationData, ageData, genderData }: DistributionTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>('location');
-
   const dataMap: Record<TabKey, DistributionEntry[]> = {
     location: locationData,
     education: educationData,
@@ -31,32 +31,28 @@ export function DistributionTabs({ locationData, educationData, ageData, genderD
   };
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-      <h3 className="type-heading text-gray-900">Applicant Distribution</h3>
-
-      {/* Tab bar */}
-      <div className="mt-3 flex border-b border-gray-100" role="tablist">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            role="tab"
-            aria-selected={activeTab === tab.key}
-            className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
-              activeTab === tab.key
-                ? 'border-b-2 border-admin-blue-500 text-admin-blue-900'
-                : 'text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Chart area */}
-      <div className="mt-4 max-h-[320px] overflow-y-auto" role="tabpanel">
-        <DistributionBarChart data={dataMap[activeTab]} />
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base font-semibold">Applicant Distribution</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="location">
+          <TabsList variant="line">
+            {TABS.map((tab) => (
+              <TabsTrigger key={tab.key} value={tab.key}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {TABS.map((tab) => (
+            <TabsContent key={tab.key} value={tab.key}>
+              <div className="mt-4 max-h-[320px] overflow-y-auto">
+                <DistributionBarChart data={dataMap[tab.key]} />
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 }

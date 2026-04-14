@@ -1,4 +1,5 @@
 import { Section, Grid, Field, formatEnum } from './IdentitySnapshot';
+import { Badge } from '@/components/ui/badge';
 
 const IconPartner = () => (
   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -72,19 +73,16 @@ export function PartnerPreferences(props: PartnerPreferencesProps) {
       {/* Qualities */}
       {props.partnerQualities.length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 text-xs text-gray-400">Top Qualities</p>
+          <p className="mb-2 text-xs text-muted-foreground">Top Qualities</p>
           <div className="flex flex-wrap gap-2">
             {props.partnerQualities.map((q) => (
-              <span
-                key={q}
-                className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
-              >
+              <Badge key={q} variant="secondary">
                 {q}
-              </span>
+              </Badge>
             ))}
           </div>
           {props.partnerQualitiesOther && (
-            <p className="mt-2 text-sm text-gray-600">{props.partnerQualitiesOther}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{props.partnerQualitiesOther}</p>
           )}
         </div>
       )}

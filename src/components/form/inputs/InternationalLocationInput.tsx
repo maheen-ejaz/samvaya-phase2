@@ -3,7 +3,11 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { useCountries, useCitiesForCountry } from '@/lib/data/use-location-data';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { DropdownPortal } from './DropdownPortal';
+import { cn } from '@/lib/utils';
+import { XIcon, ChevronDownIcon } from 'lucide-react';
 
 export interface InternationalLocationValue {
   country: string;
@@ -16,16 +20,10 @@ interface InternationalLocationInputProps {
   onChange: (value: InternationalLocationValue) => void;
 }
 
-/**
- * Compound input for international locations: country combobox + city autocomplete.
- * Used for Q13 (city and country of birth when born outside India).
- */
 export function InternationalLocationInput({ question, value, onChange }: InternationalLocationInputProps) {
-  // Parse legacy string values (e.g. "Dubai, UAE") into structured format
   function parseCurrent(): InternationalLocationValue {
     if (!value) return { country: '', city: '' };
     if (typeof value === 'object' && 'country' in value) return value;
-    // Legacy string format: "City, Country" — parse best-effort
     if (typeof value === 'string') {
       const lastComma = value.lastIndexOf(',');
       if (lastComma > 0) {
@@ -48,7 +46,7 @@ export function InternationalLocationInput({ question, value, onChange }: Intern
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-700">Country</label>
+        <Label className="mb-1.5 block text-sm font-medium">Country</Label>
         <CountryCombobox
           value={current.country}
           onChange={handleCountryChange}
@@ -56,7 +54,7 @@ export function InternationalLocationInput({ question, value, onChange }: Intern
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-700">City</label>
+        <Label className="mb-1.5 block text-sm font-medium">City</Label>
         <CityAutocomplete
           countryValue={current.country}
           value={current.city}
@@ -67,8 +65,6 @@ export function InternationalLocationInput({ question, value, onChange }: Intern
     </div>
   );
 }
-
-// ─── Country Combobox ───
 
 function CountryCombobox({
   value,
@@ -91,9 +87,6 @@ function CountryCombobox({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sync input display when value changes externally (e.g. form reset or save-and-resume).
-  // useLayoutEffect avoids the cascading-render lint rule because it runs synchronously
-  // before paint — appropriate here since we're syncing a controlled display value.
   useLayoutEffect(() => {
     if (!isOpen) {
       setInputValue(selectedOption?.label || '');
@@ -103,7 +96,6 @@ function CountryCombobox({
 
   const query = inputValue.toLowerCase().trim();
   const filtered = useMemo(() => {
-    // Exclude "India" and "Other" from the list (user already indicated outside India)
     const base = countries.filter((c) => c.value !== 'india' && c.value !== 'other');
     if (!query) return base.slice(0, 10);
     return base.filter((c) => c.label.toLowerCase().includes(query)).slice(0, 10);
@@ -159,7 +151,7 @@ function CountryCombobox({
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <input
+        <Input
           ref={inputRef}
           type="text"
           value={inputValue}
@@ -175,29 +167,28 @@ function CountryCombobox({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoComplete="off"
-          className="form-input pr-10"
+          className={cn(
+            'h-11 rounded-xl border-input bg-transparent pr-10 pl-4 text-[15px]',
+            'focus-visible:ring-primary/30',
+          )}
         />
         {value ? (
           <button
             type="button"
             onClick={clearSelection}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Clear selection"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <XIcon className="size-4" />
           </button>
         ) : (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500">
-            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-            </svg>
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <ChevronDownIcon className="size-4" />
           </span>
         )}
       </div>
       <DropdownPortal anchorRef={inputRef} isOpen={showDropdown}>
-        <ul className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg">
+        <ul className="max-h-60 overflow-auto rounded-xl border border-border bg-popover shadow-lg ring-1 ring-foreground/5">
           {filtered.map((option, idx) => (
             <li
               key={option.value}
@@ -206,11 +197,12 @@ function CountryCombobox({
                 selectOption(option.value, option.label);
               }}
               onMouseEnter={() => setHighlightedIndex(idx)}
-              className={`cursor-pointer px-4 py-3 text-[15px] ${
+              className={cn(
+                'cursor-pointer px-4 py-2.5 text-sm transition-colors',
                 idx === highlightedIndex
-                  ? 'bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-primary)]'
-                  : 'text-[color:var(--color-form-text-secondary)] hover:bg-[color:var(--color-form-surface-muted)]'
-              }`}
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-foreground hover:bg-accent/50',
+              )}
             >
               {option.label}
             </li>
@@ -220,8 +212,6 @@ function CountryCombobox({
     </div>
   );
 }
-
-// ─── City Autocomplete ───
 
 function CityAutocomplete({
   countryValue,
@@ -286,7 +276,7 @@ function CityAutocomplete({
 
   return (
     <div ref={containerRef} className="relative">
-      <input
+      <Input
         ref={inputRef}
         type="text"
         value={value || ''}
@@ -299,10 +289,13 @@ function CityAutocomplete({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoComplete="off"
-        className="form-input"
+        className={cn(
+          'h-11 rounded-xl border-input bg-transparent px-4 text-[15px]',
+          'focus-visible:ring-primary/30',
+        )}
       />
       <DropdownPortal anchorRef={inputRef} isOpen={showDropdown}>
-        <ul className="max-h-60 overflow-auto rounded-xl border border-[color:var(--color-form-border)] bg-white shadow-lg">
+        <ul className="max-h-60 overflow-auto rounded-xl border border-border bg-popover shadow-lg ring-1 ring-foreground/5">
           {filtered.map((suggestion, idx) => (
             <li
               key={suggestion}
@@ -311,11 +304,12 @@ function CityAutocomplete({
                 selectSuggestion(suggestion);
               }}
               onMouseEnter={() => setHighlightedIndex(idx)}
-              className={`cursor-pointer px-4 py-3 text-[15px] ${
+              className={cn(
+                'cursor-pointer px-4 py-2.5 text-sm transition-colors',
                 idx === highlightedIndex
-                  ? 'bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-primary)]'
-                  : 'text-[color:var(--color-form-text-secondary)] hover:bg-[color:var(--color-form-surface-muted)]'
-              }`}
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-foreground hover:bg-accent/50',
+              )}
             >
               {suggestion}
             </li>

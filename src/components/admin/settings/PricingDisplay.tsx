@@ -1,5 +1,8 @@
 'use client';
 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+
 interface PricingDisplayProps {
   verificationFee: { amount: number; gst_pct: number; total: number; currency: string } | null;
   membershipFee: { amount: number; gst_pct: number; total: number; currency: string } | null;
@@ -21,40 +24,42 @@ export function PricingDisplay({ verificationFee, membershipFee }: PricingDispla
   ];
 
   return (
-    <div className="rounded-xl border border-gray-200/60 bg-white p-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Pricing</h2>
-        <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-          Locked
-        </span>
-      </div>
-      <p className="mt-1 text-sm text-gray-500">
-        Pricing is locked and cannot be changed through the admin interface.
-      </p>
-
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {fees.map(({ label, data, description }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-gray-200/60 bg-gray-50 p-4"
-          >
-            <p className="text-sm font-medium text-gray-500">{label}</p>
-            {data ? (
-              <>
-                <p className="mt-1 type-display-sm type-stat text-gray-900">
-                  {formatPaise(data.total)}
-                </p>
-                <p className="mt-0.5 text-xs text-gray-500">
-                  {formatPaise(data.amount)} + {data.gst_pct}% GST
-                </p>
-              </>
-            ) : (
-              <p className="mt-1 text-sm text-gray-400">Not configured</p>
-            )}
-            <p className="mt-2 text-xs text-gray-400">{description}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Pricing</CardTitle>
+        <CardDescription>
+          Pricing is locked and cannot be changed through the admin interface.
+        </CardDescription>
+        <CardAction>
+          <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50">
+            Locked
+          </Badge>
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {fees.map(({ label, data, description }) => (
+            <Card key={label} className="bg-muted/50">
+              <CardContent className="pt-4">
+                <p className="text-sm font-medium text-muted-foreground">{label}</p>
+                {data ? (
+                  <>
+                    <p className="mt-1 text-3xl font-light tabular-nums tracking-tight text-foreground">
+                      {formatPaise(data.total)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {formatPaise(data.amount)} + {data.gst_pct}% GST
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-sm text-muted-foreground">Not configured</p>
+                )}
+                <p className="mt-2 text-xs text-muted-foreground/70">{description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

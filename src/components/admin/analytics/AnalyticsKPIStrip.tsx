@@ -63,7 +63,7 @@ export function AnalyticsKPIStrip({
   addedThisMonth,
 }: AnalyticsKPIStripProps) {
   return (
-    <div className="grid grid-cols-5 gap-4">
+    <div className="grid grid-cols-5 gap-4 text-card-foreground">
       <AdminKPICard
         label="Total Applicants"
         count={totalApplicants}
@@ -76,28 +76,28 @@ export function AnalyticsKPIStrip({
         count={formComplete}
         icon={<DocumentCheckIcon />}
         href="/admin/applicants?stage=form_complete"
-        iconColor="#6B8AF9"
+
       />
       <AdminKPICard
         label="In Pool"
         count={inPool}
         icon={<CheckBadgeIcon />}
         href="/admin/applicants?stage=in_pool"
-        iconColor="#818CF8"
+
       />
       <AdminKPICard
         label="Matches Presented"
         count={matchesPresented}
         icon={<LinkIcon />}
         href="/admin/applicants"
-        iconColor="#A5B4FC"
+
       />
       <AdminKPICard
         label="Active Members"
         count={activeMembers}
         icon={<StarIcon />}
         href="/admin/applicants?stage=active_member"
-        iconColor="#2563EB"
+
       />
     </div>
   );

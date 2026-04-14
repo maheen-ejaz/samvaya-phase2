@@ -2,6 +2,15 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 import type { AdminTask } from '@/types/dashboard';
 
 interface TaskPanelProps {
@@ -178,179 +187,184 @@ export function TaskPanel({ initialTasks }: TaskPanelProps) {
     [newTaskTitle, newTaskDueDate, newTaskNotes]
   );
 
-  return (
-    <div className="rounded-xl border border-gray-200/60 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <h3 className="type-heading text-gray-900">Tasks</h3>
-        {!showAddForm && (
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-admin-blue-800 hover:text-admin-blue-700"
-          >
-            <span>+</span> Add Task
-          </button>
-        )}
-      </div>
+  // Render task list for a given status filter
+  const renderTaskList = () => (
+    <>
+      {filteredTasks.length === 0 ? (
+        <p className="text-sm text-gray-400 py-8 text-center">
+          {filterStatus === 'all' ? 'No tasks yet' : `No ${filterStatus.replace('_', ' ')} tasks`}
+        </p>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {filteredTasks.map((task) => {
+            const colors = statusColors[task.status];
+            return (
+              <div key={task.id} className="flex items-start gap-3 py-3 px-2 rounded-lg hover:bg-gray-50/70 transition-colors">
+                {/* Checkbox / status dot */}
+                <div className="pt-0.5 flex-shrink-0">
+                  <Checkbox
+                    checked={task.status === 'closed'}
+                    onCheckedChange={() => updateTaskStatus(task.id, task.status === 'closed' ? 'open' : 'closed')}
+                    className="cursor-pointer"
+                  />
+                </div>
 
-      {/* Status tabs */}
-      <div className="mt-4 flex gap-2 border-b border-gray-200">
-        {[
-          { key: 'all', label: 'All', countKey: 'all' },
-          { key: 'open', label: 'Open', countKey: 'open' },
-          { key: 'in_progress', label: 'In Progress', countKey: 'inProgress' },
-          { key: 'in_review', label: 'In Review', countKey: 'inReview' },
-          { key: 'closed', label: 'Closed', countKey: 'closed' },
-        ].map(({ key, label, countKey }) => {
-          const statusKey = key as StatusFilter;
-          const count = counts[countKey as keyof typeof counts];
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <p className={cn('text-sm font-medium', task.status === 'closed' ? 'text-gray-400 line-through' : 'text-gray-900')}>
+                    {task.title}
+                  </p>
+                  {task.notes && <p className="text-xs text-gray-500 mt-1">{task.notes}</p>}
 
-          return (
-            <button
-              key={key}
-              onClick={() => setFilterStatus(statusKey)}
-              className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
-                filterStatus === statusKey
-                  ? 'border-admin-blue-600 text-admin-blue-700'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {label} <span className="ml-1 text-xs text-gray-500">({count})</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Add task form */}
-      {showAddForm && (
-        <form onSubmit={handleAddTask} className="mt-4 border-t border-gray-200 pt-4">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Task title</label>
-              <input
-                type="text"
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-                placeholder="e.g., Follow up with John Doe"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Due date (optional)</label>
-              <input
-                type="date"
-                value={newTaskDueDate}
-                onChange={(e) => setNewTaskDueDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
-              <textarea
-                value={newTaskNotes}
-                onChange={(e) => setNewTaskNotes(e.target.value)}
-                placeholder="Add any additional notes..."
-                rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-blue-500"
-              />
-            </div>
-
-            {error && <p className="text-sm text-red-600">{error}</p>}
-
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 px-3 py-2 bg-admin-blue-600 text-white text-sm font-medium rounded-lg hover:bg-admin-blue-700 disabled:opacity-50"
-              >
-                {isSubmitting ? 'Creating...' : 'Create Task'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowAddForm(false)}
-                className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </form>
-      )}
-
-      {/* View all link */}
-      <div className="mt-3 flex justify-end">
-        <Link href="/admin/tasks" className="text-xs font-medium text-admin-blue-600 hover:text-admin-blue-700 transition-colors">
-          View all tasks →
-        </Link>
-      </div>
-
-      {/* Tasks list */}
-      <div className="mt-4">
-        {filteredTasks.length === 0 ? (
-          <p className="text-sm text-gray-400 py-8 text-center">
-            {filterStatus === 'all' ? 'No tasks yet' : `No ${filterStatus.replace('_', ' ')} tasks`}
-          </p>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {filteredTasks.map((task) => {
-              const colors = statusColors[task.status];
-              return (
-                <div key={task.id} className="flex items-start gap-3 py-3 px-2 rounded-lg hover:bg-gray-50/70 transition-colors">
-                  {/* Checkbox / status dot */}
-                  <div className="pt-1 flex-shrink-0">
-                    <input
-                      type="checkbox"
-                      checked={task.status === 'closed'}
-                      onChange={() => updateTaskStatus(task.id, task.status === 'closed' ? 'open' : 'closed')}
-                      className="w-4 h-4 rounded border-gray-300 text-admin-blue-600 focus:ring-admin-blue-500 cursor-pointer"
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${task.status === 'closed' ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
-                      {task.title}
-                    </p>
-                    {task.notes && <p className="text-xs text-gray-500 mt-1">{task.notes}</p>}
-
-                    {/* Due date and action link */}
-                    <div className="flex items-center gap-2 mt-2">
-                      {task.dueDate && (
-                        <span className="text-xs text-gray-500">
-                          Due: {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}
-                        </span>
-                      )}
-                      {task.actionHref && (
-                        <a href={task.actionHref} className="text-xs text-admin-blue-600 hover:text-admin-blue-700">
-                          View →
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Status badge */}
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={() => cycleStatus(task.id)}
-                      className={`inline-block px-2.5 py-1 rounded-md text-xs font-medium ${colors.badge} hover:opacity-80 cursor-pointer`}
-                      title="Click to change status"
-                    >
-                      {task.status === 'open'
-                        ? 'Open'
-                        : task.status === 'in_progress'
-                          ? 'In Progress'
-                          : task.status === 'in_review'
-                            ? 'In Review'
-                            : 'Closed'}
-                    </button>
+                  {/* Due date and action link */}
+                  <div className="flex items-center gap-2 mt-2">
+                    {task.dueDate && (
+                      <span className="text-xs text-gray-500">
+                        Due: {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}
+                      </span>
+                    )}
+                    {task.actionHref && (
+                      <Button variant="link" size="xs" asChild className="text-xs text-primary hover:text-primary p-0 h-auto">
+                        <a href={task.actionHref}>View</a>
+                      </Button>
+                    )}
                   </div>
                 </div>
+
+                {/* Status badge */}
+                <div className="flex-shrink-0">
+                  <Badge
+                    className={cn('cursor-pointer hover:opacity-80 h-auto rounded-md px-2.5 py-1 text-xs font-medium border-0', colors.badge)}
+                    onClick={() => cycleStatus(task.id)}
+                    title="Click to change status"
+                  >
+                    {task.status === 'open'
+                      ? 'Open'
+                      : task.status === 'in_progress'
+                        ? 'In Progress'
+                        : task.status === 'in_review'
+                          ? 'In Review'
+                          : 'Closed'}
+                  </Badge>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <Card className="shadow-sm ring-1 ring-gray-200/60">
+      <CardHeader>
+        <CardTitle className="text-base font-semibold text-foreground">Tasks</CardTitle>
+        <CardAction>
+          {!showAddForm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAddForm(true)}
+              className="text-xs font-medium text-primary hover:text-primary"
+            >
+              <Plus className="h-3 w-3" />
+              Add Task
+            </Button>
+          )}
+        </CardAction>
+      </CardHeader>
+
+      <CardContent>
+        {/* Status tabs */}
+        <Tabs value={filterStatus} onValueChange={(v) => setFilterStatus(v as StatusFilter)}>
+          <TabsList variant="line" className="w-full justify-start">
+            {[
+              { key: 'all', label: 'All', countKey: 'all' },
+              { key: 'open', label: 'Open', countKey: 'open' },
+              { key: 'in_progress', label: 'In Progress', countKey: 'inProgress' },
+              { key: 'in_review', label: 'In Review', countKey: 'inReview' },
+              { key: 'closed', label: 'Closed', countKey: 'closed' },
+            ].map(({ key, label, countKey }) => {
+              const count = counts[countKey as keyof typeof counts];
+              return (
+                <TabsTrigger key={key} value={key} className="text-sm">
+                  {label} <span className="ml-1 text-xs text-gray-500">({count})</span>
+                </TabsTrigger>
               );
             })}
-          </div>
+          </TabsList>
+
+          {/* All tab contents render the same filtered list */}
+          {['all', 'open', 'in_progress', 'in_review', 'closed'].map((key) => (
+            <TabsContent key={key} value={key}>
+              {renderTaskList()}
+            </TabsContent>
+          ))}
+        </Tabs>
+
+        {/* Add task form */}
+        {showAddForm && (
+          <form onSubmit={handleAddTask} className="mt-4 border-t border-gray-200 pt-4">
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Task title</label>
+                <Input
+                  type="text"
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  placeholder="e.g., Follow up with John Doe"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Due date (optional)</label>
+                <Input
+                  type="date"
+                  value={newTaskDueDate}
+                  onChange={(e) => setNewTaskDueDate(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+                <Textarea
+                  value={newTaskNotes}
+                  onChange={(e) => setNewTaskNotes(e.target.value)}
+                  placeholder="Add any additional notes..."
+                  rows={2}
+                />
+              </div>
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Task'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowAddForm(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </form>
         )}
-      </div>
-    </div>
+
+        {/* View all link */}
+        <div className="mt-3 flex justify-end">
+          <Button variant="link" size="sm" asChild className="text-xs font-medium text-primary hover:text-primary p-0 h-auto no-underline hover:no-underline">
+            <Link href="/admin/tasks">View all tasks &rarr;</Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
