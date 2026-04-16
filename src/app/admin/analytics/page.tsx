@@ -25,7 +25,7 @@ export default async function AnalyticsPage() {
     .single();
 
   if (!userData || (userData.role !== 'admin' && userData.role !== 'super_admin')) {
-    redirect('/app/onboarding');
+    redirect('/auth/login');
   }
 
   const adminSupabase = createAdminClient();

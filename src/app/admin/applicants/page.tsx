@@ -167,9 +167,11 @@ export default async function ApplicantsPage({
     }
 
     // All other stages query the users table with different filters
+    const isInProgress = stage === 'form_in_progress';
+    // Always select onboarding_section + profile_completion_pct so the select string is static
     let usersQuery = adminSupabase
       .from('users')
-      .select('id, payment_status, membership_status, bgv_consent, is_goocampus_member, is_bgv_complete, updated_at')
+      .select('id, payment_status, membership_status, bgv_consent, is_goocampus_member, is_bgv_complete, updated_at, onboarding_section, profile_completion_pct')
       .eq('role', 'applicant' as never)
       .order('updated_at', { ascending: false });
 
@@ -259,6 +261,7 @@ export default async function ApplicantsPage({
       const profile = profileMap.get(u.id);
       const medical = medicalMap.get(u.id);
       const rawSpecialty = medical?.specialty;
+      const uAny = u as typeof u & { onboarding_section?: number; profile_completion_pct?: number };
 
       return {
         id: u.id,
@@ -272,6 +275,10 @@ export default async function ApplicantsPage({
         bgvConsent: u.bgv_consent || 'not_given',
         isGooCampusMember: u.is_goocampus_member || false,
         submittedAt: u.updated_at || '',
+        ...(isInProgress && {
+          onboardingSection: uAny.onboarding_section ?? 1,
+          progressPct: uAny.profile_completion_pct ?? 0,
+        }),
       };
     });
 

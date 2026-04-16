@@ -16,6 +16,9 @@ export interface Applicant {
   bgvConsent: string;
   isGooCampusMember: boolean;
   submittedAt: string;
+  // Optional — only present for form_in_progress stage
+  onboardingSection?: number;
+  progressPct?: number;
 }
 
 interface ApplicantListProps {
@@ -39,6 +42,7 @@ type SortDir = 'asc' | 'desc';
 const PER_PAGE = 25;
 
 export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantListProps) {
+  const showProgressCols = applicants.length > 0 && applicants[0].progressPct !== undefined;
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortField, setSortField] = useState<SortField>('submittedAt');
@@ -174,9 +178,18 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
                 <th scope="col" className="text-left">Name</th>
                 <th scope="col" className="text-left">Email</th>
                 <th scope="col" className="text-left">Specialty</th>
-                <th scope="col" className="text-left">Submitted</th>
-                <th scope="col" className="text-left">Status</th>
-                <th scope="col" className="text-left">BGV Consent</th>
+                <th scope="col" className="text-left">Last Active</th>
+                {showProgressCols ? (
+                  <>
+                    <th scope="col" className="text-left">Section</th>
+                    <th scope="col" className="text-left">Progress</th>
+                  </>
+                ) : (
+                  <>
+                    <th scope="col" className="text-left">Status</th>
+                    <th scope="col" className="text-left">BGV Consent</th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -216,12 +229,37 @@ export function ApplicantList({ applicants, title = 'Applicants' }: ApplicantLis
                     <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
                       {formatDate(applicant.submittedAt)}
                     </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm">
-                      <PaymentStatusBadge status={applicant.paymentStatus} />
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-sm">
-                      <ConsentBadge consent={applicant.bgvConsent} />
-                    </td>
+                    {showProgressCols ? (
+                      <>
+                        <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
+                          {applicant.onboardingSection != null
+                            ? `Section ${applicant.onboardingSection} of 13`
+                            : '—'}
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-2">
+                            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-gray-100">
+                              <div
+                                className="h-full rounded-full bg-admin-blue-400"
+                                style={{ width: `${applicant.progressPct ?? 0}%` }}
+                              />
+                            </div>
+                            <span className="text-xs tabular-nums text-gray-500">
+                              {applicant.progressPct ?? 0}%
+                            </span>
+                          </div>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="whitespace-nowrap px-5 py-4 text-sm">
+                          <PaymentStatusBadge status={applicant.paymentStatus} />
+                        </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-sm">
+                          <ConsentBadge consent={applicant.bgvConsent} />
+                        </td>
+                      </>
+                    )}
                   </tr>
                 );
               })}

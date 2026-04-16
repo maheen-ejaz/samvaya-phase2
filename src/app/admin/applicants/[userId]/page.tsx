@@ -17,6 +17,8 @@ import { TeamNotes } from '@/components/admin/profile/TeamNotes';
 import { ClosingNote } from '@/components/admin/profile/ClosingNote';
 import { DocumentViewer } from '@/components/admin/profile/DocumentViewer';
 import { ChatTranscriptViewer } from '@/components/admin/profile/ChatTranscriptViewer';
+import { CommunicationHistory } from '@/components/admin/profile/CommunicationHistory';
+import { SendEmailPanel } from '@/components/admin/profile/SendEmailPanel';
 import { StatusManagement } from '@/components/admin/profile/StatusManagement';
 import type { WorkExperienceEntry } from '@/lib/form/types';
 
@@ -59,6 +61,8 @@ export default async function ApplicantDetailPage({
       notesResult,
       authUserResult,
       documentsResult,
+      commLogsResult,
+      emailTemplatesResult,
     ] = await Promise.all([
       adminSupabase.from('users').select('*').eq('id', userId).single(),
       adminSupabase.from('profiles').select('*').eq('user_id', userId).single(),
@@ -69,6 +73,8 @@ export default async function ApplicantDetailPage({
       adminSupabase.from('admin_notes' as never).select('*').eq('entity_type', 'user' as never).eq('entity_id', userId as never).order('created_at' as never, { ascending: false }),
       adminSupabase.auth.admin.getUserById(userId),
       adminSupabase.from('documents').select('*').eq('user_id', userId).order('created_at'),
+      adminSupabase.from('communication_log' as never).select('id, channel, subject, status, sent_at, created_at' as never).eq('user_id' as never, userId as never).order('created_at' as never, { ascending: false }),
+      adminSupabase.from('email_templates' as never).select('id, name, subject, body, category, variables, created_by, created_at, updated_at' as never).order('name' as never),
     ]);
 
     const userData = userResult.data;
@@ -153,6 +159,20 @@ export default async function ApplicantDetailPage({
         };
       })
       .filter((t): t is NonNullable<typeof t> => t !== null);
+
+    // Parse communication history
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const commEntries = ((commLogsResult as any).data || []).map((c: any) => ({
+      id: c.id,
+      channel: c.channel,
+      subject: c.subject ?? null,
+      status: c.status,
+      sentAt: c.sent_at ?? null,
+      createdAt: c.created_at,
+    }));
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const emailTemplates = ((emailTemplatesResult as any).data || []) as import('@/types').EmailTemplate[];
 
     // Format notes
     const formattedNotes = rawNotes.map((n) => ({
@@ -364,6 +384,19 @@ export default async function ApplicantDetailPage({
           )}
 
           <ChatTranscriptViewer transcripts={chatTranscripts} />
+
+          {/* Communication history + send email */}
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-gray-900">Communication History</h3>
+              <SendEmailPanel
+                userId={userId}
+                recipientName={`${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'this applicant'}
+                templates={emailTemplates}
+              />
+            </div>
+            <CommunicationHistory entries={commEntries} />
+          </div>
 
           <TeamNotes
             userId={userId}

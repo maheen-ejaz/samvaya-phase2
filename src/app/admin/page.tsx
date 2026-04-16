@@ -30,7 +30,7 @@ export default async function AdminDashboard() {
     .single();
 
   if (!userData || (userData.role !== 'admin' && userData.role !== 'super_admin')) {
-    redirect('/app/onboarding');
+    redirect('/auth/login');
   }
 
   try {

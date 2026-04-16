@@ -19,7 +19,23 @@ interface ApplicantDashboardProps {
   stageCounts: StageCounts;
 }
 
+// Derived inside the component so it has access to stageCounts
+function buildStageLinks(s: StageCounts) {
+  return [
+    { stage: 'waitlist', label: 'Waitlist', count: s.waitlist },
+    { stage: 'invited', label: 'Invited', count: s.invited },
+    { stage: 'signed_up', label: 'Signed Up', count: s.signed_up },
+    { stage: 'form_in_progress', label: 'In Progress', count: s.form_in_progress },
+    { stage: 'form_complete', label: 'Form Done', count: s.form_complete },
+    { stage: 'payment_verified', label: 'Fee Paid', count: s.payment_verified },
+    { stage: 'bgv_complete', label: 'BGV Done', count: s.bgv_complete },
+    { stage: 'in_pool', label: 'In Pool', count: s.in_pool },
+    { stage: 'active_member', label: 'Active', count: s.active_member },
+  ];
+}
+
 export function ApplicantDashboard({ stageCounts }: ApplicantDashboardProps) {
+  const STAGE_LINKS = buildStageLinks(stageCounts);
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -43,36 +59,25 @@ export function ApplicantDashboard({ stageCounts }: ApplicantDashboardProps) {
         ]}
       />
 
-      {/* Waitlist row */}
-      <div className="grid grid-cols-2 gap-4">
-        <Link
-          href="/admin/applicants?stage=waitlist"
-          className="group flex items-center justify-between rounded-xl border border-gray-200/60 bg-white px-5 py-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-        >
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              Waitlist
-            </p>
-            <p className="mt-0.5 text-2xl font-[350] tabular-nums text-gray-900">
-              {stageCounts.waitlist}
-            </p>
-          </div>
-          <span className="text-gray-200 transition-colors group-hover:text-admin-blue-400">→</span>
-        </Link>
-        <Link
-          href="/admin/applicants?stage=invited"
-          className="group flex items-center justify-between rounded-xl border border-gray-200/60 bg-white px-5 py-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-        >
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
-              Invited
-            </p>
-            <p className="mt-0.5 text-2xl font-[350] tabular-nums text-gray-900">
-              {stageCounts.invited}
-            </p>
-          </div>
-          <span className="text-gray-200 transition-colors group-hover:text-admin-blue-400">→</span>
-        </Link>
+      {/* Stage links grid */}
+      <div className="grid grid-cols-3 gap-3 xl:grid-cols-5">
+        {STAGE_LINKS.map(({ stage, label, count }) => (
+          <Link
+            key={stage}
+            href={`/admin/applicants?stage=${stage}`}
+            className="group flex items-center justify-between rounded-xl border border-gray-200/60 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">
+                {label}
+              </p>
+              <p className="mt-0.5 text-2xl font-[350] tabular-nums text-gray-900">
+                {count}
+              </p>
+            </div>
+            <span className="text-gray-200 transition-colors group-hover:text-admin-blue-400">→</span>
+          </Link>
+        ))}
       </div>
     </div>
   );

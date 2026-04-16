@@ -674,7 +674,7 @@ export function GuidedPhotoUpload({ question, value, onChange }: GuidedPhotoUplo
 
       {/* Additional photos grid + add button */}
       {(additionalPhotos.length > 0 || totalCount < MAX_TOTAL) && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {additionalPhotos.map((photo) => (
             <div key={photo.id} className="group relative overflow-hidden rounded-lg border border-gray-200">
               <img

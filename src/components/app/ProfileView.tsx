@@ -195,7 +195,7 @@ function InfoGrid({ items }: { items: Array<{ label: string; value: string | nul
   if (filtered.length === 0) return <p className="text-xs text-gray-400">Not specified</p>;
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       {filtered.map((item) => (
         <div key={item.label}>
           <p className="text-xs font-medium uppercase tracking-wide text-gray-400">

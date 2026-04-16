@@ -54,7 +54,7 @@ export default async function SettingsPage() {
     .single();
 
   if (!userData || (userData.role !== 'admin' && userData.role !== 'super_admin')) {
-    redirect('/app/onboarding');
+    redirect('/auth/login');
   }
 
   const data = await loadSettingsData();
