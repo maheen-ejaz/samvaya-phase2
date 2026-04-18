@@ -8,10 +8,16 @@ import { UploadDropZone } from './UploadDropZone';
 import { UploadProgressRow } from './UploadProgressRow';
 import type { UploadStage } from './UploadProgressRow';
 import type { QuestionConfig } from '@/lib/form/types';
+import {
+  type PhotoType,
+  MAX_PHOTO_TOTAL,
+  COMPRESSION_THRESHOLD_MB,
+  COMPRESSION_TARGET_MB,
+  MAX_PHOTO_DIMENSION,
+  ACCEPTED_PHOTO_TYPES,
+} from '@/lib/photos';
 
 // --- Types ---
-
-type PhotoType = 'face_closeup' | 'full_length' | 'professional' | 'casual' | 'additional';
 
 interface PhotoSlot {
   key: string;
@@ -89,12 +95,10 @@ const NAMED_SLOTS: PhotoSlot[] = [
   },
 ];
 
-const MAX_TOTAL = 10;
+const MAX_TOTAL = MAX_PHOTO_TOTAL;
 const MIN_TOTAL = 3;
-const COMPRESSION_THRESHOLD_MB = 3;
-const COMPRESSION_TARGET_MB = 3;
-const MAX_DIMENSION = 2048;
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_DIMENSION = MAX_PHOTO_DIMENSION;
+const ACCEPTED_TYPES = ACCEPTED_PHOTO_TYPES;
 
 // --- Component ---
 

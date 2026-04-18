@@ -86,18 +86,18 @@ export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row">
         {/* Country code selector */}
         <div className="relative shrink-0">
           <select
             value={countryCode}
             onChange={(e) => handleCodeChange(e.target.value)}
-            className="h-full appearance-none rounded-lg border border-gray-300 bg-white py-3 pl-3 pr-8 text-base text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)]"
+            className="h-full w-full appearance-none rounded-lg border border-gray-300 bg-white py-3 pl-3 pr-8 text-base text-gray-900 transition-all duration-200 focus:border-samvaya-red focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(163,23,31,0.25)] sm:w-auto"
             aria-label="Country code"
           >
             {COUNTRY_CODES.map((cc) => (
               <option key={cc.code} value={cc.code}>
-                {cc.flag} {cc.code}
+                <span aria-hidden="true">{cc.flag}</span> {cc.code}
               </option>
             ))}
           </select>
@@ -113,6 +113,7 @@ export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy
         <input
           id={inputId}
           type="tel"
+          inputMode="numeric"
           value={localNumber}
           onChange={(e) => handleNumberChange(e.target.value)}
           onBlur={() => setTouched(true)}

@@ -96,6 +96,26 @@ export function capitalize(str: string): string {
 }
 
 /**
+ * Escape HTML special characters to prevent injection.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Format a byte count as a human-readable file size string.
+ */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
  * Calculate days between two dates (or from a date to now).
  */
 export function daysSince(date: string | Date | null | undefined): number {

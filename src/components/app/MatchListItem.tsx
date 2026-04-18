@@ -41,6 +41,8 @@ export function MatchListItem({
           <img
             src={otherProfile.blurredPhotoUrl}
             alt="Match photo"
+            width={64}
+            height={64}
             loading="lazy"
             className="h-full w-full object-cover"
           />

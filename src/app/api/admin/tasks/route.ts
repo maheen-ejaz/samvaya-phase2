@@ -1,4 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
 import type { AdminTask, TaskStatus, TaskPriority, TaskCategory } from '@/types/dashboard';
 
@@ -24,26 +26,12 @@ function rowToTask(row: any): AdminTask {
   };
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult.error) return authResult.error;
+
     const supabase = await createClient();
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!userData || (userData.role !== 'admin' && userData.role !== 'super_admin')) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
-    }
 
     const url = new URL(request.url);
     const status = url.searchParams.get('status');
@@ -55,65 +43,42 @@ export async function GET(request: Request) {
     const perPage = parseInt(url.searchParams.get('per_page') || '100');
     const offset = (page - 1) * perPage;
 
-    const queryResult = await supabase
-      .from('admin_tasks' as never)
+    let query = (supabase as any)
+      .from('admin_tasks')
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false });
 
-    let { data: allData, count, error } = queryResult as any;
-
-    if (!error && allData) {
-      if (status) {
-        allData = allData.filter((t: any) => t.status === status);
-      } else if (!showClosed) {
-        // By default hide closed tasks (unless explicitly requested)
-        allData = allData.filter((t: any) => t.status !== 'closed');
-      }
-      if (taskType) {
-        allData = allData.filter((t: any) => t.task_type === taskType);
-      }
-      if (priority) {
-        allData = allData.filter((t: any) => t.priority === priority);
-      }
-      if (taskCategory) {
-        allData = allData.filter((t: any) => t.task_category === taskCategory);
-      }
-      allData = allData.slice(offset, offset + perPage);
+    if (status) {
+      query = query.eq('status', status);
+    } else if (!showClosed) {
+      query = query.neq('status', 'closed');
     }
+    if (taskType) query = query.eq('task_type', taskType);
+    if (priority) query = query.eq('priority', priority);
+    if (taskCategory) query = query.eq('task_category', taskCategory);
+    query = query.range(offset, offset + perPage - 1);
+
+    const { data, count, error } = await query;
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const tasks: AdminTask[] = (allData || []).map(rowToTask);
-
-    return new Response(JSON.stringify({ tasks, total: count || 0 }), { status: 200 });
+    const tasks: AdminTask[] = (data || []).map(rowToTask);
+    return NextResponse.json({ tasks, total: count || 0 });
   } catch (err) {
     console.error('[GET /api/admin/tasks]', err);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult.error) return authResult.error;
+    const { admin } = authResult;
+
     const supabase = await createClient();
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!userData || (userData.role !== 'admin' && userData.role !== 'super_admin')) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
-    }
 
     const body = await request.json();
     const {
@@ -132,11 +97,11 @@ export async function POST(request: Request) {
     } = body;
 
     if (!title) {
-      return new Response(JSON.stringify({ error: 'Title is required' }), { status: 400 });
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
-    const result = await supabase
-      .from('admin_tasks' as never)
+    const { data, error } = await (supabase as any)
+      .from('admin_tasks')
       .insert({
         task_type,
         task_category,
@@ -151,26 +116,24 @@ export async function POST(request: Request) {
         applicant_name: applicant_name ?? null,
         applicant_phone: applicant_phone ?? null,
         applicant_email: applicant_email ?? null,
-        created_by: user.id,
+        created_by: admin.id,
         is_auto_generated: false,
-      } as never)
+      })
       .select()
       .single();
 
-    const { data, error } = result as any;
-
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    await logActivity(user.id, 'created_admin_task', 'admin_task', data.id, {
+    await logActivity(admin.id, 'created_admin_task', 'admin_task', data.id, {
       title,
       taskType: task_type,
     });
 
-    return new Response(JSON.stringify({ task: rowToTask(data) }), { status: 201 });
+    return NextResponse.json({ task: rowToTask(data) }, { status: 201 });
   } catch (err) {
     console.error('[POST /api/admin/tasks]', err);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -3,6 +3,8 @@
  * TOUCHPOINT 1 copy sourced from PRD v9.0 lines 1436–1453.
  */
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.samvayamatrimony.com';
+
 /** Escape HTML entities to prevent XSS in email templates */
 function escapeHtml(str: string): string {
   return str
@@ -66,7 +68,7 @@ export function applicantCompletionEmail(firstName: string): {
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Review &amp; edit your application</a>
+        <a href="${APP_URL}/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Review &amp; edit your application</a>
       </div>
 
       <p style="font-size:14px;line-height:1.5;margin:24px 0 0;color:#6b7280;font-style:italic;">
@@ -130,7 +132,7 @@ export function matchPresentedEmail(firstName: string): {
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/app/matches" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">View Your Match</a>
+        <a href="${APP_URL}/app/matches" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">View Your Match</a>
       </div>
 
       <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">
@@ -191,7 +193,7 @@ export function matchResponseReceivedEmail(
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/app/matches" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">View Full Profile</a>
+        <a href="${APP_URL}/app/matches" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">View Full Profile</a>
       </div>
 
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
@@ -294,7 +296,7 @@ export function statusUpdateEmail(
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/app" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Open Samvaya</a>
+        <a href="${APP_URL}/app" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Open Samvaya</a>
       </div>
 
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
@@ -340,7 +342,7 @@ export function formReminder1Email(firstName: string): {
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Continue your application</a>
+        <a href="${APP_URL}/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Continue your application</a>
       </div>
 
       <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">
@@ -390,7 +392,7 @@ export function formReminder2Email(firstName: string): {
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Complete your application</a>
+        <a href="${APP_URL}/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Complete your application</a>
       </div>
 
       <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">
@@ -440,7 +442,7 @@ export function formReminder3Email(firstName: string): {
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Continue your application</a>
+        <a href="${APP_URL}/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Continue your application</a>
       </div>
 
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px;">
@@ -486,7 +488,7 @@ export function formReminder4Email(firstName: string): {
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Finish your application</a>
+        <a href="${APP_URL}/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Finish your application</a>
       </div>
 
       <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">
@@ -536,7 +538,7 @@ export function formReminder5Email(firstName: string): {
       </p>
 
       <div style="text-align:center;margin:28px 0;">
-        <a href="https://app.samvayamatrimony.com/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Complete your application</a>
+        <a href="${APP_URL}/auth/login?next=/app/onboarding" style="display:inline-block;background:#A3171F;color:#fff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;">Complete your application</a>
       </div>
 
       <p style="font-size:14px;line-height:1.5;margin:0;color:#6b7280;">

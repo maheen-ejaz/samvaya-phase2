@@ -4,6 +4,7 @@ import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/email/client';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { escapeHtml } from '@/lib/utils';
 
 export async function POST(
   request: NextRequest,
@@ -53,16 +54,6 @@ export async function POST(
 
   if (!email) {
     return NextResponse.json({ error: 'Applicant email not found' }, { status: 404 });
-  }
-
-  // Escape HTML special characters to prevent injection
-  function escapeHtml(str: string): string {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
   }
 
   // Send email

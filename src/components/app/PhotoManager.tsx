@@ -4,10 +4,17 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import imageCompression from 'browser-image-compression';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { formatFileSize } from '@/lib/utils';
+import {
+  type PhotoType,
+  MAX_PHOTO_TOTAL,
+  COMPRESSION_THRESHOLD_MB,
+  COMPRESSION_TARGET_MB,
+  MAX_PHOTO_DIMENSION,
+  ACCEPTED_PHOTO_TYPES,
+} from '@/lib/photos';
 
 // --- Types ---
-
-type PhotoType = 'face_closeup' | 'full_length' | 'professional' | 'casual' | 'additional';
 
 interface PhotoSlotDef {
   key: string;
@@ -36,17 +43,10 @@ const NAMED_SLOTS: PhotoSlotDef[] = [
   { key: 'casual', photoType: 'casual', label: 'Casual / lifestyle', description: 'Travel, hobby, or with friends', required: false, isPrimary: false },
 ];
 
-const MAX_TOTAL = 10;
+const MAX_TOTAL = MAX_PHOTO_TOTAL;
 const MIN_TOTAL = 1;
-const COMPRESSION_THRESHOLD_MB = 3;
-const COMPRESSION_TARGET_MB = 3;
-const MAX_DIMENSION = 2048;
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
+const MAX_DIMENSION = MAX_PHOTO_DIMENSION;
+const ACCEPTED_TYPES = ACCEPTED_PHOTO_TYPES;
 
 // --- Component ---
 
@@ -357,7 +357,7 @@ export function PhotoManager() {
 
             {photo ? (
               <div className="group relative overflow-hidden rounded-lg border border-gray-200">
-                <img src={photo.signedUrl} alt={slot.label} loading="lazy" className="aspect-[3/4] w-full object-cover" />
+                <img src={photo.signedUrl} alt={slot.label} width={300} height={400} loading="lazy" className="aspect-[3/4] w-full object-cover" />
                 <div className="absolute right-2 top-2 flex gap-1.5">
                   <button
                     onClick={() => fileInputRefs.current[slot.key]?.click()}
@@ -435,7 +435,7 @@ export function PhotoManager() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {additionalPhotos.map((photo) => (
           <div key={photo.id} className="group relative overflow-hidden rounded-lg border border-gray-200">
-            <img src={photo.signedUrl} alt="Additional photo" loading="lazy" className="aspect-square w-full object-cover" />
+            <img src={photo.signedUrl} alt="Additional photo" width={200} height={200} loading="lazy" className="aspect-square w-full object-cover" />
             <button
               onClick={() => handleAdditionalDelete(photo.id)}
               className="absolute right-1 top-1 rounded-full bg-black/50 p-1.5 text-white opacity-100 hover:bg-black/70 sm:opacity-0 sm:group-hover:opacity-100"
