@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { allowed } = checkRateLimit(`send-scheduled:cron`, 10, 60_000);
+  const { allowed } = await checkRateLimit(`send-scheduled:cron`, 10, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Rate limit: max 5 bulk sends per hour per admin
-  const { allowed } = checkRateLimit(`admin-bulk:${admin.id}`, 5, 3600_000);
+  const { allowed } = await checkRateLimit(`admin-bulk:${admin.id}`, 5, 3600_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded. Max 5 bulk sends per hour.' }, { status: 429 });
   }

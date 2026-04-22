@@ -19,7 +19,7 @@ export async function POST() {
   }
 
   // Rate limit: 3 submissions per user per 10 minutes
-  const { allowed } = checkRateLimit(`submit:${user.id}`, 3, 10 * 60 * 1000);
+  const { allowed } = await checkRateLimit(`submit:${user.id}`, 3, 10 * 60 * 1000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many attempts. Please wait before trying again.' }, { status: 429 });
   }

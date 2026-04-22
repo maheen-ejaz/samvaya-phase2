@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const result = await requireAdmin();
   if (result.error) return result.error;
 
-  const { allowed } = checkRateLimit(`presentations-read:${result.admin.id}`, 60, 60_000);
+  const { allowed } = await checkRateLimit(`presentations-read:${result.admin.id}`, 60, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

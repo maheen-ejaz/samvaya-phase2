@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Rate limit: 20 extractions per hour per user
-  const { allowed } = checkRateLimit(`extract:${user.id}`, 20, 3600_000);
+  const { allowed } = await checkRateLimit(`extract:${user.id}`, 20, 3600_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many extraction attempts. Please try again later.' }, { status: 429 });
   }

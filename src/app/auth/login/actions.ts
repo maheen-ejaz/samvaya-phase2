@@ -18,7 +18,7 @@ export async function sendOtp(email: string) {
   const rateLimitKey = `otp:${canonicalLocal}@${domain}`;
 
   // Rate limit: 5 OTP requests per email per 15 minutes
-  const { allowed } = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+  const { allowed } = await checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
   if (!allowed) {
     return { error: "Too many attempts. Please wait 15 minutes before trying again." };
   }
@@ -47,7 +47,7 @@ export async function verifyOtp(email: string, token: string) {
   const normalizedEmail = email?.trim().toLowerCase();
 
   // Rate limit OTP verification: 5 attempts per email per 15 minutes
-  const { allowed } = checkRateLimit(`otp-verify:${normalizedEmail}`, 5, 15 * 60 * 1000);
+  const { allowed } = await checkRateLimit(`otp-verify:${normalizedEmail}`, 5, 15 * 60 * 1000);
   if (!allowed) {
     return { error: "Too many verification attempts. Please request a new code." };
   }

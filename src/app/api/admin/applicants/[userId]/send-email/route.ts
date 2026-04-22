@@ -19,7 +19,7 @@ export async function POST(
   if (idError) return idError;
 
   // Rate limit: max 100 individual emails per hour per admin
-  const { allowed } = checkRateLimit(`admin-email:${admin.id}`, 100, 3600_000);
+  const { allowed } = await checkRateLimit(`admin-email:${admin.id}`, 100, 3600_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded. Max 100 emails per hour.' }, { status: 429 });
   }

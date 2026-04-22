@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   if (result.error) return result.error;
 
   // Rate limit: 10 scoring requests per minute per admin
-  const rateCheck = checkRateLimit(`scoring:${result.admin.id}`, 10, 60_000);
+  const rateCheck = await checkRateLimit(`scoring:${result.admin.id}`, 10, 60_000);
   if (!rateCheck.allowed) {
     return NextResponse.json(
       { error: 'Rate limit exceeded. Max 10 scoring requests per minute.' },

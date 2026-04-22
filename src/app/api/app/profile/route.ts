@@ -115,7 +115,7 @@ export async function PATCH(request: NextRequest) {
   const userId = result.user.id;
 
   // Rate limit: 30 profile updates per hour per user
-  const { allowed } = checkRateLimit(`profile-patch:${userId}`, 30, 3600_000);
+  const { allowed } = await checkRateLimit(`profile-patch:${userId}`, 30, 3600_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many updates. Please try again later.' }, { status: 429 });
   }

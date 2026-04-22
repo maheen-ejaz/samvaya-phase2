@@ -13,7 +13,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { allowed } = checkRateLimit(`photo-mgmt:${user.id}`, 20, 60_000);
+  const { allowed } = await checkRateLimit(`photo-mgmt:${user.id}`, 20, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

@@ -26,7 +26,7 @@ export async function POST() {
   if (result.error) return result.error;
   const { admin } = result;
 
-  const { allowed } = checkRateLimit(`airtable-sync:${admin.id}`, 3, 3_600_000);
+  const { allowed } = await checkRateLimit(`airtable-sync:${admin.id}`, 3, 3_600_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

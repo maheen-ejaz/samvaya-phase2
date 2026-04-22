@@ -39,7 +39,7 @@ export async function GET(
 
   const userId = result.user.id;
 
-  const { allowed } = checkRateLimit(`match-detail:${userId}`, 60, 60_000);
+  const { allowed } = await checkRateLimit(`match-detail:${userId}`, 60, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

@@ -12,7 +12,7 @@ export async function GET() {
   if (result.error) return result.error;
   const { admin } = result;
 
-  const { allowed } = checkRateLimit(`template-read:${admin.id}`, 60, 60_000);
+  const { allowed } = await checkRateLimit(`template-read:${admin.id}`, 60, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   if (result.error) return result.error;
   const { admin } = result;
 
-  const { allowed } = checkRateLimit(`template-create:${admin.id}`, 10, 60_000);
+  const { allowed } = await checkRateLimit(`template-create:${admin.id}`, 10, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

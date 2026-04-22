@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
   const userId = result.user.id;
 
-  const { allowed } = checkRateLimit(`push-sub:${userId}`, 10, 60_000);
+  const { allowed } = await checkRateLimit(`push-sub:${userId}`, 10, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }
@@ -72,7 +72,7 @@ export async function DELETE(request: NextRequest) {
 
   const userId = result.user.id;
 
-  const { allowed } = checkRateLimit(`push-sub:${userId}`, 10, 60_000);
+  const { allowed } = await checkRateLimit(`push-sub:${userId}`, 10, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

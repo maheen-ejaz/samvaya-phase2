@@ -13,7 +13,7 @@ export async function POST(
 
   const userId = result.user.id;
 
-  const { allowed } = checkRateLimit(`match-feedback:${userId}`, 10, 60_000);
+  const { allowed } = await checkRateLimit(`match-feedback:${userId}`, 10, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

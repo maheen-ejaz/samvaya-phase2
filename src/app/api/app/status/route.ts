@@ -7,7 +7,7 @@ export async function GET() {
   const result = await requireApplicant();
   if (result.error) return result.error;
 
-  const { allowed } = checkRateLimit(`status-read:${result.user.id}`, 60, 60_000);
+  const { allowed } = await checkRateLimit(`status-read:${result.user.id}`, 60, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

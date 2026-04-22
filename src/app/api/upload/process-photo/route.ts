@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Rate limit: max 20 photo uploads per hour per user
-  const { allowed } = checkRateLimit(`photo:${user.id}`, 20, 3600_000);
+  const { allowed } = await checkRateLimit(`photo:${user.id}`, 20, 3600_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many uploads. Please try again later.' }, { status: 429 });
   }

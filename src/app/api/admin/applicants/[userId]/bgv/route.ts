@@ -22,7 +22,7 @@ export async function GET(
   const result = await requireAdmin();
   if (result.error) return result.error;
 
-  const { allowed } = checkRateLimit(`bgv-get:${result.admin.id}`, 60, 60_000);
+  const { allowed } = await checkRateLimit(`bgv-get:${result.admin.id}`, 60, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
   }
@@ -109,7 +109,7 @@ export async function POST(
   if (result.error) return result.error;
   const { admin } = result;
 
-  const { allowed } = checkRateLimit(`bgv-update:${admin.id}`, 20, 60_000);
+  const { allowed } = await checkRateLimit(`bgv-update:${admin.id}`, 20, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   const result = await requireAdmin();
   if (result.error) return result.error;
 
-  const { allowed } = checkRateLimit(`batch-score:${result.admin.id}`, 5, 60_000);
+  const { allowed } = await checkRateLimit(`batch-score:${result.admin.id}`, 5, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

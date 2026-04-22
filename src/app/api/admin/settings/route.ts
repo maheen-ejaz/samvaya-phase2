@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest) {
   if (result.error) return result.error;
   const { admin } = result;
 
-  const { allowed } = checkRateLimit(`admin-settings:${admin.id}`, 10, 60_000);
+  const { allowed } = await checkRateLimit(`admin-settings:${admin.id}`, 10, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

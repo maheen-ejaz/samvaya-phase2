@@ -15,7 +15,7 @@ export async function POST(
   const result = await requireAdmin();
   if (result.error) return result.error;
 
-  const { allowed } = checkRateLimit(`match-review:${result.admin.id}`, 20, 60_000);
+  const { allowed } = await checkRateLimit(`match-review:${result.admin.id}`, 20, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

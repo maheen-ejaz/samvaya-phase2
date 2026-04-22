@@ -40,7 +40,7 @@ export async function PATCH(
   if (result.error) return result.error;
   const { admin } = result;
 
-  const { allowed } = checkRateLimit(`template-edit:${admin.id}`, 20, 60_000);
+  const { allowed } = await checkRateLimit(`template-edit:${admin.id}`, 20, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }
@@ -119,7 +119,7 @@ export async function DELETE(
   if (result.error) return result.error;
   const { admin } = result;
 
-  const { allowed } = checkRateLimit(`template-edit:${admin.id}`, 20, 60_000);
+  const { allowed } = await checkRateLimit(`template-edit:${admin.id}`, 20, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }

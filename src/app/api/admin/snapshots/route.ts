@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Admin only' }, { status: 403 });
     }
 
-    const { allowed } = checkRateLimit(`snapshot:${user.id}`, 5, 60 * 60 * 1000);
+    const { allowed } = await checkRateLimit(`snapshot:${user.id}`, 5, 60 * 60 * 1000);
     if (!allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 

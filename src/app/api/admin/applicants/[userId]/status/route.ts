@@ -20,7 +20,7 @@ export async function POST(
   if (result.error) return result.error;
   const { admin } = result;
 
-  const { allowed } = checkRateLimit(`status-change:${admin.id}`, 10, 60_000);
+  const { allowed } = await checkRateLimit(`status-change:${admin.id}`, 10, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
   }
