@@ -1,29 +1,57 @@
 import 'server-only';
 
-/**
- * Simple in-memory rate limiter.
- * TODO: Replace with Vercel KV (Redis) for distributed rate limiting.
- * In-memory store resets on cold starts and is per-instance on serverless.
- * Acceptable for v1 with 3-5 users; prioritize for v1.1.
- */
+// Distributed rate limiting via Vercel KV (Redis).
+// Falls back to in-memory if KV env vars are not set (local dev / before KV is linked).
 
 interface RateLimitEntry {
   count: number;
   resetAt: number;
 }
 
-const store = new Map<string, RateLimitEntry>();
+// In-memory fallback store
+const memoryStore = new Map<string, RateLimitEntry>();
 
-export function checkRateLimit(
+const kvAvailable =
+  typeof process.env.KV_REST_API_URL === 'string' &&
+  typeof process.env.KV_REST_API_TOKEN === 'string';
+
+async function checkWithKV(
+  key: string,
+  maxRequests: number,
+  windowMs: number
+): Promise<{ allowed: boolean; remaining: number }> {
+  const { kv } = await import('@vercel/kv');
+  const now = Date.now();
+  const kvKey = `rl:${key}`;
+
+  const entry = await kv.get<RateLimitEntry>(kvKey);
+
+  if (!entry || entry.resetAt < now) {
+    const next: RateLimitEntry = { count: 1, resetAt: now + windowMs };
+    await kv.set(kvKey, next, { px: windowMs });
+    return { allowed: true, remaining: maxRequests - 1 };
+  }
+
+  if (entry.count >= maxRequests) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  const updated: RateLimitEntry = { ...entry, count: entry.count + 1 };
+  const ttl = entry.resetAt - now;
+  await kv.set(kvKey, updated, { px: ttl });
+  return { allowed: true, remaining: maxRequests - updated.count };
+}
+
+function checkWithMemory(
   key: string,
   maxRequests: number,
   windowMs: number
 ): { allowed: boolean; remaining: number } {
   const now = Date.now();
-  const entry = store.get(key);
+  const entry = memoryStore.get(key);
 
   if (!entry || entry.resetAt < now) {
-    store.set(key, { count: 1, resetAt: now + windowMs });
+    memoryStore.set(key, { count: 1, resetAt: now + windowMs });
     return { allowed: true, remaining: maxRequests - 1 };
   }
 
@@ -33,4 +61,15 @@ export function checkRateLimit(
 
   entry.count++;
   return { allowed: true, remaining: maxRequests - entry.count };
+}
+
+export async function checkRateLimit(
+  key: string,
+  maxRequests: number,
+  windowMs: number
+): Promise<{ allowed: boolean; remaining: number }> {
+  if (kvAvailable) {
+    return checkWithKV(key, maxRequests, windowMs);
+  }
+  return checkWithMemory(key, maxRequests, windowMs);
 }
