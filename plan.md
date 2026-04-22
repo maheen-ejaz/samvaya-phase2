@@ -1,6 +1,6 @@
 # Samvaya Phase 2 — Master Plan & Status Tracker
 
-> **Last updated:** March 27, 2026 (end of session)
+> **Last updated:** April 22, 2026 (end of session)
 > **Purpose:** Single source of truth for what's done, what's pending, and what to work on next. Updated after every session. New Claude Code sessions should read this file to understand context.
 
 ---
@@ -142,7 +142,7 @@ Pre-filter SQL, Claude API scoring, suggestion queue, admin review, presentation
 
 ## 5. Integration & Infrastructure — DONE
 
-Airtable sync (one-way, Supabase → Airtable), Resend email, Claude API, Supabase Auth (email OTP), Supabase Storage (photos + blur), Push notifications (VAPID), Rate limiting (in-memory).
+Airtable sync (one-way, Supabase → Airtable), Resend email, Claude API, Supabase Auth (email OTP), Supabase Storage (photos + blur), Push notifications (VAPID), Rate limiting (distributed via Upstash Redis KV).
 
 ---
 
@@ -160,7 +160,6 @@ Airtable sync (one-way, Supabase → Airtable), Resend email, Claude API, Supaba
 
 ### Later (paused)
 7. Phase 2F design overhaul (all pages — user + admin)
-8. Redis rate limiting (when user volume justifies it)
 
 ---
 
@@ -178,6 +177,11 @@ Airtable sync (one-way, Supabase → Airtable), Resend email, Claude API, Supaba
 | Mar 27 | BGV bulk update + save | "Set All To" dropdown + "Save All Changes" button |
 | Mar 27 | Per-user pricing + complementary option | On applicant detail page, not global settings |
 | Mar 27 | Airtable sync is one-way only | Supabase → Airtable. Two-way would risk data integrity. |
+| Apr 22 | Project moved to ~/Developer/Samvaya Phase-2 | Out of iCloud sync to prevent file eviction. Never use Documents copy again. |
+| Apr 22 | Git initialized in ~/Developer/Samvaya Phase-2 | Git identity: maheenejaz@goocampus.in (required for Vercel deploys). |
+| Apr 22 | Rate limiter upgraded to distributed KV | `@vercel/kv` + Upstash Redis (upstash-kv-aero-nest, bom1). Falls back to in-memory if KV unavailable. All ~60 call sites await the async function. |
+| Apr 22 | server-only added to 3 files | activity.ts, notifications.ts, match-token.ts — prevents accidental client bundle inclusion. |
+| Apr 22 | Redis Cloud integration also exists (unused) | REDIS_URL env var set but not used by any code. Can be deleted from Vercel integrations when convenient. |
 | Mar 27 | Email templates are DB-stored, not Resend-approved | Can be edited freely without affecting deliverability |
 | Mar 27 | maheenejaz@goocampus.in set as admin | For founder to test admin dashboard in browser |
 
