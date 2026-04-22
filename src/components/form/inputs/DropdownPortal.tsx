@@ -20,7 +20,7 @@ interface DropdownPortalProps {
  * always paints above sibling cards and other content.
  */
 export function DropdownPortal({ anchorRef, isOpen, children }: DropdownPortalProps) {
-  const [style, setStyle] = useState<React.CSSProperties>({ position: 'fixed', opacity: 0 });
+  const [style, setStyle] = useState<React.CSSProperties>({ position: 'fixed', opacity: 0, top: 0 });
   const portalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,14 +29,31 @@ export function DropdownPortal({ anchorRef, isOpen, children }: DropdownPortalPr
     function updatePosition() {
       if (!anchorRef.current) return;
       const rect = anchorRef.current.getBoundingClientRect();
-      setStyle({
-        position: 'fixed',
-        top: rect.bottom + 4,
-        left: rect.left,
-        width: rect.width,
-        zIndex: 9999,
-        opacity: 1,
-      });
+      // max-h-60 = 240px. If there's less space below than above, flip upward.
+      const dropdownMaxH = 244;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const openAbove = spaceBelow < dropdownMaxH && spaceAbove > spaceBelow;
+
+      if (openAbove) {
+        setStyle({
+          position: 'fixed',
+          bottom: window.innerHeight - rect.top + 4,
+          left: rect.left,
+          width: rect.width,
+          zIndex: 9999,
+          opacity: 1,
+        });
+      } else {
+        setStyle({
+          position: 'fixed',
+          top: rect.bottom + 4,
+          left: rect.left,
+          width: rect.width,
+          zIndex: 9999,
+          opacity: 1,
+        });
+      }
     }
 
     updatePosition();

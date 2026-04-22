@@ -57,6 +57,7 @@ export function LoginForm() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [otpError, setOtpError] = useState(false);
   const [verifySuccess, setVerifySuccess] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
@@ -100,11 +101,12 @@ export function LoginForm() {
       }
       setVerifySuccess(true);
       setTimeout(() => {
+        setRedirecting(true);
         try {
           if (isSafeRedirectPath(nextPath)) { router.push(nextPath!); }
           else { router.push("/app"); }
         } catch { router.push("/app"); }
-      }, 600);
+      }, 500);
     },
     [email, otpCode, router, nextPath, loading, verifySuccess]
   );
@@ -118,6 +120,15 @@ export function LoginForm() {
     if (result.error) { setError(result.error); return; }
     setResendCooldown(60);
   }, [email, resendCooldown, loading]);
+
+  if (redirecting) {
+    return (
+      <div className="flex min-h-svh flex-col items-center justify-center gap-4 bg-muted">
+        <Spinner className="size-6 text-primary" />
+        <p className="text-sm text-muted-foreground">Taking you to your account…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">

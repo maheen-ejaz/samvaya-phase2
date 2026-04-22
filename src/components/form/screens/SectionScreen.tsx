@@ -31,7 +31,7 @@ const CHAT_PATH: Record<string, string> = {
 
 export function SectionScreen({ sectionId }: SectionScreenProps) {
   const router = useRouter();
-  const { state, setAnswer, navigateToSection, submitForm } = useForm();
+  const { state, setAnswer, navigateToSection, submitForm, flushNow } = useForm();
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [isExiting, setIsExiting] = useState(false);
 
@@ -85,7 +85,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
     setTimeout(() => setShowResumeBanner(false), 150);
   }
 
-  function handleContinue() {
+  async function handleContinue() {
     const invalid = new Set<string>();
     let firstInvalid: string | null = null;
     for (const id of visibleIds) {
@@ -118,17 +118,18 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
     setErrors(new Set());
     setIsExiting(true);
 
-    setTimeout(() => {
-      if (isLastSection) {
-        void submitForm().then((ok) => {
-          if (ok) router.push('/app/onboarding/complete');
-        });
-        return;
-      }
-      const nextIdx = sectionIndex + 1;
-      const next = SECTIONS[nextIdx];
-      if (next) router.push(`${sectionPath(next.id)}/intro`);
-    }, 200);
+    // Flush all pending auto-saves before navigating so the server-side lock check
+    // sees the current answers and doesn't redirect to a stale/invalid section URL.
+    await flushNow();
+
+    if (isLastSection) {
+      const ok = await submitForm();
+      if (ok) router.push('/app/onboarding/complete');
+      return;
+    }
+    const nextIdx = sectionIndex + 1;
+    const next = SECTIONS[nextIdx];
+    if (next) router.push(`${sectionPath(next.id)}/intro`);
   }
 
   function handleBack() {

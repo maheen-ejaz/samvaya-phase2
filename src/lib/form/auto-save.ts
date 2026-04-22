@@ -141,9 +141,8 @@ export class AutoSaveEngine {
     if (!config) return;
 
     const section = getSectionForQuestion(config.questionNumber);
-    const sectionNumber = section
-      ? 'ABCDEFGHIJKLM'.indexOf(section.id) + 1
-      : 1;
+    const sectionIdx = section ? 'ABCDEFGHIJKLMN'.indexOf(section.id) : -1;
+    const sectionNumber = sectionIdx >= 0 ? sectionIdx + 1 : 1;
 
     const existing = this.dirtyFields.get('users') || {};
     existing['onboarding_section'] = sectionNumber;

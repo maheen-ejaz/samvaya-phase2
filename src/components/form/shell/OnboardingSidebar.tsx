@@ -11,7 +11,6 @@ import { SECTIONS } from '@/lib/form/sections';
 import {
   getVisibleQuestionsForSection,
   getSectionCompletionStatus,
-  isQuestionAnswered,
 } from '@/lib/form/section-navigation';
 import type { SectionId } from '@/lib/form/types';
 import {
@@ -48,11 +47,20 @@ export function OnboardingSidebar({ currentSection, resumeSection }: OnboardingS
   const items = buildSectionList(state.answers, resumeSection, currentSection);
   const itemMap = new Map(items.map((i) => [i.id, i]));
 
-  // Total question count and answered count across all visible questions
+  // Count questions that have an actual user-provided value (not optional-question shortcut).
+  // isQuestionAnswered() returns true for optional questions with no value, which would
+  // make brand-new users appear to have answered 24+ questions before touching anything.
+  function hasValue(id: string): boolean {
+    const val = state.answers[id];
+    if (val === undefined || val === null || val === '') return false;
+    if (Array.isArray(val) && val.length === 0) return false;
+    return true;
+  }
+
   const allQuestionStats = SECTIONS.reduce(
     (acc, s) => {
       const visible = getVisibleQuestionsForSection(s.id, state.answers);
-      const answered = visible.filter((id) => isQuestionAnswered(id, state.answers)).length;
+      const answered = visible.filter((id) => hasValue(id)).length;
       return { total: acc.total + visible.length, answered: acc.answered + answered };
     },
     { total: 0, answered: 0 },
@@ -68,7 +76,7 @@ export function OnboardingSidebar({ currentSection, resumeSection }: OnboardingS
   }).reduce((sum, s) => sum + (s.estimatedMinutes ?? 0), 0);
 
   return (
-    <Sidebar variant="inset" collapsible="none">
+    <Sidebar variant="inset" collapsible="none" className="hidden lg:flex">
       <SidebarHeader className="px-5 py-5 border-b border-[color:var(--color-form-border)]">
         <Link href="/app" className="mb-4 block">
           <span className="text-sm font-semibold tracking-tight text-[color:var(--color-form-text-primary)]">
@@ -149,8 +157,11 @@ function SectionMenuItem({
   const isComplete = item.status === 'complete';
 
   const visibleIds = getVisibleQuestionsForSection(item.id, answers);
-  const answeredCount = visibleIds.filter((id) => isQuestionAnswered(id, answers)).length;
   const totalCount = visibleIds.length;
+  const answeredCount = visibleIds.filter((id) => {
+    const val = answers[id];
+    return val !== undefined && val !== null && val !== '' && !(Array.isArray(val) && val.length === 0);
+  }).length;
 
   const statusIcon = isComplete ? (
     <span className="flex size-[18px] shrink-0 items-center justify-center rounded-full bg-[color:var(--color-form-accent)]">

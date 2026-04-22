@@ -138,6 +138,18 @@ export async function hydrateOnboardingForm(): Promise<HydratedForm | null> {
     .map((d) => d.id);
   if (kundaliDocIds.length > 0) answers['Q98'] = kundaliDocIds;
 
+  // onboarding_section is stored as a 1-indexed integer (1=A, 2=B, …, 14=N).
+  // Convert it back to a letter so all downstream routing code gets a valid SectionId.
+  const rawSection = userData?.onboarding_section;
+  const resumeSection = (() => {
+    if (!rawSection) return 'A';
+    const idx = Number(rawSection) - 1;
+    if (idx >= 0 && idx <= 13) return 'ABCDEFGHIJKLMN'[idx] ?? 'A';
+    // Future-proof: if stored as a letter already, pass it through
+    const letter = String(rawSection).toUpperCase();
+    return /^[A-N]$/.test(letter) ? letter : 'A';
+  })();
+
   return {
     userId: user.id,
     email: user.email || '',
@@ -145,7 +157,7 @@ export async function hydrateOnboardingForm(): Promise<HydratedForm | null> {
     gateAnswers,
     chatState: (compatResult.data?.chat_state as Record<string, unknown>) || {},
     resumeQuestionNumber: userData?.onboarding_last_question || 1,
-    resumeSection: String(userData?.onboarding_section || 'A'),
+    resumeSection,
     isAlreadySubmitted: userData?.membership_status === 'onboarding_complete',
   };
 }

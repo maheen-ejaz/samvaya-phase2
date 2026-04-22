@@ -104,24 +104,12 @@ export function SectionIntro({ sectionId }: SectionIntroProps) {
           </Card>
         )}
 
-        {/* Desktop CTA */}
-        <div className="hidden lg:flex lg:justify-center">
-          <Button onClick={handleBegin} className="min-w-[14rem] gap-1.5 rounded-xl">
+        <div className="flex justify-center pt-2">
+          <Button onClick={handleBegin} className="w-full gap-1.5 rounded-xl sm:w-auto sm:min-w-[14rem]">
             Begin section
             <ArrowRightIcon className="size-4" />
           </Button>
         </div>
-
-        {/* Spacer for mobile fixed CTA */}
-        <div className="h-[calc(5rem+env(safe-area-inset-bottom))] lg:hidden" aria-hidden="true" />
-      </div>
-
-      {/* Mobile CTA — fixed outside animated wrapper */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-background border-t lg:hidden z-20">
-        <Button onClick={handleBegin} className="w-full gap-1.5 rounded-xl">
-          Begin section
-          <ArrowRightIcon className="size-4" />
-        </Button>
       </div>
     </>
   );
