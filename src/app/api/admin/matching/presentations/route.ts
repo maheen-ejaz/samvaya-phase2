@@ -1,0 +1,112 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { getMatchToken } from '@/lib/share/match-token';
+
+export async function GET(request: NextRequest) {
+  const result = await requireAdmin();
+  if (result.error) return result.error;
+
+  const { allowed } = checkRateLimit(`presentations-read:${result.admin.id}`, 60, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status') || 'all';
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)));
+    const offset = (page - 1) * limit;
+
+    const supabase = createAdminClient();
+
+    // Auto-expire stale presentations (check-on-read pattern)
+    await supabase
+      .from('match_presentations' as never)
+      .update({ status: 'expired' } as never)
+      .eq('status', 'pending')
+      .lt('expires_at', new Date().toISOString());
+
+    let query = supabase
+      .from('match_presentations' as never)
+      .select('*, match_suggestions!inner(*)', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (status !== 'all') {
+      query = query.eq('status', status);
+    }
+
+    const { data, count, error } = await query;
+
+    if (error) {
+      console.error('Failed to fetch presentations:', error.message);
+      return NextResponse.json({ error: 'Failed to fetch presentations' }, { status: 500 });
+    }
+
+    // Enrich with profile names
+    const presentations = data as Array<Record<string, unknown>>;
+    const enriched = await Promise.all(
+      presentations.map(async (p) => {
+        const s = p.match_suggestions as Record<string, unknown>;
+        const aId = s.profile_a_id as string;
+        const bId = s.profile_b_id as string;
+        const [profileA, profileB, userA, userB] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('user_id', aId)
+            .single(),
+          supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('user_id', bId)
+            .single(),
+          supabase
+            .from('users')
+            .select('is_goocampus_member, payment_status')
+            .eq('id', aId)
+            .single(),
+          supabase
+            .from('users')
+            .select('is_goocampus_member, payment_status')
+            .eq('id', bId)
+            .single(),
+        ]);
+
+        const matchShareToken = await getMatchToken(supabase, p.id as string);
+
+        return {
+          ...p,
+          profile_a_name: profileA.data
+            ? `${profileA.data.first_name || ''} ${profileA.data.last_name || ''}`.trim()
+            : 'Unknown',
+          profile_b_name: profileB.data
+            ? `${profileB.data.first_name || ''} ${profileB.data.last_name || ''}`.trim()
+            : 'Unknown',
+          profile_a_is_goocampus: userA.data?.is_goocampus_member ?? false,
+          profile_a_payment_status: userA.data?.payment_status ?? null,
+          profile_b_is_goocampus: userB.data?.is_goocampus_member ?? false,
+          profile_b_payment_status: userB.data?.payment_status ?? null,
+          match_share_token: matchShareToken,
+          is_full_revealed: (p.is_full_revealed as boolean) ?? false,
+        };
+      })
+    );
+
+    return NextResponse.json({
+      presentations: enriched,
+      total: count ?? 0,
+      page,
+      limit,
+    });
+  } catch (err) {
+    console.error('List presentations error:', err);
+    return NextResponse.json(
+      { error: 'Failed to list presentations' },
+      { status: 500 }
+    );
+  }
+}

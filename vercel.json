@@ -1,0 +1,17 @@
+{
+  "regions": ["bom1"],
+  "crons": [
+    {
+      "path": "/api/admin/communications/send-scheduled",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/admin/communications/send-abandonment",
+      "schedule": "30 9 * * *"
+    },
+    {
+      "path": "/api/admin/memberships/process-expiries",
+      "schedule": "0 10 * * *"
+    }
+  ]
+}

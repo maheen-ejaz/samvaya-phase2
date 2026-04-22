@@ -1,0 +1,25 @@
+{
+  "name": "Samvaya Matrimony",
+  "short_name": "Samvaya",
+  "description": "Premium curated matrimony for medical professionals",
+  "display": "standalone",
+  "start_url": "/app",
+  "scope": "/app",
+  "theme_color": "#1e293b",
+  "background_color": "#f9fafb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Samvaya — Match Preview</title>
+
+<!-- Fonts: Inter (body) + Fraunces (display/serif) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ── Reset & tokens ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Exact tokens from globals.css Phase 2F */
+  --form-bg:            #FBF8F4;
+  --form-card:          #FFFFFF;
+  --form-card-locked:   #F6F2EC;
+  --form-text-primary:  #1A1614;
+  --form-text-secondary:#3B3430;
+  --form-text-muted:    #7A7370;
+  --form-text-tertiary: #A8A19D;
+  --form-border:        #ECE7E2;
+  --form-border-strong: #E3DDD6;
+  --form-accent:        #6B1A2B;
+  --form-accent-soft:   #F5E9EC;
+  --form-accent-deep:   #4A0E1C;
+  --form-success:       #2F7A5B;
+  --form-success-soft:  #E8F3EC;
+  --form-warn:          #8A5A00;
+  --form-warn-soft:     #FBF1D9;
+  --form-gold:          #A8804A;
+  --form-gold-soft:     #F5EEDE;
+  --shadow-card:        0 1px 2px rgba(26, 22, 20, 0.04), 0 1px 4px rgba(26, 22, 20, 0.03);
+  --shadow-card-lifted: 0 2px 8px rgba(26, 22, 20, 0.06), 0 1px 2px rgba(26, 22, 20, 0.04);
+  --ease-expo:          cubic-bezier(0.16, 1, 0.3, 1);
+  --serif:              'Fraunces', Georgia, serif;
+  --sans:               'Inter', system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--form-bg);
+  color: var(--form-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Toggle ─────────────────────────────────────────────────────── */
+.toggle-bar {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  z-index: 100; display: flex; gap: 0;
+  background: #1A1614;
+  border-radius: 100px; padding: 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+}
+.toggle-bar button {
+  border: none; cursor: pointer;
+  padding: 8px 22px; border-radius: 100px;
+  font-size: 12px; font-weight: 600;
+  font-family: var(--sans); letter-spacing: 0.01em;
+  transition: all 0.2s var(--ease-expo);
+  background: transparent; color: #666;
+}
+.toggle-bar button.active {
+  background: white; color: #1A1614;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+/* ── Page shell ─────────────────────────────────────────────────── */
+.page { min-height: 100vh; }
+
+header {
+  position: sticky; top: 0; z-index: 20;
+  border-bottom: 1px solid var(--form-border);
+  background: rgba(251, 248, 244, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.header-inner {
+  max-width: 480px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px;
+}
+.logo {
+  font-family: var(--serif);
+  font-size: 17px; font-weight: 600;
+  color: var(--form-accent);
+  letter-spacing: -0.02em;
+}
+.logo span { font-style: italic; }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 100px; padding: 4px 12px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.status-pill.preview {
+  background: var(--form-card-locked);
+  color: var(--form-text-muted);
+  border: 1px solid var(--form-border-strong);
+}
+.status-pill.revealed {
+  background: var(--form-success-soft);
+  color: var(--form-success);
+  border: 1px solid rgba(47, 122, 91, 0.2);
+}
+
+main {
+  max-width: 480px; margin: 0 auto;
+  padding: 16px 16px 100px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+/* ── Animations ─────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate { animation: fadeInUp 0.45s var(--ease-expo) both; }
+.d1 { animation-delay: 30ms; }
+.d2 { animation-delay: 90ms; }
+.d3 { animation-delay: 150ms; }
+.d4 { animation-delay: 210ms; }
+.d5 { animation-delay: 270ms; }
+.d6 { animation-delay: 330ms; }
+.d7 { animation-delay: 390ms; }
+.d8 { animation-delay: 440ms; }
+.d9 { animation-delay: 490ms; }
+
+/* ── Card ───────────────────────────────────────────────────────── */
+.card {
+  background: var(--form-card);
+  border-radius: 18px;
+  border: 1px solid var(--form-border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.card-body { padding: 20px; }
+
+/* ── Section eyebrow (matches .form-eyebrow) ────────────────────── */
+.eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--form-text-tertiary);
+  margin-bottom: 12px;
+  display: block;
+}
+.eyebrow.accent { color: var(--form-accent); }
+.eyebrow.success { color: var(--form-success); }
+.eyebrow.warn { color: var(--form-warn); }
+
+/* ── Hero — photos full-bleed ───────────────────────────────────── */
+.hero-photos {
+  position: relative;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  /* No border-radius on top so photos reach the edge under the header */
+  overflow: hidden;
+}
+
+.photo-pane {
+  position: relative;
+  aspect-ratio: 2/3;   /* tall portrait — photos dominate */
+  background: var(--form-card-locked);
+  overflow: hidden;
+}
+.photo-pane img {
+  width: 100%; height: 100%; object-fit: cover;
+  display: block; transition: filter 0.4s ease;
+}
+.photo-pane.blurred img { filter: blur(8px); transform: scale(1.06); }
+
+/* Bottom gradient + label on each photo */
+.photo-gradient {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(10,6,4,0.65) 0%, rgba(10,6,4,0.1) 55%, transparent 100%);
+  padding: 40px 12px 12px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.photo-caption {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.6);
+}
+.photo-name {
+  font-family: var(--serif);
+  font-size: 17px; font-weight: 600;
+  color: white; letter-spacing: -0.02em; line-height: 1;
+}
+
+/* Preview pill — centred on blurred photo */
+.preview-pill {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.preview-pill span {
+  background: rgba(107, 26, 43, 0.80);
+  color: white; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  border-radius: 100px; padding: 5px 13px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+
+/* Stats bar below photos */
+.hero-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--form-card);
+  border-top: 1px solid var(--form-border);
+}
+.hero-stat {
+  padding: 14px 16px;
+}
+.hero-stat.right {
+  text-align: right;
+  border-left: 1px solid var(--form-border);
+}
+.hero-stat-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--form-text-tertiary); margin-bottom: 4px;
+}
+/* Prominent name row — used in full reveal stats strip */
+.hero-stat-name {
+  font-family: var(--serif);
+  font-size: 17px; font-weight: 600;
+  letter-spacing: -0.02em; line-height: 1.2;
+  color: var(--form-text-primary);
+  margin-bottom: 3px;
+}
+.hero-stat-primary {
+  font-size: 12px; font-weight: 500; color: var(--form-text-secondary); line-height: 1.4;
+}
+.hero-stat-secondary { font-size: 11px; color: var(--form-text-muted); margin-top: 1px; }
+
+/* Wrapper card around photos + stats strip — matches .card exactly */
+.hero-card {
+  background: var(--form-card);
+  border-radius: 18px;
+  border: 1px solid var(--form-border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* ── Narrative ──────────────────────────────────────────────────── */
+.section-heading {
+  font-family: var(--serif);
+  font-size: 16px; font-weight: 600;
+  letter-spacing: -0.02em; line-height: 1.3;
+  color: var(--form-text-primary);
+  margin-bottom: 10px;
+}
+.body-text {
+  font-size: 13.5px; line-height: 1.72;
+  color: var(--form-text-secondary); letter-spacing: -0.005em;
+}
+
+/* ── Highlights ─────────────────────────────────────────────────── */
+.highlight-list { display: flex; flex-direction: column; gap: 11px; }
+.highlight-item { display: flex; align-items: flex-start; gap: 10px; }
+.check-circle {
+  flex-shrink: 0; width: 20px; height: 20px;
+  background: var(--form-success-soft);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.check-circle svg { width: 10px; height: 10px; }
+.highlight-text { font-size: 13px; line-height: 1.65; color: var(--form-text-secondary); }
+
+/* ── Dimension bars ─────────────────────────────────────────────── */
+.dim-list { display: flex; flex-direction: column; gap: 11px; }
+.dim-row {}
+.dim-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+.dim-name { font-size: 12.5px; font-weight: 500; color: var(--form-text-secondary); }
+.dim-track { height: 5px; border-radius: 100px; background: var(--form-card-locked); overflow: hidden; }
+.dim-fill { height: 100%; border-radius: 100px; transition: width 0.9s var(--ease-expo); }
+.more-hint { text-align: center; font-size: 11px; color: var(--form-text-tertiary); margin-top: 12px; letter-spacing: 0.01em; }
+
+/* ── CTA ────────────────────────────────────────────────────────── */
+.cta-block {
+  background: var(--form-accent);
+  border-radius: 18px; padding: 22px 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(107, 26, 43, 0.22),
+              inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.cta-title {
+  font-family: var(--serif);
+  font-size: 16px; font-weight: 600; color: white;
+  letter-spacing: -0.02em; line-height: 1.3;
+}
+.cta-body { font-size: 12.5px; color: rgba(255,255,255,0.72); margin-top: 6px; line-height: 1.55; }
+
+/* ── Concerns ───────────────────────────────────────────────────── */
+.concern-block {
+  background: var(--form-warn-soft);
+  border: 1px solid rgba(168, 128, 74, 0.2);
+  border-radius: 18px; padding: 20px;
+}
+.concern-list { display: flex; flex-direction: column; gap: 10px; margin-top: 0; }
+.concern-item { display: flex; align-items: flex-start; gap: 10px; }
+.warn-dot {
+  flex-shrink: 0; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--form-gold-soft);
+  border: 1px solid rgba(168, 128, 74, 0.25);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px; font-size: 11px; color: var(--form-gold);
+}
+.concern-text { font-size: 13px; line-height: 1.65; color: #5C4A2A; }
+
+/* ── Section divider ────────────────────────────────────────────── */
+.section-divider {
+  display: flex; align-items: center; gap: 12px;
+  padding: 4px 0;
+}
+.section-divider::before, .section-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--form-border);
+}
+.section-divider span {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--form-text-tertiary); white-space: nowrap;
+}
+
+/* ── Profile card ───────────────────────────────────────────────── */
+.profile-card {
+  background: var(--form-card);
+  border-radius: 18px;
+  border: 1px solid var(--form-border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.profile-card-head {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--form-border);
+}
+.profile-name {
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--form-text-primary);
+  margin-top: 3px;
+}
+.profile-role { font-size: 12px; color: var(--form-text-muted); margin-top: 2px; }
+
+.profile-photo-main { width: 100%; aspect-ratio: 4/3; background: var(--form-card-locked); overflow: hidden; }
+.profile-photo-main img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.quote-block {
+  margin: 14px 16px 0;
+  background: var(--form-card-locked);
+  border-radius: 12px;
+  padding: 13px 16px;
+  border-left: 3px solid var(--form-accent);
+}
+.quote-text {
+  font-family: var(--serif);
+  font-size: 13px; font-style: italic;
+  line-height: 1.65; color: var(--form-text-secondary);
+}
+
+/* ── Stat grid ──────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; padding: 16px 16px 4px;
+}
+.stat-cell {
+  background: var(--form-card-locked);
+  border-radius: 10px; padding: 10px 12px;
+}
+.stat-cell-wide { grid-column: 1 / -1; }
+.stat-lbl {
+  font-size: 9px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--form-text-tertiary); margin-bottom: 3px;
+}
+.stat-val { font-size: 12.5px; font-weight: 500; color: var(--form-text-primary); }
+
+/* ── Profile section ────────────────────────────────────────────── */
+.profile-section { padding: 16px 20px; border-top: 1px solid var(--form-border); }
+.profile-section:first-child { border-top: none; }
+.section-body-text { font-size: 13px; line-height: 1.7; color: var(--form-text-secondary); margin-top: 8px; }
+
+/* ── Tags / chips ───────────────────────────────────────────────── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tag {
+  background: var(--form-card);
+  border: 1px solid var(--form-border-strong);
+  border-radius: 100px;
+  padding: 4px 11px; font-size: 11.5px; font-weight: 500;
+  color: var(--form-text-secondary);
+}
+
+/* ── Lifestyle grid ─────────────────────────────────────────────── */
+.lifestyle-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-top: 10px;
+}
+
+/* ── Spider chart ───────────────────────────────────────────────── */
+.spider-wrap { display: flex; justify-content: center; padding: 4px 0; }
+.spider-svg { max-width: 200px; width: 100%; }
+
+/* ── Comparison table (preview details card) ────────────────────── */
+.compare-table { display: flex; flex-direction: column; gap: 0; }
+.compare-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--form-border);
+  padding: 10px 0;
+}
+.compare-row:first-child { border-top: none; }
+.compare-cell { padding: 0 2px; }
+.compare-cell.right { text-align: right; }
+.stat-val.muted { color: var(--form-text-tertiary); font-style: italic; }
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+.footer { text-align: center; padding: 8px 0 4px; }
+.footer p { font-size: 11px; color: var(--form-text-tertiary); line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ PREVIEW STATE ══════════════════════════ -->
+<div id="view-preview" class="page">
+  <header>
+    <div class="header-inner">
+      <span class="logo">Sam<span>vaya</span></span>
+      <span class="status-pill preview">🔒 Preview</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero ─── -->
+    <div class="hero-card animate d1">
+      <div class="hero-photos">
+        <!-- Her (blurred) -->
+        <div class="photo-pane blurred">
+          <img src="public/placeholder-female.jpg" alt="" />
+          <div class="preview-pill"><span>Preview</span></div>
+          <div class="photo-gradient">
+            <span class="photo-caption">Her</span>
+          </div>
+        </div>
+
+
+        <!-- Him (blurred) -->
+        <div class="photo-pane blurred">
+          <img src="public/placeholder-male.jpg" alt="" />
+          <div class="preview-pill"><span>Preview</span></div>
+          <div class="photo-gradient" style="text-align:right">
+            <span class="photo-caption">Him</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-label">Her</div>
+          <div class="hero-stat-primary">Cardiologist · Senior Resident</div>
+          <div class="hero-stat-secondary">Mumbai, Maharashtra</div>
+        </div>
+        <div class="hero-stat right">
+          <div class="hero-stat-label">Him</div>
+          <div class="hero-stat-primary">Radiologist · Consultant</div>
+          <div class="hero-stat-secondary">Bangalore, Karnataka</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile details comparison ─── -->
+    <div class="card animate d2">
+      <div class="card-body">
+        <span class="eyebrow">Profile details</span>
+        <div class="compare-table">
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Date of Birth</div><div class="stat-val">14/03/1996 (28 yrs)</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Date of Birth</div><div class="stat-val">07/11/1992 (31 yrs)</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Time of Birth</div><div class="stat-val">06:30 AM</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Time of Birth</div><div class="stat-val muted">Not Provided</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Height · Weight</div><div class="stat-val">163 cm · 58 kg</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Height · Weight</div><div class="stat-val">178 cm · 74 kg</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Caste</div><div class="stat-val">Brahmin</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Caste</div><div class="stat-val">Kshatriya</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Religion</div><div class="stat-val">Hindu</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Religion</div><div class="stat-val">Hindu</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Mother Tongue</div><div class="stat-val">Tamil</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Mother Tongue</div><div class="stat-val">Gujarati</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Native City</div><div class="stat-val">Chennai, TN</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Native City</div><div class="stat-val">Ahmedabad, GJ</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Salary</div><div class="stat-val">₹18L / yr</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Salary</div><div class="stat-val">₹32L / yr</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Designation</div><div class="stat-val">Senior Resident</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Designation</div><div class="stat-val">Consultant</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Experience</div><div class="stat-val">4 yr 2 mo</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Experience</div><div class="stat-val">6 yr 8 mo</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Qualifications</div><div class="stat-val">MBBS – AIIMS Delhi<br/>MD – KEM Mumbai</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Qualifications</div><div class="stat-val">MBBS – PGI Chandigarh<br/>MD – AIIMS Jodhpur</div></div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-cell"><div class="stat-lbl">Marriage</div><div class="stat-val">Within 6 months</div></div>
+            <div class="compare-cell right"><div class="stat-lbl">Marriage</div><div class="stat-val">Within a year</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Narrative ─── -->
+    <div class="card animate d2">
+      <div class="card-body">
+        <span class="eyebrow accent">Why Samvaya chose this match</span>
+        <p class="body-text">Both are senior doctors at a similar career stage with a shared vision for building a family without compromising their professional growth. Their communication styles and family values align closely, and both have expressed openness to relocating within India.</p>
+      </div>
+    </div>
+
+    <!-- Highlights ─── -->
+    <div class="card animate d3">
+      <div class="card-body">
+        <span class="eyebrow success">Where you connect</span>
+        <div class="highlight-list">
+          <div class="highlight-item">
+            <div class="check-circle">
+              <svg viewBox="0 0 10 10" fill="none">
+                <path d="M2 5.5l2 2 4-4" stroke="#2F7A5B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="highlight-text">Both practising doctors at similar career stages — she's a cardiologist, he's a radiologist in the same city network</span>
+          </div>
+          <div class="highlight-item">
+            <div class="check-circle">
+              <svg viewBox="0 0 10 10" fill="none">
+                <path d="M2 5.5l2 2 4-4" stroke="#2F7A5B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="highlight-text">Strongly aligned on family values — both prioritise joint family involvement and want 2–3 children within the next 3 years</span>
+          </div>
+          <div class="highlight-item">
+            <div class="check-circle">
+              <svg viewBox="0 0 10 10" fill="none">
+                <path d="M2 5.5l2 2 4-4" stroke="#2F7A5B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="highlight-text">Both open to relocating within India and have expressed a preference for settling in Bangalore or Mumbai</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dimensions ─── -->
+    <div class="card animate d4">
+      <div class="card-body">
+        <span class="eyebrow">Compatibility breakdown</span>
+        <div class="dim-list">
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Values</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:92%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Career</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:88%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Family orientation</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:85%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Marriage timeline</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:83%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Lifestyle</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:74%;background:#A8804A"></div></div>
+          </div>
+        </div>
+        <p class="more-hint">+4 more dimensions revealed in full profile</p>
+      </div>
+    </div>
+
+    <!-- CTA ─── -->
+    <div class="cta-block animate d5">
+      <p class="cta-title">Interested in this match?</p>
+      <p class="cta-body">Let your Samvaya advisor know — once both of you confirm interest, the full profile will be shared.</p>
+    </div>
+
+    <!-- Footer ─── -->
+    <div class="footer animate d6">
+      <p>Shared privately by Samvaya Matrimony<br />This link expires May 27, 2026</p>
+    </div>
+
+  </main>
+</div>
+
+
+<!-- ══════════════════════ FULL REVEAL STATE ══════════════════════ -->
+<div id="view-full" class="page" style="display:none">
+  <header>
+    <div class="header-inner">
+      <span class="logo">Sam<span>vaya</span></span>
+      <span class="status-pill revealed">✦ Full Reveal</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero revealed ─── -->
+    <div class="hero-card animate d1">
+      <div class="hero-photos">
+        <!-- Priya (unblurred) -->
+        <div class="photo-pane">
+          <img src="public/placeholder-female.jpg" alt="Priya" />
+          <div class="photo-gradient">
+            <span class="photo-caption">Her</span>
+          </div>
+        </div>
+
+        <!-- Arjun (unblurred) -->
+        <div class="photo-pane">
+          <img src="public/placeholder-male.jpg" alt="Arjun" />
+          <div class="photo-gradient" style="text-align:right">
+            <span class="photo-caption">Him</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-name">Priya Sharma</div>
+          <div class="hero-stat-primary">28 yrs · Cardiologist</div>
+          <div class="hero-stat-secondary">Mumbai, Maharashtra</div>
+        </div>
+        <div class="hero-stat right">
+          <div class="hero-stat-name">Arjun Mehta</div>
+          <div class="hero-stat-primary">31 yrs · Radiologist</div>
+          <div class="hero-stat-secondary">Bangalore, Karnataka</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Narrative ─── -->
+    <div class="card animate d2">
+      <div class="card-body">
+        <span class="eyebrow accent">Why Samvaya chose this match</span>
+        <p class="body-text">Both are senior doctors at a similar career stage with a shared vision for building a family without compromising their professional growth. Their communication styles and family values align closely, and both have expressed openness to relocating within India.</p>
+      </div>
+    </div>
+
+    <!-- Highlights ─── -->
+    <div class="card animate d3">
+      <div class="card-body">
+        <span class="eyebrow success">Where you connect</span>
+        <div class="highlight-list">
+          <div class="highlight-item">
+            <div class="check-circle">
+              <svg viewBox="0 0 10 10" fill="none"><path d="M2 5.5l2 2 4-4" stroke="#2F7A5B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="highlight-text">Both practising doctors at similar career stages — Priya is a cardiologist, Arjun is a radiologist</span>
+          </div>
+          <div class="highlight-item">
+            <div class="check-circle">
+              <svg viewBox="0 0 10 10" fill="none"><path d="M2 5.5l2 2 4-4" stroke="#2F7A5B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="highlight-text">Strongly aligned on family values — both prioritise joint family involvement and want 2–3 children within 3 years</span>
+          </div>
+          <div class="highlight-item">
+            <div class="check-circle">
+              <svg viewBox="0 0 10 10" fill="none"><path d="M2 5.5l2 2 4-4" stroke="#2F7A5B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="highlight-text">Both open to relocating and have expressed a preference for settling in Bangalore or Mumbai</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full dimensions ─── -->
+    <div class="card animate d4">
+      <div class="card-body">
+        <span class="eyebrow">Full compatibility breakdown</span>
+        <div class="dim-list">
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Values</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:92%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Career ambition</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:88%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Family orientation</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:85%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Marriage timeline</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:83%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Relocation openness</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:80%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Communication</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:86%;background:#2F7A5B"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Emotional expressiveness</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:71%;background:#A8804A"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Lifestyle</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:74%;background:#A8804A"></div></div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-top"><span class="dim-name">Traditionalism</span></div>
+            <div class="dim-track"><div class="dim-fill" style="width:78%;background:#2F7A5B"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Concerns ─── -->
+    <div class="concern-block animate d5">
+      <span class="eyebrow warn">Points to explore together</span>
+      <div class="concern-list">
+        <div class="concern-item">
+          <div class="warn-dot">◦</div>
+          <span class="concern-text">She prefers joint family living; he has expressed a preference for a more independent setup initially</span>
+        </div>
+        <div class="concern-item">
+          <div class="warn-dot">◦</div>
+          <span class="concern-text">Minor difference in marriage timeline — she is looking to marry within 6 months, he within a year</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full profiles divider ─── -->
+    <div class="section-divider animate d6"><span>Full Profiles</span></div>
+
+    <!-- Her full profile ─── -->
+    <div class="profile-card animate d7">
+      <div class="profile-card-head">
+        <span class="eyebrow">Her profile</span>
+        <div class="profile-name">Priya Sharma</div>
+        <div class="profile-role">Cardiologist · Senior Resident · 4 yr 2 mo experience</div>
+      </div>
+
+      <div class="profile-photo-main">
+        <img src="public/placeholder-female.jpg" alt="Priya" />
+      </div>
+
+      <div style="padding: 14px 16px 0">
+        <div class="quote-block">
+          <p class="quote-text">"I want a partner who understands the demands of medicine but also knows when to put the stethoscope down."</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-cell"><div class="stat-lbl">Date of Birth</div><div class="stat-val">14/03/1996 (28 yrs)</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Time of Birth</div><div class="stat-val">06:30 AM</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Height</div><div class="stat-val">163 cm · 5'4"</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Weight</div><div class="stat-val">58 kg</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Caste</div><div class="stat-val">Brahmin</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Religion</div><div class="stat-val">Hindu</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Mother Tongue</div><div class="stat-val">Tamil</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Native City</div><div class="stat-val">Chennai, TN</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Current City</div><div class="stat-val">Mumbai, MH</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Salary</div><div class="stat-val">₹18L / yr</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Designation</div><div class="stat-val">Senior Resident</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Experience</div><div class="stat-val">4 yr 2 mo</div></div>
+        <div class="stat-cell stat-cell-wide"><div class="stat-lbl">Qualifications</div><div class="stat-val">MBBS – AIIMS Delhi · MD – KEM Mumbai</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Marriage</div><div class="stat-val">Within 6 months</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Father's Name</div><div class="stat-val">Dr. Ramesh Sharma</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Mother's Name</div><div class="stat-val">Sunita Sharma</div></div>
+      </div>
+
+      <div class="profile-section">
+        <span class="eyebrow">About Priya</span>
+        <p class="section-body-text">A driven cardiologist who balances an intense clinical career with a deep commitment to family. Describes herself as grounded, communicative, and deeply values honesty. She enjoys classical music, cooking on weekends, and long walks.</p>
+      </div>
+
+      <div class="profile-section">
+        <span class="eyebrow">Personality</span>
+        <div class="spider-wrap">
+          <svg class="spider-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="70" fill="none" stroke="#ECE7E2" stroke-width="0.75"/>
+            <circle cx="100" cy="100" r="52.5" fill="none" stroke="#ECE7E2" stroke-width="0.75"/>
+            <circle cx="100" cy="100" r="35" fill="none" stroke="#ECE7E2" stroke-width="0.75"/>
+            <circle cx="100" cy="100" r="17.5" fill="none" stroke="#ECE7E2" stroke-width="0.75"/>
+            <line x1="100" y1="30" x2="100" y2="170" stroke="#E3DDD6" stroke-width="0.75"/>
+            <line x1="30" y1="100" x2="170" y2="100" stroke="#E3DDD6" stroke-width="0.75"/>
+            <line x1="50.5" y1="50.5" x2="149.5" y2="149.5" stroke="#E3DDD6" stroke-width="0.75"/>
+            <line x1="149.5" y1="50.5" x2="50.5" y2="149.5" stroke="#E3DDD6" stroke-width="0.75"/>
+            <polygon points="100,44 143,72 138,128 100,152 62,128 57,72"
+              fill="rgba(107,26,43,0.1)" stroke="#6B1A2B" stroke-width="1.5"/>
+            <text x="100" y="23" text-anchor="middle" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Family</text>
+            <text x="159" y="73" text-anchor="start" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Career</text>
+            <text x="159" y="131" text-anchor="start" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Social</text>
+            <text x="100" y="169" text-anchor="middle" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Life pace</text>
+            <text x="41" y="131" text-anchor="end" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Trad.</text>
+            <text x="41" y="73" text-anchor="end" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Emotional</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <span class="eyebrow">Lifestyle</span>
+        <div class="lifestyle-grid">
+          <div class="stat-cell"><div class="stat-lbl">Diet</div><div class="stat-val">Vegetarian</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Smoking</div><div class="stat-val">Never</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Drinking</div><div class="stat-val">Occasionally</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Fitness</div><div class="stat-val">Daily yoga</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Settlement</div><div class="stat-val">India</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Family setup</div><div class="stat-val">Joint family</div></div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <span class="eyebrow">Interests</span>
+        <div class="tag-list">
+          <span class="tag">Classical music</span>
+          <span class="tag">Cooking</span>
+          <span class="tag">Reading</span>
+          <span class="tag">Travel</span>
+          <span class="tag">Yoga</span>
+          <span class="tag">Photography</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- His full profile ─── -->
+    <div class="profile-card animate d8">
+      <div class="profile-card-head">
+        <span class="eyebrow">His profile</span>
+        <div class="profile-name">Arjun Mehta</div>
+        <div class="profile-role">Radiologist · Consultant · 6 yr 8 mo experience</div>
+      </div>
+
+      <div class="profile-photo-main">
+        <img src="public/placeholder-male.jpg" alt="Arjun" />
+      </div>
+
+      <div style="padding: 14px 16px 0">
+        <div class="quote-block">
+          <p class="quote-text">"I'm looking for someone who has their own identity but also values building something together — a life bigger than two careers."</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-cell"><div class="stat-lbl">Date of Birth</div><div class="stat-val">07/11/1992 (31 yrs)</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Time of Birth</div><div class="stat-val muted">Not Provided</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Height</div><div class="stat-val">178 cm · 5'10"</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Weight</div><div class="stat-val">74 kg</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Caste</div><div class="stat-val">Kshatriya</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Religion</div><div class="stat-val">Hindu</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Mother Tongue</div><div class="stat-val">Gujarati</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Native City</div><div class="stat-val">Ahmedabad, GJ</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Current City</div><div class="stat-val">Bangalore, KA</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Salary</div><div class="stat-val">₹32L / yr</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Designation</div><div class="stat-val">Consultant</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Experience</div><div class="stat-val">6 yr 8 mo</div></div>
+        <div class="stat-cell stat-cell-wide"><div class="stat-lbl">Qualifications</div><div class="stat-val">MBBS – PGI Chandigarh · MD – AIIMS Jodhpur</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Marriage</div><div class="stat-val">Within a year</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Father's Name</div><div class="stat-val">Suresh Mehta</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Mother's Name</div><div class="stat-val">Kavita Mehta</div></div>
+      </div>
+
+      <div class="profile-section">
+        <span class="eyebrow">About Arjun</span>
+        <p class="section-body-text">A calm and methodical radiologist who values depth over pace. He describes himself as thoughtful, dependable, and steadily ambitious. Outside the hospital he coaches a community cricket team, reads history, and is an avid home cook.</p>
+      </div>
+
+      <div class="profile-section">
+        <span class="eyebrow">Personality</span>
+        <div class="spider-wrap">
+          <svg class="spider-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="70" fill="none" stroke="#ECE7E2" stroke-width="0.75"/>
+            <circle cx="100" cy="100" r="52.5" fill="none" stroke="#ECE7E2" stroke-width="0.75"/>
+            <circle cx="100" cy="100" r="35" fill="none" stroke="#ECE7E2" stroke-width="0.75"/>
+            <circle cx="100" cy="100" r="17.5" fill="none" stroke="#ECE7E2" stroke-width="0.75"/>
+            <line x1="100" y1="30" x2="100" y2="170" stroke="#E3DDD6" stroke-width="0.75"/>
+            <line x1="30" y1="100" x2="170" y2="100" stroke="#E3DDD6" stroke-width="0.75"/>
+            <line x1="50.5" y1="50.5" x2="149.5" y2="149.5" stroke="#E3DDD6" stroke-width="0.75"/>
+            <line x1="149.5" y1="50.5" x2="50.5" y2="149.5" stroke="#E3DDD6" stroke-width="0.75"/>
+            <polygon points="100,38 148,76 140,134 100,156 58,132 54,70"
+              fill="rgba(47,122,91,0.1)" stroke="#2F7A5B" stroke-width="1.5"/>
+            <text x="100" y="23" text-anchor="middle" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Family</text>
+            <text x="159" y="73" text-anchor="start" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Career</text>
+            <text x="159" y="131" text-anchor="start" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Social</text>
+            <text x="100" y="169" text-anchor="middle" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Life pace</text>
+            <text x="41" y="131" text-anchor="end" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Trad.</text>
+            <text x="41" y="73" text-anchor="end" font-size="9" fill="#A8A19D" font-family="Inter,sans-serif">Emotional</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <span class="eyebrow">Lifestyle</span>
+        <div class="lifestyle-grid">
+          <div class="stat-cell"><div class="stat-lbl">Diet</div><div class="stat-val">Non-vegetarian</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Smoking</div><div class="stat-val">Never</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Drinking</div><div class="stat-val">Socially</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Fitness</div><div class="stat-val">Cricket, gym</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Settlement</div><div class="stat-val">India preferred</div></div>
+          <div class="stat-cell"><div class="stat-lbl">Family setup</div><div class="stat-val">Nuclear initially</div></div>
+        </div>
+      </div>
+
+      <div class="profile-section" style="padding-bottom:20px">
+        <span class="eyebrow">Interests</span>
+        <div class="tag-list">
+          <span class="tag">Cricket</span>
+          <span class="tag">History</span>
+          <span class="tag">Cooking</span>
+          <span class="tag">Cinema</span>
+          <span class="tag">Travel</span>
+          <span class="tag">Podcasts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer ─── -->
+    <div class="footer animate d9">
+      <p>Shared privately by Samvaya Matrimony<br />This link expires May 27, 2026</p>
+    </div>
+
+  </main>
+</div>
+
+
+<!-- ══════════════════════ TOGGLE LOGIC ══════════════════════════ -->
+<div class="toggle-bar">
+  <button id="btn-preview" class="active" onclick="show('preview')">🔒 Preview</button>
+  <button id="btn-full" onclick="show('full')">✦ Full Reveal</button>
+</div>
+
+<script>
+function show(state) {
+  document.getElementById('view-preview').style.display = state === 'preview' ? '' : 'none';
+  document.getElementById('view-full').style.display   = state === 'full'    ? '' : 'none';
+  document.getElementById('btn-preview').classList.toggle('active', state === 'preview');
+  document.getElementById('btn-full').classList.toggle('active', state === 'full');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

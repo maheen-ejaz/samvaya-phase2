@@ -1,0 +1,141 @@
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import { StatusDashboard } from '@/components/app/StatusDashboard';
+import { StatusReviewPage } from '@/components/app/StatusReviewPage';
+
+export interface DashboardData {
+  firstName: string | null;
+  lastName: string | null;
+  currentCity: string | null;
+  currentState: string | null;
+  specialty: string[] | null;
+  currentDesignation: string | null;
+  primaryPhotoUrl: string | null;
+  createdAt: string;
+  verifiedAt: string | null;
+  paidAt: string | null;
+  membershipStartDate: string | null;
+  membershipEndDate: string | null;
+  totalMatches: number;
+  pendingMatches: number;
+}
+
+export default async function ApplicantHome() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/auth/login');
+  }
+
+  try {
+    // Parallel data fetching for enriched dashboard
+    const [usersResult, profileResult, medResult, paymentResult, totalMatchResult, pendingMatchResult, primaryPhotoResult] =
+      await Promise.all([
+        supabase
+          .from('users')
+          .select('onboarding_section, created_at, verified_at, membership_status, is_goocampus_member')
+          .eq('id', user.id)
+          .single(),
+        supabase
+          .from('profiles')
+          .select('first_name, last_name, current_city, current_state')
+          .eq('user_id', user.id)
+          .single(),
+        supabase
+          .from('medical_credentials')
+          .select('specialty, current_designation')
+          .eq('user_id', user.id)
+          .single(),
+        supabase
+          .from('payments')
+          .select('paid_at, membership_start_date, membership_expiry_date')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('match_presentations' as never)
+          .select('id', { count: 'exact', head: true }),
+        supabase
+          .from('match_presentations' as never)
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'pending'),
+        supabase
+          .from('photos')
+          .select('blurred_path')
+          .eq('user_id', user.id)
+          .eq('is_primary', true)
+          .maybeSingle(),
+      ]);
+
+    const userData = usersResult.data as Record<string, unknown> | null;
+
+    // If onboarding not complete, redirect to form
+    if (Number(userData?.onboarding_section) < 13) {
+      redirect('/app/onboarding');
+    }
+
+    // Form completed but not yet active — show status + edit page (no PWA)
+    if (userData?.membership_status === 'onboarding_complete') {
+      const profile = profileResult.data;
+      return (
+        <StatusReviewPage
+          firstName={profile?.first_name ?? null}
+          submittedAt={(userData?.created_at as string) || new Date().toISOString()}
+          isGoocampusMember={(userData?.is_goocampus_member as boolean) ?? false}
+        />
+      );
+    }
+
+    const profile = profileResult.data;
+    const medCred = medResult.data as Record<string, unknown> | null;
+    const payment = paymentResult.data as Record<string, unknown> | null;
+
+    // Build photo URL from blurred_path (primary photo = face_closeup by default)
+    // Bucket is private, so we need a signed URL (1 hour expiry)
+    const photoPath = (primaryPhotoResult.data as Record<string, unknown> | null)?.blurred_path as string | null;
+    let primaryPhotoUrl: string | null = null;
+    if (photoPath) {
+      const { data: signedData } = await supabase.storage
+        .from('photos')
+        .createSignedUrl(photoPath, 3600);
+      primaryPhotoUrl = signedData?.signedUrl ?? null;
+    }
+
+    const dashboardData: DashboardData = {
+      firstName: profile?.first_name ?? null,
+      lastName: profile?.last_name ?? null,
+      currentCity: profile?.current_city ?? null,
+      currentState: profile?.current_state ?? null,
+      specialty: (medCred?.specialty as string[] | null) ?? null,
+      currentDesignation: (medCred?.current_designation as string | null) ?? null,
+      primaryPhotoUrl,
+      createdAt: (userData?.created_at as string) || new Date().toISOString(),
+      verifiedAt: (userData?.verified_at as string | null) ?? null,
+      paidAt: (payment?.paid_at as string | null) ?? null,
+      membershipStartDate: (payment?.membership_start_date as string | null) ?? null,
+      membershipEndDate: (payment?.membership_expiry_date as string | null) ?? null,
+      totalMatches: totalMatchResult.count ?? 0,
+      pendingMatches: pendingMatchResult.count ?? 0,
+    };
+
+    return <StatusDashboard data={dashboardData} />;
+  } catch (err) {
+    // Re-throw Next.js internal errors (redirect, notFound) — they use throw internally
+    if (err && typeof err === 'object' && 'digest' in err) throw err;
+    console.error('Page load error:', err);
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8" role="alert">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
+        <p className="text-gray-500 mb-4">We couldn&apos;t load this page. Please try again.</p>
+        <a href="/app" className="text-rose-600 hover:text-rose-700 font-medium">
+          Return to home
+        </a>
+      </div>
+    );
+  }
+}
