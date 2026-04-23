@@ -40,6 +40,7 @@ export const metadata: Metadata = {
     title: "Samvaya",
   },
   icons: {
+    icon: "/favicon.png",
     apple: "/icons/apple-touch-icon.png",
   },
 };

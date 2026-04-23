@@ -137,10 +137,11 @@ export function MatchTable({ matches, expandedId, onToggleExpand, onAction, acti
 }
 
 /** Gender-based placeholder when no photo is uploaded */
-function getPlaceholderSrc(gender?: string): string {
+function getPlaceholderSrc(gender?: string, slotIndex = 1): string {
   if (gender?.toLowerCase() === 'male') return '/male-placeholder.jpg';
   if (gender?.toLowerCase() === 'female') return '/female-placeholder.jpg';
-  return '/male-placeholder.jpg'; // default fallback
+  // Samvaya always pairs male+female; left slot (0) is female, right slot (1) is male
+  return slotIndex === 0 ? '/female-placeholder.jpg' : '/male-placeholder.jpg';
 }
 
 // Gender-based card gradient: blue tint for male, pink tint for female
@@ -152,8 +153,8 @@ function getCardStyle(gender?: string): string {
 }
 
 /** Profile card — contained card with photo, name, and structured details */
-function ProfileCard({ person }: { person: DashboardMatch['personA'] }) {
-  const photoSrc = person.primaryPhotoUrl || getPlaceholderSrc(person.gender);
+function ProfileCard({ person, slotIndex }: { person: DashboardMatch['personA']; slotIndex: number }) {
+  const photoSrc = person.primaryPhotoUrl || getPlaceholderSrc(person.gender, slotIndex);
   const cardStyle = getCardStyle(person.gender);
 
   // Parse details: "28y · Female · Anesthesiology · Bangalore" → extract parts, skip gender
@@ -223,8 +224,8 @@ function MatchCard({
             : [match.personB, match.personA];
           return (
             <div className="flex gap-3">
-              <ProfileCard person={first} />
-              <ProfileCard person={second} />
+              <ProfileCard person={first} slotIndex={0} />
+              <ProfileCard person={second} slotIndex={1} />
             </div>
           );
         })()}

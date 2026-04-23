@@ -12,10 +12,11 @@ interface SuggestionCardProps {
   onOpen: () => void;
 }
 
-function getPlaceholderSrc(gender?: string | null): string {
+function getPlaceholderSrc(gender?: string | null, slotIndex = 1): string {
   if (gender?.toLowerCase() === 'male') return '/male-placeholder.jpg';
   if (gender?.toLowerCase() === 'female') return '/female-placeholder.jpg';
-  return '/male-placeholder.jpg';
+  // Samvaya always pairs male+female; left slot (0) is female, right slot (1) is male
+  return slotIndex === 0 ? '/female-placeholder.jpg' : '/male-placeholder.jpg';
 }
 
 function getCardGradient(gender?: string | null): string {
@@ -94,8 +95,8 @@ function ScoreBar({ score }: { score: number }) {
   );
 }
 
-function ProfileMiniCard({ person }: { person: MatchSuggestionWithProfiles['profile_a'] }) {
-  const photoSrc = person.primary_photo_url || getPlaceholderSrc(person.gender);
+function ProfileMiniCard({ person, slotIndex }: { person: MatchSuggestionWithProfiles['profile_a']; slotIndex: number }) {
+  const photoSrc = person.primary_photo_url || getPlaceholderSrc(person.gender, slotIndex);
   const cardStyle = getCardGradient(person.gender);
   const specialty = person.specialty?.map((s) => capitalize(s)).join(', ') || null;
   const age = person.age ? `${person.age}y` : null;
@@ -149,8 +150,8 @@ export function SuggestionCard({ suggestion, onOpen }: SuggestionCardProps) {
           : [suggestion.profile_b, suggestion.profile_a];
         return (
           <div className="flex gap-3">
-            <ProfileMiniCard person={first} />
-            <ProfileMiniCard person={second} />
+            <ProfileMiniCard person={first} slotIndex={0} />
+            <ProfileMiniCard person={second} slotIndex={1} />
           </div>
         );
       })()}

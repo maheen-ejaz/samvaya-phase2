@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -46,6 +47,9 @@ export function WelcomeScreen({ firstName }: WelcomeScreenProps) {
 
   return (
     <div className="relative mx-auto flex max-w-xl flex-col items-center py-10 pb-[calc(3rem+env(safe-area-inset-bottom))] text-center lg:py-16">
+      {/* Brand */}
+      <Image src="/samvaya-logo-red.png" alt="Samvaya" width={120} height={32} style={{ height: '24px', width: 'auto', marginBottom: '28px' }} />
+
       {/* Eyebrow pill */}
       <div className="form-eyebrow inline-flex items-center gap-1.5 rounded-full border border-[color:var(--color-form-border)] bg-white px-3 py-1.5 text-[color:var(--color-form-accent)]">
         <span className="size-1.5 rounded-full bg-[color:var(--color-form-accent)]" />

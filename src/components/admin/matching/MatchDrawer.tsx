@@ -22,10 +22,11 @@ interface MatchDrawerProps {
   onReject: (id: string, notes: string) => Promise<void>;
 }
 
-function getPlaceholderSrc(gender?: string | null): string {
+function getPlaceholderSrc(gender?: string | null, slotIndex = 1): string {
   if (gender?.toLowerCase() === 'male') return '/male-placeholder.jpg';
   if (gender?.toLowerCase() === 'female') return '/female-placeholder.jpg';
-  return '/male-placeholder.jpg';
+  // Samvaya always pairs male+female; left slot (0) is female, right slot (1) is male
+  return slotIndex === 0 ? '/female-placeholder.jpg' : '/male-placeholder.jpg';
 }
 
 function getRecommendationLabel(rec: string): string {
@@ -104,8 +105,8 @@ function ScoreBar({ score }: { score: number }) {
   );
 }
 
-function ProfileCard({ person }: { person: MatchSuggestionWithProfiles['profile_a'] }) {
-  const photoSrc = person.primary_photo_url || getPlaceholderSrc(person.gender);
+function ProfileCard({ person, slotIndex }: { person: MatchSuggestionWithProfiles['profile_a']; slotIndex: number }) {
+  const photoSrc = person.primary_photo_url || getPlaceholderSrc(person.gender, slotIndex);
   const cardStyle = getCardGradient(person.gender);
   const details = [
     person.specialty?.map((s) => capitalize(s)).join(', '),
@@ -268,8 +269,8 @@ export function MatchDrawer({
         <ScrollArea className="flex-1 h-[calc(100vh-73px)]">
           {/* Profile cards — female always on the left */}
           <div className="flex gap-4 px-6 pt-6">
-            <ProfileCard person={firstProfile} />
-            <ProfileCard person={secondProfile} />
+            <ProfileCard person={firstProfile} slotIndex={0} />
+            <ProfileCard person={secondProfile} slotIndex={1} />
           </div>
 
           {/* Score + badges */}

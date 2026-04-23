@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useForm } from '../FormProvider';
 import {
@@ -79,9 +80,7 @@ export function OnboardingSidebar({ currentSection, resumeSection }: OnboardingS
     <Sidebar variant="inset" collapsible="none" className="hidden lg:flex">
       <SidebarHeader className="px-5 py-5 border-b border-[color:var(--color-form-border)]">
         <Link href="/app" className="mb-4 block">
-          <span className="text-sm font-semibold tracking-tight text-[color:var(--color-form-text-primary)]">
-            samvaya
-          </span>
+          <Image src="/samvaya-logo-red.png" alt="Samvaya" width={120} height={32} style={{ height: '22px', width: 'auto' }} />
         </Link>
         <div className="flex items-start justify-between">
           <div>

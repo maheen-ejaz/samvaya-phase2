@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 /**
  * Post-submission page for returning users who completed the form.
  * Shows application status + option to edit their submission.
@@ -23,6 +25,11 @@ export function StatusReviewPage({ firstName, submittedAt, isGoocampusMember }: 
   return (
     <div className="flex min-h-screen items-start justify-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-lg">
+        {/* Brand */}
+        <div className="mb-6 flex justify-center">
+          <Image src="/samvaya-logo-red.png" alt="Samvaya" width={120} height={32} style={{ height: '24px', width: 'auto' }} />
+        </div>
+
         {/* Status banner */}
         <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
           <div className="mb-3 flex items-center gap-3">

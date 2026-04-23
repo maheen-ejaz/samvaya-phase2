@@ -121,18 +121,18 @@ function BrandPanel() {
 
       <div className="flex-1" />
 
-      {/* Stats */}
+      {/* Trust signals */}
       <div
         className="relative flex gap-7"
         style={{ paddingTop: 24, borderTop: "1px solid rgba(255,246,233,0.12)" }}
       >
         {[
-          { k: "2,400+", l: "verified doctors" },
-          { k: "96%", l: "profiles reviewed by humans" },
-          { k: "14 days", l: "to first curated match" },
+          { k: "Doctors only", l: "exclusively for medical professionals" },
+          { k: "13-point BGV", l: "background verified, every profile" },
+          { k: "By invitation", l: "human-reviewed, curated matches" },
         ].map((s) => (
           <div key={s.k} className="flex-1">
-            <div style={{ fontSize: 22, fontFamily: "var(--font-fraunces), serif", fontWeight: 500, letterSpacing: "-0.5px", color: "#FFF6E9" }}>{s.k}</div>
+            <div style={{ fontSize: 14, fontFamily: "var(--font-fraunces), serif", fontWeight: 500, letterSpacing: "-0.3px", color: "#FFF6E9" }}>{s.k}</div>
             <div style={{ fontSize: 11.5, color: "rgba(255,246,233,0.55)", marginTop: 4, letterSpacing: "0.2px" }}>{s.l}</div>
           </div>
         ))}

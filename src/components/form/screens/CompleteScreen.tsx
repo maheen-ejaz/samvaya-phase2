@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 
 interface CompleteScreenProps {
@@ -74,6 +75,11 @@ export function CompleteScreen({ isGoocampus }: CompleteScreenProps) {
       fontFamily: 'var(--font-inter), sans-serif',
     }}>
       <div style={{ width: '100%', maxWidth: 520, position: 'relative' }}>
+
+        {/* Brand */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 36 }}>
+          <Image src="/samvaya-logo-red.png" alt="Samvaya" width={120} height={32} style={{ height: '24px', width: 'auto' }} />
+        </div>
 
         {/* Arch ornament behind crest */}
         <div aria-hidden="true" style={{

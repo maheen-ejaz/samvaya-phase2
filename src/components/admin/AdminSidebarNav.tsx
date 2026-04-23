@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -92,11 +93,11 @@ export function AdminSidebarNav() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/admin">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[color:var(--color-admin-accent)] text-white">
+                <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-[color:var(--color-admin-accent)] text-white">
                   <span className="text-sm font-bold">S</span>
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold text-sm">Samvaya</span>
+                <div className="flex flex-col gap-1 leading-none">
+                  <Image src="/samvaya-logo-red.png" alt="Samvaya" width={100} height={28} style={{ height: '18px', width: 'auto' }} />
                   <span className="text-xs text-muted-foreground">Admin</span>
                 </div>
               </Link>

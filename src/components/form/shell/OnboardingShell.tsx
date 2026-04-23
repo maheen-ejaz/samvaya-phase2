@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -135,9 +136,7 @@ function ShellInner({
             <div className="flex items-center gap-2">
               <SidebarTrigger className="hidden md:flex" />
               <Link href="/app" className="flex items-center gap-2 md:hidden">
-                <span className="text-[15px] font-medium tracking-tight text-foreground">
-                  samvaya
-                </span>
+                <Image src="/samvaya-logo-red.png" alt="Samvaya" width={120} height={32} style={{ height: '20px', width: 'auto' }} />
               </Link>
             </div>
 
