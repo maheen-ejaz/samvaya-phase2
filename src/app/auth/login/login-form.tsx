@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { sendOtp, verifyOtp } from "./actions";
-import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@/components/ui/input-otp";
 import { cn } from "@/lib/utils";
 
 type Step = "email" | "otp";
@@ -51,7 +50,7 @@ function ArchOrnament({ className }: { className?: string }) {
 function BrandPanel() {
   return (
     <div
-      className="hidden md:flex relative flex-col overflow-hidden"
+      className="hidden lg:flex relative flex-col overflow-hidden"
       style={{
         flex: "0 0 48%",
         background: `radial-gradient(140% 90% at 20% 10%, ${C.accent} 0%, ${C.accentDeep} 45%, #2A0912 85%, #150509 100%)`,
@@ -268,7 +267,7 @@ function EmailStep({
   const hasError = !!error;
 
   return (
-    <form onSubmit={onSubmit} style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 28 }}>
+    <form onSubmit={onSubmit} style={{ width: "100%", maxWidth: 420, marginInline: "auto", display: "flex", flexDirection: "column", gap: 28 }}>
       <div>
         <h2 style={{
           margin: 0, fontFamily: "var(--font-fraunces), serif",
@@ -341,6 +340,132 @@ function EmailStep({
   );
 }
 
+// ── Custom OTP input — 6 separate cells matching the Claude Design spec ───
+function OtpCells({
+  value, onChange, disabled, hasError, success, autoFocus,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+  hasError?: boolean;
+  success?: boolean;
+  autoFocus?: boolean;
+}) {
+  const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+  const digits = Array.from({ length: 6 }, (_, i) => value[i] ?? "");
+
+  const focusIndex = (i: number) => {
+    const el = inputsRef.current[Math.max(0, Math.min(5, i))];
+    if (el) {
+      el.focus();
+      el.select();
+    }
+  };
+
+  const handleChange = (i: number, raw: string) => {
+    const cleaned = raw.replace(/\D/g, "");
+    if (!cleaned) {
+      // Clear current cell
+      const next = (value.slice(0, i) + value.slice(i + 1)).slice(0, 6);
+      onChange(next);
+      return;
+    }
+    if (cleaned.length === 1) {
+      const next = (value.slice(0, i) + cleaned + value.slice(i + 1)).slice(0, 6);
+      onChange(next);
+      if (i < 5) focusIndex(i + 1);
+      return;
+    }
+    // Pasted multiple digits in a single cell
+    const merged = (value.slice(0, i) + cleaned).slice(0, 6);
+    onChange(merged);
+    focusIndex(Math.min(5, i + cleaned.length));
+  };
+
+  const handleKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (digits[i]) {
+        // Clear current cell — handled by onChange
+        return;
+      }
+      if (i > 0) {
+        e.preventDefault();
+        const next = (value.slice(0, i - 1) + value.slice(i)).slice(0, 6);
+        onChange(next);
+        focusIndex(i - 1);
+      }
+      return;
+    }
+    if (e.key === "ArrowLeft" && i > 0) { e.preventDefault(); focusIndex(i - 1); return; }
+    if (e.key === "ArrowRight" && i < 5) { e.preventDefault(); focusIndex(i + 1); return; }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    e.preventDefault();
+    onChange(pasted);
+    focusIndex(Math.min(5, pasted.length));
+  };
+
+  return (
+    <div className="flex gap-2 sm:gap-2.5 w-full">
+      {digits.map((d, i) => {
+        const isActive = !success && !disabled && (
+          // Active cell: first empty cell, or last cell when full
+          value.length === i || (value.length === 6 && i === 5)
+        );
+        const filled = !!d;
+        const border = hasError
+          ? "#B3261E"
+          : success
+            ? "#2F7A5B"
+            : isActive
+              ? C.accent
+              : (filled ? C.line : C.line2);
+        return (
+          <input
+            key={i}
+            ref={(el) => { inputsRef.current[i] = el; }}
+            type="text"
+            inputMode="numeric"
+            autoComplete={i === 0 ? "one-time-code" : "off"}
+            maxLength={1}
+            value={d}
+            disabled={disabled}
+            autoFocus={autoFocus && i === 0}
+            onChange={(e) => handleChange(i, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(i, e)}
+            onPaste={handlePaste}
+            onFocus={(e) => e.target.select()}
+            aria-label={`Digit ${i + 1} of 6`}
+            aria-invalid={hasError || undefined}
+            style={{
+              flex: "1 1 0",
+              minWidth: 0,
+              height: 62,
+              padding: 0,
+              textAlign: "center",
+              background: success ? "#ECFDF5" : "#FFFFFF",
+              border: `1.5px solid ${border}`,
+              borderRadius: 14,
+              boxShadow: isActive ? `0 0 0 3px ${C.accentSoft}` : "none",
+              fontFamily: "var(--font-fraunces), serif",
+              fontSize: 28,
+              fontWeight: 500,
+              color: C.ink,
+              letterSpacing: "-0.4px",
+              outline: "none",
+              transition: "border-color 0.15s, box-shadow 0.15s",
+              caretColor: C.accent,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 // ── OTP step ──────────────────────────────────────────────
 function OtpStep({
   email, otpCode, setOtpCode, error, loading, verifySuccess, otpError,
@@ -354,7 +479,7 @@ function OtpStep({
   const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
   return (
-    <form onSubmit={onSubmit} style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 28 }}>
+    <form onSubmit={onSubmit} style={{ width: "100%", maxWidth: 420, marginInline: "auto", display: "flex", flexDirection: "column", gap: 28 }}>
       <div>
         <button
           type="button"
@@ -389,41 +514,14 @@ function OtpStep({
           Verification code
         </div>
         <div className={cn(otpError && "animate-shake")}>
-          <InputOTP
-            maxLength={6}
+          <OtpCells
             value={otpCode}
             onChange={setOtpCode}
             disabled={loading || verifySuccess}
+            hasError={otpError}
+            success={verifySuccess}
             autoFocus
-            aria-invalid={otpError || undefined}
-          >
-            <InputOTPGroup>
-              {[0, 1, 2].map((i) => (
-                <InputOTPSlot
-                  key={i} index={i}
-                  className={cn(
-                    "!h-[62px] !w-full !text-[26px] !rounded-[14px] !border-[1.5px]",
-                    "font-[var(--font-fraunces)]",
-                    verifySuccess && "!border-emerald-500 !bg-emerald-50",
-                  )}
-                  style={{ fontFamily: "var(--font-fraunces), serif" }}
-                />
-              ))}
-            </InputOTPGroup>
-            <InputOTPSeparator />
-            <InputOTPGroup>
-              {[3, 4, 5].map((i) => (
-                <InputOTPSlot
-                  key={i} index={i}
-                  className={cn(
-                    "!h-[62px] !w-full !text-[26px] !rounded-[14px] !border-[1.5px]",
-                    verifySuccess && "!border-emerald-500 !bg-emerald-50",
-                  )}
-                  style={{ fontFamily: "var(--font-fraunces), serif" }}
-                />
-              ))}
-            </InputOTPGroup>
-          </InputOTP>
+          />
         </div>
       </div>
 
@@ -475,7 +573,7 @@ function OtpStep({
 function MobileHero({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="md:hidden flex flex-col min-h-svh"
+      className="lg:hidden flex flex-col min-h-svh"
       style={{
         background: `radial-gradient(140% 80% at 30% 0%, ${C.accent} 0%, ${C.accentDeep} 50%, #1B0309 100%)`,
         color: "#FFF6E9",
@@ -493,7 +591,7 @@ function MobileHero({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Brand + hero */}
-      <div style={{ padding: "60px 28px 0", position: "relative" }}>
+      <div style={{ padding: "48px 28px 0", position: "relative" }}>
         <div className="flex items-center gap-2.5">
           <div
             className="grid place-items-center shrink-0"
@@ -512,29 +610,32 @@ function MobileHero({ children }: { children: React.ReactNode }) {
         </div>
 
         <h1 style={{
-          marginTop: 48, fontSize: 34, lineHeight: 1.06,
+          marginTop: 36, fontSize: 32, lineHeight: 1.08,
           fontFamily: "var(--font-fraunces), serif",
-          fontWeight: 500, letterSpacing: "-1.2px",
+          fontWeight: 500, letterSpacing: "-1px",
         }}>
           Where exceptional{" "}
           <span style={{ fontStyle: "italic", color: "#F1C88E", fontWeight: 400 }}>doctors</span>{" "}
           find exceptional partners.
         </h1>
-        <p style={{ marginTop: 14, fontSize: 14, lineHeight: 1.55, color: "rgba(255,246,233,0.68)", maxWidth: 320 }}>
+        <p style={{ marginTop: 12, fontSize: 14, lineHeight: 1.55, color: "rgba(255,246,233,0.68)", maxWidth: 360 }}>
           A premium, curated matrimony platform — exclusively for medical professionals in India.
         </p>
       </div>
 
-      <div className="flex-1" />
+      <div className="flex-1 min-h-[24px]" />
 
       {/* Form card */}
-      <div style={{
-        margin: "0 16px 16px",
-        background: "#FFFFFF", borderRadius: 22,
-        padding: "24px 24px 32px", color: C.ink,
-        boxShadow: "0 -6px 24px rgba(0,0,0,0.24)",
-      }}>
-        {children}
+      <div
+        className="mx-4 mb-4 sm:mx-6 sm:mb-6"
+        style={{
+          background: "#FFFFFF", borderRadius: 22,
+          padding: "28px 24px 32px",
+          color: C.ink,
+          boxShadow: "0 -6px 24px rgba(0,0,0,0.24)",
+        }}
+      >
+        <div className="flex justify-center">{children}</div>
       </div>
     </div>
   );
@@ -640,103 +741,18 @@ export function LoginForm() {
 
   return (
     <>
-      {/* Mobile layout */}
+      {/* Mobile / tablet layout — single column with hero + card */}
       <MobileHero>
         <div
-          className={cn("transition-opacity duration-150", transitioning ? "opacity-0" : "opacity-100")}
-          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+          className={cn("transition-opacity duration-150 w-full", transitioning ? "opacity-0" : "opacity-100")}
         >
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: C.accent, letterSpacing: "1.6px", textTransform: "uppercase" }}>
-              {step === "email" ? "Sign in" : "Verify"}
-            </div>
-            <div style={{ marginTop: 4, fontFamily: "var(--font-fraunces), serif", fontSize: 22, fontWeight: 500, letterSpacing: "-0.4px", color: C.ink }}>
-              {step === "email" ? "Enter your email" : "Check your inbox"}
-            </div>
-          </div>
-
-          {step === "email" ? (
-            <form onSubmit={handleSendOtp} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <EmailField
-                value={email} onChange={setEmail} focused={false} hasError={!!error}
-                onFocus={() => {}} onBlur={() => {}}
-              />
-              {error && <p style={{ margin: 0, fontSize: 12.5, color: "#B3261E" }} role="alert">{error}</p>}
-              <button
-                type="submit"
-                disabled={!email || loading}
-                style={{
-                  height: 52, background: !email || loading ? C.line2 : C.accent,
-                  color: !email || loading ? C.muted : "#fff",
-                  border: "none", borderRadius: 12,
-                  fontSize: 15, fontWeight: 600, fontFamily: "var(--font-inter), sans-serif",
-                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  boxShadow: !email || loading ? "none" : `0 4px 14px ${C.accent}38`,
-                  cursor: !email || loading ? "not-allowed" : "pointer",
-                }}
-              >
-                {loading ? "Sending…" : (
-                  <>Send verification code
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </>
-                )}
-              </button>
-              <p style={{ margin: 0, textAlign: "center", fontSize: 12.5, color: C.muted }}>
-                New here?{" "}
-                <a href="mailto:hello@samvayamatrimony.com" style={{ color: C.accent, fontWeight: 600, textDecoration: "none" }}>
-                  Request an invite
-                </a>
-              </p>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <p style={{ margin: 0, fontSize: 13, color: C.muted }}>
-                Code sent to <strong style={{ color: C.ink }}>{email}</strong>
-              </p>
-              <div className={cn(otpError && "animate-shake")}>
-                <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} disabled={loading || verifySuccess} autoFocus aria-invalid={otpError || undefined}>
-                  <InputOTPGroup>
-                    {[0, 1, 2].map((i) => <InputOTPSlot key={i} index={i} className={cn("!h-14 !text-xl !rounded-xl", verifySuccess && "!border-emerald-500 !bg-emerald-50")} />)}
-                  </InputOTPGroup>
-                  <InputOTPSeparator />
-                  <InputOTPGroup>
-                    {[3, 4, 5].map((i) => <InputOTPSlot key={i} index={i} className={cn("!h-14 !text-xl !rounded-xl", verifySuccess && "!border-emerald-500 !bg-emerald-50")} />)}
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-              {error && <p style={{ margin: 0, fontSize: 12.5, color: "#B3261E", textAlign: "center" }} role="alert">{error}</p>}
-              <button
-                type="submit"
-                disabled={otpCode.length < 6 || loading || verifySuccess}
-                style={{
-                  height: 52, background: otpCode.length < 6 || loading || verifySuccess ? C.line2 : C.accent,
-                  color: otpCode.length < 6 || loading || verifySuccess ? C.muted : "#fff",
-                  border: "none", borderRadius: 12,
-                  fontSize: 15, fontWeight: 600, fontFamily: "var(--font-inter), sans-serif",
-                  cursor: otpCode.length < 6 || loading || verifySuccess ? "not-allowed" : "pointer",
-                  display: "inline-flex", alignItems: "center", justifyContent: "center",
-                }}
-              >
-                {verifySuccess ? "Verified! Redirecting…" : loading ? "Verifying…" : "Continue"}
-              </button>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                <button type="button" onClick={handleBack} style={{ background: "transparent", border: "none", padding: 0, color: C.muted, fontFamily: "var(--font-inter), sans-serif", cursor: "pointer" }}>
-                  Change email
-                </button>
-                <button type="button" onClick={handleResend} disabled={resendCooldown > 0 || loading} style={{ background: "transparent", border: "none", padding: 0, color: resendCooldown > 0 ? C.muted : C.accent, fontWeight: 600, fontFamily: "var(--font-inter), sans-serif", cursor: resendCooldown > 0 ? "default" : "pointer" }}>
-                  {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
-                </button>
-              </div>
-            </form>
-          )}
+          {formContent}
         </div>
       </MobileHero>
 
-      {/* Desktop layout */}
+      {/* Desktop layout — split panel (≥ 1024px) */}
       <div
-        className="hidden md:flex min-h-svh items-center justify-center"
+        className="hidden lg:flex min-h-svh items-center justify-center"
         style={{ background: C.bg, padding: "40px" }}
       >
         <div
