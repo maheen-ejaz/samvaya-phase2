@@ -83,7 +83,7 @@ export async function POST() {
     .from('users')
     .update({
       membership_status: 'onboarding_complete' as never,
-      onboarding_section: 13,
+      onboarding_section: 14,
       onboarding_last_question: 100,
       profile_completion_pct: 100,
     })

@@ -7,6 +7,7 @@ export type QuestionType =
   | 'email'
   | 'phone'
   | 'select'
+  | 'stage_selector'
   | 'multi_select'
   | 'illustrated_mc'
   | 'date'

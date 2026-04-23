@@ -16,7 +16,7 @@ interface SectionIntroProps {
   sectionId: SectionId;
 }
 
-const AI_CHAT_SECTIONS: SectionId[] = ['D', 'K', 'N'];
+const AI_CHAT_SECTIONS: SectionId[] = ['N'];
 
 export function SectionIntro({ sectionId }: SectionIntroProps) {
   const router = useRouter();
@@ -58,57 +58,59 @@ export function SectionIntro({ sectionId }: SectionIntroProps) {
           </div>
         )}
 
-        <div className="mb-4 text-center text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          Section {positionLabel} of {total}
-        </div>
-        <h1 className="form-title text-center mb-4">
-          {meta.label}
-        </h1>
-        {meta.description && (
-          <p className="text-sm text-muted-foreground text-center mb-8">{meta.description}</p>
-        )}
-
-        {/* Meta row */}
-        <div className="flex items-center justify-center flex-wrap gap-3 mb-8">
-          <span className="text-xs text-muted-foreground">
-            {questionCount} {questionCount === 1 ? 'question' : 'questions'}
-          </span>
-          {meta.estimatedMinutes && (
-            <>
-              <span className="text-xs text-muted-foreground" aria-hidden="true">·</span>
-              <span className="text-xs text-muted-foreground">~{meta.estimatedMinutes} min</span>
-            </>
+        <div className="rounded-2xl border bg-white px-8 py-10" style={{ borderColor: 'var(--color-form-border)' }}>
+          <div className="mb-4 text-center text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            Section {positionLabel} of {total}
+          </div>
+          <h1 className="form-title text-center mb-4">
+            {meta.label}
+          </h1>
+          {meta.description && (
+            <p className="text-sm text-muted-foreground text-center mb-8">{meta.description}</p>
           )}
-          {hasAiChat && (
-            <>
-              <span className="text-xs text-muted-foreground" aria-hidden="true">·</span>
-              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                <MessageSquareIcon className="size-3" />
-                Includes an AI conversation
-              </span>
-            </>
-          )}
-        </div>
 
-        {meta.showConfidentialityCallout && meta.confidentialityText && (
-          <Card className="mb-8 border-amber-200/50 bg-amber-50/30">
-            <CardContent>
-              <div className="flex items-start gap-3">
-                <LockIcon className="mt-0.5 size-5 shrink-0 text-amber-500" />
-                <div>
-                  <div className="text-sm font-medium text-foreground mb-1">Private &amp; confidential</div>
-                  <p className="text-sm text-muted-foreground">{meta.confidentialityText}</p>
+          {/* Meta row */}
+          <div className="flex items-center justify-center flex-wrap gap-3 mb-8">
+            <span className="text-xs text-muted-foreground">
+              {questionCount} {questionCount === 1 ? 'question' : 'questions'}
+            </span>
+            {meta.estimatedMinutes && (
+              <>
+                <span className="text-xs text-muted-foreground" aria-hidden="true">·</span>
+                <span className="text-xs text-muted-foreground">~{meta.estimatedMinutes} min</span>
+              </>
+            )}
+            {hasAiChat && (
+              <>
+                <span className="text-xs text-muted-foreground" aria-hidden="true">·</span>
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  <MessageSquareIcon className="size-3" />
+                  Includes an AI conversation
+                </span>
+              </>
+            )}
+          </div>
+
+          {meta.showConfidentialityCallout && meta.confidentialityText && (
+            <Card className="mb-8 border-amber-200 bg-amber-50/40">
+              <CardContent>
+                <div className="flex items-start gap-3">
+                  <LockIcon className="mt-0.5 size-5 shrink-0 text-amber-500" />
+                  <div>
+                    <div className="text-sm font-medium text-foreground mb-1">Private &amp; confidential</div>
+                    <p className="text-sm text-muted-foreground">{meta.confidentialityText}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          )}
 
-        <div className="flex justify-center pt-2">
-          <Button onClick={handleBegin} className="w-full gap-1.5 rounded-xl sm:w-auto sm:min-w-[14rem]">
-            Begin section
-            <ArrowRightIcon className="size-4" />
-          </Button>
+          <div className="flex justify-center pt-2">
+            <Button onClick={handleBegin} className="w-full gap-1.5 rounded-xl sm:w-auto sm:min-w-[14rem]">
+              Begin section
+              <ArrowRightIcon className="size-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </>

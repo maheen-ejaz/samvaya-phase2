@@ -15,7 +15,7 @@ function oklchToHex(oklch: string): string {
   if (oklch.startsWith('#')) return oklch;
   // Return a best-effort fallback for colour picker display
   // The colour picker stores the pick as hex; we convert back for saving
-  return '#14b8a6'; // teal-500 default for display
+  return '#A3171F'; // Samvaya Red default for display
 }
 
 function applyPreview(theme: Partial<ThemeConfig> & { primary?: string; chart_1?: string; chart_2?: string; chart_3?: string; chart_4?: string; chart_5?: string; radius?: string; font_sans?: string }) {

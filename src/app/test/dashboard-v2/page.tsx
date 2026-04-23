@@ -40,7 +40,7 @@ const DUMMY_MATCH = {
 
 const MILESTONES = [
   { icon: 'profile' as const, label: 'Profile Submitted', desc: 'Your application has been received', date: '5 Mar 2026' },
-  { icon: 'payment' as const, label: 'Payment Received', desc: 'Verification fee of ₹4,130 confirmed', date: '8 Mar 2026' },
+  { icon: 'payment' as const, label: 'Payment Received', desc: 'Verification fee of ₹3,500 + GST confirmed', date: '8 Mar 2026' },
   { icon: 'verification' as const, label: 'Background Verification', desc: '13-point verification complete', date: '15 Mar 2026' },
   { icon: 'pool' as const, label: 'Added to Pool', desc: "You're matched with verified doctors", date: '15 Mar 2026' },
   { icon: 'match' as const, label: 'Match Found', desc: 'We found someone compatible for you' },

@@ -22,7 +22,7 @@ Samvaya is a premium matrimony platform exclusively for medical professionals in
 Here's what to expect:
 • A short conversation with our team to understand what you're looking for
 • A comprehensive profile form (it's thorough — it helps us match you well)
-• A one-time verification fee of ₹4,130 (₹3,500 + 18% GST)
+• A one-time verification fee of ₹3,500 + 18% GST
 • GooCampus members have the verification fee waived
 
 We'd love to schedule a quick call to walk you through the process. Please reply to this email or call us directly and we'll find a time that works.
@@ -38,7 +38,7 @@ The Samvaya Team`,
 
 Great news — you've completed your Samvaya profile form!
 
-The next step is to pay the one-time verification fee of ₹4,130 (₹3,500 + 18% GST). This covers the background verification check that every Samvaya member goes through, ensuring a safe and trusted pool of profiles.
+The next step is to pay the one-time verification fee of ₹3,500 + 18% GST. This covers the background verification check that every Samvaya member goes through, ensuring a safe and trusted pool of profiles.
 
 Once your payment is confirmed, we'll initiate the verification process and you'll be on your way to the member pool.
 

@@ -1,12 +1,13 @@
 import type { ThemeConfig } from '@/app/api/admin/theme/route';
 
 export const DEFAULT_THEME: ThemeConfig = {
-  primary: 'oklch(0.511 0.096 186.391)',
-  chart_1: 'oklch(0.855 0.138 181.071)',
-  chart_2: 'oklch(0.704 0.14 182.503)',
-  chart_3: 'oklch(0.6 0.118 184.704)',
-  chart_4: 'oklch(0.511 0.096 186.391)',
-  chart_5: 'oklch(0.437 0.078 188.216)',
+  // Samvaya brand — Red as primary, charcoal/red gradient for charts.
+  primary: '#A3171F',
+  chart_1: '#A3171F',
+  chart_2: '#7D1118',
+  chart_3: '#18181B',
+  chart_4: '#3F3F46',
+  chart_5: '#A1A1AA',
   font_sans: 'inter',
   font_form: 'inter',
   radius: '0.5rem',

@@ -172,18 +172,48 @@ const ADDITIONAL_QUALIFICATION_OPTIONS = [
   { value: 'fellowship', label: 'Fellowship' },
   { value: 'phd', label: 'PhD' },
   { value: 'mba', label: 'MBA' },
-  { value: 'mph', label: 'MPH' },
-  { value: 'diploma', label: 'Diploma (Post-MBBS)' },
+  { value: 'mph', label: 'MPH (Master of Public Health)' },
+  { value: 'pgdm', label: 'PGDM' },
+  { value: 'diploma', label: 'Diploma (post-MBBS)' },
   { value: 'mrcp', label: 'MRCP' },
   { value: 'frcs', label: 'FRCS' },
   { value: 'fcps', label: 'FCPS' },
-  { value: 'usmle', label: 'USMLE' },
-  { value: 'plab', label: 'PLAB' },
   { value: 'dgo', label: 'DGO' },
   { value: 'dch', label: 'DCH' },
   { value: 'da', label: 'DA' },
-  { value: 'pgdm', label: 'PGDM' },
+  { value: 'usmle', label: 'USMLE (USA)' },
+  { value: 'plab', label: 'PLAB (UK)' },
+  { value: 'amc', label: 'AMC (Australia)' },
+  { value: 'mccqe', label: 'MCCQE (Canada)' },
+  { value: 'fmge', label: 'FMGE (returning to India)' },
   { value: 'other', label: 'Other' },
+];
+
+const ADDITIONAL_QUALIFICATION_GROUPS: OptionGroup[] = [
+  {
+    key: 'postgraduate_degrees',
+    label: 'Postgraduate qualifications & degrees',
+    icon: '🎓',
+    optionValues: ['fellowship', 'phd', 'mba', 'mph', 'pgdm', 'diploma'],
+  },
+  {
+    key: 'specialty_certifications',
+    label: 'Specialty certifications',
+    icon: '📜',
+    optionValues: ['mrcp', 'frcs', 'fcps', 'dgo', 'dch', 'da'],
+  },
+  {
+    key: 'licensing_exams',
+    label: 'Licensing exams (cleared or planning)',
+    icon: '🌍',
+    optionValues: ['usmle', 'plab', 'amc', 'mccqe', 'fmge'],
+  },
+  {
+    key: 'other',
+    label: 'Other',
+    icon: '➕',
+    optionValues: ['other'],
+  },
 ];
 
 const BODY_TYPE_OPTIONS = [
@@ -195,12 +225,12 @@ const BODY_TYPE_OPTIONS = [
 ];
 
 const DIET_PREFERENCE_OPTIONS = [
-  { value: 'vegetarian', label: 'Vegetarian' },
-  { value: 'non_vegetarian', label: 'Non-Vegetarian' },
-  { value: 'eggetarian', label: 'Eggetarian' },
-  { value: 'vegan', label: 'Vegan' },
-  { value: 'jain', label: 'Jain' },
-  { value: 'no_preference', label: 'No preference' },
+  { value: 'vegetarian', label: 'Vegetarian', icon: '🥬' },
+  { value: 'non_vegetarian', label: 'Non-Vegetarian', icon: '🍗' },
+  { value: 'eggetarian', label: 'Eggetarian', icon: '🥚' },
+  { value: 'vegan', label: 'Vegan', icon: '🌱' },
+  { value: 'jain', label: 'Jain', icon: '🙏' },
+  { value: 'no_preference', label: 'No preference', icon: '🤷' },
 ];
 
 const PARTNER_QUALITY_OPTIONS = [
@@ -720,16 +750,23 @@ const sectionG: QuestionConfig[] = [
   },
   { id: 'Q54', questionNumber: 54, section: 'G', text: 'Pick your top 4 interests — the ones you are most active in', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'hobbies_regular', maxSelections: 4, dynamicOptionsFrom: 'Q53', helpText: 'Select exactly 4 from what you chose above.' },
   { id: 'Q55', questionNumber: 55, section: 'G', text: 'Any other hobbies not listed above?', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'hobbies_other', helpText: 'Since you selected "Other"' },
-  { id: 'QWKND', questionNumber: 56, section: 'G', text: 'How do you prefer to spend your free time?', type: 'multi_select', required: false, targetTable: 'profiles', targetColumn: 'free_time_preferences', helpText: 'Choose all that apply — there\'s no right answer here.', options: [
+  { id: 'QWKND', questionNumber: 56, section: 'G', text: 'How do you prefer to spend your free time?', type: 'multi_select', required: false, searchable: true, targetTable: 'profiles', targetColumn: 'free_time_preferences', helpText: 'Choose all that apply — there\'s no right answer here.', options: [
     { value: 'family_friends', label: 'Time with family and close friends' },
-    { value: 'hobby_creative', label: 'Pursuing a hobby or creative project' },
-    { value: 'outdoors_travel', label: 'Outdoors — travel, trekking, or sport' },
+    { value: 'hobby_creative', label: 'Creative hobbies (art, music, writing, photography)' },
+    { value: 'outdoors_travel', label: 'Outdoors — travel, trekking, sport' },
     { value: 'relaxing_alone', label: 'Relaxing and recharging alone' },
     { value: 'learning', label: 'Learning something new (courses, reading)' },
     { value: 'fitness', label: 'Fitness and physical activity' },
     { value: 'social_events', label: 'Social events and gatherings' },
     { value: 'community_volunteering', label: 'Community or volunteering work' },
     { value: 'rest_sleep', label: 'Catching up on sleep and rest' },
+    { value: 'cooking_food', label: 'Cooking, baking, exploring food' },
+    { value: 'gaming', label: 'Gaming or e-sports' },
+    { value: 'movies_streaming', label: 'Movies, shows, streaming' },
+    { value: 'spiritual', label: 'Spiritual practice (meditation, yoga, prayer)' },
+    { value: 'pets', label: 'Spending time with pets' },
+    { value: 'side_projects', label: 'Side projects, entrepreneurship' },
+    { value: 'music_concerts', label: 'Live music, concerts, theatre' },
     { value: 'other', label: 'Other' },
   ] },
 ];
@@ -743,7 +780,7 @@ const sectionH: QuestionConfig[] = [
   { id: 'Q56b', questionNumber: 58, section: 'H', text: 'What is your PG degree?', type: 'select', required: false, targetTable: 'medical_credentials', targetColumn: 'pg_degree', options: PG_DEGREE_OPTIONS },
   { id: 'Q56c', questionNumber: 59, section: 'H', text: 'Please specify your PG degree', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'pg_degree_other', placeholder: 'e.g. MRCS, MMed, MPhil...' },
   { id: 'Q57', questionNumber: 60, section: 'H', text: 'Planning to pursue PG?', type: 'select', required: false, targetTable: 'medical_credentials', targetColumn: 'pg_plans', options: [{ value: 'yes_within_1_year', label: 'Yes, within the next year' }, { value: 'yes_2_to_3_years', label: 'Yes, in 2-3 years' }, { value: 'no_plan_to_practice', label: 'No, I plan to practice as MBBS' }, { value: 'undecided', label: 'Undecided' }] },
-  { id: 'Q58', questionNumber: 61, section: 'H', text: 'Any additional qualifications or certifications?', type: 'multi_select', required: true, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS, searchable: true, helpText: 'Beyond your primary medical degree' },
+  { id: 'Q58', questionNumber: 61, section: 'H', text: 'Any postgraduate qualifications, certifications, or licensing exams?', type: 'multi_select', required: true, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS, optionGroups: ADDITIONAL_QUALIFICATION_GROUPS, helpText: 'Beyond your primary medical degree — includes degrees, board certifications, and licensing exams (cleared or planning).' },
   { id: 'Q59', questionNumber: 62, section: 'H', text: 'What other qualifications do you have?', type: 'text', required: false, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications_other', placeholder: 'Please specify' },
   { id: 'Q60', questionNumber: 63, section: 'H', text: 'Specialty (current or planned)', type: 'multi_select', required: true, targetTable: 'medical_credentials', targetColumn: 'specialty', helpText: 'Select all that apply', options: MEDICAL_SPECIALTY_OPTIONS, searchable: true },
 ];
@@ -771,7 +808,7 @@ const sectionJ: QuestionConfig[] = [
     { value: 'above_1cr', label: 'Above ₹1 Cr' },
     { value: 'prefer_not_to_say', label: 'Prefer not to say' },
   ] },
-  { id: 'QFIN2', questionNumber: 67, section: 'J', text: 'How would you describe your current financial stage?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'financial_stage', options: [
+  { id: 'QFIN2', questionNumber: 67, section: 'J', text: 'How would you describe your current financial stage?', type: 'stage_selector', required: false, targetTable: 'profiles', targetColumn: 'financial_stage', options: [
     { value: 'building_savings', label: 'Building savings after training' },
     { value: 'stable_growing', label: 'Financially stable with growing investments' },
     { value: 'well_established', label: 'Well-established with significant assets' },
@@ -808,7 +845,7 @@ const sectionJ: QuestionConfig[] = [
 // ============================================================
 
 const sectionK_goalsValues: QuestionConfig[] = [
-  { id: 'Q63', questionNumber: 72, section: 'K', text: 'What is your preferred marriage timeline?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'marriage_timeline', options: [{ value: 'within_6_months', label: 'Within 6 months' }, { value: '6_to_12_months', label: '6-12 months' }, { value: '1_to_2_years', label: '1-2 years' }, { value: 'no_fixed_timeline', label: 'No fixed timeline' }] },
+  { id: 'Q63', questionNumber: 72, section: 'K', text: 'What is your preferred marriage timeline?', type: 'stage_selector', required: true, targetTable: 'profiles', targetColumn: 'marriage_timeline', options: [{ value: 'within_6_months', label: 'Within 6 months' }, { value: '6_to_12_months', label: '6-12 months' }, { value: '1_to_2_years', label: '1-2 years' }, { value: 'no_fixed_timeline', label: 'No fixed timeline' }] },
   { id: 'Q64', questionNumber: 73, section: 'K', text: 'Are you open to a long-distance relationship?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'long_distance_comfort', helpText: 'This means being in different cities or countries during the initial phase of the relationship.', options: [{ value: 'yes_absolutely', label: 'Yes' }, { value: 'open_to_it', label: 'Open to it' }, { value: 'prefer_same_location', label: 'Prefer same city' }] },
   { id: 'Q65', questionNumber: 74, section: 'K', text: 'Preferred family arrangement after marriage', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'post_marriage_family_arrangement', options: [
     { value: 'nuclear', label: 'Nuclear family', icon: '🏠' },
@@ -828,8 +865,6 @@ const sectionK_goalsValues: QuestionConfig[] = [
     { value: 'no', label: 'No', icon: '✋' },
     { value: 'open', label: 'Open to it', icon: '🤔' },
   ] },
-  { id: 'Q68', questionNumber: 77, section: 'K', text: 'Preferred number of children', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'children_count_preference', options: [{ value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3_or_more', label: '3+' }, { value: 'no_preference', label: 'No preference' }] },
-  { id: 'Q69', questionNumber: 78, section: 'K', text: 'Preferred timing for children', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'children_timing_preference', options: [{ value: 'within_1_2_years', label: '1-2 years after marriage' }, { value: 'after_3_5_years', label: '3-5 years' }, { value: 'after_milestones', label: 'After career milestones' }, { value: 'no_preference', label: 'No preference' }] },
   { id: 'Q70', questionNumber: 79, section: 'K', text: 'Open to a partner with children?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'open_to_partner_with_children', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'open', label: 'Open to it' }] },
   { id: 'Q71', questionNumber: 80, section: 'K', text: 'Preferred countries to settle', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'preferred_settlement_countries', optionsSource: 'countries', searchable: true },
   { id: 'Q72', questionNumber: 81, section: 'K', text: 'Open to relocating for partner?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'open_to_immediate_relocation', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'open', label: 'Open to it' }] },
@@ -895,13 +930,13 @@ const sectionL: QuestionConfig[] = [
     { value: 'not_religious', label: 'Not religious', icon: '🌐' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
-  { id: 'Q91', questionNumber: 101, section: 'L', text: "What are your expectations for your partner's career after marriage?", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_career_expectation_after_marriage', options: [
+  { id: 'Q91', questionNumber: 101, section: 'L', text: "How do you see your partner balancing work and family after marriage?", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_career_expectation_after_marriage', helpText: 'About life after the wedding — not their current stage.', options: [
     { value: 'both_continue', label: 'Both should work', icon: '💼' },
     { value: 'comfortable_either_way', label: 'Either way', icon: '⚖️' },
     { value: 'prefer_partner_home', label: 'Prefer homemaker', icon: '🏡' },
     { value: 'open', label: 'Open to discussion', icon: '💬' },
   ] },
-  { id: 'Q92', questionNumber: 102, section: 'L', text: 'Which career stages are acceptable for your partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_career_stage', options: [{ value: 'mbbs_student', label: 'MBBS Student' }, { value: 'intern', label: 'Intern' }, { value: 'mbbs_passed', label: 'MBBS Passed' }, { value: 'pursuing_pg', label: 'PG Resident' }, { value: 'completed_pg', label: 'Completed PG' }, { value: 'established', label: 'Established Practitioner' }, { value: 'no_preference', label: 'No preference' }], searchable: true },
+  { id: 'Q92', questionNumber: 102, section: 'L', text: 'Which career stages are you open to in a partner today?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_career_stage', helpText: 'Their current point in medical training or practice.', options: [{ value: 'mbbs_student', label: 'MBBS Student' }, { value: 'intern', label: 'Intern' }, { value: 'mbbs_passed', label: 'MBBS Passed' }, { value: 'pursuing_pg', label: 'PG Resident' }, { value: 'completed_pg', label: 'Completed PG' }, { value: 'established', label: 'Established Practitioner' }, { value: 'no_preference', label: 'No preference' }], searchable: true },
   { id: 'Q93', questionNumber: 103, section: 'L', text: 'What qualities are you looking for in a partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_qualities', maxSelections: 15, helpText: 'Select up to 15 qualities.', options: PARTNER_QUALITY_OPTIONS, optionGroups: PARTNER_QUALITY_GROUPS },
   { id: 'Q94', questionNumber: 104, section: 'L', text: 'Any other qualities you are looking for?', type: 'text', required: false, targetTable: 'partner_preferences', targetColumn: 'partner_qualities_other', placeholder: 'Describe any qualities not listed above' },
 ];

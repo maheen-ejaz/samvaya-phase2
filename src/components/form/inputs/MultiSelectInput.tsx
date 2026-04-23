@@ -5,6 +5,7 @@ import { TagInput } from './TagInput';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CheckIcon } from 'lucide-react';
+import { NO_PREFERENCE_VALUE, applyNoPreferenceToggle } from '@/lib/form/no-preference';
 
 interface MultiSelectInputProps {
   question: QuestionConfig;
@@ -24,8 +25,23 @@ export function MultiSelectInput({ question, value, onChange, inputId, ariaDescr
   }
 
   const selected = value || [];
+  const hasNoPreference = question.options.some((o) => o.value === NO_PREFERENCE_VALUE);
 
   function toggle(optionValue: string) {
+    if (hasNoPreference) {
+      const next = applyNoPreferenceToggle(selected, optionValue);
+      // Respect maxSelections only when adding a non-no_preference value
+      if (
+        optionValue !== NO_PREFERENCE_VALUE &&
+        question.maxSelections &&
+        next.length > question.maxSelections &&
+        !selected.includes(optionValue)
+      ) {
+        return;
+      }
+      onChange(next);
+      return;
+    }
     if (selected.includes(optionValue)) {
       onChange(selected.filter((v) => v !== optionValue));
     } else {
@@ -66,6 +82,7 @@ export function MultiSelectInput({ question, value, onChange, inputId, ariaDescr
                 option.label.length > 20 && 'w-full sm:w-auto',
               )}
             >
+              {option.icon && <span aria-hidden="true">{option.icon}</span>}
               {option.label}
               {isSelected && <CheckIcon className="size-3.5" />}
             </Button>

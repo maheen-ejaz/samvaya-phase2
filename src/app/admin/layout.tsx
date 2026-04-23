@@ -48,7 +48,7 @@ export default async function AdminLayout({
 
   return (
     <TooltipProvider>
-      <SidebarProvider defaultOpen={defaultOpen}>
+      <SidebarProvider defaultOpen={defaultOpen} className="admin-scope">
         <AdminSidebarNav />
         <SidebarInset>
           {/* Slim top bar with sidebar toggle + breadcrumb */}

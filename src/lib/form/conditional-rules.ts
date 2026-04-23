@@ -150,16 +150,6 @@ export const CONDITIONAL_RULES: ConditionalRule[] = [
     questionId: 'QFIN1',
     condition: (a: FormAnswers) => a['Q61'] === 'true',
   },
-  // Q68: How many children → only if Q67 = yes
-  {
-    questionId: 'Q68',
-    condition: (a: FormAnswers) => a['Q67'] === 'yes',
-  },
-  // Q69: When have children → only if Q67 = yes
-  {
-    questionId: 'Q69',
-    condition: (a: FormAnswers) => a['Q67'] === 'yes',
-  },
   // Q70: Open to partner with children → only if divorced/widowed AND has children
   {
     questionId: 'Q70',

@@ -153,10 +153,10 @@ export function WelcomeScreen({ firstName }: WelcomeScreenProps) {
         {/* Founder-led matchmaking card */}
         <div className="relative overflow-hidden rounded-2xl border border-[#D4AF8C] bg-[#FAF5EE] p-[18px] shadow-[0_1px_2px_rgba(26,22,20,0.04)]">
           {/* Decorative circle */}
-          <div className="pointer-events-none absolute -right-5 -top-5 size-[90px] rounded-full bg-[rgba(107,26,43,0.04)]" />
+          <div className="pointer-events-none absolute -right-5 -top-5 size-[90px] rounded-full bg-[rgba(163,23,31,0.04)]" />
           {/* Premium badge */}
-          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-[rgba(107,26,43,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] text-[#6B1A2B]">
-            <svg width="9" height="9" viewBox="0 0 10 10" fill="#6B1A2B">
+          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-[rgba(163,23,31,0.08)] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] text-[#A3171F]">
+            <svg width="9" height="9" viewBox="0 0 10 10" fill="#A3171F">
               <path d="M5 1l1.2 2.5L9 4l-2 2 .5 2.8L5 7.5 2.5 8.8 3 6 1 4l2.8-.5L5 1z"/>
             </svg>
             Premium
@@ -169,7 +169,7 @@ export function WelcomeScreen({ firstName }: WelcomeScreenProps) {
           </p>
           <button
             type="button"
-            className="mt-3.5 inline-flex h-[38px] items-center gap-1.5 rounded-full bg-[#6B1A2B] px-4 text-[13px] font-semibold text-white shadow-[0_2px_8px_rgba(107,26,43,0.25)]"
+            className="mt-3.5 inline-flex h-[38px] items-center gap-1.5 rounded-full bg-[#A3171F] px-4 text-[13px] font-semibold text-white shadow-[0_2px_8px_rgba(163,23,31,0.25)]"
           >
             Contact us for pricing
             <ArrowRightIcon className="size-3.5" />

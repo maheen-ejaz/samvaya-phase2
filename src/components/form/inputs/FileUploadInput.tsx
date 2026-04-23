@@ -8,6 +8,54 @@ import { UploadProgressRow } from './UploadProgressRow';
 import type { UploadStage } from './UploadProgressRow';
 import type { QuestionConfig } from '@/lib/form/types';
 
+// Local placeholder for the blur demo — served from /public, no external dependency.
+const DEMO_IMG = '/placeholder-stock-photo.jpg';
+
+function PhotoBlurDemo() {
+  return (
+    <div className="rounded-xl border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] p-3">
+      <p className="form-helper mb-3 text-center text-[color:var(--color-form-text-secondary)]">
+        See how photos appear to matches before and after mutual interest
+      </p>
+      <div className="flex gap-2">
+        {/* Blurred — what matches see before mutual interest */}
+        <div className="flex-1 text-center">
+          <div className="relative overflow-hidden rounded-lg" style={{ aspectRatio: '3/4' }}>
+            <img
+              src={DEMO_IMG}
+              alt="Example of a blurred photo as seen by matches"
+              className="w-full h-full object-cover scale-110"
+              style={{ filter: 'blur(10px)' }}
+            />
+          </div>
+          <p className="form-caption mt-1.5 font-medium">Before mutual interest</p>
+          <p className="form-caption text-[color:var(--color-form-text-tertiary)]">Matches see this</p>
+        </div>
+
+        {/* Divider */}
+        <div className="flex flex-col items-center justify-center gap-1 px-1">
+          <div className="h-12 w-px bg-[color:var(--color-form-border)]" />
+          <span className="text-xs text-[color:var(--color-form-text-tertiary)]">→</span>
+          <div className="h-12 w-px bg-[color:var(--color-form-border)]" />
+        </div>
+
+        {/* Original — visible after mutual interest */}
+        <div className="flex-1 text-center">
+          <div className="relative overflow-hidden rounded-lg" style={{ aspectRatio: '3/4' }}>
+            <img
+              src={DEMO_IMG}
+              alt="Example of a photo as seen after mutual interest"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <p className="form-caption mt-1.5 font-medium">After mutual interest</p>
+          <p className="form-caption text-[color:var(--color-form-text-tertiary)]">Both parties see this</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface UploadedFile {
   id: string;
   storagePath: string;
@@ -359,6 +407,35 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
 
   return (
     <div className="space-y-4">
+      {/* Blur demo — photos only */}
+      {isPhoto && <PhotoBlurDemo />}
+
+      {/* Identity document privacy callout */}
+      {!isPhoto && config.documentType === 'identity_document' && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+          <svg className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+          </svg>
+          <p className="text-sm leading-snug text-blue-900">
+            <span className="font-semibold">Stored securely. Never shared.</span>{' '}
+            Your identity document is used solely to verify your name and address. It is never shared with other applicants — not even with your matches — and will not be disclosed to any third party without your explicit consent.
+          </p>
+        </div>
+      )}
+
+      {/* Privacy callout — photos only */}
+      {isPhoto && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+          </svg>
+          <p className="text-sm leading-snug text-amber-800">
+            <span className="font-semibold">Your photos stay private.</span>{' '}
+            Matches only see a blurred version until both of you confirm mutual interest — then your original photo is revealed.
+          </p>
+        </div>
+      )}
+
       {/* Drop zone */}
       {canUploadMore && (
         <UploadDropZone
@@ -473,7 +550,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
         </div>
       )}
 
-      {/* Error message */}
+      {/* Error message (keep at end) */}
       {error && (
         <div className="flex items-center gap-2 rounded-lg border border-[color:var(--color-form-error)]/20 bg-[color:var(--color-form-error)]/5 px-4 py-3">
           <svg

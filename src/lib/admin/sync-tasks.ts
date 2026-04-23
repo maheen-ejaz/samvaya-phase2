@@ -98,7 +98,7 @@ export async function createWaitlistCallTask(params: {
       entity_type: 'waitlist',
       entity_id: params.waitlistId,
       status: 'open',
-      notes: `New waitlist signup. Explain the platform, the ₹4,130 verification fee, and the onboarding process.`,
+      notes: `New waitlist signup. Explain the platform, the ₹3,500 + GST verification fee, and the onboarding process.`,
       action_href: '/admin/applicants',
       applicant_name: params.name,
       applicant_phone: params.phone,

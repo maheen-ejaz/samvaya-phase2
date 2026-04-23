@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownPortal } from './DropdownPortal';
 import { cn } from '@/lib/utils';
 import { XIcon, SearchIcon } from 'lucide-react';
+import { NO_PREFERENCE_VALUE, applyNoPreferenceToggle } from '@/lib/form/no-preference';
 
 interface TagInputProps {
   question: QuestionConfig;
@@ -54,16 +55,33 @@ export function TagInput({ question, value, onChange, inputId, ariaDescribedBy, 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const hasNoPreference = useMemo(
+    () => options.some((o) => o.value === NO_PREFERENCE_VALUE),
+    [options],
+  );
+
   const addOption = useCallback((optionValue: string) => {
-    if (atMax) return;
-    onChange([...value, optionValue]);
+    if (hasNoPreference) {
+      const next = applyNoPreferenceToggle(value, optionValue);
+      if (
+        optionValue !== NO_PREFERENCE_VALUE &&
+        question.maxSelections &&
+        next.length > question.maxSelections
+      ) {
+        return;
+      }
+      onChange(next);
+    } else {
+      if (atMax) return;
+      onChange([...value, optionValue]);
+    }
     setInputValue('');
     setHighlightedIndex(-1);
     requestAnimationFrame(() => {
       setIsOpen(true);
       inputRef.current?.focus();
     });
-  }, [value, onChange, atMax]);
+  }, [value, onChange, atMax, hasNoPreference, question.maxSelections]);
 
   const removeOption = useCallback((optionValue: string) => {
     onChange(value.filter((v) => v !== optionValue));

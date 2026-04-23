@@ -45,7 +45,7 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
         <p className="form-helper">
           Your verification begins only after you give consent below
           <strong className="text-[color:var(--color-form-text-primary)] font-medium"> and </strong>
-          your verification fee (&#x20B9;4,130) is processed.
+          your verification fee (&#x20B9;3,500 + GST) is processed.
         </p>
         <p className="form-helper">
           If consent is not provided, your profile will be deleted within 30 working days.

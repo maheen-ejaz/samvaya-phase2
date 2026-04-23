@@ -10,6 +10,7 @@ import { BentoGrid, BentoTile } from '../bento/BentoGrid';
 import { getBentoSpan } from '../bento/bento-spans';
 import { SectionHeader } from '../shell/SectionHeader';
 import { StickyCTA } from '../shell/StickyCTA';
+import { setSectionCompleteToast } from './SectionCompleteToast';
 import { getQuestion } from '@/lib/form/questions';
 import { getVisibleQuestionsForSection, isQuestionAnswered } from '@/lib/form/section-navigation';
 import { getSectionMeta, getSectionPosition, sectionPath } from '@/lib/form/section-routing';
@@ -127,21 +128,23 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
       if (ok) router.push('/app/onboarding/complete');
       return;
     }
+    if (meta) setSectionCompleteToast({ label: meta.label, position, total });
     const nextIdx = sectionIndex + 1;
     const next = SECTIONS[nextIdx];
     if (next) router.push(`${sectionPath(next.id)}/intro`);
   }
 
-  function handleBack() {
+  async function handleBack() {
     setIsExiting(true);
-    setTimeout(() => {
-      if (sectionIndex === 0) {
-        router.push('/app/onboarding/welcome');
-        return;
-      }
-      const prev = SECTIONS[sectionIndex - 1];
-      if (prev) router.push(sectionPath(prev.id));
-    }, 200);
+    // Drain pending auto-saves before navigating so the previous section
+    // hydrates with the user's most recent answers (not stale DB rows).
+    await flushNow();
+    if (sectionIndex === 0) {
+      router.push('/app/onboarding/welcome');
+      return;
+    }
+    const prev = SECTIONS[sectionIndex - 1];
+    if (prev) router.push(sectionPath(prev.id));
   }
 
   return (

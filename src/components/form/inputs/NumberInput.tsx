@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import type { QuestionConfig } from '@/lib/form/types';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -29,9 +30,17 @@ function cmToFeetInches(cm: number): string | null {
 }
 
 export function NumberInput({ question, value, onChange, inputId, ariaDescribedBy, ariaInvalid }: NumberInputProps) {
-  const isHeight = question.targetColumn === 'height_cm';
-  const heightConversion = isHeight && typeof value === 'number' ? cmToFeetInches(value) : null;
   const constraints = NUMBER_CONSTRAINTS[question.targetColumn ?? ''];
+  const [raw, setRaw] = useState<string>(value != null ? String(value) : '');
+
+  // Sync raw when value changes externally (e.g. save-and-resume)
+  useEffect(() => {
+    setRaw(value != null ? String(value) : '');
+  }, [value]);
+
+  const isHeight = question.targetColumn === 'height_cm';
+  const numericValue = typeof value === 'number' ? value : (value !== '' ? Number(value) : null);
+  const heightConversion = isHeight && numericValue != null && !isNaN(numericValue) ? cmToFeetInches(numericValue) : null;
 
   return (
     <div>
@@ -39,16 +48,24 @@ export function NumberInput({ question, value, onChange, inputId, ariaDescribedB
         id={inputId}
         type="number"
         inputMode="decimal"
-        value={value ?? ''}
+        value={raw}
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid || undefined}
         onChange={(e) => {
           const val = e.target.value;
+          setRaw(val);
           if (val === '') { onChange(null); return; }
-          let num = Number(val);
+          const num = Number(val);
+          if (!isNaN(num)) onChange(num);
+        }}
+        onBlur={() => {
+          if (raw === '') { onChange(null); return; }
+          let num = Number(raw);
+          if (isNaN(num)) return;
           if (constraints) {
             num = Math.max(constraints.min, Math.min(constraints.max, num));
           }
+          setRaw(String(num));
           onChange(num);
         }}
         min={constraints?.min}

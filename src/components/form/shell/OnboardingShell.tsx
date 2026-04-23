@@ -119,7 +119,7 @@ function ShellInner({
         resumeSection={resumeSection}
       />
 
-      <SidebarInset className="form-surface">
+      <SidebarInset className="form-surface border-l border-[color:var(--color-form-border)]">
         {/* Mobile-only progress bar (desktop has sidebar progress) */}
         <div className="h-0.5 w-full bg-muted lg:hidden">
           <div

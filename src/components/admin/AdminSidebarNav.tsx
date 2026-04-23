@@ -92,7 +92,7 @@ export function AdminSidebarNav() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/admin">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[color:var(--color-admin-accent)] text-white">
                   <span className="text-sm font-bold">S</span>
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">

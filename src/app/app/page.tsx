@@ -75,7 +75,7 @@ export default async function ApplicantHome() {
     const userData = usersResult.data as Record<string, unknown> | null;
 
     // If onboarding not complete, redirect to form
-    if (Number(userData?.onboarding_section) < 13) {
+    if (userData?.membership_status === 'onboarding_pending') {
       redirect('/app/onboarding');
     }
 

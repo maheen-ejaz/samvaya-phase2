@@ -16,6 +16,7 @@ export const BENTO_SPANS: Record<QuestionType, BentoSpan> = {
   date:                   { col: 1, row: 1 },
   time:                   { col: 1, row: 1 },
   select:                 { col: 1, row: 1 },
+  stage_selector:         { col: 1, row: 1 },
   range:                  { col: 1, row: 1 },
   multi_select:           { col: 1, row: 1 },
   illustrated_mc:         { col: 1, row: 1 },

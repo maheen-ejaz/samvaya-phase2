@@ -147,7 +147,6 @@ export class AutoSaveEngine {
     const existing = this.dirtyFields.get('users') || {};
     existing['onboarding_section'] = sectionNumber;
     existing['onboarding_last_question'] = config.questionNumber;
-    existing['last_form_activity_at'] = new Date().toISOString();
     this.dirtyFields.set('users', existing);
     this.resetTimer();
   }

@@ -28,7 +28,7 @@ const MILESTONES: Milestone[] = [
   {
     icon: 'payment',
     label: 'Payment Received',
-    description: 'Verification fee of \u20B94,130 confirmed',
+    description: 'Verification fee of \u20B93,500 + GST confirmed',
     date: DUMMY.paymentReceived,
   },
   {

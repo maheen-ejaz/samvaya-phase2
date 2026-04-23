@@ -42,11 +42,11 @@ export default function TermsOfServicePage() {
         </p>
         <ul className="mt-2 list-disc pl-5 text-gray-700 space-y-1">
           <li>
-            <strong>Verification fee:</strong> &#8377;4,130 (one-time,
+            <strong>Verification fee:</strong> &#8377;3,500 + GST (one-time,
             non-refundable)
           </li>
           <li>
-            <strong>Membership fee:</strong> &#8377;41,300 (non-refundable)
+            <strong>Membership fee:</strong> &#8377;35,000 + GST (non-refundable)
           </li>
         </ul>
         <p className="mt-2 text-gray-700 leading-relaxed">

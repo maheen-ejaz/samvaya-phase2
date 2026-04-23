@@ -4,6 +4,7 @@ import { BgvConsentInput } from './inputs/BgvConsentInput';
 import { TextInput } from './inputs/TextInput';
 import { PhoneInput } from './inputs/PhoneInput';
 import { SelectInput } from './inputs/SelectInput';
+import { StageSelector } from './inputs/StageSelector';
 import { MultiSelectInput } from './inputs/MultiSelectInput';
 import { GroupedMultiSelectInput } from './inputs/GroupedMultiSelectInput';
 import { DateInput } from './inputs/DateInput';
@@ -147,6 +148,18 @@ export function InputSwitch({ question, value, onChange, inputId, ariaDescribedB
     case 'phone':
       return (
         <PhoneInput
+          question={question}
+          value={(value as string) || ''}
+          onChange={onChange}
+          inputId={inputId}
+          ariaDescribedBy={ariaDescribedBy}
+          ariaInvalid={ariaInvalid}
+        />
+      );
+
+    case 'stage_selector':
+      return (
+        <StageSelector
           question={question}
           value={(value as string) || ''}
           onChange={onChange}

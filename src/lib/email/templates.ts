@@ -52,7 +52,7 @@ export function applicantCompletionEmail(firstName: string): {
 
       <div style="background:#fef2f2;border-radius:8px;padding:20px;margin:24px 0;">
         <p style="font-size:15px;font-weight:600;margin:0 0 8px;">
-          Verification fee: &#8377;3,500 + GST (&#8377;4,130 total)
+          Verification fee: &#8377;3,500 + GST
         </p>
         <p style="font-size:14px;line-height:1.5;margin:0;color:#4b5563;">
           This is a one-time, non-refundable fee. Work begins as soon as your payment is confirmed.
@@ -184,7 +184,7 @@ export function matchResponseReceivedEmail(
       <div style="background:#fef2f2;border-radius:8px;padding:20px;margin:24px 0;">
         <p style="font-size:15px;font-weight:600;margin:0 0 8px;">What happens next</p>
         <p style="font-size:14px;line-height:1.5;margin:0;color:#4b5563;">
-          To proceed with an introduction, the membership fee of &#8377;35,000 + GST (&#8377;41,300 total) applies. Our team will reach out to guide you through the next steps.
+          To proceed with an introduction, the membership fee of &#8377;35,000 + GST applies. Our team will reach out to guide you through the next steps.
         </p>
       </div>
 
@@ -636,7 +636,7 @@ export function membershipExpiredEmail(firstName: string): {
       <div style="background:#fef2f2;border-radius:8px;padding:20px;margin:24px 0;">
         <p style="font-size:15px;font-weight:600;margin:0 0 8px;">Membership renewal</p>
         <p style="font-size:14px;line-height:1.5;margin:0;color:#4b5563;">
-          Membership fee: &#8377;35,000 + GST (&#8377;41,300 total). Reach out to us and we&rsquo;ll take it from there.
+          Membership fee: &#8377;35,000 + GST. Reach out to us and we&rsquo;ll take it from there.
         </p>
       </div>
 
@@ -689,7 +689,7 @@ export function teamNotificationEmail(data: TeamNotificationData): {
         <ol style="font-size:14px;line-height:1.8;margin:0;padding-left:20px;color:#374151;">
           <li>Review profile in admin dashboard</li>
           <li>Verify documents</li>
-          <li>Collect verification fee (&#8377;4,130)${data.isGooCampus ? ' — <strong>waived (GooCampus)</strong>' : ''}</li>
+          <li>Collect verification fee (&#8377;3,500 + GST)${data.isGooCampus ? ' — <strong>waived (GooCampus)</strong>' : ''}</li>
           <li>Initiate BGV once fee confirmed + consent obtained</li>
         </ol>
       </div>

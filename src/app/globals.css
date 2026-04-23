@@ -18,9 +18,9 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* Preset b5cjpD3po — Vega / Teal / Inter / neutral / medium-radius */
-  --primary: oklch(0.511 0.096 186.391);
-  --primary-foreground: oklch(0.984 0.014 180.72);
+  /* Samvaya brand — Red as primary. Replaces previous Vega / Teal preset. */
+  --primary: #A3171F;
+  --primary-foreground: #FFFFFF;
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.97 0 0);
@@ -65,12 +65,12 @@
   --color-form-text-secondary: #3B3430;   /* body */
   --color-form-text-muted: #7A7370;       /* helper */
   --color-form-text-tertiary: #A8A19D;    /* placeholder */
-  --color-form-border: #ECE7E2;           /* hairline */
-  --color-form-border-strong: #E3DDD6;    /* input border */
+  --color-form-border: #D9D2CB;           /* hairline — visible against ivory bg */
+  --color-form-border-strong: #C8C0B8;    /* input border */
   --color-form-surface-muted: #F6F2EC;    /* locked / disabled */
-  --color-form-accent: #6B1A2B;           /* maroon */
-  --color-form-accent-soft: #F5E9EC;      /* soft plum tint */
-  --color-form-accent-deep: #4A0E1C;      /* pressed / hover */
+  --color-form-accent: #A3171F;           /* Samvaya Red */
+  --color-form-accent-soft: #FFF4F4;      /* Pale Blush — focus halo */
+  --color-form-accent-deep: #7D1118;      /* Red Dark — pressed / hover */
   --color-form-error: #B3261E;
   --color-form-error-soft: #FBE9E7;
   --color-form-success: #2F7A5B;
@@ -80,7 +80,7 @@
   --color-form-gold: #A8804A;
   --color-form-gold-soft: #F5EEDE;
   --color-form-shadow-card: 0 1px 2px rgba(26, 22, 20, 0.04);
-  --color-form-shadow-card-focus: 0 2px 4px rgba(26, 22, 20, 0.04), 0 8px 24px rgba(107, 26, 43, 0.08);
+  --color-form-shadow-card-focus: 0 2px 4px rgba(26, 22, 20, 0.04), 0 8px 24px rgba(163, 23, 31, 0.08);
   --font-form-serif: var(--font-fraunces), "Fraunces", Georgia, serif;
 
   /* Samvaya brand colors (PRD Section 13) */
@@ -94,20 +94,21 @@
   --color-samvaya-blush: #FFF4F4;
   --color-samvaya-blush-dark: #FFE8E8;
 
-  /* Admin dashboard — Neutral + Steel Blue palette
-     Extracted as separate tokens for easy theme swapping. */
-  --color-admin-bg: #F5F5F4;
+  /* Admin dashboard — Charcoal + Mist Grey + Samvaya Red accents.
+     Brand-aligned palette: charcoal dominates, red for intentional accents,
+     mist grey for surfaces, pale blush for soft accent backgrounds. */
+  --color-admin-bg: #F4F4F6;              /* Mist Grey */
   --color-admin-surface: #FFFFFF;
-  --color-admin-surface-muted: #FAFAF9;
-  --color-admin-border: #E7E5E4;
-  --color-admin-border-strong: #D6D3D1;
-  --color-admin-text-primary: #1C1917;
-  --color-admin-text-secondary: #57534E;
-  --color-admin-text-muted: #A8A29E;
-  --color-admin-accent: #3B82F6;
-  --color-admin-accent-hover: #2563EB;
-  --color-admin-accent-light: #EFF6FF;
-  --color-admin-accent-muted: #DBEAFE;
+  --color-admin-surface-muted: #F4F4F6;   /* Mist Grey */
+  --color-admin-border: #E4E4E7;          /* charcoal-derived neutral */
+  --color-admin-border-strong: #D4D4D8;
+  --color-admin-text-primary: #18181B;    /* Charcoal */
+  --color-admin-text-secondary: #3F3F46;
+  --color-admin-text-muted: #A1A1AA;
+  --color-admin-accent: #A3171F;          /* Samvaya Red — brand accent */
+  --color-admin-accent-hover: #7D1118;    /* Red Dark */
+  --color-admin-accent-light: #FFF4F4;    /* Pale Blush */
+  --color-admin-accent-muted: #FFE8E8;    /* Blush Dark */
   --color-admin-success: #059669;
   --color-admin-warning: #D97706;
   --color-admin-error: #DC2626;
@@ -223,6 +224,16 @@ body {
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+@keyframes toastPop {
+  0%   { opacity: 0; transform: scale(0.4); }
+  60%  { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-toast-pop {
+  animation: toastPop 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 /* ═══════════════════════════════════════════
@@ -836,6 +847,23 @@ h4 { font-weight: 600; }
 }
 
 /* ═══════════════════════════════════════════
+   Admin scope — Charcoal-led palette override.
+   Wraps the entire admin layout so existing
+   `bg-primary` / `text-primary` calls inside
+   admin components render charcoal instead of
+   the app-wide Samvaya Red. Red is reserved
+   for intentional accent surfaces (urgent
+   badges, brand wordmark, destructive actions)
+   via `--color-admin-accent`.
+   ═══════════════════════════════════════════ */
+
+.admin-scope {
+  --primary: #18181B;
+  --primary-foreground: #FFFFFF;
+  --ring: #18181B;
+}
+
+/* ═══════════════════════════════════════════
    Admin Design System — Unified Table & KPI
    ═══════════════════════════════════════════ */
 
@@ -1123,7 +1151,7 @@ h4 { font-weight: 600; }
   border-color: var(--color-form-accent);
   background: var(--color-form-accent);
   color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(107, 26, 43, 0.20);
+  box-shadow: 0 2px 8px rgba(163, 23, 31, 0.20);
 }
 .form-chip:focus-visible {
   outline: none;
@@ -1148,7 +1176,7 @@ h4 { font-weight: 600; }
   border: none;
   border-radius: 0.875rem;  /* 14px mobile — design default */
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(107, 26, 43, 0.20),
+  box-shadow: 0 4px 14px rgba(163, 23, 31, 0.20),
               inset 0 1px 0 rgba(255, 255, 255, 0.12);
   transition: background-color 150ms var(--ease-in-out-smooth),
               transform 100ms var(--ease-in-out-smooth),
@@ -1156,7 +1184,7 @@ h4 { font-weight: 600; }
 }
 .form-btn-primary:hover:not(:disabled) {
   background: var(--color-form-accent-deep);
-  box-shadow: 0 6px 18px rgba(107, 26, 43, 0.28),
+  box-shadow: 0 6px 18px rgba(163, 23, 31, 0.28),
               inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 .form-btn-primary:active:not(:disabled) {
@@ -1171,7 +1199,7 @@ h4 { font-weight: 600; }
 .form-btn-primary:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-form-accent-soft),
-              0 4px 14px rgba(107, 26, 43, 0.20);
+              0 4px 14px rgba(163, 23, 31, 0.20);
 }
 @media (min-width: 1024px) {
   .form-btn-primary { min-height: 3rem; border-radius: 0.75rem; }  /* 48px / 12px desktop */
@@ -1444,7 +1472,7 @@ h4 { font-weight: 600; }
   justify-content: space-between;
   gap: 1rem;
   background: var(--color-form-accent-soft);
-  border: 1px solid rgba(107, 26, 43, 0.15);
+  border: 1px solid rgba(163, 23, 31, 0.15);
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
@@ -1473,8 +1501,8 @@ h4 { font-weight: 600; }
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.398 0.195 277.366);
-  --primary-foreground: oklch(0.962 0.018 272.314);
+  --primary: #C4252F;
+  --primary-foreground: #FFFFFF;
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);

@@ -108,7 +108,7 @@ function ProfilePhoto({ profile, label, blurred }: { profile: ShareProfile; labe
         <div className="absolute inset-0 flex items-center justify-center">
           <span
             className="rounded-full px-3 py-1 text-xs font-semibold"
-            style={{ background: 'rgba(107, 26, 43, 0.85)', color: '#fff', backdropFilter: 'blur(4px)' }}
+            style={{ background: 'rgba(163, 23, 31, 0.85)', color: '#fff', backdropFilter: 'blur(4px)' }}
           >
             Preview
           </span>
@@ -126,7 +126,7 @@ function ProfilePhoto({ profile, label, blurred }: { profile: ShareProfile; labe
 
       <div
         className="absolute top-2 left-2 rounded-lg px-2 py-0.5 text-xs font-medium"
-        style={{ background: 'rgba(251,248,244,0.9)', color: '#6B1A2B' }}
+        style={{ background: 'rgba(251,248,244,0.9)', color: '#A3171F' }}
       >
         {label}
       </div>
@@ -178,7 +178,7 @@ function FullProfileCard({ profile, label }: { profile: ShareProfile; label: str
                   key={i}
                   onClick={() => setActivePhoto(i)}
                   className="h-1.5 rounded-full transition-all"
-                  style={{ width: i === activePhoto ? '20px' : '6px', background: i === activePhoto ? '#6B1A2B' : 'rgba(255,255,255,0.6)' }}
+                  style={{ width: i === activePhoto ? '20px' : '6px', background: i === activePhoto ? '#A3171F' : 'rgba(255,255,255,0.6)' }}
                 />
               ))}
             </div>
@@ -195,7 +195,7 @@ function FullProfileCard({ profile, label }: { profile: ShareProfile; label: str
         </div>
 
         {profile.keyQuote && (
-          <blockquote className="rounded-xl p-3 text-sm italic" style={{ background: '#fdf6ee', borderLeft: '3px solid #6B1A2B', color: '#4a3728' }}>
+          <blockquote className="rounded-xl p-3 text-sm italic" style={{ background: '#fdf6ee', borderLeft: '3px solid #A3171F', color: '#4a3728' }}>
             &ldquo;{profile.keyQuote}&rdquo;
           </blockquote>
         )}
@@ -214,7 +214,7 @@ function FullProfileCard({ profile, label }: { profile: ShareProfile; label: str
             <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#9e8f82' }}>Interests</p>
             <div className="flex flex-wrap gap-1.5">
               {profile.hobbies.map((h, i) => (
-                <span key={i} className="rounded-full px-2.5 py-1 text-xs" style={{ background: '#fdf6ee', color: '#6B1A2B', border: '1px solid #e5cfc8' }}>
+                <span key={i} className="rounded-full px-2.5 py-1 text-xs" style={{ background: '#fdf6ee', color: '#A3171F', border: '1px solid #e5cfc8' }}>
                   {h}
                 </span>
               ))}
@@ -253,7 +253,7 @@ export function MatchExpiredView() {
         <a
           href="https://samvayamatrimony.com"
           className="inline-block rounded-full px-6 py-2.5 text-sm font-medium text-white"
-          style={{ background: '#6B1A2B' }}
+          style={{ background: '#A3171F' }}
         >
           Visit Samvaya
         </a>
@@ -274,7 +274,7 @@ export function MatchShareView({ data }: { data: MatchShareData }) {
         {/* Header */}
         <div className="px-4 py-5 flex items-center justify-between" style={{ borderBottom: '1px solid #e5e0d8' }}>
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#6B1A2B' }}>Samvaya</p>
+            <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#A3171F' }}>Samvaya</p>
             <p className="text-xs mt-0.5" style={{ color: '#9e8f82' }}>Curated Match Preview</p>
           </div>
           {isRevealed ? (
@@ -363,7 +363,7 @@ export function MatchShareView({ data }: { data: MatchShareData }) {
 
           {/* Preview CTA */}
           {!isRevealed && (
-            <div className="rounded-2xl p-5 text-center space-y-2" style={{ background: '#6B1A2B' }}>
+            <div className="rounded-2xl p-5 text-center space-y-2" style={{ background: '#A3171F' }}>
               <p className="text-sm font-semibold text-white">Interested in this match?</p>
               <p className="text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>
                 Let the Samvaya team know. Once both parties express interest, full profiles will be shared.

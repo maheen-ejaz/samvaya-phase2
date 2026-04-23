@@ -2,21 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import { sendOtp, verifyOtp } from "./actions";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@/components/ui/input-otp";
-import { Spinner } from "@/components/ui/spinner";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
-import { CheckCircle2Icon, AlertCircleIcon } from "lucide-react";
 
 type Step = "email" | "otp";
 
-/** Validate redirect path — prevent open redirect attacks */
 function isSafeRedirectPath(path: string | null): boolean {
   if (!path) return false;
   if (!path.startsWith("/")) return false;
@@ -25,30 +16,536 @@ function isSafeRedirectPath(path: string | null): boolean {
   return path === "/app" || path.startsWith("/app/") || path === "/admin" || path.startsWith("/admin/");
 }
 
-function CountdownRing({ seconds, total = 60 }: { seconds: number; total?: number }) {
-  const radius = 11;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference * (1 - seconds / total);
+// ── Design tokens ─────────────────────────────────────────
+const C = {
+  ink: "#1A1614",
+  ink2: "#3B3430",
+  muted: "#7A7370",
+  faint: "#A8A19D",
+  line: "#ECE7E2",
+  line2: "#E3DDD6",
+  bg: "#FBF8F4",
+  accent: "#A3171F",
+  accentSoft: "#FFF4F4",
+  accentDeep: "#7D1118",
+  gold: "#A8804A",
+  goldSoft: "#F5EEDE",
+};
 
+// ── Arch SVG ornament ─────────────────────────────────────
+function ArchOrnament({ className }: { className?: string }) {
   return (
-    <svg className="size-7" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-      <circle cx="14" cy="14" r={radius.toString()} stroke="#e5e7eb" strokeWidth="2.5" fill="none" />
-      <circle
-        cx="14" cy="14" r={radius.toString()}
-        stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round"
-        strokeDasharray={circumference.toString()}
-        strokeDashoffset={strokeDashoffset.toString()}
-        transform="rotate(-90 14 14)"
-        style={{ transition: "stroke-dashoffset 0.5s linear" }}
-      />
+    <svg viewBox="0 0 520 520" width="520" height="520" fill="none" className={className} aria-hidden="true">
+      {[240, 200, 160, 120, 80].map((r, i) => (
+        <circle key={r} cx="260" cy="260" r={r}
+          stroke="#FFF6E9" strokeWidth="1" opacity={0.35 - i * 0.04}
+          strokeDasharray={i % 2 ? "2 5" : "0"} />
+      ))}
+      <path d="M260 60 C310 130 310 260 260 330 C210 260 210 130 260 60 Z" stroke="#FFF6E9" strokeWidth="1" opacity="0.4" />
+      <path d="M60 260 C130 210 390 210 460 260 C390 310 130 310 60 260 Z" stroke="#FFF6E9" strokeWidth="1" opacity="0.4" />
     </svg>
   );
 }
 
+// ── Brand panel (desktop left) ────────────────────────────
+function BrandPanel() {
+  return (
+    <div
+      className="hidden md:flex relative flex-col overflow-hidden"
+      style={{
+        flex: "0 0 48%",
+        background: `radial-gradient(140% 90% at 20% 10%, ${C.accent} 0%, ${C.accentDeep} 45%, #2A0912 85%, #150509 100%)`,
+        color: "#FFF6E9",
+        padding: "64px 64px 56px",
+      }}
+    >
+      {/* Arch ornament */}
+      <div className="absolute pointer-events-none" style={{ right: -160, top: -160, opacity: 0.22 }}>
+        <ArchOrnament />
+      </div>
+
+      {/* Brand lockup */}
+      <div className="relative flex items-center gap-3">
+        <div
+          className="grid place-items-center shrink-0"
+          style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: "rgba(255,255,255,0.10)",
+            border: "1px solid rgba(255,255,255,0.22)",
+            fontFamily: "var(--font-fraunces), serif",
+            fontSize: 22, fontWeight: 500, letterSpacing: "-0.6px",
+          }}
+        >s</div>
+        <span style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 22, fontWeight: 500, letterSpacing: "-0.4px" }}>
+          samvaya
+        </span>
+      </div>
+
+      {/* Eyebrow */}
+      <div className="relative mt-16">
+        <span
+          className="inline-flex items-center gap-2"
+          style={{
+            padding: "6px 12px",
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.18)",
+            borderRadius: 999,
+            fontSize: 10.5, fontWeight: 600,
+            letterSpacing: "1.6px", textTransform: "uppercase",
+            color: "rgba(255,246,233,0.82)",
+          }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#F5EEDE" }} />
+          By invitation · For verified doctors
+        </span>
+      </div>
+
+      {/* Hero */}
+      <div className="relative mt-7">
+        <h1
+          style={{
+            margin: 0,
+            fontFamily: "var(--font-fraunces), serif",
+            fontSize: 52, lineHeight: 1.04,
+            fontWeight: 500, letterSpacing: "-1.8px",
+            color: "#FFF6E9",
+          }}
+        >
+          Where exceptional<br />
+          <span style={{ fontStyle: "italic", color: "#F1C88E", fontWeight: 400 }}>doctors</span> find<br />
+          exceptional partners.
+        </h1>
+        <p style={{ marginTop: 24, fontSize: 16, lineHeight: 1.6, color: "rgba(255,246,233,0.72)", maxWidth: 380, letterSpacing: "-0.1px" }}>
+          A premium, curated matrimony platform — exclusively for medical professionals across India and their diaspora.
+        </p>
+      </div>
+
+      <div className="flex-1" />
+
+      {/* Stats */}
+      <div
+        className="relative flex gap-7"
+        style={{ paddingTop: 24, borderTop: "1px solid rgba(255,246,233,0.12)" }}
+      >
+        {[
+          { k: "2,400+", l: "verified doctors" },
+          { k: "96%", l: "profiles reviewed by humans" },
+          { k: "14 days", l: "to first curated match" },
+        ].map((s) => (
+          <div key={s.k} className="flex-1">
+            <div style={{ fontSize: 22, fontFamily: "var(--font-fraunces), serif", fontWeight: 500, letterSpacing: "-0.5px", color: "#FFF6E9" }}>{s.k}</div>
+            <div style={{ fontSize: 11.5, color: "rgba(255,246,233,0.55)", marginTop: 4, letterSpacing: "0.2px" }}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div
+        className="relative flex items-center gap-2.5"
+        style={{ marginTop: 28, fontSize: 11.5, color: "rgba(255,246,233,0.45)", letterSpacing: "0.3px", textTransform: "uppercase", fontWeight: 500 }}
+      >
+        <span>© 2026 Samvaya Matrimony</span>
+        <span className="w-1 h-1 rounded-full" style={{ background: "rgba(255,246,233,0.3)" }} />
+        <span>Mumbai · Bengaluru</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Email field ───────────────────────────────────────────
+function EmailField({
+  value, onChange, focused, hasError, onFocus, onBlur,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  focused: boolean;
+  hasError: boolean;
+  onFocus: () => void;
+  onBlur: () => void;
+}) {
+  const border = hasError ? "#B3261E" : focused ? C.accent : C.line2;
+  return (
+    <div>
+      <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: C.ink, letterSpacing: "-0.1px", marginBottom: 8 }}>
+        Email address
+      </label>
+      <div
+        style={{
+          height: 56, padding: "0 18px",
+          background: "#FFFFFF",
+          border: `1.5px solid ${border}`,
+          borderRadius: 14,
+          boxShadow: focused ? `0 0 0 3px ${C.accentSoft}` : "none",
+          display: "flex", alignItems: "center", gap: 10,
+          transition: "border-color 0.15s, box-shadow 0.15s",
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
+          <rect x="2" y="4" width="14" height="10" rx="2" stroke={C.muted} strokeWidth="1.3" />
+          <path d="M2.5 5l6.5 4.5L15.5 5" stroke={C.muted} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <input
+          type="email"
+          required
+          autoComplete="email"
+          autoFocus
+          value={value}
+          onChange={(e) => onChange(e.target.value.trim().toLowerCase())}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          placeholder="you@hospital.com"
+          style={{
+            flex: 1, border: "none", outline: "none", background: "transparent",
+            fontSize: 16, letterSpacing: "-0.1px", color: value ? C.ink : C.faint,
+            fontFamily: "var(--font-inter), sans-serif",
+          }}
+        />
+        {hasError && (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
+            <circle cx="8" cy="8" r="7" fill="#B3261E" />
+            <path d="M8 4.5v4M8 11v.3" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" />
+          </svg>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Primary button ────────────────────────────────────────
+function PrimaryButton({ children, disabled, loading, onClick, type = "submit" }: {
+  children: React.ReactNode;
+  disabled?: boolean;
+  loading?: boolean;
+  onClick?: () => void;
+  type?: "submit" | "button";
+}) {
+  return (
+    <button
+      type={type}
+      disabled={disabled || loading}
+      onClick={onClick}
+      style={{
+        width: "100%", height: 56,
+        background: disabled || loading ? C.line2 : C.accent,
+        color: disabled || loading ? C.muted : "#FFFFFF",
+        border: "none", borderRadius: 14,
+        fontSize: 15.5, fontWeight: 600,
+        fontFamily: "var(--font-inter), sans-serif",
+        letterSpacing: "-0.1px",
+        cursor: disabled || loading ? "not-allowed" : "pointer",
+        display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
+        boxShadow: disabled || loading ? "none" : `0 6px 18px ${C.accent}38, inset 0 1px 0 rgba(255,255,255,0.14)`,
+        transition: "background 0.15s, box-shadow 0.15s",
+      }}
+    >
+      {loading ? (
+        <>
+          <span style={{
+            width: 16, height: 16, borderRadius: "50%",
+            border: "2px solid rgba(100,50,50,0.3)",
+            borderTopColor: C.muted,
+            display: "inline-block",
+            animation: "spin 0.9s linear infinite",
+          }} />
+          {children}
+        </>
+      ) : children}
+    </button>
+  );
+}
+
+// ── Email step ────────────────────────────────────────────
+function EmailStep({
+  email, setEmail, error, loading, onSubmit,
+}: {
+  email: string;
+  setEmail: (v: string) => void;
+  error: string;
+  loading: boolean;
+  onSubmit: (e: React.FormEvent) => void;
+}) {
+  const [focused, setFocused] = useState(false);
+  const hasError = !!error;
+
+  return (
+    <form onSubmit={onSubmit} style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 28 }}>
+      <div>
+        <h2 style={{
+          margin: 0, fontFamily: "var(--font-fraunces), serif",
+          fontSize: 32, fontWeight: 500, letterSpacing: "-0.8px", color: C.ink, lineHeight: 1.15,
+        }}>
+          Welcome back
+        </h2>
+        <p style={{ marginTop: 8, fontSize: 15, color: C.muted, lineHeight: 1.55, letterSpacing: "-0.05px" }}>
+          Sign in to continue your Samvaya profile — or start fresh if this is your first visit.
+        </p>
+      </div>
+
+      <EmailField
+        value={email}
+        onChange={setEmail}
+        focused={focused}
+        hasError={hasError}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+      />
+
+      {error && (
+        <p style={{ margin: "-16px 0 0", fontSize: 12.5, color: "#B3261E", lineHeight: 1.45 }} role="alert">
+          {error}
+        </p>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <PrimaryButton disabled={!email || hasError} loading={loading}>
+          {loading ? "Sending code…" : (
+            <>
+              Send verification code
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </>
+          )}
+        </PrimaryButton>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "4px 0" }}>
+          <div style={{ flex: 1, height: 1, background: C.line }} />
+          <span style={{ fontSize: 11, color: C.faint, letterSpacing: "1.4px", textTransform: "uppercase", fontWeight: 500 }}>or</span>
+          <div style={{ flex: 1, height: 1, background: C.line }} />
+        </div>
+
+        {/* Hint: no Google auth — just invite info */}
+      </div>
+
+      {/* Invite-only callout */}
+      <div style={{
+        padding: "14px 16px",
+        background: C.goldSoft,
+        border: `1px solid rgba(168,128,74,0.24)`,
+        borderRadius: 12,
+        display: "flex", gap: 12, alignItems: "flex-start",
+      }}>
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }}>
+          <path d="M9 1.5L2 4v5c0 4 3 7 7 7.5 4-.5 7-3.5 7-7.5V4L9 1.5z" stroke={C.gold} strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M6.5 9L8 10.5l3.5-3.5" stroke={C.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <p style={{ margin: 0, fontSize: 13, color: C.ink2, lineHeight: 1.5 }}>
+          <strong style={{ color: C.ink, fontWeight: 600 }}>Invite only.</strong>{" "}
+          If you don&apos;t have an invite, request one from a Samvaya matchmaker and we&apos;ll be in touch within 48 hours.{" "}
+          <a href="mailto:hello@samvayamatrimony.com" style={{ color: C.accent, fontWeight: 600, textDecoration: "none" }}>
+            Request an invite →
+          </a>
+        </p>
+      </div>
+    </form>
+  );
+}
+
+// ── OTP step ──────────────────────────────────────────────
+function OtpStep({
+  email, otpCode, setOtpCode, error, loading, verifySuccess, otpError,
+  resendCooldown, onSubmit, onBack, onResend,
+}: {
+  email: string; otpCode: string; setOtpCode: (v: string) => void;
+  error: string; loading: boolean; verifySuccess: boolean; otpError: boolean;
+  resendCooldown: number; onSubmit: (e: React.FormEvent) => void;
+  onBack: () => void; onResend: () => void;
+}) {
+  const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  return (
+    <form onSubmit={onSubmit} style={{ width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 28 }}>
+      <div>
+        <button
+          type="button"
+          onClick={onBack}
+          style={{
+            padding: 0, background: "transparent", border: "none", cursor: "pointer",
+            color: C.muted, fontSize: 13, fontWeight: 500,
+            fontFamily: "var(--font-inter), sans-serif",
+            display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 16,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M7 3L4 6l3 3" stroke={C.muted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Use a different email
+        </button>
+        <h2 style={{
+          margin: 0, fontFamily: "var(--font-fraunces), serif",
+          fontSize: 32, fontWeight: 500, letterSpacing: "-0.8px", color: C.ink, lineHeight: 1.15,
+        }}>
+          Check your inbox
+        </h2>
+        <p style={{ marginTop: 10, fontSize: 15, color: C.muted, lineHeight: 1.55, letterSpacing: "-0.05px" }}>
+          We&apos;ve sent a 6-digit code to{" "}
+          <strong style={{ color: C.ink, fontWeight: 600 }}>{email}</strong>.{" "}
+          It expires in 10 minutes.
+        </p>
+      </div>
+
+      <div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, letterSpacing: "-0.1px", marginBottom: 10 }}>
+          Verification code
+        </div>
+        <div className={cn(otpError && "animate-shake")}>
+          <InputOTP
+            maxLength={6}
+            value={otpCode}
+            onChange={setOtpCode}
+            disabled={loading || verifySuccess}
+            autoFocus
+            aria-invalid={otpError || undefined}
+          >
+            <InputOTPGroup>
+              {[0, 1, 2].map((i) => (
+                <InputOTPSlot
+                  key={i} index={i}
+                  className={cn(
+                    "!h-[62px] !w-full !text-[26px] !rounded-[14px] !border-[1.5px]",
+                    "font-[var(--font-fraunces)]",
+                    verifySuccess && "!border-emerald-500 !bg-emerald-50",
+                  )}
+                  style={{ fontFamily: "var(--font-fraunces), serif" }}
+                />
+              ))}
+            </InputOTPGroup>
+            <InputOTPSeparator />
+            <InputOTPGroup>
+              {[3, 4, 5].map((i) => (
+                <InputOTPSlot
+                  key={i} index={i}
+                  className={cn(
+                    "!h-[62px] !w-full !text-[26px] !rounded-[14px] !border-[1.5px]",
+                    verifySuccess && "!border-emerald-500 !bg-emerald-50",
+                  )}
+                  style={{ fontFamily: "var(--font-fraunces), serif" }}
+                />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
+        </div>
+      </div>
+
+      {error && (
+        <p style={{ margin: "-16px 0 0", fontSize: 12.5, color: "#B3261E", textAlign: "center", lineHeight: 1.45 }} role="alert">
+          {error}
+        </p>
+      )}
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13, color: C.muted }}>
+        <span>Didn&apos;t get it?</span>
+        <button
+          type="button"
+          onClick={onResend}
+          disabled={resendCooldown > 0 || loading}
+          style={{
+            background: "transparent", border: "none", padding: 0, cursor: resendCooldown > 0 || loading ? "default" : "pointer",
+            color: resendCooldown > 0 || loading ? C.muted : C.accent,
+            fontSize: 13, fontWeight: 600,
+            fontFamily: "var(--font-inter), sans-serif",
+          }}
+        >
+          {resendCooldown > 0 ? `Resend in ${formatTime(resendCooldown)}` : "Resend code"}
+        </button>
+      </div>
+
+      <PrimaryButton disabled={otpCode.length < 6} loading={loading}>
+        {verifySuccess ? "Verified! Redirecting…" : loading ? "Verifying…" : "Continue"}
+      </PrimaryButton>
+
+      {/* Security note */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        padding: "12px 14px",
+        background: "#FFFFFF", border: `1px solid ${C.line}`,
+        borderRadius: 12, fontSize: 12.5, color: C.muted, lineHeight: 1.45,
+      }}>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
+          <rect x="2.5" y="6" width="9" height="6" rx="1.2" stroke={C.muted} strokeWidth="1.3" />
+          <path d="M4.5 6V4.2a2.5 2.5 0 015 0V6" stroke={C.muted} strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+        We never store this code. After verification, you&apos;ll stay signed in on this device for 30 days.
+      </div>
+    </form>
+  );
+}
+
+// ── Mobile hero + card layout ─────────────────────────────
+function MobileHero({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="md:hidden flex flex-col min-h-svh"
+      style={{
+        background: `radial-gradient(140% 80% at 30% 0%, ${C.accent} 0%, ${C.accentDeep} 50%, #1B0309 100%)`,
+        color: "#FFF6E9",
+        position: "relative", overflow: "hidden",
+      }}
+    >
+      {/* Arch ornament */}
+      <div className="absolute pointer-events-none" style={{ right: -120, top: -120, opacity: 0.18 }}>
+        <svg viewBox="0 0 400 400" width="400" height="400" fill="none" aria-hidden="true">
+          {[180, 140, 100, 60].map((r, i) => (
+            <circle key={r} cx="200" cy="200" r={r} stroke="#FFF6E9" strokeWidth="1"
+              opacity={0.4 - i * 0.06} strokeDasharray={i % 2 ? "2 5" : "0"} />
+          ))}
+        </svg>
+      </div>
+
+      {/* Brand + hero */}
+      <div style={{ padding: "60px 28px 0", position: "relative" }}>
+        <div className="flex items-center gap-2.5">
+          <div
+            className="grid place-items-center shrink-0"
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: "rgba(255,255,255,0.12)",
+              border: "1px solid rgba(255,255,255,0.22)",
+              fontFamily: "var(--font-fraunces), serif",
+              fontSize: 18, fontWeight: 500, letterSpacing: "-0.4px",
+              color: "#FFF6E9",
+            }}
+          >s</div>
+          <span style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 18, fontWeight: 500, letterSpacing: "-0.3px" }}>
+            samvaya
+          </span>
+        </div>
+
+        <h1 style={{
+          marginTop: 48, fontSize: 34, lineHeight: 1.06,
+          fontFamily: "var(--font-fraunces), serif",
+          fontWeight: 500, letterSpacing: "-1.2px",
+        }}>
+          Where exceptional{" "}
+          <span style={{ fontStyle: "italic", color: "#F1C88E", fontWeight: 400 }}>doctors</span>{" "}
+          find exceptional partners.
+        </h1>
+        <p style={{ marginTop: 14, fontSize: 14, lineHeight: 1.55, color: "rgba(255,246,233,0.68)", maxWidth: 320 }}>
+          A premium, curated matrimony platform — exclusively for medical professionals in India.
+        </p>
+      </div>
+
+      <div className="flex-1" />
+
+      {/* Form card */}
+      <div style={{
+        margin: "0 16px 16px",
+        background: "#FFFFFF", borderRadius: 22,
+        padding: "24px 24px 32px", color: C.ink,
+        boxShadow: "0 -6px 24px rgba(0,0,0,0.24)",
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Root component ────────────────────────────────────────
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next");
+
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
@@ -72,253 +569,244 @@ export function LoginForm() {
     return () => clearTimeout(timer);
   }, [otpError]);
 
-  const handleSendOtp = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError("");
-      setLoading(true);
-      const result = await sendOtp(email);
-      setLoading(false);
-      if (result.error) { setError(result.error); return; }
-      setTransitioning(true);
-      setTimeout(() => { setStep("otp"); setResendCooldown(60); setTransitioning(false); }, 150);
-    },
-    [email]
-  );
+  const handleSendOtp = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const result = await sendOtp(email);
+    setLoading(false);
+    if (result.error) { setError(result.error); return; }
+    setTransitioning(true);
+    setTimeout(() => { setStep("otp"); setResendCooldown(60); setTransitioning(false); }, 150);
+  }, [email]);
 
-  const handleVerifyOtp = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (loading || verifySuccess) return;
-      setError("");
-      setLoading(true);
-      const result = await verifyOtp(email, otpCode);
-      if (result.error) {
-        setLoading(false);
-        setError(result.error);
-        setOtpError(true);
-        return;
-      }
-      setVerifySuccess(true);
-      setTimeout(() => {
-        setRedirecting(true);
-        try {
-          if (isSafeRedirectPath(nextPath)) { router.push(nextPath!); }
-          else { router.push("/app"); }
-        } catch { router.push("/app"); }
-      }, 500);
-    },
-    [email, otpCode, router, nextPath, loading, verifySuccess]
-  );
+  const handleVerifyOtp = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loading || verifySuccess) return;
+    setError("");
+    setLoading(true);
+    const result = await verifyOtp(email, otpCode);
+    if (result.error) {
+      setLoading(false); setError(result.error); setOtpError(true); return;
+    }
+    setVerifySuccess(true);
+    setTimeout(() => {
+      setRedirecting(true);
+      try {
+        if (isSafeRedirectPath(nextPath)) { router.push(nextPath!); }
+        else { router.push("/app"); }
+      } catch { router.push("/app"); }
+    }, 500);
+  }, [email, otpCode, router, nextPath, loading, verifySuccess]);
 
   const handleResend = useCallback(async () => {
     if (resendCooldown > 0 || loading) return;
-    setError("");
-    setLoading(true);
+    setError(""); setLoading(true);
     const result = await sendOtp(email);
     setLoading(false);
     if (result.error) { setError(result.error); return; }
     setResendCooldown(60);
   }, [email, resendCooldown, loading]);
 
+  const handleBack = useCallback(() => {
+    setStep("email"); setOtpCode(""); setError(""); setOtpError(false); setVerifySuccess(false);
+  }, []);
+
   if (redirecting) {
     return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-4 bg-muted">
-        <Spinner className="size-6 text-primary" />
-        <p className="text-sm text-muted-foreground">Taking you to your account…</p>
+      <div className="flex min-h-svh flex-col items-center justify-center gap-4" style={{ background: C.bg }}>
+        <span style={{
+          width: 24, height: 24, borderRadius: "50%",
+          border: `2.5px solid ${C.line2}`,
+          borderTopColor: C.accent,
+          display: "inline-block",
+          animation: "spin 0.9s linear infinite",
+        }} />
+        <p style={{ fontSize: 14, color: C.muted }}>Taking you to your account…</p>
       </div>
     );
   }
 
+  const formContent = step === "email" ? (
+    <EmailStep email={email} setEmail={setEmail} error={error} loading={loading} onSubmit={handleSendOtp} />
+  ) : (
+    <OtpStep
+      email={email} otpCode={otpCode} setOtpCode={setOtpCode}
+      error={error} loading={loading} verifySuccess={verifySuccess} otpError={otpError}
+      resendCooldown={resendCooldown} onSubmit={handleVerifyOtp}
+      onBack={handleBack} onResend={handleResend}
+    />
+  );
+
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
-      <div className="flex w-full max-w-4xl">
-        <Card className="overflow-hidden p-0 w-full">
-          <CardContent className="grid p-0 md:grid-cols-2">
-            {/* ═══ LEFT — Brand Visual ═══ */}
-            <div className="relative hidden flex-col items-center justify-center gap-8 overflow-hidden bg-samvaya-gradient-2 p-12 md:flex">
-              {/* Decorative dot pattern */}
-              <div className="pointer-events-none absolute inset-0 opacity-[0.04]" aria-hidden="true">
-                <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-                      <circle cx="2" cy="2" r="1.5" fill="white" />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#dots)" />
-                </svg>
-              </div>
-
-              <div className="relative z-10 animate-fade-in">
-                <Image
-                  src="/samvaya-logo-white.png"
-                  alt="Samvaya"
-                  width={160}
-                  height={44}
-                  className="drop-shadow-lg"
-                  priority
-                />
-              </div>
-
-              <div className="relative z-10 animate-fade-in-up text-center">
-                <h1 className="text-3xl font-light leading-tight tracking-tight text-white xl:text-4xl">
-                  Where Exceptional<br />
-                  Doctors Find<br />
-                  Exceptional Partners
-                </h1>
-                <p className="mx-auto mt-4 max-w-md text-sm text-white/70">
-                  A premium, curated matrimony platform exclusively for medical professionals in India.
-                </p>
-              </div>
-
-              <p className="relative z-10 mt-4 text-xs text-white/40">&copy; 2026 Samvaya Matrimony</p>
+    <>
+      {/* Mobile layout */}
+      <MobileHero>
+        <div
+          className={cn("transition-opacity duration-150", transitioning ? "opacity-0" : "opacity-100")}
+          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+        >
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: C.accent, letterSpacing: "1.6px", textTransform: "uppercase" }}>
+              {step === "email" ? "Sign in" : "Verify"}
             </div>
+            <div style={{ marginTop: 4, fontFamily: "var(--font-fraunces), serif", fontSize: 22, fontWeight: 500, letterSpacing: "-0.4px", color: C.ink }}>
+              {step === "email" ? "Enter your email" : "Check your inbox"}
+            </div>
+          </div>
 
-            {/* ═══ RIGHT — Login Form ═══ */}
-            <div className="flex flex-col justify-center p-6 md:p-8">
-              {/* Mobile logo */}
-              <div className="mb-8 md:hidden">
-                <Image
-                  src="/samvaya-logo-red.png"
-                  alt="Samvaya"
-                  width={140}
-                  height={38}
-                  className="mx-auto"
-                  priority
-                />
-              </div>
-
-              <div className="flex flex-col items-center gap-2 text-center mb-6">
-                <h2 className="text-2xl font-semibold tracking-tight">
-                  {step === "email" ? "Sign in to your account" : "Enter verification code"}
-                </h2>
-                <p className="text-sm text-muted-foreground text-balance">
-                  {step === "email"
-                    ? "We\u2019ll send a 6-digit code to your email"
-                    : <>Code sent to <span className="font-medium text-foreground">{email}</span></>}
-                </p>
-              </div>
-
-              {step === "otp" && (
-                <Alert className="mb-6 border-amber-200 bg-amber-50 text-amber-800">
-                  <AlertCircleIcon className="size-4 text-amber-600" />
-                  <AlertDescription className="text-xs leading-relaxed">
-                    Can&apos;t find it? Check your <strong>spam or junk folder</strong>. The code may take up to 3 minutes to arrive.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <div className={cn("transition-opacity duration-150", transitioning ? "opacity-0" : "opacity-100")}>
-                {step === "email" ? (
-                  <form onSubmit={handleSendOtp} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email address</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        required
-                        autoComplete="email"
-                        autoFocus
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
-                        placeholder="you@example.com"
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-
-                    {error && (
-                      <p className="animate-fade-in-up text-sm text-destructive" role="alert">{error}</p>
-                    )}
-
-                    <Button type="submit" disabled={loading} className="w-full rounded-xl">
-                      {loading ? (<><Spinner className="size-4" /> Sending code...</>) : "Send verification code"}
-                    </Button>
-                  </form>
-                ) : (
-                  <form onSubmit={handleVerifyOtp} className="animate-fade-in space-y-5">
-                    <div className="flex justify-center">
-                      <InputOTP
-                        maxLength={6}
-                        value={otpCode}
-                        onChange={setOtpCode}
-                        disabled={loading || verifySuccess}
-                        autoFocus
-                        aria-invalid={otpError || undefined}
-                        className={cn(otpError && "animate-shake")}
-                      >
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
-                          <InputOTPSlot index={1} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
-                          <InputOTPSlot index={2} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
-                        </InputOTPGroup>
-                        <InputOTPSeparator />
-                        <InputOTPGroup>
-                          <InputOTPSlot index={3} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
-                          <InputOTPSlot index={4} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
-                          <InputOTPSlot index={5} className={cn("size-12 text-lg", verifySuccess && "border-emerald-500 bg-emerald-50")} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </div>
-
-                    {error && (
-                      <p className="animate-fade-in-up text-center text-sm text-destructive" role="alert">{error}</p>
-                    )}
-
-                    <Button
-                      type="submit"
-                      disabled={loading || otpCode.length < 6 || verifySuccess}
-                      className={cn(
-                        "w-full rounded-xl",
-                        verifySuccess && "bg-emerald-600 hover:bg-emerald-600",
-                      )}
-                    >
-                      {verifySuccess ? (
-                        <><CheckCircle2Icon className="size-5" /> Verified!</>
-                      ) : loading ? (
-                        <><Spinner className="size-4" /> Verifying...</>
-                      ) : (
-                        "Verify and sign in"
-                      )}
-                    </Button>
-
-                    {!verifySuccess && (
-                      <div className="flex items-center justify-between">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => { setStep("email"); setOtpCode(""); setError(""); setOtpError(false); setVerifySuccess(false); }}
-                          className="text-primary"
-                        >
-                          Change email
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleResend}
-                          disabled={resendCooldown > 0 || loading}
-                          className="gap-1.5 text-primary"
-                        >
-                          {resendCooldown > 0 && <CountdownRing seconds={resendCooldown} />}
-                          {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
-                        </Button>
-                      </div>
-                    )}
-                  </form>
+          {step === "email" ? (
+            <form onSubmit={handleSendOtp} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <EmailField
+                value={email} onChange={setEmail} focused={false} hasError={!!error}
+                onFocus={() => {}} onBlur={() => {}}
+              />
+              {error && <p style={{ margin: 0, fontSize: 12.5, color: "#B3261E" }} role="alert">{error}</p>}
+              <button
+                type="submit"
+                disabled={!email || loading}
+                style={{
+                  height: 52, background: !email || loading ? C.line2 : C.accent,
+                  color: !email || loading ? C.muted : "#fff",
+                  border: "none", borderRadius: 12,
+                  fontSize: 15, fontWeight: 600, fontFamily: "var(--font-inter), sans-serif",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  boxShadow: !email || loading ? "none" : `0 4px 14px ${C.accent}38`,
+                  cursor: !email || loading ? "not-allowed" : "pointer",
+                }}
+              >
+                {loading ? "Sending…" : (
+                  <>Send verification code
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </>
                 )}
+              </button>
+              <p style={{ margin: 0, textAlign: "center", fontSize: 12.5, color: C.muted }}>
+                New here?{" "}
+                <a href="mailto:hello@samvayamatrimony.com" style={{ color: C.accent, fontWeight: 600, textDecoration: "none" }}>
+                  Request an invite
+                </a>
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <p style={{ margin: 0, fontSize: 13, color: C.muted }}>
+                Code sent to <strong style={{ color: C.ink }}>{email}</strong>
+              </p>
+              <div className={cn(otpError && "animate-shake")}>
+                <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} disabled={loading || verifySuccess} autoFocus aria-invalid={otpError || undefined}>
+                  <InputOTPGroup>
+                    {[0, 1, 2].map((i) => <InputOTPSlot key={i} index={i} className={cn("!h-14 !text-xl !rounded-xl", verifySuccess && "!border-emerald-500 !bg-emerald-50")} />)}
+                  </InputOTPGroup>
+                  <InputOTPSeparator />
+                  <InputOTPGroup>
+                    {[3, 4, 5].map((i) => <InputOTPSlot key={i} index={i} className={cn("!h-14 !text-xl !rounded-xl", verifySuccess && "!border-emerald-500 !bg-emerald-50")} />)}
+                  </InputOTPGroup>
+                </InputOTP>
               </div>
+              {error && <p style={{ margin: 0, fontSize: 12.5, color: "#B3261E", textAlign: "center" }} role="alert">{error}</p>}
+              <button
+                type="submit"
+                disabled={otpCode.length < 6 || loading || verifySuccess}
+                style={{
+                  height: 52, background: otpCode.length < 6 || loading || verifySuccess ? C.line2 : C.accent,
+                  color: otpCode.length < 6 || loading || verifySuccess ? C.muted : "#fff",
+                  border: "none", borderRadius: 12,
+                  fontSize: 15, fontWeight: 600, fontFamily: "var(--font-inter), sans-serif",
+                  cursor: otpCode.length < 6 || loading || verifySuccess ? "not-allowed" : "pointer",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                {verifySuccess ? "Verified! Redirecting…" : loading ? "Verifying…" : "Continue"}
+              </button>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                <button type="button" onClick={handleBack} style={{ background: "transparent", border: "none", padding: 0, color: C.muted, fontFamily: "var(--font-inter), sans-serif", cursor: "pointer" }}>
+                  Change email
+                </button>
+                <button type="button" onClick={handleResend} disabled={resendCooldown > 0 || loading} style={{ background: "transparent", border: "none", padding: 0, color: resendCooldown > 0 ? C.muted : C.accent, fontWeight: 600, fontFamily: "var(--font-inter), sans-serif", cursor: resendCooldown > 0 ? "default" : "pointer" }}>
+                  {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </MobileHero>
+
+      {/* Desktop layout */}
+      <div
+        className="hidden md:flex min-h-svh items-center justify-center"
+        style={{ background: C.bg, padding: "40px" }}
+      >
+        <div
+          style={{
+            width: "100%", maxWidth: 1200,
+            display: "flex",
+            background: "#FFFFFF",
+            borderRadius: 24,
+            overflow: "hidden",
+            border: `1px solid ${C.line}`,
+            boxShadow: "0 1px 2px rgba(26,22,20,0.04), 0 24px 60px rgba(26,22,20,0.08)",
+            minHeight: 740,
+          }}
+        >
+          <BrandPanel />
+
+          {/* Right panel */}
+          <div
+            style={{
+              flex: 1, minWidth: 0,
+              padding: "64px 72px",
+              display: "flex", flexDirection: "column",
+              background: `linear-gradient(180deg, #FFFFFF 0%, ${C.bg} 100%)`,
+            }}
+          >
+            {/* Top-right helper */}
+            <div style={{ display: "flex", justifyContent: "flex-end", fontSize: 13, color: C.muted }}>
+              {step === "otp" ? "Having trouble?" : "New to Samvaya?"}
+              <a
+                href="mailto:hello@samvayamatrimony.com"
+                style={{ marginLeft: 6, color: C.accent, fontWeight: 600, textDecoration: "none" }}
+              >
+                {step === "otp" ? "Contact concierge" : "Request an invite →"}
+              </a>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Centered form */}
+            <div
+              className={cn("flex-1 flex items-center justify-center transition-opacity duration-150", transitioning ? "opacity-0" : "opacity-100")}
+            >
+              {formContent}
+            </div>
+
+            {/* Footer */}
+            <div
+              style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                fontSize: 12.5, color: C.muted,
+                paddingTop: 24, borderTop: `1px solid ${C.line}`,
+              }}
+            >
+              <span>
+                By continuing, you agree to our{" "}
+                <a href="/legal/terms" style={{ color: C.ink2, textDecoration: "underline", textDecorationColor: C.line2, textUnderlineOffset: 3 }}>Terms</a>
+                <span style={{ margin: "0 4px" }}>and</span>
+                <a href="/legal/privacy" style={{ color: C.ink2, textDecoration: "underline", textDecorationColor: C.line2, textUnderlineOffset: 3 }}>Privacy Policy</a>.
+              </span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <rect x="2.5" y="6" width="9" height="6" rx="1.2" stroke={C.muted} strokeWidth="1.3" />
+                  <path d="M4.5 6V4.2a2.5 2.5 0 015 0V6" stroke={C.muted} strokeWidth="1.3" strokeLinecap="round" />
+                </svg>
+                Encrypted end-to-end
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <p className="text-center text-xs text-muted-foreground">
-        By signing in, you agree to our{" "}
-        <a href="/legal/terms" className="underline underline-offset-4 hover:text-foreground">Terms</a>
-        {" "}and{" "}
-        <a href="/legal/privacy" className="underline underline-offset-4 hover:text-foreground">Privacy Policy</a>
-      </p>
-    </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </>
   );
 }

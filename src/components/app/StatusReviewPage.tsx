@@ -48,11 +48,11 @@ export function StatusReviewPage({ firstName, submittedAt, isGoocampusMember }: 
             <h3 className="mb-3 type-subheading text-gray-900">Next step: Verification fee</h3>
             <p className="mb-4 text-sm leading-relaxed text-gray-700">
               Before we can begin your background verification, the verification fee of{' '}
-              <span className="font-semibold">&#8377;4,130</span> (&#8377;3,500 + GST) needs to be paid.
+              <span className="font-semibold">&#8377;3,500 + GST</span> needs to be paid.
               Our team will reach out, or you can contact us directly.
             </p>
             <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919742811599'}?text=${encodeURIComponent('Hi, I have completed my Samvaya profile and would like to proceed with the verification fee payment of ₹4,130.')}`}
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919742811599'}?text=${encodeURIComponent('Hi, I have completed my Samvaya profile and would like to proceed with the verification fee payment of ₹3,500 + GST.')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg bg-samvaya-red px-5 py-2.5 text-sm font-medium text-white hover:bg-samvaya-red-dark transition-colors"

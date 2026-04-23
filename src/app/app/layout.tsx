@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UserStatusProvider } from "@/lib/app/user-context";
-import { AppHeader } from "@/components/app/AppHeader";
-import { BottomNav } from "@/components/app/BottomNav";
-import { ServiceWorkerRegistration } from "@/components/app/ServiceWorkerRegistration";
-import { InstallPromptBanner } from "@/components/app/InstallPromptBanner";
+// PWA chrome — deferred to v2. Imports kept so nothing breaks when we re-enable.
+// import { AppHeader } from "@/components/app/AppHeader";
+// import { BottomNav } from "@/components/app/BottomNav";
+// import { ServiceWorkerRegistration } from "@/components/app/ServiceWorkerRegistration";
+// import { InstallPromptBanner } from "@/components/app/InstallPromptBanner";
 
 export default async function ApplicantLayout({
   children,
@@ -50,12 +51,12 @@ export default async function ApplicantLayout({
     .single();
   const payment = paymentRaw as Record<string, unknown> | null;
 
-  const onboardingComplete = Number(userData?.onboarding_section) >= 13;
+  // Gate on membership_status, not onboarding_section. The section counter is
+  // written by auto-save on every visit, so >= 13 fires when the user merely
+  // opens Section M — one section before the end. membership_status only
+  // changes to 'onboarding_complete' after the form is actually submitted.
   const membershipStatus = (userData?.membership_status as string) ?? 'onboarding_pending';
-
-  // Users who completed the form but haven't been promoted to active/in_pool
-  // see a simplified layout — no PWA chrome (BottomNav, AppHeader, etc.)
-  const isFormOnlyUser = onboardingComplete && membershipStatus === 'onboarding_complete';
+  const onboardingComplete = membershipStatus !== 'onboarding_pending';
 
   const userStatus = {
     userId: user.id,
@@ -67,34 +68,13 @@ export default async function ApplicantLayout({
     membershipEndDate: (payment?.membership_end_date as string) ?? null,
   };
 
-  // During onboarding, render bare — FormShell owns its own full-viewport layout
-  if (!onboardingComplete) {
-    return (
-      <UserStatusProvider value={userStatus}>
-        {children}
-      </UserStatusProvider>
-    );
-  }
-
-  // Form completed but not yet active — simplified layout, no PWA features
-  if (isFormOnlyUser) {
-    return (
-      <UserStatusProvider value={userStatus}>
-        {children}
-      </UserStatusProvider>
-    );
-  }
-
-  // Full PWA layout — only for users who are in_pool or beyond
+  // PWA chrome (AppHeader, BottomNav, ServiceWorker, InstallBanner) is deferred
+  // to v2. All users get the bare layout regardless of membership status.
+  // To re-enable the PWA: uncomment the imports above, restore isFormOnlyUser,
+  // and reinstate the full-PWA branch below.
   return (
     <UserStatusProvider value={userStatus}>
-      <div className="form-surface min-h-[100dvh]">
-        <AppHeader />
-        <main className="mx-auto max-w-lg px-5 pb-24 pt-14">{children}</main>
-        <BottomNav />
-        <InstallPromptBanner />
-        <ServiceWorkerRegistration />
-      </div>
+      {children}
     </UserStatusProvider>
   );
 }

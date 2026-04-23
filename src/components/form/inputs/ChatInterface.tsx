@@ -403,7 +403,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           background: 'var(--color-form-accent)',
           borderRadius: '16px 16px 4px 16px',
           letterSpacing: '-0.01em',
-          boxShadow: '0 2px 8px rgba(107, 26, 43, 0.14)',
+          boxShadow: '0 2px 8px rgba(163, 23, 31, 0.14)',
         }}
       >
         {message.content}
