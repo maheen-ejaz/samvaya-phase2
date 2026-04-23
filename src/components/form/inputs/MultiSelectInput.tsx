@@ -2,8 +2,6 @@
 
 import type { QuestionConfig } from '@/lib/form/types';
 import { TagInput } from './TagInput';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { CheckIcon } from 'lucide-react';
 import { NO_PREFERENCE_VALUE, applyNoPreferenceToggle } from '@/lib/form/no-preference';
 
@@ -69,23 +67,19 @@ export function MultiSelectInput({ question, value, onChange, inputId, ariaDescr
             selected.length >= question.maxSelections;
 
           return (
-            <Button
+            <button
               key={option.value}
               type="button"
-              variant={isSelected ? 'default' : 'outline'}
+              data-selected={isSelected}
               onClick={() => toggle(option.value)}
               disabled={isDisabled}
               aria-pressed={isSelected}
-              className={cn(
-                'h-auto rounded-xl px-4 py-2.5 text-[14px] font-normal transition-all',
-                isSelected && 'gap-1.5',
-                option.label.length > 20 && 'w-full sm:w-auto',
-              )}
+              className="form-chip disabled:opacity-40 disabled:pointer-events-none"
             >
               {option.icon && <span aria-hidden="true">{option.icon}</span>}
               {option.label}
               {isSelected && <CheckIcon className="size-3.5" />}
-            </Button>
+            </button>
           );
         })}
       </div>

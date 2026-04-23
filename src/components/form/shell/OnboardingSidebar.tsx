@@ -113,7 +113,7 @@ export function OnboardingSidebar({ currentSection, resumeSection }: OnboardingS
           if (groupItems.length === 0) return null;
 
           return (
-            <SidebarGroup key={group.label} className="py-3">
+            <SidebarGroup key={group.label} className="py-5">
               <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-form-text-muted)] px-4 pb-1">
                 {group.label}
               </SidebarGroupLabel>

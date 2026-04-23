@@ -56,7 +56,7 @@ export function ChatScreen({ questionId }: ChatScreenProps) {
 
   const handleBack = () => {
     if (questionId === 'Q38') {
-      router.push(sectionPath('N'));
+      router.push(sectionPath('M'));
       return;
     }
     if (questionId === 'Q75') {

@@ -32,6 +32,14 @@ export default async function SectionPage({
   const meta = getSectionMeta(sectionId);
   if (!meta) notFound();
 
+  // Section N: skip the list view — jump straight into the first incomplete chat
+  if (sectionId === 'N') {
+    const CHAT_ORDER = ['Q38', 'Q75', 'Q100'] as const;
+    const CHAT_PATHS = { Q38: '/app/onboarding/chat/q38', Q75: '/app/onboarding/chat/q75', Q100: '/app/onboarding/chat/q100' };
+    const firstIncomplete = CHAT_ORDER.find((id) => data.answers[id] !== 'complete');
+    redirect(firstIncomplete ? CHAT_PATHS[firstIncomplete] : '/app/onboarding/complete');
+  }
+
   return (
     <OnboardingShell
       userId={data.userId}
