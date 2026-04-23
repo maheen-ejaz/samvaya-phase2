@@ -121,7 +121,11 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
 
     // Flush all pending auto-saves before navigating so the server-side lock check
     // sees the current answers and doesn't redirect to a stale/invalid section URL.
-    await flushNow();
+    try {
+      await flushNow();
+    } catch (err) {
+      console.warn('[onboarding] continue flush failed (continuing anyway):', err);
+    }
 
     if (isLastSection) {
       const ok = await submitForm();
@@ -138,7 +142,13 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
     setIsExiting(true);
     // Drain pending auto-saves before navigating so the previous section
     // hydrates with the user's most recent answers (not stale DB rows).
-    await flushNow();
+    // Save failures must not block backward navigation — the user can retry
+    // editing on the previous section if something didn't persist.
+    try {
+      await flushNow();
+    } catch (err) {
+      console.warn('[onboarding] back-navigation flush failed (continuing anyway):', err);
+    }
     if (sectionIndex === 0) {
       router.push('/app/onboarding/welcome');
       return;

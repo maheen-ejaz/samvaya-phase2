@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function sendOtp(email: string) {
@@ -71,4 +72,55 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/auth/login");
+}
+
+/**
+ * Testing shortcut — bypasses OTP entirely. Creates (or reuses) a single fixed
+ * test applicant account and signs them in via an admin-generated magic link
+ * token. No email is sent. Remove once real applicants begin onboarding.
+ */
+const TEST_APPLICANT_EMAIL = "testform@samvaya.test";
+
+export async function beginTestSession() {
+  const admin = createAdminClient();
+
+  // Ensure the test applicant exists. `listUsers` + filter is acceptable for a
+  // test-only path; Supabase has no "get user by email" admin endpoint.
+  const { data: listed, error: listErr } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 200,
+  });
+  if (listErr) {
+    return { error: `Admin list failed: ${listErr.message}` };
+  }
+  const existing = listed.users.find((u) => u.email === TEST_APPLICANT_EMAIL);
+  if (!existing) {
+    const { error: createErr } = await admin.auth.admin.createUser({
+      email: TEST_APPLICANT_EMAIL,
+      email_confirm: true,
+    });
+    if (createErr) {
+      return { error: `Admin create failed: ${createErr.message}` };
+    }
+  }
+
+  // Generate a magic-link token and exchange it for a cookie-backed session.
+  const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
+    type: "magiclink",
+    email: TEST_APPLICANT_EMAIL,
+  });
+  if (linkErr || !linkData.properties?.hashed_token) {
+    return { error: linkErr?.message ?? "Could not generate test session" };
+  }
+
+  const supabase = await createClient();
+  const { error: verifyErr } = await supabase.auth.verifyOtp({
+    token_hash: linkData.properties.hashed_token,
+    type: "magiclink",
+  });
+  if (verifyErr) {
+    return { error: verifyErr.message };
+  }
+
+  return { success: true };
 }

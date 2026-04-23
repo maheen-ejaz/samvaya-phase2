@@ -1,8 +1,10 @@
 import type { QuestionConfig, OptionGroup } from './types';
 import { INDIAN_STATES } from '@/lib/data/indian-states';
 import { RELIGIONS } from '@/lib/data/religions';
-// Temporary: All fields set to optional for testing — see CLAUDE.md
-// Required fields MUST be restored before real applicants
+// Required flags follow PRD. Conditional questions are marked required: false because
+// they're only rendered when their predecessor triggers visibility (see conditional-rules.ts).
+// Q58 (additional qualifications/certifications) is intentionally optional — applicants
+// may have none. Q15 (blood group) is optional per product decision.
 
 // ============================================================
 // Shared option sets
@@ -308,7 +310,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'First name',
     type: 'text',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'first_name',
     placeholder: 'First name',
@@ -320,7 +322,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Last name',
     type: 'text',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'last_name',
     placeholder: 'Last name',
@@ -332,7 +334,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Your email address',
     type: 'email',
-    required: false,
+    required: true,
     targetTable: 'auth_users',
     targetColumn: 'email',
     helpText: 'This is the email you signed up with. It cannot be changed here.',
@@ -344,7 +346,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Your phone number',
     type: 'phone',
-    required: false,
+    required: true,
     targetTable: 'auth_users',
     targetColumn: 'phone',
     placeholder: '98765 43210',
@@ -356,7 +358,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Gender',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'gender',
     options: [
@@ -370,7 +372,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'How did you hear about us?',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'referral_source',
     options: [
@@ -388,7 +390,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Have you been married before?',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'marital_status',
     options: [
@@ -417,7 +419,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Date of birth',
     type: 'date',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'date_of_birth',
   },
@@ -427,7 +429,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Know your time of birth?',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'local',
     targetColumn: 'knows_time_of_birth',
     options: [
@@ -452,7 +454,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'State of birth',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'place_of_birth',
     options: [
@@ -515,7 +517,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Mother tongue',
     type: 'select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'mother_tongue',
     options: MOTHER_TONGUE_OPTIONS,
@@ -527,7 +529,7 @@ const sectionA: QuestionConfig[] = [
     section: 'A',
     text: 'Languages spoken fluently',
     type: 'multi_select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'languages_spoken',
     options: [
@@ -556,7 +558,7 @@ const sectionB: QuestionConfig[] = [
   { id: 'Q23', questionNumber: 23, section: 'B', text: 'Current city', type: 'text', required: true, targetTable: 'profiles', targetColumn: 'current_city', placeholder: 'Start typing your city name', autocompleteSource: 'indian_cities' },
   { id: 'Q24', questionNumber: 24, section: 'B', text: 'Permanent address same as current?', type: 'select', required: true, targetTable: 'local', targetColumn: 'permanent_same_as_current', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
   { id: 'Q25', questionNumber: 25, section: 'B', text: 'Permanent city and state', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'permanent_city', placeholder: 'e.g. Pune, Maharashtra' },
-  { id: 'Q26', questionNumber: 26, section: 'B', text: 'Home ownership', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'permanent_ownership', options: [{ value: 'owned', label: 'Owned' }, { value: 'rented', label: 'Rental' }, { value: 'family_home', label: 'Family home' }] },
+  { id: 'Q26', questionNumber: 26, section: 'B', text: 'Home ownership', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'permanent_ownership', options: [{ value: 'owned', label: 'Owned' }, { value: 'rented', label: 'Rental' }, { value: 'family_home', label: 'Family home' }] },
 ];
 
 // ============================================================
@@ -592,7 +594,7 @@ const sectionD: QuestionConfig[] = [
 const sectionE: QuestionConfig[] = [
   { id: 'Q40', questionNumber: 40, section: 'E', text: 'Height', type: 'number', required: true, targetTable: 'profiles', targetColumn: 'height_cm', placeholder: 'e.g. 170', helpText: 'In centimetres', groupWith: ['Q41'] },
   { id: 'Q41', questionNumber: 41, section: 'E', text: 'Weight', type: 'number', required: true, targetTable: 'profiles', targetColumn: 'weight_kg', placeholder: 'e.g. 65', helpText: 'In kilograms', groupWith: ['Q40'] },
-  { id: 'Q42', questionNumber: 42, section: 'E', text: 'Skin tone', type: 'illustrated_mc', required: false, targetTable: 'profiles', targetColumn: 'skin_tone', options: [
+  { id: 'Q42', questionNumber: 42, section: 'E', text: 'Skin tone', type: 'illustrated_mc', required: true, targetTable: 'profiles', targetColumn: 'skin_tone', options: [
     { value: 'fair', label: 'Fair', icon: '🤍' },
     { value: 'wheatish', label: 'Wheatish', icon: '🌾' },
     { value: 'dusky', label: 'Dusky', icon: '🌰' },
@@ -658,7 +660,7 @@ const sectionG: QuestionConfig[] = [
     section: 'G',
     text: 'Hobbies and interests',
     type: 'multi_select',
-    required: false,
+    required: true,
     targetTable: 'profiles',
     targetColumn: 'hobbies_interests',
     helpText: 'Select all that apply. Tap a category to expand it.',
@@ -750,7 +752,7 @@ const sectionG: QuestionConfig[] = [
   },
   { id: 'Q54', questionNumber: 54, section: 'G', text: 'Pick your top 4 interests — the ones you are most active in', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'hobbies_regular', maxSelections: 4, dynamicOptionsFrom: 'Q53', helpText: 'Select exactly 4 from what you chose above.' },
   { id: 'Q55', questionNumber: 55, section: 'G', text: 'Any other hobbies not listed above?', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'hobbies_other', helpText: 'Since you selected "Other"' },
-  { id: 'QWKND', questionNumber: 56, section: 'G', text: 'How do you prefer to spend your free time?', type: 'multi_select', required: false, searchable: true, targetTable: 'profiles', targetColumn: 'free_time_preferences', helpText: 'Choose all that apply — there\'s no right answer here.', options: [
+  { id: 'QWKND', questionNumber: 56, section: 'G', text: 'How do you prefer to spend your free time?', type: 'multi_select', required: true, searchable: true, targetTable: 'profiles', targetColumn: 'free_time_preferences', helpText: 'Choose all that apply — there\'s no right answer here.', options: [
     { value: 'family_friends', label: 'Time with family and close friends' },
     { value: 'hobby_creative', label: 'Creative hobbies (art, music, writing, photography)' },
     { value: 'outdoors_travel', label: 'Outdoors — travel, trekking, sport' },
@@ -780,7 +782,7 @@ const sectionH: QuestionConfig[] = [
   { id: 'Q56b', questionNumber: 58, section: 'H', text: 'What is your PG degree?', type: 'select', required: false, targetTable: 'medical_credentials', targetColumn: 'pg_degree', options: PG_DEGREE_OPTIONS },
   { id: 'Q56c', questionNumber: 59, section: 'H', text: 'Please specify your PG degree', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'pg_degree_other', placeholder: 'e.g. MRCS, MMed, MPhil...' },
   { id: 'Q57', questionNumber: 60, section: 'H', text: 'Planning to pursue PG?', type: 'select', required: false, targetTable: 'medical_credentials', targetColumn: 'pg_plans', options: [{ value: 'yes_within_1_year', label: 'Yes, within the next year' }, { value: 'yes_2_to_3_years', label: 'Yes, in 2-3 years' }, { value: 'no_plan_to_practice', label: 'No, I plan to practice as MBBS' }, { value: 'undecided', label: 'Undecided' }] },
-  { id: 'Q58', questionNumber: 61, section: 'H', text: 'Any postgraduate qualifications, certifications, or licensing exams?', type: 'multi_select', required: true, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS, optionGroups: ADDITIONAL_QUALIFICATION_GROUPS, helpText: 'Beyond your primary medical degree — includes degrees, board certifications, and licensing exams (cleared or planning).' },
+  { id: 'Q58', questionNumber: 61, section: 'H', text: 'Any postgraduate qualifications, certifications, or licensing exams?', type: 'multi_select', required: false, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications', options: ADDITIONAL_QUALIFICATION_OPTIONS, optionGroups: ADDITIONAL_QUALIFICATION_GROUPS, helpText: 'Beyond your primary medical degree — includes degrees, board certifications, and licensing exams (cleared or planning).' },
   { id: 'Q59', questionNumber: 62, section: 'H', text: 'What other qualifications do you have?', type: 'text', required: false, targetTable: 'medical_credentials', targetColumn: 'additional_qualifications_other', placeholder: 'Please specify' },
   { id: 'Q60', questionNumber: 63, section: 'H', text: 'Specialty (current or planned)', type: 'multi_select', required: true, targetTable: 'medical_credentials', targetColumn: 'specialty', helpText: 'Select all that apply', options: MEDICAL_SPECIALTY_OPTIONS, searchable: true },
 ];
@@ -808,29 +810,29 @@ const sectionJ: QuestionConfig[] = [
     { value: 'above_1cr', label: 'Above ₹1 Cr' },
     { value: 'prefer_not_to_say', label: 'Prefer not to say' },
   ] },
-  { id: 'QFIN2', questionNumber: 67, section: 'J', text: 'How would you describe your current financial stage?', type: 'stage_selector', required: false, targetTable: 'profiles', targetColumn: 'financial_stage', options: [
+  { id: 'QFIN2', questionNumber: 67, section: 'J', text: 'How would you describe your current financial stage?', type: 'stage_selector', required: true, targetTable: 'profiles', targetColumn: 'financial_stage', options: [
     { value: 'building_savings', label: 'Building savings after training' },
     { value: 'stable_growing', label: 'Financially stable with growing investments' },
     { value: 'well_established', label: 'Well-established with significant assets' },
     { value: 'family_wealth', label: 'Family wealth supplementing personal income' },
   ] },
-  { id: 'QFIN3', questionNumber: 68, section: 'J', text: 'Do you or your family own any property?', type: 'multi_select', required: false, targetTable: 'profiles', targetColumn: 'property_ownership', options: [
+  { id: 'QFIN3', questionNumber: 68, section: 'J', text: 'Do you or your family own any property?', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'property_ownership', options: [
     { value: 'residential', label: 'Residential property' },
     { value: 'commercial', label: 'Commercial property' },
     { value: 'agricultural', label: 'Agricultural land' },
     { value: 'none', label: 'None currently' },
   ] },
-  { id: 'QFIN4', questionNumber: 69, section: 'J', text: 'How do you approach investments?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'investment_approach', options: [
+  { id: 'QFIN4', questionNumber: 69, section: 'J', text: 'How do you approach investments?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'investment_approach', options: [
     { value: 'actively_invest', label: 'I actively invest in markets (stocks, mutual funds)' },
     { value: 'safe_instruments', label: 'I prefer fixed deposits and safe instruments' },
     { value: 'family_manages', label: 'My family manages investments' },
     { value: 'not_started', label: "I haven't started investing yet" },
   ] },
-  { id: 'QFIN5', questionNumber: 70, section: 'J', text: 'Do you have an outstanding education loan?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'has_education_loan', options: [
+  { id: 'QFIN5', questionNumber: 70, section: 'J', text: 'Do you have an outstanding education loan?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'has_education_loan', options: [
     { value: 'true', label: 'Yes' },
     { value: 'false', label: 'No' },
   ] },
-  { id: 'QFIN6', questionNumber: 71, section: 'J', text: 'What is your approximate CIBIL score?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'cibil_score_range', helpText: 'A high score signals financial responsibility. If you don\'t know, select "I don\'t know".', options: [
+  { id: 'QFIN6', questionNumber: 71, section: 'J', text: 'What is your approximate CIBIL score?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'cibil_score_range', helpText: 'A high score signals financial responsibility. If you don\'t know, select "I don\'t know".', options: [
     { value: '750_above', label: '750 or above' },
     { value: '700_749', label: '700 – 749' },
     { value: '650_699', label: '650 – 699' },
@@ -879,7 +881,7 @@ const sectionK_goalsValues: QuestionConfig[] = [
 const sectionL: QuestionConfig[] = [
   { id: 'Q76', questionNumber: 85, section: 'L', text: 'Preferred partner age range', type: 'range', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_age_min', targetColumn2: 'preferred_age_max' },
   { id: 'Q77', questionNumber: 86, section: 'L', text: 'Preferred partner height range', type: 'range', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_height_min_cm', targetColumn2: 'preferred_height_max_cm' },
-  { id: 'Q77b', questionNumber: 87, section: 'L', text: 'Preferred partner weight range', type: 'range', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_weight_min_kg', targetColumn2: 'preferred_weight_max_kg', helpText: 'In kilograms (kg)' },
+  { id: 'Q77b', questionNumber: 87, section: 'L', text: 'Preferred partner weight range', type: 'range', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_weight_min_kg', targetColumn2: 'preferred_weight_max_kg', helpText: 'In kilograms (kg)' },
   { id: 'Q78', questionNumber: 88, section: 'L', text: 'Prefer a specific specialty?', type: 'select', required: true, targetTable: 'partner_preferences', targetColumn: 'prefers_specific_specialty', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No, open to all' }] },
   { id: 'Q79', questionNumber: 89, section: 'L', text: 'Which specialties do you prefer?', type: 'multi_select', required: false, targetTable: 'partner_preferences', targetColumn: 'preferred_specialties', options: MEDICAL_SPECIALTY_OPTIONS, searchable: true },
   { id: 'Q80', questionNumber: 90, section: 'L', text: 'Preferred partner location', type: 'dual_location', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_indian_states', targetColumn2: 'preferred_countries', targetColumn3: 'no_location_preference' },
@@ -937,7 +939,7 @@ const sectionL: QuestionConfig[] = [
     { value: 'open', label: 'Open to discussion', icon: '💬' },
   ] },
   { id: 'Q92', questionNumber: 102, section: 'L', text: 'Which career stages are you open to in a partner today?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'preferred_career_stage', helpText: 'Their current point in medical training or practice.', options: [{ value: 'mbbs_student', label: 'MBBS Student' }, { value: 'intern', label: 'Intern' }, { value: 'mbbs_passed', label: 'MBBS Passed' }, { value: 'pursuing_pg', label: 'PG Resident' }, { value: 'completed_pg', label: 'Completed PG' }, { value: 'established', label: 'Established Practitioner' }, { value: 'no_preference', label: 'No preference' }], searchable: true },
-  { id: 'Q93', questionNumber: 103, section: 'L', text: 'What qualities are you looking for in a partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_qualities', maxSelections: 15, helpText: 'Select up to 15 qualities.', options: PARTNER_QUALITY_OPTIONS, optionGroups: PARTNER_QUALITY_GROUPS },
+  { id: 'Q93', questionNumber: 103, section: 'L', text: 'What qualities are you looking for in a partner?', type: 'multi_select', required: true, targetTable: 'partner_preferences', targetColumn: 'partner_qualities', maxSelections: 15, helpText: 'Choose up to 15 qualities — pick the ones that matter most.', options: PARTNER_QUALITY_OPTIONS, optionGroups: PARTNER_QUALITY_GROUPS },
   { id: 'Q94', questionNumber: 104, section: 'L', text: 'Any other qualities you are looking for?', type: 'text', required: false, targetTable: 'partner_preferences', targetColumn: 'partner_qualities_other', placeholder: 'Describe any qualities not listed above' },
 ];
 

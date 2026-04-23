@@ -51,8 +51,17 @@ export class AutoSaveEngine {
     const config = getQuestion(questionId);
     if (!config) return;
 
-    // Skip types that handle their own saving
-    if (config.type === 'file_upload' || config.type === 'claude_chat') return;
+    // Skip types that handle their own saving. `guided_photo_upload` (Q95) and
+    // `file_upload` (Q96-Q98) persist photo/document rows directly via the
+    // upload API — attempting to auto-save their array-of-ids value to the
+    // single-string target column corrupts the row and triggers Save Failed.
+    if (
+      config.type === 'file_upload' ||
+      config.type === 'guided_photo_upload' ||
+      config.type === 'claude_chat'
+    ) {
+      return;
+    }
 
     // Gate questions (targetTable = 'local') are persisted in users.gate_answers JSONB
     if (config.targetTable === 'local') {
@@ -152,15 +161,29 @@ export class AutoSaveEngine {
   }
 
   /**
-   * Force an immediate flush of all dirty fields.
-   * Useful when the user navigates away or submits the form.
+   * Force an immediate flush of all dirty fields AND wait for any in-flight
+   * save to complete. Used on section navigation so the next page's hydrate
+   * sees the latest answers and resume position.
    */
   async flushNow(): Promise<void> {
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;
     }
-    await this.flush();
+    if (this.retryTimer) {
+      clearTimeout(this.retryTimer);
+      this.retryTimer = null;
+    }
+    // Drain until nothing is dirty and nothing is in-flight. Guard against a
+    // pathological loop with a ceiling.
+    for (let i = 0; i < 10; i++) {
+      // Wait for any currently-running save to finish before issuing a new one.
+      while (this.inFlight) {
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+      if (this.dirtyFields.size === 0) return;
+      await this.flush();
+    }
   }
 
   /**

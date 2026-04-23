@@ -70,9 +70,33 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
     return group.optionValues.filter((v) => selected.includes(v)).length;
   }
 
+  const limit = question.maxSelections;
+  const atLimit = limit !== undefined && selected.length >= limit;
+
   return (
     <fieldset id={inputId} aria-describedby={ariaDescribedBy} aria-invalid={ariaInvalid || undefined}>
       <legend className="sr-only">{question.text}</legend>
+
+      {limit !== undefined && (
+        <div
+          className={`mb-3 flex items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm ${
+            atLimit
+              ? 'border-[color:var(--color-samvaya-red)]/40 bg-[color:var(--color-samvaya-red)]/5 text-[color:var(--color-samvaya-red)]'
+              : 'border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] text-[color:var(--color-form-text-secondary)]'
+          }`}
+          role="status"
+          aria-live="polite"
+        >
+          <span>
+            {atLimit
+              ? `Maximum reached — you've selected ${limit}.`
+              : `Choose up to ${limit}.`}
+          </span>
+          <span className="font-medium tabular-nums">
+            {selected.length} / {limit}
+          </span>
+        </div>
+      )}
 
       <div className="space-y-2">
         {accordionGroups.map((group) => {

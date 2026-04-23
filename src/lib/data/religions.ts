@@ -13,6 +13,7 @@ export const RELIGIONS: QuestionOption[] = [
   { value: 'jain', label: 'Jain' },
   { value: 'zoroastrian', label: 'Zoroastrian / Parsi' },
   { value: 'jewish', label: 'Jewish' },
+  { value: 'atheist', label: 'Atheist' },
   { value: 'other', label: 'Other' },
   { value: 'prefer_not_to_say', label: 'Prefer not to say' },
 ];

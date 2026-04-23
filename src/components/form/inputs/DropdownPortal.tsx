@@ -29,11 +29,13 @@ export function DropdownPortal({ anchorRef, isOpen, children }: DropdownPortalPr
     function updatePosition() {
       if (!anchorRef.current) return;
       const rect = anchorRef.current.getBoundingClientRect();
-      // max-h-60 = 240px. If there's less space below than above, flip upward.
-      const dropdownMaxH = 244;
+      // Prefer opening downward. Only flip upward if space below is truly
+      // insufficient (< 160px) AND there's significantly more room above.
+      // The dropdown itself handles overflow with internal scrolling via max-height.
+      const MIN_SPACE_BELOW = 160;
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
-      const openAbove = spaceBelow < dropdownMaxH && spaceAbove > spaceBelow;
+      const openAbove = spaceBelow < MIN_SPACE_BELOW && spaceAbove > spaceBelow + 80;
 
       if (openAbove) {
         setStyle({
@@ -41,6 +43,7 @@ export function DropdownPortal({ anchorRef, isOpen, children }: DropdownPortalPr
           bottom: window.innerHeight - rect.top + 4,
           left: rect.left,
           width: rect.width,
+          maxHeight: Math.max(spaceAbove - 16, 120),
           zIndex: 9999,
           opacity: 1,
         });
@@ -50,6 +53,7 @@ export function DropdownPortal({ anchorRef, isOpen, children }: DropdownPortalPr
           top: rect.bottom + 4,
           left: rect.left,
           width: rect.width,
+          maxHeight: Math.max(spaceBelow - 16, 120),
           zIndex: 9999,
           opacity: 1,
         });
@@ -72,7 +76,7 @@ export function DropdownPortal({ anchorRef, isOpen, children }: DropdownPortalPr
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div ref={portalRef} style={style}>
+    <div ref={portalRef} style={{ ...style, display: 'flex', flexDirection: 'column' }}>
       {children}
     </div>,
     document.body,

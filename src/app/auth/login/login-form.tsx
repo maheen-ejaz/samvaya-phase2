@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { sendOtp, verifyOtp } from "./actions";
+import { sendOtp, verifyOtp, beginTestSession } from "./actions";
 import { cn } from "@/lib/utils";
 
 type Step = "email" | "otp";
@@ -629,6 +629,71 @@ function MobileHero({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ── Test-mode begin step ──────────────────────────────────
+// TEMPORARY: OTP login is disabled during QA. Clicking "Begin the Form"
+// signs in a fixed test applicant via an admin-generated magic link — no
+// email sent. Restore EmailStep/OtpStep before launching to real applicants.
+function TestBeginStep({
+  onBegin,
+  loading,
+  error,
+}: {
+  onBegin: () => void;
+  loading: boolean;
+  error: string;
+}) {
+  return (
+    <div style={{ width: "100%", maxWidth: 420, marginInline: "auto", display: "flex", flexDirection: "column", gap: 28 }}>
+      <div>
+        <h2 style={{
+          margin: 0, fontFamily: "var(--font-fraunces), serif",
+          fontSize: 32, fontWeight: 500, letterSpacing: "-0.8px", color: C.ink, lineHeight: 1.15,
+        }}>
+          Testing mode
+        </h2>
+        <p style={{ marginTop: 10, fontSize: 15, color: C.muted, lineHeight: 1.55, letterSpacing: "-0.05px" }}>
+          Sign-in is disabled while we tune the experience. Tap below to jump
+          straight into the onboarding form — no email code required.
+        </p>
+      </div>
+
+      {error && (
+        <p style={{ margin: 0, fontSize: 12.5, color: "#B3261E", lineHeight: 1.45 }} role="alert">
+          {error}
+        </p>
+      )}
+
+      <PrimaryButton type="button" loading={loading} onClick={onBegin}>
+        {loading ? "Preparing your session…" : (
+          <>
+            Begin the form
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10m0 0L9 4m4 4l-4 4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </>
+        )}
+      </PrimaryButton>
+
+      <div style={{
+        padding: "14px 16px",
+        background: C.goldSoft,
+        border: `1px solid rgba(168,128,74,0.24)`,
+        borderRadius: 12,
+        display: "flex", gap: 12, alignItems: "flex-start",
+      }}>
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }}>
+          <path d="M9 1.5L2 4v5c0 4 3 7 7 7.5 4-.5 7-3.5 7-7.5V4L9 1.5z" stroke={C.gold} strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M6.5 9L8 10.5l3.5-3.5" stroke={C.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <p style={{ margin: 0, fontSize: 13, color: C.ink2, lineHeight: 1.5 }}>
+          <strong style={{ color: C.ink, fontWeight: 600 }}>QA only.</strong>{" "}
+          All answers save to a shared test account. Real applicants will use the invite-only OTP flow once enabled.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ── Root component ────────────────────────────────────────
 export function LoginForm() {
   const router = useRouter();
@@ -701,6 +766,30 @@ export function LoginForm() {
     setStep("email"); setOtpCode(""); setError(""); setOtpError(false); setVerifySuccess(false);
   }, []);
 
+  // TEMPORARY: OTP auth disabled for QA — `handleBeginTestSession` drives the
+  // "Begin the form" button. Declared before the redirecting early-return so
+  // React hook ordering stays stable.
+  const handleBeginTestSession = useCallback(async () => {
+    setError("");
+    setLoading(true);
+    const result = await beginTestSession();
+    if (result.error) {
+      setLoading(false);
+      setError(result.error);
+      return;
+    }
+    setRedirecting(true);
+    try {
+      if (isSafeRedirectPath(nextPath)) {
+        router.push(nextPath!);
+      } else {
+        router.push("/app");
+      }
+    } catch {
+      router.push("/app");
+    }
+  }, [router, nextPath]);
+
   if (redirecting) {
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4" style={{ background: C.bg }}>
@@ -716,16 +805,16 @@ export function LoginForm() {
     );
   }
 
-  const formContent = step === "email" ? (
-    <EmailStep email={email} setEmail={setEmail} error={error} loading={loading} onSubmit={handleSendOtp} />
-  ) : (
-    <OtpStep
-      email={email} otpCode={otpCode} setOtpCode={setOtpCode}
-      error={error} loading={loading} verifySuccess={verifySuccess} otpError={otpError}
-      resendCooldown={resendCooldown} onSubmit={handleVerifyOtp}
-      onBack={handleBack} onResend={handleResend}
-    />
+  const formContent = (
+    <TestBeginStep onBegin={handleBeginTestSession} loading={loading} error={error} />
   );
+
+  // TEMPORARY: the email/OTP helpers below are kept to make restoration trivial
+  // when QA mode ends. Silence unused-var lints for that duration.
+  void step; void email; void setEmail; void otpCode; void setOtpCode;
+  void otpError; void verifySuccess; void resendCooldown; void transitioning;
+  void handleSendOtp; void handleVerifyOtp; void handleResend; void handleBack;
+  void setStep;
 
   return (
     <>
