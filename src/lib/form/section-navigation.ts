@@ -49,6 +49,14 @@ export function isQuestionAnswered(questionId: string, answers: FormAnswers): bo
     return value.length >= config.minFiles;
   }
 
+  // Guided photo upload (Q95): same minFiles enforcement as file_upload
+  if (question.type === 'guided_photo_upload') {
+    const config = question.fileUploadConfig;
+    if (!config) return Array.isArray(value) && value.length > 0;
+    if (!Array.isArray(value)) return false;
+    return value.length >= config.minFiles;
+  }
+
   // International location: valid if both city and country are filled
   if (question.type === 'international_location') {
     if (!value || typeof value !== 'object') return false;

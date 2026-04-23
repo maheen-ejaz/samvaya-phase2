@@ -110,8 +110,8 @@ export async function POST(request: NextRequest) {
         });
     }
 
-    // Apply Sharp blur (sigma 8) on the resized version
-    const blurredBuffer = await sharp(resizedBuffer).blur(8).toBuffer();
+    // Apply Sharp blur (sigma 20, per CLAUDE.md) on the resized version
+    const blurredBuffer = await sharp(resizedBuffer).blur(20).toBuffer();
 
     // Build the blurred path by replacing /original/ with /blurred/
     const blurredPath = storagePath.replace('/original/', '/blurred/');

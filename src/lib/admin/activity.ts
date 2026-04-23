@@ -3,6 +3,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
  * Log an admin action to the activity_log table.
+ * Returns true on success, false on failure. Sensitive callers (status,
+ * respond, bgv) should check the return value and 500 on false — audit-trail
+ * integrity is a hard requirement for admin mutations.
  */
 export async function logActivity(
   actorId: string,
@@ -10,7 +13,7 @@ export async function logActivity(
   entityType: string,
   entityId: string,
   metadata?: Record<string, unknown>
-): Promise<void> {
+): Promise<boolean> {
   try {
     const adminSupabase = createAdminClient();
 
@@ -23,10 +26,12 @@ export async function logActivity(
     } as never);
 
     if (error) {
-      console.error('Failed to log activity:', error);
+      console.error('Failed to log activity:', { action, entityType, entityId, error });
+      return false;
     }
+    return true;
   } catch (err) {
-    console.error('Activity logger initialization failed:', err);
-    // Don't throw — activity logging should not break the primary action
+    console.error('Activity logger initialization failed:', { action, entityType, entityId, err });
+    return false;
   }
 }
