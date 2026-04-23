@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireApplicant } from '@/lib/app/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { isValidUUID } from '@/lib/validation';
 
 export async function GET() {
   const result = await requireApplicant();
@@ -12,6 +13,12 @@ export async function GET() {
   const { allowed } = await checkRateLimit(`matches-read:${userId}`, 30, 60_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+  }
+
+  // userId comes from auth session, but validate as UUID before string-interpolating
+  // into a PostgREST filter. Admin client used pending RLS migration — see security-audit-2026-04.
+  if (!isValidUUID(userId)) {
+    return NextResponse.json({ error: 'Invalid session' }, { status: 400 });
   }
 
   const supabase = createAdminClient();
