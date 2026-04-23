@@ -10,9 +10,12 @@ interface ChatInterfaceProps {
   initialChatState?: ChatState | null;
   onComplete: () => void | Promise<void> | Promise<boolean>;
   completeButtonLabel?: string;
+  /** Reports whether the chat is mid-request (sending/extracting/submitting).
+   *  Parent can use this to disable back/exit navigation. */
+  onBusyChange?: (busy: boolean) => void;
 }
 
-export function ChatInterface({ question, initialChatState, onComplete, completeButtonLabel }: ChatInterfaceProps) {
+export function ChatInterface({ question, initialChatState, onComplete, completeButtonLabel, onBusyChange }: ChatInterfaceProps) {
   const chatId = question.id as 'Q38' | 'Q75' | 'Q100';
   const config = CHAT_METADATA[chatId];
 
@@ -22,6 +25,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
   const [isLoading, setIsLoading] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [failedMessage, setFailedMessage] = useState<string | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractionWarning, setExtractionWarning] = useState<string | null>(null);
 
@@ -112,11 +116,13 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
     }
   }, [chatId]);
 
-  const sendMessage = useCallback(async () => {
-    const text = inputValue.trim();
+  const sendMessage = useCallback(async (overrideText?: string) => {
+    const text = (overrideText ?? inputValue).trim();
     if (!text || isLoading || isComplete) return;
 
-    setInputValue('');
+    if (overrideText === undefined) {
+      setInputValue('');
+    }
     setIsLoading(true);
     setError(null);
 
@@ -155,6 +161,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
       const updatedMessages = [...messages, userMsg, assistantMsg];
       setMessages(updatedMessages);
       setExchangeCount(data.exchangeCount);
+      setFailedMessage(null);
 
       if (data.isComplete) {
         setIsComplete(true);
@@ -162,6 +169,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setFailedMessage(text);
     } finally {
       setIsLoading(false);
       inputRef.current?.focus();
@@ -177,6 +185,11 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Notify parent when any in-flight work is happening so it can block navigation
+  useEffect(() => {
+    onBusyChange?.(isLoading || isExtracting || isSubmitting);
+  }, [isLoading, isExtracting, isSubmitting, onBusyChange]);
 
   const handleComplete = useCallback(async () => {
     setIsSubmitting(true);
@@ -242,6 +255,19 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
       {error && (
         <div className="mb-3 rounded-lg border border-[color:var(--color-form-error)]/20 bg-[color:var(--color-form-error)]/5 px-4 py-2 form-error">
           {error}
+          {failedMessage && (
+            <button
+              onClick={() => {
+                const msg = failedMessage;
+                setError(null);
+                sendMessage(msg);
+              }}
+              disabled={isLoading}
+              className="ml-2 font-medium underline disabled:opacity-50"
+            >
+              Retry
+            </button>
+          )}
           <button
             onClick={() => setError(null)}
             className="ml-2 font-medium underline"
@@ -267,7 +293,7 @@ export function ChatInterface({ question, initialChatState, onComplete, complete
             className="form-input form-textarea flex-1"
           />
           <button
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={isLoading || !inputValue.trim() || messages.length === 0}
             aria-label="Send message"
             className="form-btn-primary shrink-0 px-4"

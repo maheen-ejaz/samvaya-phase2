@@ -5,6 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 
+/**
+ * Test bypass is allowed when either:
+ *   - we're not in production, OR
+ *   - the explicit opt-in flag `NEXT_PUBLIC_ENABLE_TEST_LOGIN=true` is set.
+ * Both values are inlined at build time, so this survives being called from a
+ * server action without a request context.
+ */
+function isTestLoginAllowed(): boolean {
+  if (process.env.NODE_ENV !== "production") return true;
+  return process.env.NEXT_PUBLIC_ENABLE_TEST_LOGIN === "true";
+}
+
 export async function sendOtp(email: string) {
   const normalizedEmail = email?.trim().toLowerCase();
 
@@ -82,6 +94,21 @@ export async function signOut() {
 const TEST_APPLICANT_EMAIL = "testform@samvaya.test";
 
 export async function beginTestSession() {
+  if (!isTestLoginAllowed()) {
+    return { error: "Test login is disabled in this environment." };
+  }
+
+  // Rate-limit with a global key (server actions have no request object, so we
+  // can't do per-IP). A generous window still blocks trivial abuse.
+  const { allowed } = await checkRateLimit(
+    "test-session:global",
+    20,
+    15 * 60 * 1000,
+  );
+  if (!allowed) {
+    return { error: "Too many test sessions started. Please wait a few minutes." };
+  }
+
   const admin = createAdminClient();
 
   // Ensure the test applicant exists. `listUsers` + filter is acceptable for a

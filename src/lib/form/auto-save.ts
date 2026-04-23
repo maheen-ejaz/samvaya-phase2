@@ -326,6 +326,17 @@ export class AutoSaveEngine {
    * Coerce string values to their DB-appropriate types.
    * Only converts "true"/"false" to booleans for select questions with
    * exactly two options: "true" and "false" (i.e., yes/no boolean selects).
+   *
+   * NOTE: We intentionally do NOT coerce "yes"/"no" string pairs here.
+   * Current questions.ts usage: the only selects with exactly two yes/no
+   * options (Q19, Q24) store to `targetTable: 'local'` (users.gate_answers
+   * JSONB), which bypasses this path entirely. Selects that include "yes"/"no"
+   * AND target a real DB column (Q49, Q70, Q72) have three or more options
+   * and write to TEXT/enum columns, not booleans. Adding a generic yes/no →
+   * boolean coercion here would risk writing booleans into text columns
+   * without a way to introspect DB types at runtime. If a future question
+   * needs yes/no → boolean, extend this with an explicit per-question
+   * allowlist.
    */
   private coerceValue(value: unknown, config: QuestionConfig): unknown {
     if (config.type === 'select' && config.options) {

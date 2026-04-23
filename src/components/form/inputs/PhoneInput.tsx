@@ -80,11 +80,14 @@ export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy
   const phoneDigits = localNumber.replace(/\D/g, '');
   const showPhoneHint = touched && phoneDigits.length > 0 && phoneDigits.length < 10;
 
+  const digitsId = inputId || `${question.id}-digits`;
+
   return (
     <div>
+      <label htmlFor={digitsId} className="sr-only">Phone number</label>
       <div className="flex gap-2">
         <Select value={countryCode} onValueChange={handleCodeChange}>
-          <SelectTrigger className="h-11 w-[7.5rem] shrink-0 rounded-xl" aria-label="Country code">
+          <SelectTrigger className="h-11 w-[7.5rem] shrink-0 rounded-xl" aria-label="Country dialing code">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -97,7 +100,7 @@ export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy
         </Select>
 
         <Input
-          id={inputId}
+          id={digitsId}
           type="tel"
           inputMode="tel"
           value={localNumber}

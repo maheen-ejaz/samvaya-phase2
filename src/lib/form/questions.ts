@@ -508,7 +508,6 @@ const sectionA: QuestionConfig[] = [
       { value: 'O-', label: 'O-' },
       { value: 'unknown', label: "I don't know" },
     ],
-    helpText: 'Optional',
     searchable: true,
   },
   {
@@ -750,7 +749,7 @@ const sectionG: QuestionConfig[] = [
       { value: 'other', label: 'Other' },
     ],
   },
-  { id: 'Q54', questionNumber: 54, section: 'G', text: 'Pick your top 4 interests — the ones you are most active in', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'hobbies_regular', maxSelections: 4, dynamicOptionsFrom: 'Q53', helpText: 'Select exactly 4 from what you chose above.' },
+  { id: 'Q54', questionNumber: 54, section: 'G', text: 'Pick your top 4 interests — the ones you are most active in', type: 'multi_select', required: true, targetTable: 'profiles', targetColumn: 'hobbies_regular', maxSelections: 4, dynamicOptionsFrom: 'Q53', helpText: 'Pick up to 4 — these become your signature interests.' },
   { id: 'Q55', questionNumber: 55, section: 'G', text: 'Any other hobbies not listed above?', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'hobbies_other', helpText: 'Since you selected "Other"' },
   { id: 'QWKND', questionNumber: 56, section: 'G', text: 'How do you prefer to spend your free time?', type: 'multi_select', required: true, searchable: true, targetTable: 'profiles', targetColumn: 'free_time_preferences', helpText: 'Choose all that apply — there\'s no right answer here.', options: [
     { value: 'family_friends', label: 'Time with family and close friends' },

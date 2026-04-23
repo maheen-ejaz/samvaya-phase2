@@ -99,6 +99,31 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
       )}
 
       <div className="space-y-2">
+        {/* Standalone "Other" option as chip — rendered above the accordion groups
+            so users with niche qualifications see it first. */}
+        {otherOption && (() => {
+          const isOtherSelected = selected.includes(otherOption.value);
+          const isOtherDisabled =
+            !isOtherSelected &&
+            question.maxSelections !== undefined &&
+            selected.length >= question.maxSelections;
+          return (
+          <div className="px-1 pb-1">
+            <button
+              type="button"
+              onClick={() => toggleOption(otherOption.value)}
+              disabled={isOtherDisabled}
+              aria-pressed={isOtherSelected}
+              data-selected={isOtherSelected}
+              className="form-chip disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {!isOtherSelected && <span aria-hidden="true">{ICON_PLUS}</span>}
+              <span>{otherOption.label}</span>
+            </button>
+          </div>
+          );
+        })()}
+
         {accordionGroups.map((group) => {
           const isExpanded = expandedGroups.has(group.key);
           const selectedCount = countSelected(group);
@@ -159,29 +184,6 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
           );
         })}
 
-        {/* Standalone "Other" option as chip */}
-        {otherOption && (() => {
-          const isOtherSelected = selected.includes(otherOption.value);
-          const isOtherDisabled =
-            !isOtherSelected &&
-            question.maxSelections !== undefined &&
-            selected.length >= question.maxSelections;
-          return (
-          <div className="mt-2 px-1">
-            <button
-              type="button"
-              onClick={() => toggleOption(otherOption.value)}
-              disabled={isOtherDisabled}
-              aria-pressed={isOtherSelected}
-              data-selected={isOtherSelected}
-              className="form-chip disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {!isOtherSelected && <span aria-hidden="true">{ICON_PLUS}</span>}
-              <span>{otherOption.label}</span>
-            </button>
-          </div>
-          );
-        })()}
       </div>
 
       {/* Total selected summary */}

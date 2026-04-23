@@ -9,7 +9,8 @@ interface BgvConsentInputProps {
 }
 
 export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
-  const isConsented = value === 'consented';
+  const isConsented = value === 'consented' || value === 'consented_wants_call';
+  const wantsCall = value === 'consented_wants_call';
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -56,26 +57,43 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
       </div>
 
       {/* Consent toggle */}
-      <div className="flex items-center gap-4 rounded-xl border border-[color:var(--color-form-border)] bg-white p-5">
-        <button
-          type="button"
-          role="switch"
-          aria-checked={isConsented}
-          aria-label="Consent to background verification"
-          onClick={() => onChange(isConsented ? '' : 'consented')}
-          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--color-samvaya-red)]/20 ${
-            isConsented ? 'bg-[color:var(--color-samvaya-red)]' : 'bg-[color:var(--color-form-border-strong)]'
-          }`}
-        >
-          <span
-            className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-              isConsented ? 'translate-x-6' : 'translate-x-1'
+      <div className="rounded-xl border border-[color:var(--color-form-border)] bg-white p-5">
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isConsented}
+            aria-label="Consent to background verification"
+            onClick={() => onChange(isConsented ? '' : 'consented')}
+            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--color-samvaya-red)]/20 ${
+              isConsented ? 'bg-[color:var(--color-samvaya-red)]' : 'bg-[color:var(--color-form-border-strong)]'
             }`}
-          />
-        </button>
-        <span className="form-label leading-snug">
-          I consent to a comprehensive background verification
-        </span>
+          >
+            <span
+              className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                isConsented ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+          <span className="form-label leading-snug">
+            I consent to a comprehensive background verification
+          </span>
+        </div>
+
+        {/* Secondary concierge-call option (only when primary consent is on) */}
+        {isConsented && (
+          <label className="mt-4 flex cursor-pointer items-start gap-3 border-t border-[color:var(--color-form-border)] pt-4">
+            <input
+              type="checkbox"
+              checked={wantsCall}
+              onChange={(e) => onChange(e.target.checked ? 'consented_wants_call' : 'consented')}
+              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[color:var(--color-samvaya-red)]"
+            />
+            <span className="form-helper leading-snug text-[color:var(--color-form-text-primary)]">
+              Have a concierge call me to walk through the verification process
+            </span>
+          </label>
+        )}
       </div>
     </div>
   );

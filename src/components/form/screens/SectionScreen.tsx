@@ -76,6 +76,32 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
     [sectionId, state.answers]
   );
 
+  // Auto-scroll to newly-visible conditional questions (e.g. Q14 appearing after Q12 answered).
+  // Skip initial mount; only react to diffs where a new id appears in the visible list.
+  const prevVisibleRef = useRef<Set<string>>(new Set(visibleIds));
+  const didMountRef = useRef(false);
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      prevVisibleRef.current = new Set(visibleIds);
+      return;
+    }
+    const prev = prevVisibleRef.current;
+    const newlyAdded = visibleIds.find((id) => !prev.has(id));
+    prevVisibleRef.current = new Set(visibleIds);
+    if (!newlyAdded) return;
+    // Defer to next frame so the DOM has mounted the new tile.
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`q-${newlyAdded}`);
+      if (!el) return;
+      const header = document.querySelector('.form-header-sticky, header.sticky') as HTMLElement | null;
+      const headerHeight = header ? header.getBoundingClientRect().height : 0;
+      const offset = headerHeight + 100;
+      const elTop = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: elTop - offset, behavior: 'smooth' });
+    });
+  }, [visibleIds]);
+
   const answeredCount = visibleIds.filter((id) => isQuestionAnswered(id, state.answers)).length;
   const progress = visibleIds.length > 0 ? answeredCount / visibleIds.length : 0;
 

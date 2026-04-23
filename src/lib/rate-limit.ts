@@ -71,5 +71,15 @@ export async function checkRateLimit(
   if (kvAvailable) {
     return checkWithKV(key, maxRequests, windowMs);
   }
+  // In production, fail closed if distributed rate limiting is not configured.
+  // In-memory limits are per-instance and trivially bypassed by spreading requests
+  // across serverless invocations — so we block rather than allow.
+  if (process.env.NODE_ENV === 'production') {
+    console.error(
+      '[rate-limit] KV not configured in production — blocking request. ' +
+        'Set KV_REST_API_URL and KV_REST_API_TOKEN.'
+    );
+    return { allowed: false, remaining: 0 };
+  }
   return checkWithMemory(key, maxRequests, windowMs);
 }

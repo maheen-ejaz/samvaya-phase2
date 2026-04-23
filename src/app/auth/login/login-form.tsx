@@ -805,16 +805,25 @@ export function LoginForm() {
     );
   }
 
-  const formContent = (
-    <TestBeginStep onBegin={handleBeginTestSession} loading={loading} error={error} />
-  );
+  // Test bypass is only rendered when NODE_ENV !== 'production' or the explicit
+  // opt-in flag is set. In production-without-flag the user sees the real OTP
+  // flow. Env vars prefixed with NEXT_PUBLIC_ are inlined at build time.
+  const testLoginEnabled =
+    process.env.NODE_ENV !== "production" ||
+    process.env.NEXT_PUBLIC_ENABLE_TEST_LOGIN === "true";
 
-  // TEMPORARY: the email/OTP helpers below are kept to make restoration trivial
-  // when QA mode ends. Silence unused-var lints for that duration.
-  void step; void email; void setEmail; void otpCode; void setOtpCode;
-  void otpError; void verifySuccess; void resendCooldown; void transitioning;
-  void handleSendOtp; void handleVerifyOtp; void handleResend; void handleBack;
-  void setStep;
+  const formContent = testLoginEnabled ? (
+    <TestBeginStep onBegin={handleBeginTestSession} loading={loading} error={error} />
+  ) : step === "email" ? (
+    <EmailStep email={email} setEmail={setEmail} error={error} loading={loading} onSubmit={handleSendOtp} />
+  ) : (
+    <OtpStep
+      email={email} otpCode={otpCode} setOtpCode={setOtpCode}
+      error={error} loading={loading} verifySuccess={verifySuccess} otpError={otpError}
+      resendCooldown={resendCooldown} onSubmit={handleVerifyOtp}
+      onBack={handleBack} onResend={handleResend}
+    />
+  );
 
   return (
     <>

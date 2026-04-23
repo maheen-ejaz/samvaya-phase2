@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from '../FormProvider';
 import { ChatInterface } from '../inputs/ChatInterface';
@@ -33,6 +33,7 @@ export function ChatScreen({ questionId }: ChatScreenProps) {
   const question = getQuestion(questionId);
   const savedChatState = chatState[questionId] as ChatState | undefined;
   const isLastChat = questionId === 'Q100';
+  const [isChatBusy, setIsChatBusy] = useState(false);
 
   // Sync currentSection to N when this chat mounts
   useEffect(() => {
@@ -55,6 +56,10 @@ export function ChatScreen({ questionId }: ChatScreenProps) {
   };
 
   const handleBack = () => {
+    // Block back-nav while a message is in flight / extraction is running /
+    // submission is pending — prevents half-written server state and
+    // mid-chat "complete" miscounts.
+    if (isChatBusy) return;
     if (questionId === 'Q38') {
       router.push(sectionPath('M'));
       return;
@@ -84,10 +89,18 @@ export function ChatScreen({ questionId }: ChatScreenProps) {
         initialChatState={savedChatState || null}
         onComplete={handleComplete}
         completeButtonLabel={isLastChat ? 'Submit your application' : 'Continue to next conversation'}
+        onBusyChange={setIsChatBusy}
       />
 
       <div className="mt-6 flex justify-start">
-        <button type="button" onClick={handleBack} className="form-btn-secondary">
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={isChatBusy}
+          aria-disabled={isChatBusy}
+          title={isChatBusy ? 'Please wait — message in progress' : undefined}
+          className="form-btn-secondary disabled:opacity-40 disabled:cursor-not-allowed"
+        >
           Back
         </button>
       </div>

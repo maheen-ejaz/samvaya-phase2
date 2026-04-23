@@ -41,6 +41,21 @@ export function isQuestionAnswered(questionId: string, answers: FormAnswers): bo
   if (value === undefined || value === null || value === '') return false;
   if (Array.isArray(value) && value.length === 0) return false;
 
+  // Multi-select with dynamic options inherited from a parent question:
+  // when the parent yielded fewer options than maxSelections, the user can
+  // never hit the nominal max — treat "picked every available option" as answered.
+  if (
+    question.type === 'multi_select' &&
+    question.maxSelections &&
+    question.dynamicOptionsFrom &&
+    Array.isArray(value)
+  ) {
+    const parentValue = answers[question.dynamicOptionsFrom];
+    const parentCount = Array.isArray(parentValue) ? parentValue.length : 0;
+    const effectiveMax = Math.min(question.maxSelections, parentCount);
+    if (effectiveMax > 0 && value.length >= effectiveMax) return true;
+  }
+
   // File upload: check count against minimum
   if (question.type === 'file_upload') {
     const config = question.fileUploadConfig;

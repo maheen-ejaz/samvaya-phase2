@@ -3,6 +3,10 @@ import { createClient } from '@/lib/supabase/server';
 import { sendEmail } from '@/lib/email/client';
 import { applicantCompletionEmail, teamNotificationEmail, applicationUpdatedEmail } from '@/lib/email/templates';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { hydrateOnboardingForm } from '@/lib/form/hydrate';
+import { QUESTIONS } from '@/lib/form/questions';
+import { isQuestionVisible } from '@/lib/form/conditional-rules';
+import { isQuestionAnswered } from '@/lib/form/section-navigation';
 
 const TEAM_EMAIL = process.env.TEAM_NOTIFICATION_EMAIL || 'team@samvayamatrimony.com';
 
@@ -52,11 +56,26 @@ export async function POST() {
       email: user.email || 'unknown',
       specialty: editSpecialty,
     });
-    sendEmail(TEAM_EMAIL, updateEmail.subject, updateEmail.html).catch((err) =>
-      console.error('Update notification email failed:', err)
-    );
+    sendEmail(TEAM_EMAIL, updateEmail.subject, updateEmail.html).catch((err) => {
+      const e = err as { code?: string; message?: string } | undefined;
+      console.error('Update notification email failed:', e?.code, e?.message?.slice(0, 120));
+    });
 
     return NextResponse.json({ success: true, alreadySubmitted: true });
+  }
+
+  // Validate every required visible question is answered before marking complete.
+  // Uses the same hydrate → isQuestionVisible → isQuestionAnswered path as the UI.
+  const hydrated = await hydrateOnboardingForm();
+  if (!hydrated) {
+    return NextResponse.json({ error: 'Failed to load form data' }, { status: 500 });
+  }
+  for (const q of QUESTIONS) {
+    if (!q.required) continue;
+    if (!isQuestionVisible(q.id, hydrated.answers)) continue;
+    if (!isQuestionAnswered(q.id, hydrated.answers)) {
+      return NextResponse.json({ error: `Incomplete: ${q.id}` }, { status: 400 });
+    }
   }
 
   // Fetch profile + medical data for emails (in parallel)
@@ -90,7 +109,7 @@ export async function POST() {
     .eq('id', user.id);
 
   if (updateError) {
-    console.error('Failed to update user status:', updateError);
+    console.error('Failed to update user status:', updateError?.code, updateError?.message?.slice(0, 120));
     return NextResponse.json(
       { error: 'Failed to submit form. Please try again.' },
       { status: 500 }
@@ -103,9 +122,10 @@ export async function POST() {
 
   if (applicantEmail) {
     const { subject, html } = applicantCompletionEmail(firstName);
-    sendEmail(applicantEmail, subject, html).catch((err) =>
-      console.error('Applicant email failed:', err)
-    );
+    sendEmail(applicantEmail, subject, html).catch((err) => {
+      const e = err as { code?: string; message?: string } | undefined;
+      console.error('Applicant email failed:', e?.code, e?.message?.slice(0, 120));
+    });
   }
 
   const teamEmailData = teamNotificationEmail({
@@ -117,9 +137,10 @@ export async function POST() {
     isGooCampus: userData.is_goocampus_member,
     submittedAt: new Date().toISOString(),
   });
-  sendEmail(TEAM_EMAIL, teamEmailData.subject, teamEmailData.html).catch((err) =>
-    console.error('Team notification email failed:', err)
-  );
+  sendEmail(TEAM_EMAIL, teamEmailData.subject, teamEmailData.html).catch((err) => {
+    const e = err as { code?: string; message?: string } | undefined;
+    console.error('Team notification email failed:', e?.code, e?.message?.slice(0, 120));
+  });
 
   return NextResponse.json({ success: true });
 }

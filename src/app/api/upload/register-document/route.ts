@@ -44,8 +44,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid documentType' }, { status: 400 });
   }
 
-  // Verify the path belongs to this user and block path traversal
-  if (!storagePath.startsWith(`${user.id}/`) || storagePath.includes('..')) {
+  // Strict path shape: {uuid}/{document_type}/{timestamp}_{filename}.{ext}
+  const DOC_PATH_REGEX = /^[0-9a-f-]{36}\/(identity_document|kundali|other)\/[0-9]+_[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp|pdf)$/i;
+  if (!DOC_PATH_REGEX.test(storagePath)) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+  }
+
+  // Verify the path belongs to this user
+  if (!storagePath.startsWith(`${user.id}/`)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -56,7 +62,7 @@ export async function POST(request: NextRequest) {
       .download(storagePath);
 
     if (downloadError || !fileData) {
-      console.error('Failed to download document for validation:', downloadError);
+      console.error('Failed to download document for validation:', downloadError?.message?.slice(0, 120));
       return NextResponse.json({ error: 'Failed to validate document' }, { status: 500 });
     }
 
@@ -107,7 +113,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('Failed to save document record:', insertError);
+      console.error('Failed to save document record:', insertError?.code, insertError?.message?.slice(0, 120));
       return NextResponse.json(
         { error: 'Failed to save document record' },
         { status: 500 }
@@ -116,7 +122,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, document: docRow });
   } catch (err) {
-    console.error('Document registration failed:', err);
+    const e = err as { code?: string; message?: string } | undefined;
+    console.error('Document registration failed:', e?.code, e?.message?.slice(0, 120));
     return NextResponse.json({ error: 'Failed to save document record' }, { status: 500 });
   }
 }

@@ -115,6 +115,9 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
     <div className="space-y-4">
       {entries.map((entry, index) => {
         const dateError = isEndBeforeStart(entry);
+        const missingStart = !entry.start_month || !entry.start_year;
+        const missingEnd =
+          !entry.is_current && (!entry.end_month || !entry.end_year);
         return (
           <div
             key={entry.id}
@@ -256,6 +259,17 @@ export function TimelineInput({ value, onChange }: TimelineInputProps) {
                   <p className="form-error mt-2">End date must be after start date</p>
                 )}
               </fieldset>
+            )}
+
+            {/* Incomplete-entry nudges — visual only, do not block save */}
+            {(missingStart || missingEnd) && (
+              <p className="form-error mt-3 text-[color:var(--color-form-error)]">
+                {missingStart && missingEnd
+                  ? 'Add start and end dates to include this role in total experience'
+                  : missingStart
+                  ? 'Add start date to include this role in total experience'
+                  : 'Add end date to include this role in total experience'}
+              </p>
             )}
           </div>
         );

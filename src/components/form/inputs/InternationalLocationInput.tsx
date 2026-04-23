@@ -35,6 +35,10 @@ export function InternationalLocationInput({ question, value, onChange }: Intern
   }
   const current = parseCurrent();
 
+  const baseId = question.id;
+  const countryId = `${baseId}-country`;
+  const cityId = `${baseId}-city`;
+
   const handleCountryChange = (countryValue: string) => {
     onChange({ ...current, country: countryValue });
   };
@@ -46,16 +50,18 @@ export function InternationalLocationInput({ question, value, onChange }: Intern
   return (
     <div className="space-y-4">
       <div>
-        <Label className="mb-1.5 block text-sm font-medium">Country</Label>
+        <Label htmlFor={countryId} className="mb-1.5 block text-sm font-medium">Country</Label>
         <CountryCombobox
+          id={countryId}
           value={current.country}
           onChange={handleCountryChange}
           placeholder="Type to search countries..."
         />
       </div>
       <div>
-        <Label className="mb-1.5 block text-sm font-medium">City</Label>
+        <Label htmlFor={cityId} className="mb-1.5 block text-sm font-medium">City</Label>
         <CityAutocomplete
+          id={cityId}
           countryValue={current.country}
           value={current.city}
           onChange={handleCityChange}
@@ -67,10 +73,12 @@ export function InternationalLocationInput({ question, value, onChange }: Intern
 }
 
 function CountryCombobox({
+  id,
   value,
   onChange,
   placeholder,
 }: {
+  id?: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
@@ -153,6 +161,7 @@ function CountryCombobox({
       <div className="relative">
         <Input
           ref={inputRef}
+          id={id}
           type="text"
           value={inputValue}
           onChange={(e) => {
@@ -214,11 +223,13 @@ function CountryCombobox({
 }
 
 function CityAutocomplete({
+  id,
   countryValue,
   value,
   onChange,
   placeholder,
 }: {
+  id?: string;
   countryValue: string;
   value: string;
   onChange: (value: string) => void;
@@ -278,6 +289,7 @@ function CityAutocomplete({
     <div ref={containerRef} className="relative">
       <Input
         ref={inputRef}
+        id={id}
         type="text"
         value={value || ''}
         onChange={(e) => {

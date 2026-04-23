@@ -77,7 +77,7 @@ export function DualLocationInput({ question, value, onChange }: DualLocationInp
         onClick={toggleNoPreference}
         aria-pressed={current.noPreference}
         data-selected={current.noPreference}
-        className="form-chip w-full mb-4 justify-center"
+        className="form-chip w-full mb-4 justify-center focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--color-samvaya-red)]/20"
       >
         No location preference
       </button>

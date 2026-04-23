@@ -109,6 +109,7 @@ export function RangeInput({ question, value, onChange, inputId, ariaDescribedBy
           onValueChange={handleSliderChange}
           minStepsBetweenThumbs={0}
           aria-label={question.text}
+          thumbLabels={[`Minimum — ${question.text}`, `Maximum — ${question.text}`]}
           className="[&_[data-slot=slider-range]]:bg-[var(--color-form-accent)] [&_[data-slot=slider-thumb]]:border-[var(--color-form-accent)]"
         />
       </div>

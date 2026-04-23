@@ -42,8 +42,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing storagePath' }, { status: 400 });
   }
 
-  // Verify the path belongs to this user and block path traversal
-  if (!storagePath.startsWith(`${user.id}/`) || storagePath.includes('..')) {
+  // Strict path shape: {uuid}/original/{timestamp}_{filename}.{ext}
+  const PHOTO_PATH_REGEX = /^[0-9a-f-]{36}\/original\/[0-9]+_[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp)$/i;
+  if (!PHOTO_PATH_REGEX.test(storagePath)) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+  }
+
+  // Verify the path belongs to this user
+  if (!storagePath.startsWith(`${user.id}/`)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -59,7 +65,7 @@ export async function POST(request: NextRequest) {
       .download(storagePath);
 
     if (downloadError || !fileData) {
-      console.error('Failed to download photo:', downloadError);
+      console.error('Failed to download photo:', downloadError?.message?.slice(0, 120));
       return NextResponse.json(
         { error: 'Failed to download photo' },
         { status: 500 }
@@ -125,7 +131,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Failed to upload blurred photo:', uploadError);
+      console.error('Failed to upload blurred photo:', uploadError?.message?.slice(0, 120));
       return NextResponse.json(
         { error: 'Failed to process photo' },
         { status: 500 }
@@ -152,7 +158,7 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       // Clean up both storage files on DB failure to prevent orphans
       await supabase.storage.from('photos').remove([storagePath, blurredPath]);
-      console.error('Failed to save photo record:', insertError.message, insertError.details, insertError.hint);
+      console.error('Failed to save photo record:', insertError?.code, insertError?.message?.slice(0, 120));
       return NextResponse.json(
         { error: 'Failed to save photo record. Please try again.' },
         { status: 500 }
@@ -161,7 +167,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, photo: photoRow });
   } catch (err) {
-    console.error('Photo processing failed:', err);
+    const e = err as { code?: string; message?: string } | undefined;
+    console.error('Photo processing failed:', e?.code, e?.message?.slice(0, 120));
     return NextResponse.json({ error: 'Failed to process photo' }, { status: 500 });
   }
 }

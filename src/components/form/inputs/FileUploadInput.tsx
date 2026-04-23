@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useForm } from '../FormProvider';
 import { UploadDropZone } from './UploadDropZone';
@@ -88,6 +88,8 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loadedExisting, setLoadedExisting] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const refreshingUrlsRef = useRef<Set<string>>(new Set());
 
   const isPhoto = question.targetTable === 'photos';
   const bucket = isPhoto ? 'photos' : 'documents';
@@ -390,11 +392,52 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
         const updated = uploads.filter((u) => u.id !== uploadId);
         setUploads(updated);
         onChange(updated.length > 0 ? updated.map((u) => u.id) : undefined);
+
+        // Re-index remaining photos' display_order so there are no gaps.
+        if (isPhoto && updated.length > 0) {
+          try {
+            await fetch('/api/upload/reorder-photos', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ids: updated.map((u) => u.id) }),
+            });
+          } catch (err) {
+            console.error('Failed to reorder photos after delete:', err);
+          }
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Delete failed');
       }
     },
     [isPhoto, uploads, onChange]
+  );
+
+  // Refresh a stale signed URL on image load error. Debounced per-upload so
+  // multiple 404s don't hammer the API.
+  const refreshSignedUrl = useCallback(
+    async (uploadId: string) => {
+      if (refreshingUrlsRef.current.has(uploadId)) return;
+      refreshingUrlsRef.current.add(uploadId);
+      try {
+        const upload = uploads.find((u) => u.id === uploadId);
+        if (!upload) return;
+        const supabase = createClient();
+        const { data } = await supabase.storage
+          .from(bucket)
+          .createSignedUrl(upload.storagePath, 3600);
+        if (data?.signedUrl) {
+          setUploads((prev) =>
+            prev.map((u) => (u.id === uploadId ? { ...u, signedUrl: data.signedUrl } : u)),
+          );
+        }
+      } catch (err) {
+        console.error('Failed to refresh signed URL:', err);
+      } finally {
+        // Allow retry after a short cooldown so we don't thrash on repeated errors.
+        setTimeout(() => refreshingUrlsRef.current.delete(uploadId), 3000);
+      }
+    },
+    [uploads, bucket],
   );
 
   if (!config) {
@@ -490,6 +533,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
                   src={upload.signedUrl}
                   alt="Uploaded photo"
                   className="aspect-square w-full object-cover"
+                  onError={() => refreshSignedUrl(upload.id)}
                 />
               ) : upload.signedUrl && upload.storagePath.endsWith('.pdf') ? (
                 <div className="flex aspect-square items-center justify-center">
@@ -515,6 +559,7 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
                   src={upload.signedUrl}
                   alt="Uploaded document"
                   className="aspect-square w-full object-cover"
+                  onError={() => refreshSignedUrl(upload.id)}
                 />
               ) : (
                 <div className="flex aspect-square items-center justify-center">
@@ -522,29 +567,62 @@ export function FileUploadInput({ question, value, onChange }: FileUploadInputPr
                 </div>
               )}
 
-              {/* Delete button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(upload.id);
-                }}
-                className="absolute right-1 top-1 rounded-full bg-black/50 p-1.5 text-white opacity-100 transition-opacity hover:bg-black/70 sm:opacity-0 sm:group-hover:opacity-100"
-                aria-label="Remove file"
-              >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
+              {/* Delete button — two-step confirmation */}
+              {pendingDeleteId === upload.id ? (
+                <div
+                  className="absolute inset-x-1 top-1 flex items-center justify-between gap-1 rounded-full bg-black/70 px-2 py-1 text-[11px] font-medium text-white"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18 18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+                  <span className="pl-1">Delete?</span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPendingDeleteId(null);
+                      }}
+                      className="rounded-full px-2 py-0.5 hover:bg-white/15"
+                      aria-label="Cancel delete"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const idToDelete = upload.id;
+                        setPendingDeleteId(null);
+                        handleDelete(idToDelete);
+                      }}
+                      className="rounded-full bg-[color:var(--color-form-error)] px-2 py-0.5 hover:opacity-90"
+                      aria-label="Confirm delete"
+                    >
+                      Confirm
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPendingDeleteId(upload.id);
+                  }}
+                  className="absolute right-1 top-1 rounded-full bg-black/50 p-1.5 text-white opacity-100 transition-opacity hover:bg-black/70 sm:opacity-0 sm:group-hover:opacity-100"
+                  aria-label="Remove file"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18 18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
             </div>
           ))}
         </div>
