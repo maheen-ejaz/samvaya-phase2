@@ -103,7 +103,10 @@ export async function POST(
     }
 
     await adminSupabase.from('users').update({ payment_status: 'verification_pending' as never }).eq('id', userId);
-    await logActivity(admin.id, 'marked_verification_paid', 'user', userId, { amount: PRICING.VERIFICATION_FEE_PAISE });
+    const logOk1 = await logActivity(admin.id, 'marked_verification_paid', 'user', userId, { amount: PRICING.VERIFICATION_FEE_PAISE });
+    if (!logOk1) {
+      return NextResponse.json({ error: 'Audit log write failed. Please retry.' }, { status: 500 });
+    }
 
     // Auto-create a task to initiate BGV
     createBgvInitiateTaskForUser(adminSupabase, userId);
@@ -122,7 +125,10 @@ export async function POST(
     }
 
     await adminSupabase.from('users').update({ payment_status: 'in_pool' as never }).eq('id', userId);
-    await logActivity(admin.id, 'marked_goocampus_verified', 'user', userId);
+    const logOk2 = await logActivity(admin.id, 'marked_goocampus_verified', 'user', userId);
+    if (!logOk2) {
+      return NextResponse.json({ error: 'Audit log write failed. Please retry.' }, { status: 500 });
+    }
 
     notifyStatusChange(adminSupabase, userId, 'in_pool');
     return NextResponse.json({ success: true, newPaymentStatus: 'in_pool' });
@@ -141,7 +147,10 @@ export async function POST(
     }
 
     await adminSupabase.from('users').update({ payment_status: 'in_pool' as never }).eq('id', userId);
-    await logActivity(admin.id, 'moved_to_pool', 'user', userId);
+    const logOk3 = await logActivity(admin.id, 'moved_to_pool', 'user', userId);
+    if (!logOk3) {
+      return NextResponse.json({ error: 'Audit log write failed. Please retry.' }, { status: 500 });
+    }
 
     notifyStatusChange(adminSupabase, userId, 'in_pool');
     return NextResponse.json({ success: true, newPaymentStatus: 'in_pool' });
@@ -180,7 +189,10 @@ export async function POST(
     }
 
     await adminSupabase.from('users').update({ payment_status: 'active_member' as never }).eq('id', userId);
-    await logActivity(admin.id, 'marked_membership_paid', 'user', userId, { amount: PRICING.MEMBERSHIP_FEE_PAISE });
+    const logOk4 = await logActivity(admin.id, 'marked_membership_paid', 'user', userId, { amount: PRICING.MEMBERSHIP_FEE_PAISE });
+    if (!logOk4) {
+      return NextResponse.json({ error: 'Audit log write failed. Please retry.' }, { status: 500 });
+    }
 
     notifyStatusChange(adminSupabase, userId, 'active_member');
     return NextResponse.json({ success: true, newPaymentStatus: 'active_member' });

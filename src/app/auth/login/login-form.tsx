@@ -798,12 +798,10 @@ export function LoginForm() {
     );
   }
 
-  // Test bypass is only rendered when NODE_ENV !== 'production' or the explicit
-  // opt-in flag is set. In production-without-flag the user sees the real OTP
-  // flow. Env vars prefixed with NEXT_PUBLIC_ are inlined at build time.
-  const testLoginEnabled =
-    process.env.NODE_ENV !== "production" ||
-    process.env.NEXT_PUBLIC_ENABLE_TEST_LOGIN === "true";
+  // Test bypass is only rendered in dev builds. NODE_ENV is inlined at build
+  // time, so a prod build never ships the TestBeginStep tree. The server
+  // action has an independent VERCEL_ENV check as the authoritative gate.
+  const testLoginEnabled = process.env.NODE_ENV !== "production";
 
   const formContent = testLoginEnabled ? (
     <TestBeginStep onBegin={handleBeginTestSession} loading={loading} error={error} />

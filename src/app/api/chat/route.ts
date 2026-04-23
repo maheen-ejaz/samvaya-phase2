@@ -1,9 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { checkRateLimit, consumeBudget } from '@/lib/rate-limit';
 import { sendChatMessage } from '@/lib/claude/client';
 import { getChatConfig } from '@/lib/claude/prompts';
 import type { ChatMessage, ChatRequest, ChatState } from '@/lib/claude/types';
+
+// Per-user monthly Anthropic token budget. 500K tokens ≈ a few dollars at
+// Sonnet pricing — bounds worst-case cost per compromised account. Reset
+// window is 30 days; tracked approximately (chars/4) since Claude usage
+// metadata isn't threaded through sendChatMessage today.
+const CHAT_TOKEN_BUDGET_PER_USER = 500_000;
+const CHAT_BUDGET_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+
+function budgetKeyForUser(userId: string): string {
+  const yyyymm = new Date().toISOString().slice(0, 7); // YYYY-MM
+  return `chat-tokens:${userId}:${yyyymm}`;
+}
+
+function approxTokens(text: string): number {
+  // Anthropic counts tokens ≈ 1 per 4 chars for English; round up to be
+  // conservative (better to over-count than under-count).
+  return Math.ceil(text.length / 4);
+}
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -21,6 +39,21 @@ export async function POST(request: NextRequest) {
   const { allowed } = await checkRateLimit(`chat:${user.id}`, 50, 3600_000);
   if (!allowed) {
     return NextResponse.json({ error: 'Too many messages. Please try again later.' }, { status: 429 });
+  }
+
+  // Monthly token budget per user — independent of msg count. Blocks a user
+  // who spreads many messages across hours to stay under the hourly cap.
+  const { allowed: budgetOk } = await consumeBudget(
+    budgetKeyForUser(user.id),
+    CHAT_TOKEN_BUDGET_PER_USER,
+    CHAT_BUDGET_WINDOW_MS,
+    0 // pre-check; actual consumption recorded after the Claude call below
+  );
+  if (!budgetOk) {
+    return NextResponse.json(
+      { error: 'Monthly chat limit reached. Please contact support if you need to continue.' },
+      { status: 429 }
+    );
   }
 
   let body: ChatRequest;
@@ -83,6 +116,14 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
+
+    // Record token usage against the monthly budget (system prompt + response)
+    await consumeBudget(
+      budgetKeyForUser(user.id),
+      CHAT_TOKEN_BUDGET_PER_USER,
+      CHAT_BUDGET_WINDOW_MS,
+      approxTokens(config.systemPrompt) + approxTokens(assistantResponse)
+    );
 
     // Save initial chat state
     const openingMessage: ChatMessage = {
@@ -151,6 +192,16 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
+
+    // Record token usage against the monthly budget. Approximates input as
+    // system prompt + full message history (Anthropic bills on both).
+    const historyChars = historyForClaude.reduce((acc, m) => acc + m.content.length, 0);
+    await consumeBudget(
+      budgetKeyForUser(user.id),
+      CHAT_TOKEN_BUDGET_PER_USER,
+      CHAT_BUDGET_WINDOW_MS,
+      approxTokens(config.systemPrompt) + Math.ceil(historyChars / 4) + approxTokens(assistantResponse)
+    );
 
     // Parse quality signal: Claude prefixes [COUNTED] or [NOT_COUNTED] when it evaluates a user response
     if (assistantResponse.startsWith('[NOT_COUNTED]')) {

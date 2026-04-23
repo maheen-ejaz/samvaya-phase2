@@ -39,6 +39,24 @@ export async function POST() {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
+  // Validate every required visible question is answered. Runs on BOTH
+  // first-submit and re-submit paths so a profile that has drifted into
+  // an incomplete state (e.g., an answer cleared, or a server-side rule
+  // tightening caught by a later re-submission) cannot remain flagged
+  // onboarding_complete. The idempotency short-circuit below is gated on
+  // this check passing.
+  const hydrated = await hydrateOnboardingForm();
+  if (!hydrated) {
+    return NextResponse.json({ error: 'Failed to load form data' }, { status: 500 });
+  }
+  for (const q of QUESTIONS) {
+    if (!q.required) continue;
+    if (!isQuestionVisible(q.id, hydrated.answers)) continue;
+    if (!isQuestionAnswered(q.id, hydrated.answers)) {
+      return NextResponse.json({ error: `Incomplete: ${q.id}` }, { status: 400 });
+    }
+  }
+
   if (userData.membership_status === 'onboarding_complete') {
     // Re-submission from edit mode — send update notification to team
     const [editProfileResult, editMedicalResult] = await Promise.all([
@@ -62,20 +80,6 @@ export async function POST() {
     });
 
     return NextResponse.json({ success: true, alreadySubmitted: true });
-  }
-
-  // Validate every required visible question is answered before marking complete.
-  // Uses the same hydrate → isQuestionVisible → isQuestionAnswered path as the UI.
-  const hydrated = await hydrateOnboardingForm();
-  if (!hydrated) {
-    return NextResponse.json({ error: 'Failed to load form data' }, { status: 500 });
-  }
-  for (const q of QUESTIONS) {
-    if (!q.required) continue;
-    if (!isQuestionVisible(q.id, hydrated.answers)) continue;
-    if (!isQuestionAnswered(q.id, hydrated.answers)) {
-      return NextResponse.json({ error: `Incomplete: ${q.id}` }, { status: 400 });
-    }
   }
 
   // Fetch profile + medical data for emails (in parallel)

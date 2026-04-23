@@ -22,7 +22,7 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { memberId, response } = body;
+    const { memberId, response, adminReason } = body;
 
     if (!memberId || !response) {
       return NextResponse.json(
@@ -37,6 +37,20 @@ export async function POST(
     if (response !== 'interested' && response !== 'not_interested') {
       return NextResponse.json(
         { error: 'response must be "interested" or "not_interested"' },
+        { status: 400 }
+      );
+    }
+
+    // Require a free-text rationale so a compromised admin can't silently flip
+    // mutual-interest on both sides. Stored in activity_log for audit.
+    // TODO: require second-admin sign-off for mutual-interest flips — see security-audit-2026-04.
+    if (
+      typeof adminReason !== 'string' ||
+      adminReason.trim().length < 10 ||
+      adminReason.trim().length > 500
+    ) {
+      return NextResponse.json(
+        { error: 'adminReason is required (10–500 characters, describing why this response is being recorded admin-side)' },
         { status: 400 }
       );
     }
@@ -163,15 +177,31 @@ export async function POST(
           .eq('id', userId)
           .eq('payment_status', 'match_presented');
 
+        // Ensure a membership_fee payment row exists before writing
+        // membership_start_date. Prior bug: the update filtered only on
+        // user_id + membership_start_date IS NULL, so the date landed on the
+        // verification_fee row for non-GooCampus users, breaking expiry calc.
+        await supabase
+          .from('payments')
+          .upsert(
+            {
+              user_id: userId,
+              payment_type: 'membership_fee',
+            } as never,
+            { onConflict: 'user_id,payment_type', ignoreDuplicates: true }
+          );
+
         // Set membership_start_date = mutual interest date (CRITICAL RULE)
+        // Scoped to the membership_fee row.
         await supabase
           .from('payments')
           .update({ membership_start_date: now })
           .eq('user_id', userId)
+          .eq('payment_type', 'membership_fee')
           .is('membership_start_date', null);
       }
 
-      await logActivity(
+      const mutualLogOk = await logActivity(
         result.admin.id,
         'mutual_interest_confirmed',
         'match_presentation',
@@ -180,11 +210,19 @@ export async function POST(
           profile_a_id: profileAId,
           profile_b_id: profileBId,
           membership_start_date: now,
+          admin_reason: adminReason.trim(),
         }
       );
+
+      if (!mutualLogOk) {
+        return NextResponse.json(
+          { error: 'Audit log write failed; mutation rolled back at the application level. Please retry.' },
+          { status: 500 }
+        );
+      }
     }
 
-    await logActivity(
+    const responseLogOk = await logActivity(
       result.admin.id,
       'match_response_recorded',
       'match_presentation',
@@ -194,8 +232,16 @@ export async function POST(
         member_position: isA ? 'A' : 'B',
         response,
         resulting_status: update.status ?? 'pending',
+        admin_reason: adminReason.trim(),
       }
     );
+
+    if (!responseLogOk) {
+      return NextResponse.json(
+        { error: 'Audit log write failed; mutation rolled back at the application level. Please retry.' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

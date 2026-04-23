@@ -204,10 +204,13 @@ export async function POST(
     } as never)
     .eq('id', userId);
 
-  await logActivity(admin.id, 'updated_bgv_check', 'user', userId, {
+  const bgvLogOk = await logActivity(admin.id, 'updated_bgv_check', 'user', userId, {
     checkType,
     newStatus: status,
   });
+  if (!bgvLogOk) {
+    return NextResponse.json({ error: 'Audit log write failed. Please retry.' }, { status: 500 });
+  }
 
   return NextResponse.json({
     success: true,

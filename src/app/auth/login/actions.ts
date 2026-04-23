@@ -6,15 +6,15 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
- * Test bypass is allowed when either:
- *   - we're not in production, OR
- *   - the explicit opt-in flag `NEXT_PUBLIC_ENABLE_TEST_LOGIN=true` is set.
- * Both values are inlined at build time, so this survives being called from a
- * server action without a request context.
+ * Test bypass is permitted only in non-production builds. `VERCEL_ENV` is
+ * the authoritative production marker on Vercel (prod vs preview vs dev);
+ * `NODE_ENV` covers local dev and any non-Vercel host. Both checks run
+ * server-side — no public env var is consulted so an accidentally-set flag
+ * cannot ship the bypass to real users.
  */
 function isTestLoginAllowed(): boolean {
-  if (process.env.NODE_ENV !== "production") return true;
-  return process.env.NEXT_PUBLIC_ENABLE_TEST_LOGIN === "true";
+  if (process.env.VERCEL_ENV === "production") return false;
+  return process.env.NODE_ENV !== "production";
 }
 
 export async function sendOtp(email: string) {
