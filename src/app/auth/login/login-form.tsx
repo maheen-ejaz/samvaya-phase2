@@ -4,16 +4,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { sendOtp, verifyOtp, beginTestSession } from "./actions";
 import { cn } from "@/lib/utils";
+import { isSafeRedirectPath } from "@/lib/safe-redirect";
 
 type Step = "email" | "otp";
-
-function isSafeRedirectPath(path: string | null): boolean {
-  if (!path) return false;
-  if (!path.startsWith("/")) return false;
-  if (path.startsWith("//")) return false;
-  if (path.includes("\\")) return false;
-  return path === "/app" || path.startsWith("/app/") || path === "/admin" || path.startsWith("/admin/");
-}
 
 // ── Design tokens ─────────────────────────────────────────
 const C = {

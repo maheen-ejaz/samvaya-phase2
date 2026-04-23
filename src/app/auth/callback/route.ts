@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { isSafeRedirectPath } from '@/lib/safe-redirect';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/app';
+  const next = searchParams.get('next');
 
   if (code) {
     const supabase = await createClient();
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     if (!error) {
       // Validate redirect path to prevent open redirects
-      const redirectTo = next.startsWith('/') ? next : '/app';
+      const redirectTo = isSafeRedirectPath(next) ? next! : '/app';
       return NextResponse.redirect(new URL(redirectTo, request.url));
     }
   }
