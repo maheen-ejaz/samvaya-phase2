@@ -31,6 +31,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://app.samvayamatrimony.com"),
   title: "Samvaya Matrimony",
   description: "Premium curated matrimony for medical professionals",
   manifest: "/manifest.json",
@@ -42,6 +43,20 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png",
     apple: "/icons/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "Samvaya Matrimony",
+    description: "Premium curated matrimony for medical professionals",
+    url: "https://app.samvayamatrimony.com",
+    siteName: "Samvaya Matrimony",
+    images: [{ url: "/favicon.png" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Samvaya Matrimony",
+    description: "Premium curated matrimony for medical professionals",
+    images: ["/favicon.png"],
   },
 };
 
