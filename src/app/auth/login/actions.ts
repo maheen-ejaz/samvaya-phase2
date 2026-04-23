@@ -121,14 +121,28 @@ export async function beginTestSession() {
     return { error: `Admin list failed: ${listErr.message}` };
   }
   const existing = listed.users.find((u) => u.email === TEST_APPLICANT_EMAIL);
+  let testUserId: string;
+
   if (!existing) {
-    const { error: createErr } = await admin.auth.admin.createUser({
+    const { data: newUser, error: createErr } = await admin.auth.admin.createUser({
       email: TEST_APPLICANT_EMAIL,
       email_confirm: true,
     });
     if (createErr) {
       return { error: `Admin create failed: ${createErr.message}` };
     }
+    testUserId = newUser.user.id;
+  } else {
+    testUserId = existing.id;
+  }
+
+  // Q4 (phone) is required in Section A. Ensure the test user always has a fake
+  // phone so `answers['Q4']` is non-empty and the form can proceed past Section A.
+  if (!existing?.phone) {
+    await admin.auth.admin.updateUserById(testUserId, {
+      phone: '+919999999999',
+      phone_confirm: true,
+    });
   }
 
   // Generate a magic-link token and exchange it for a cookie-backed session.

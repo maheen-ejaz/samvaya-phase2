@@ -347,7 +347,7 @@ const sectionA: QuestionConfig[] = [
     text: 'Your phone number',
     type: 'phone',
     required: true,
-    targetTable: 'auth_users',
+    targetTable: 'local',
     targetColumn: 'phone',
     placeholder: '98765 43210',
     groupWith: ['Q3'],
