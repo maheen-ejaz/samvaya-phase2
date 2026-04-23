@@ -213,7 +213,7 @@ export function ResponsePrompt({
           <button
             onClick={() => setConfirming('interested')}
             disabled={submitting}
-            className="flex-1 rounded-lg bg-samvaya-red px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-samvaya-red-dark disabled:opacity-50"
+            className="form-btn-primary flex-1"
           >
             I&apos;m Interested
           </button>

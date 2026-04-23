@@ -245,7 +245,7 @@ export function FeedbackForm({ presentationId }: FeedbackFormProps) {
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        className="w-full rounded-lg bg-samvaya-red px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-samvaya-red-dark disabled:opacity-50"
+        className="form-btn-primary w-full"
       >
         {submitting ? 'Submitting...' : 'Submit Feedback'}
       </button>

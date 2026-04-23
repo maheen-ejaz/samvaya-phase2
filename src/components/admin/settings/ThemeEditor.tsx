@@ -204,9 +204,14 @@ export function ThemeEditor({ initialTheme }: ThemeEditorProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-3 pt-2 border-t border-border">
-          <Button onClick={handleSave} disabled={saving}>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="form-btn-primary"
+          >
             {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save theme'}
-          </Button>
+          </button>
           <Button variant="outline" onClick={handleReset} disabled={saving}>
             Reset to preset defaults
           </Button>

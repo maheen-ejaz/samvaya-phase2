@@ -358,9 +358,9 @@ export function TaskCreateModal({ onClose, onCreated }: TaskCreateModalProps) {
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting}>
+            <button type="submit" disabled={submitting} className="form-btn-primary">
               {submitting ? 'Creating...' : 'Create Task'}
-            </Button>
+            </button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -77,7 +77,7 @@ export function InstallPromptBanner() {
       <div className="mt-3 flex gap-2">
         <button
           onClick={handleInstall}
-          className="flex-1 rounded-xl bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700"
+          className="form-btn-primary flex-1"
         >
           Install
         </button>

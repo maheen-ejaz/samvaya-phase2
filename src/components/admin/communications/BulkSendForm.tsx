@@ -696,9 +696,13 @@ export function BulkSendForm({ templates }: BulkSendFormProps) {
               <Button variant="outline" onClick={() => setStep(2)}>
                 Back
               </Button>
-              <Button onClick={() => setShowConfirm(true)}>
+              <button
+                type="button"
+                onClick={() => setShowConfirm(true)}
+                className="form-btn-primary"
+              >
                 {scheduledAt ? 'Schedule Send' : 'Send Now'}
-              </Button>
+              </button>
             </div>
           </CardContent>
         </Card>
@@ -727,12 +731,14 @@ export function BulkSendForm({ templates }: BulkSendFormProps) {
             >
               Cancel
             </Button>
-            <Button
+            <button
+              type="button"
               onClick={handleSend}
               disabled={sending}
+              className="form-btn-primary"
             >
               {sending ? 'Sending...' : 'Confirm'}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -223,26 +223,14 @@ function PrimaryButton({ children, disabled, loading, onClick, type = "submit" }
       type={type}
       disabled={disabled || loading}
       onClick={onClick}
-      style={{
-        width: "100%", height: 56,
-        background: disabled || loading ? C.line2 : C.accent,
-        color: disabled || loading ? C.muted : "#FFFFFF",
-        border: "none", borderRadius: 14,
-        fontSize: 15.5, fontWeight: 600,
-        fontFamily: "var(--font-inter), sans-serif",
-        letterSpacing: "-0.1px",
-        cursor: disabled || loading ? "not-allowed" : "pointer",
-        display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
-        boxShadow: disabled || loading ? "none" : `0 6px 18px ${C.accent}38, inset 0 1px 0 rgba(255,255,255,0.14)`,
-        transition: "background 0.15s, box-shadow 0.15s",
-      }}
+      className="form-btn-primary w-full"
     >
       {loading ? (
         <>
           <span style={{
             width: 16, height: 16, borderRadius: "50%",
-            border: "2px solid rgba(100,50,50,0.3)",
-            borderTopColor: C.muted,
+            border: "2px solid rgba(255,255,255,0.4)",
+            borderTopColor: "#FFFFFF",
             display: "inline-block",
             animation: "spin 0.9s linear infinite",
           }} />

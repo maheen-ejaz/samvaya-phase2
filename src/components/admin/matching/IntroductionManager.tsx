@@ -246,12 +246,14 @@ export function IntroductionManager() {
             >
               Cancel
             </Button>
-            <Button
+            <button
+              type="button"
               onClick={handleRecordOutcome}
               disabled={actionLoading}
+              className="form-btn-primary"
             >
               {actionLoading ? 'Saving...' : 'Save Outcome'}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

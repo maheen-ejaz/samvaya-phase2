@@ -106,10 +106,14 @@ export function SectionIntro({ sectionId }: SectionIntroProps) {
           )}
 
           <div className="flex justify-center pt-2">
-            <Button onClick={handleBegin} className="w-full gap-1.5 rounded-xl sm:w-auto sm:min-w-[14rem]">
+            <button
+              type="button"
+              onClick={handleBegin}
+              className="form-btn-primary w-full sm:w-auto sm:min-w-[14rem]"
+            >
               Begin section
               <ArrowRightIcon className="size-4" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>

@@ -29,7 +29,7 @@ export function ContactPaymentCTA({ amount, feeType }: ContactPaymentCTAProps) {
       <div className="space-y-3">
         <a
           href="mailto:support@samvayamatrimony.com"
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-samvaya-red px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-samvaya-red-dark"
+          className="form-btn-primary w-full"
         >
           Email us to pay {amount}
         </a>

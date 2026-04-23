@@ -237,7 +237,7 @@ export function ScheduleIntroduction({ presentationId }: ScheduleIntroductionPro
       <button
         onClick={handleSave}
         disabled={saving || selectedSlots.length === 0}
-        className="mt-4 w-full rounded-lg bg-samvaya-red px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-samvaya-red-dark disabled:opacity-50"
+        className="form-btn-primary mt-4 w-full"
       >
         {saving ? 'Saving...' : selectedSlots.length === 0 ? 'Select Time Slots' : `Save ${selectedSlots.length} Slot${selectedSlots.length !== 1 ? 's' : ''}`}
       </button>

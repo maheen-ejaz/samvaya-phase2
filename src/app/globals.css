@@ -21,6 +21,10 @@
   /* Samvaya brand — Red as primary. Replaces previous Vega / Teal preset. */
   --primary: #A3171F;
   --primary-foreground: #FFFFFF;
+  --primary-hover: #7D1118;
+  --primary-shadow: rgba(163, 23, 31, 0.20);
+  --primary-shadow-hover: rgba(163, 23, 31, 0.28);
+  --primary-ring: #FFF4F4;
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.97 0 0);
@@ -860,6 +864,10 @@ h4 { font-weight: 600; }
 .admin-scope {
   --primary: #18181B;
   --primary-foreground: #FFFFFF;
+  --primary-hover: #000000;
+  --primary-shadow: rgba(0, 0, 0, 0.20);
+  --primary-shadow-hover: rgba(0, 0, 0, 0.28);
+  --primary-ring: #E4E4E7;
   --ring: #18181B;
 }
 
@@ -1158,8 +1166,11 @@ h4 { font-weight: 600; }
   box-shadow: 0 0 0 3px var(--color-form-accent-soft);
 }
 
-/* Primary button — Continue / Submit.
-   Maroon with a warm inner highlight and subtle ambient shadow. */
+/* Canonical primary CTA — used for Continue, Submit, Begin section,
+   Save changes, Send, Confirm, etc. across forms, /app, and admin.
+   Adapts to scope via --primary (red in app/form, charcoal in admin)
+   and the matching --primary-hover / --primary-shadow / --primary-ring
+   tokens. To use: <button className="form-btn-primary"> ... </button>. */
 .form-btn-primary {
   display: inline-flex;
   align-items: center;
@@ -1171,35 +1182,35 @@ h4 { font-weight: 600; }
   font-size: 0.9375rem;     /* 15px */
   font-weight: 600;
   letter-spacing: -0.01em;
-  color: #FFFFFF;
-  background: var(--color-form-accent);
+  color: var(--primary-foreground, #FFFFFF);
+  background: var(--primary);
   border: none;
   border-radius: 0.875rem;  /* 14px mobile — design default */
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(163, 23, 31, 0.20),
+  box-shadow: 0 4px 14px var(--primary-shadow, rgba(163, 23, 31, 0.20)),
               inset 0 1px 0 rgba(255, 255, 255, 0.12);
   transition: background-color 150ms var(--ease-in-out-smooth),
               transform 100ms var(--ease-in-out-smooth),
               box-shadow 150ms var(--ease-in-out-smooth);
 }
 .form-btn-primary:hover:not(:disabled) {
-  background: var(--color-form-accent-deep);
-  box-shadow: 0 6px 18px rgba(163, 23, 31, 0.28),
+  background: var(--primary-hover, var(--color-form-accent-deep));
+  box-shadow: 0 6px 18px var(--primary-shadow-hover, rgba(163, 23, 31, 0.28)),
               inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 .form-btn-primary:active:not(:disabled) {
   transform: scale(0.98);
 }
 .form-btn-primary:disabled {
-  background: var(--color-form-border-strong);
+  background: #D4D4D8;
   color: #FFFFFF;
   cursor: not-allowed;
   box-shadow: none;
 }
 .form-btn-primary:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-form-accent-soft),
-              0 4px 14px rgba(163, 23, 31, 0.20);
+  box-shadow: 0 0 0 3px var(--primary-ring, var(--color-form-accent-soft)),
+              0 4px 14px var(--primary-shadow, rgba(163, 23, 31, 0.20));
 }
 @media (min-width: 1024px) {
   .form-btn-primary { min-height: 3rem; border-radius: 0.75rem; }  /* 48px / 12px desktop */
