@@ -5,7 +5,18 @@ import { logActivity } from '@/lib/admin/activity';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { validateString } from '@/lib/validation';
 
-const LOCKED_KEYS = ['verification_fee', 'membership_fee'];
+// Per-key allowlist with a schema validator. Any key not listed here is rejected.
+// theme_config has its own route (/api/admin/theme). Fees, sync timestamps, and
+// matching_* counters are system-managed — not editable via this endpoint.
+const ALLOWED_KEYS: Record<string, (v: unknown) => boolean> = {
+  feature_flags: (v) => {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+    for (const val of Object.values(v as Record<string, unknown>)) {
+      if (typeof val !== 'boolean') return false;
+    }
+    return true;
+  },
+};
 
 export async function GET() {
   const result = await requireAdmin();
@@ -62,10 +73,18 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid value format' }, { status: 400 });
   }
 
-  if (LOCKED_KEYS.includes(key)) {
+  const validator = ALLOWED_KEYS[key];
+  if (!validator) {
     return NextResponse.json(
-      { error: `"${key}" is locked and cannot be modified via the API.` },
-      { status: 403 }
+      { error: `"${key}" cannot be modified via this endpoint.` },
+      { status: 400 }
+    );
+  }
+
+  if (!validator(value)) {
+    return NextResponse.json(
+      { error: `Invalid value for "${key}".` },
+      { status: 400 }
     );
   }
 

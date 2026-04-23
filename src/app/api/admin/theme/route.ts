@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { isValidCssColor } from '@/lib/theme';
 
 export interface ThemeConfig {
   primary: string;
@@ -31,7 +32,9 @@ export const DEFAULT_THEME: ThemeConfig = {
 const ALLOWED_FONTS = ['inter', 'instrument-sans', 'geist'] as const;
 const ALLOWED_RADII = ['0rem', '0.25rem', '0.5rem', '0.625rem', '0.75rem', '1rem'] as const;
 
-// GET is unauthenticated — theme must load for all pages including public ones
+// GET is unauthenticated — theme must load for all pages including public ones.
+// TODO: migrate to anon + RLS once theme_config row is publicly readable.
+// Service role is scoped via .eq('key', 'theme_config') so only that row is read.
 export async function GET() {
   const adminSupabase = createAdminClient();
   const { data } = await adminSupabase
@@ -67,8 +70,8 @@ export async function PUT(request: NextRequest) {
   const colorFields = ['primary', 'chart_1', 'chart_2', 'chart_3', 'chart_4', 'chart_5'] as const;
   for (const field of colorFields) {
     const val = merged[field];
-    if (typeof val !== 'string' || val.length > 80) {
-      return NextResponse.json({ error: `Invalid value for ${field}` }, { status: 400 });
+    if (!isValidCssColor(val)) {
+      return NextResponse.json({ error: `Invalid CSS color for ${field}` }, { status: 400 });
     }
   }
 

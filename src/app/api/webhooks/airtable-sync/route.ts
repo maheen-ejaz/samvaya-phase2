@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { timingSafeEqual, createHmac } from 'crypto';
 import { syncSingleUser } from '@/lib/airtable/sync';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 /**
  * Webhook endpoint for Supabase database webhooks.
@@ -22,6 +23,12 @@ export async function POST(request: NextRequest) {
   const b = createHmac('sha256', key).update(expectedSecret).digest();
   if (!timingSafeEqual(a, b)) {
     return NextResponse.json({ error: 'Invalid webhook secret' }, { status: 401 });
+  }
+
+  // Global rate limit after HMAC verification — defense-in-depth if secret leaks.
+  const { allowed } = await checkRateLimit('airtable-sync:global', 10, 60_000);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
   // Check if sync is enabled

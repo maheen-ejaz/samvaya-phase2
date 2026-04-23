@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { checkRateLimit } from '@/lib/rate-limit';
+
+// Allow unicode letters, space, hyphen, apostrophe. Reject PostgREST-reserved
+// chars that could inject extra filter clauses: , ( ) \ : .
+const SEARCH_REJECT_REGEX = /[,()\\:.]/;
+const SEARCH_ALLOW_REGEX = /^[\p{L}\s'\-]+$/u;
 
 interface ProfileRow {
   user_id: string;
@@ -29,11 +35,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const { allowed } = await checkRateLimit(`admin-search:${user.id}`, 30, 60_000);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+    }
+
     const url = new URL(request.url);
     const q = (url.searchParams.get('q') ?? '').trim();
 
     if (q.length < 2) {
       return NextResponse.json({ applicants: [] });
+    }
+
+    if (q.length > 100 || SEARCH_REJECT_REGEX.test(q) || !SEARCH_ALLOW_REGEX.test(q)) {
+      return NextResponse.json(
+        { error: 'Search query contains invalid characters. Use letters, spaces, hyphens, or apostrophes only.' },
+        { status: 400 }
+      );
     }
 
     // Search profiles by first_name or last_name (case-insensitive)

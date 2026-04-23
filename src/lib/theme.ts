@@ -1,5 +1,19 @@
 import type { ThemeConfig } from '@/app/api/admin/theme/route';
 
+// Strict CSS color validator — prevents CSS injection via theme fields
+// that are interpolated raw into <style> tags.
+const CSS_COLOR_REGEXES: RegExp[] = [
+  /^#[0-9a-fA-F]{3,8}$/,
+  /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/,
+  /^hsla?\(\s*\d+(\.\d+)?\s*,\s*\d+(\.\d+)?%\s*,\s*\d+(\.\d+)?%\s*(,\s*[\d.]+\s*)?\)$/,
+  /^oklch\(\s*[\d.]+\s+[\d.]+\s+[\d.]+\s*(\/\s*[\d.]+\s*)?\)$/,
+];
+
+export function isValidCssColor(v: string): boolean {
+  if (typeof v !== 'string' || v.length > 80) return false;
+  return CSS_COLOR_REGEXES.some((r) => r.test(v));
+}
+
 export const DEFAULT_THEME: ThemeConfig = {
   // Samvaya brand — Red as primary, charcoal/red gradient for charts.
   primary: '#A3171F',
