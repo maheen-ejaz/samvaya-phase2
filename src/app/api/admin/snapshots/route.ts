@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { timingSafeEqual, createHmac } from 'crypto';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -35,9 +36,16 @@ export async function GET(request: Request) {
 
 // POST /api/admin/snapshots — capture today's snapshot (called by Vercel cron)
 export async function POST(request: Request) {
-  // Verify cron secret or admin auth
-  const cronSecret = request.headers.get('authorization')?.replace('Bearer ', '');
-  const isCron = cronSecret === process.env.CRON_SECRET;
+  // Verify cron secret (timing-safe) or admin auth
+  const authHeader = request.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+  let isCron = false;
+  if (authHeader && cronSecret) {
+    const key = 'samvaya-cron-verify';
+    const a = createHmac('sha256', key).update(authHeader).digest();
+    const b = createHmac('sha256', key).update(`Bearer ${cronSecret}`).digest();
+    isCron = timingSafeEqual(a, b);
+  }
 
   if (!isCron) {
     const supabase = await createClient();
