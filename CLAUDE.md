@@ -78,7 +78,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 |------|-------|
 | Form | 99 base questions, 14 sections (A–N), 3 Claude chats (Q38, Q75, Q100 in Section N — sequential, one at a time) |
 | Verification fee | ₹3,500 + 18% GST = **₹4,130** |
-| Membership fee | ₹35,000 + 18% GST = **₹41,300** |
+| Service fee | ₹35,000 + 18% GST = **₹41,300** |
 | Claude model | `claude-sonnet-4-20250514` |
 | Payment v1 | Manual flag only — no Razorpay |
 | Auth | Email OTP via Supabase — no passwords |
@@ -153,7 +153,7 @@ Never change these numbers. One wrong figure propagates silently into legal copy
 | Fee | Total | When triggered |
 |-----|-------|----------------|
 | Verification | **₹4,130** (₹3.5K + 18% GST) | After form submitted + payment confirmed |
-| Membership | **₹41,300** (₹35K + 18% GST) | Both parties confirm mutual interest |
+| Service fee | **₹41,300** (₹35K + 18% GST) | Both parties confirm mutual interest |
 | Premium concierge | ₹1.5L–₹2L | Founder-led, never publicly displayed |
 | GooCampus members | ₹0 verification | `is_goocampus_member = true` |
 
@@ -171,7 +171,7 @@ GooCampus members: `unverified` → `in_pool` directly (skip `verification_pendi
 
 **Hard rules — enforce in code:**
 1. BGV requires BOTH: `verification_fee_paid = true` AND `bgv_consent = consented` or `consented_wants_call`.
-2. Membership fee cannot be requested until `match_presentations.is_mutual_interest = true`.
+2. Service fee cannot be requested until `match_presentations.is_mutual_interest = true`.
 3. `membership_start_date` = mutual interest date, not payment date.
 4. GooCampus members: verification fee screen must never render for them.
 

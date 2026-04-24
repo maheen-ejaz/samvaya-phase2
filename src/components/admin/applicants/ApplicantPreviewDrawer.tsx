@@ -129,7 +129,7 @@ const MILESTONE_LABELS: Record<MilestoneKey, string> = {
   verification_pending: 'Form submitted',
   in_pool: 'Verified & in pool',
   match_presented: 'Match presented',
-  awaiting_payment: 'Membership fee requested',
+  awaiting_payment: 'Service fee requested',
   active_member: 'Active member',
   membership_expired: 'Membership expired',
 };

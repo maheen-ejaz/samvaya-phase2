@@ -46,7 +46,7 @@ export default function TermsOfServicePage() {
             non-refundable)
           </li>
           <li>
-            <strong>Membership fee:</strong> &#8377;35,000 + GST (non-refundable)
+            <strong>Service fee:</strong> &#8377;35,000 + GST (non-refundable)
           </li>
         </ul>
         <p className="mt-2 text-gray-700 leading-relaxed">

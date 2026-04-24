@@ -184,7 +184,7 @@ export function matchResponseReceivedEmail(
       <div style="background:#fef2f2;border-radius:8px;padding:20px;margin:24px 0;">
         <p style="font-size:15px;font-weight:600;margin:0 0 8px;">What happens next</p>
         <p style="font-size:14px;line-height:1.5;margin:0;color:#4b5563;">
-          To proceed with an introduction, the membership fee of &#8377;35,000 + GST applies. Our team will reach out to guide you through the next steps.
+          To proceed with an introduction, the service fee of &#8377;35,000 + GST applies. Our team will reach out to guide you through the next steps.
         </p>
       </div>
 
@@ -267,7 +267,7 @@ export function statusUpdateEmail(
     },
     active_member: {
       heading: 'Your membership is now active',
-      body: 'Your membership fee has been confirmed and your 6-month membership window has started. You now have full access to your match&rsquo;s profile, including their name, contact information, and unblurred photos. Log in to Samvaya to view everything.',
+      body: 'Your service fee has been confirmed and your 6-month membership window has started. You now have full access to your match&rsquo;s profile, including their name, contact information, and unblurred photos. Log in to Samvaya to view everything.',
     },
   };
 
@@ -636,7 +636,7 @@ export function membershipExpiredEmail(firstName: string): {
       <div style="background:#fef2f2;border-radius:8px;padding:20px;margin:24px 0;">
         <p style="font-size:15px;font-weight:600;margin:0 0 8px;">Membership renewal</p>
         <p style="font-size:14px;line-height:1.5;margin:0;color:#4b5563;">
-          Membership fee: &#8377;35,000 + GST. Reach out to us and we&rsquo;ll take it from there.
+          Service fee: &#8377;35,000 + GST. Reach out to us and we&rsquo;ll take it from there.
         </p>
       </div>
 

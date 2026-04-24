@@ -260,7 +260,7 @@ function getStatusConfig(
       return {
         icon: <SparklesIcon className="text-samvaya-red" />,
         title: 'Mutual Interest Confirmed!',
-        description: `You both expressed interest! Membership fee: ${PRICING.MEMBERSHIP_FEE_DISPLAY}.`,
+        description: `You both expressed interest! Service fee: ${PRICING.MEMBERSHIP_FEE_DISPLAY}.`,
         cta: <ContactPaymentCTA amount={PRICING.MEMBERSHIP_FEE_DISPLAY} feeType="membership" />,
       };
     case 'active_member':

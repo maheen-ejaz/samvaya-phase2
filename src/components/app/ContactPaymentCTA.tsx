@@ -12,7 +12,7 @@ function getWhatsAppMessage(feeType: string, amount: string): string {
     case 'verification':
       return `Hi, I'd like to complete my Samvaya verification fee payment of ${amount}. Please share the payment details.`;
     case 'membership':
-      return `Hi, I'd like to complete my Samvaya membership fee payment of ${amount}. Please share the payment details.`;
+      return `Hi, I'd like to complete my Samvaya service fee payment of ${amount}. Please share the payment details.`;
     case 'renewal':
       return `Hi, I'd like to renew my Samvaya membership. Please share the details.`;
     default:
