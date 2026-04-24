@@ -87,6 +87,12 @@ export async function GET(
     }
   }
 
+  // BGV results contain sensitive employment/criminal/financial data — every
+  // admin view must leave an audit trail.
+  await logActivity(result.admin.id, 'viewed_bgv_checks', 'user', userId, {
+    checkCount: (checks || existingChecks).length,
+  });
+
   return NextResponse.json({
     checks: checks || existingChecks,
     user: {

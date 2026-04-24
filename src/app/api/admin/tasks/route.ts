@@ -61,7 +61,8 @@ export async function GET(request: NextRequest) {
     const { data, count, error } = await query;
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('[GET /api/admin/tasks] db error:', error.message);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 
     const tasks: AdminTask[] = (data || []).map(rowToTask);
@@ -123,7 +124,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('[POST /api/admin/tasks] db error:', error.message);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 
     await logActivity(admin.id, 'created_admin_task', 'admin_task', data.id, {

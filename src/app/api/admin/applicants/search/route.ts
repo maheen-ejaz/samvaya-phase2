@@ -62,7 +62,8 @@ export async function GET(request: Request) {
       .limit(10);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('[GET /api/admin/applicants/search] db error:', error.message);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 
     if (!profiles || profiles.length === 0) {

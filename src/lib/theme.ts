@@ -49,19 +49,39 @@ export const RADIUS_OPTIONS = [
   { value: '1rem', label: 'Extra Large' },
 ];
 
+const ALLOWED_RADII = new Set(RADIUS_OPTIONS.map((o) => o.value));
+
+// Defense-in-depth: re-validate every value before interpolating into a <style>
+// tag. Input validation runs on PUT, but this guards against DB-level tampering,
+// migration bugs, or any future code path that sets theme values without
+// running through the validator.
+function safeColor(v: string, fallback: string): string {
+  return isValidCssColor(v) ? v : fallback;
+}
+function safeRadius(v: string): string {
+  return ALLOWED_RADII.has(v) ? v : DEFAULT_THEME.radius;
+}
+
 export function buildThemeCss(theme: ThemeConfig): string {
   const fontSansVar = FONT_VAR_MAP[theme.font_sans] ?? '--font-inter';
   const fontFormVar = FONT_VAR_MAP[theme.font_form] ?? '--font-inter';
+  const primary = safeColor(theme.primary, DEFAULT_THEME.primary);
+  const chart1 = safeColor(theme.chart_1, DEFAULT_THEME.chart_1);
+  const chart2 = safeColor(theme.chart_2, DEFAULT_THEME.chart_2);
+  const chart3 = safeColor(theme.chart_3, DEFAULT_THEME.chart_3);
+  const chart4 = safeColor(theme.chart_4, DEFAULT_THEME.chart_4);
+  const chart5 = safeColor(theme.chart_5, DEFAULT_THEME.chart_5);
+  const radius = safeRadius(theme.radius);
   return `
 :root {
-  --primary: ${theme.primary};
-  --sidebar-primary: ${theme.chart_3};
-  --chart-1: ${theme.chart_1};
-  --chart-2: ${theme.chart_2};
-  --chart-3: ${theme.chart_3};
-  --chart-4: ${theme.chart_4};
-  --chart-5: ${theme.chart_5};
-  --radius: ${theme.radius};
+  --primary: ${primary};
+  --sidebar-primary: ${chart3};
+  --chart-1: ${chart1};
+  --chart-2: ${chart2};
+  --chart-3: ${chart3};
+  --chart-4: ${chart4};
+  --chart-5: ${chart5};
+  --radius: ${radius};
   --theme-font-sans: var(${fontSansVar});
   --theme-font-form: var(${fontFormVar});
 }`.trim();

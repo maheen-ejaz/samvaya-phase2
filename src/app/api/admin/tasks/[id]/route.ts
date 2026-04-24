@@ -1,5 +1,8 @@
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/admin/auth';
 import { logActivity } from '@/lib/admin/activity';
+import { checkRateLimit } from '@/lib/rate-limit';
 import type { AdminTask, TaskStatus, TaskPriority, TaskCategory } from '@/types/dashboard';
 
 function rowToTask(row: any): AdminTask {
@@ -27,68 +30,69 @@ function rowToTask(row: any): AdminTask {
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
+    const result = await requireAdmin();
+    if (result.error) return result.error;
+    const { admin } = result;
+
+    const { allowed } = await checkRateLimit(`admin-task-update:${admin.id}`, 100, 3600_000);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again in a moment.' }, { status: 429 });
+    }
+
     const supabase = await createClient();
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!userData || (userData.role !== 'admin' && userData.role !== 'super_admin')) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
-    }
 
     const body = await request.json();
     const { status, notes, due_date, priority, task_category, title } = body;
 
     const updateData: Record<string, unknown> = {};
+    const changedFields: string[] = [];
+
     if (status !== undefined) {
       updateData.status = status;
+      changedFields.push('status');
       if (status === 'closed') {
         updateData.resolved_at = new Date().toISOString();
       }
     }
-    if (notes !== undefined) updateData.notes = notes;
-    if (due_date !== undefined) updateData.due_date = due_date;
-    if (priority !== undefined) updateData.priority = priority;
-    if (task_category !== undefined) updateData.task_category = task_category;
-    if (title !== undefined) updateData.title = title;
+    if (notes !== undefined) { updateData.notes = notes; changedFields.push('notes'); }
+    if (due_date !== undefined) { updateData.due_date = due_date; changedFields.push('due_date'); }
+    if (priority !== undefined) { updateData.priority = priority; changedFields.push('priority'); }
+    if (task_category !== undefined) { updateData.task_category = task_category; changedFields.push('task_category'); }
+    if (title !== undefined) { updateData.title = title; changedFields.push('title'); }
 
-    const result = await supabase
+    if (changedFields.length === 0) {
+      return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
+    }
+
+    const result2 = await supabase
       .from('admin_tasks' as never)
       .update(updateData as never)
       .eq('id', id)
       .select()
       .single();
 
-    const { data, error } = result as any;
+    const { data, error } = result2 as any;
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+      console.error('[PATCH /api/admin/tasks/[id]] db error:', error.message);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 
     if (!data) {
-      return new Response(JSON.stringify({ error: 'Task not found' }), { status: 404 });
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    if (status) {
-      await logActivity(user.id, `updated_admin_task_status_to_${status}`, 'admin_task', data.id, {
-        taskId: data.id,
-        newStatus: status,
-      });
-    }
+    // Audit every update, not just status changes
+    const action = status ? `updated_admin_task_status_to_${status}` : 'updated_admin_task';
+    await logActivity(admin.id, action, 'admin_task', data.id, {
+      taskId: data.id,
+      changedFields,
+      ...(status ? { newStatus: status } : {}),
+    });
 
-    return new Response(JSON.stringify({ task: rowToTask(data) }), { status: 200 });
+    return NextResponse.json({ task: rowToTask(data) });
   } catch (err) {
     console.error('[PATCH /api/admin/tasks/[id]]', err);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
