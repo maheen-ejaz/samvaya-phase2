@@ -6,13 +6,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
- * Test bypass is permitted only in non-production builds. `VERCEL_ENV` is
- * the authoritative production marker on Vercel (prod vs preview vs dev);
- * `NODE_ENV` covers local dev and any non-Vercel host. Both checks run
- * server-side — no public env var is consulted so an accidentally-set flag
- * cannot ship the bypass to real users.
+ * Test bypass gate. Explicit opt-in via SAMVAYA_TEST_LOGIN=true takes
+ * precedence over all environment checks — set this in Vercel env vars for
+ * the testing period and remove it before real applicants onboard. Falls
+ * back to allowing the bypass in local dev (NODE_ENV !== production).
  */
 function isTestLoginAllowed(): boolean {
+  if (process.env.SAMVAYA_TEST_LOGIN === "true") return true;
   if (process.env.VERCEL_ENV === "production") return false;
   return process.env.NODE_ENV !== "production";
 }

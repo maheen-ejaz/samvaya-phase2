@@ -798,10 +798,12 @@ export function LoginForm() {
     );
   }
 
-  // Test bypass is only rendered in dev builds. NODE_ENV is inlined at build
-  // time, so a prod build never ships the TestBeginStep tree. The server
-  // action has an independent VERCEL_ENV check as the authoritative gate.
-  const testLoginEnabled = process.env.NODE_ENV !== "production";
+  // Test bypass UI. Shown when NEXT_PUBLIC_SAMVAYA_TEST_LOGIN=true is set in
+  // the environment (works in both local dev and Vercel deployments). The
+  // server action has its own independent SAMVAYA_TEST_LOGIN gate.
+  const testLoginEnabled =
+    process.env.NEXT_PUBLIC_SAMVAYA_TEST_LOGIN === "true" ||
+    process.env.NODE_ENV !== "production";
 
   const formContent = testLoginEnabled ? (
     <TestBeginStep onBegin={handleBeginTestSession} loading={loading} error={error} />
