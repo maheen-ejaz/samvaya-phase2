@@ -20,7 +20,13 @@ function isTestLoginAllowed(): boolean {
 export async function sendOtp(email: string) {
   const normalizedEmail = email?.trim().toLowerCase();
 
-  if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+  // RFC 5321 caps an email path at 254 chars. Guard against oversized inputs
+  // reaching Resend / log systems.
+  if (
+    !normalizedEmail ||
+    normalizedEmail.length > 254 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+  ) {
     return { error: "Please enter a valid email address." };
   }
 

@@ -1,3 +1,5 @@
+import 'server-only';
+
 /**
  * Airtable REST API client.
  * Simple fetch-based wrapper — no SDK dependency.
