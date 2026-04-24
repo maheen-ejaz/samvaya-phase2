@@ -31,6 +31,40 @@ export async function hydrateOnboardingForm(): Promise<HydratedForm | null> {
 
   if (!user) return null;
 
+  // Capture here so the nested function closes over a definitely-non-null string.
+  const userId = user.id;
+
+  // Retry up to 2 extra times on transient Supabase failures before throwing.
+  type QueryResults = Awaited<ReturnType<typeof fetchAll>>;
+  async function fetchAll() {
+    return Promise.all([
+      supabase.from('users').select('*').eq('id', userId).single(),
+      supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle(),
+      supabase.from('medical_credentials').select('*').eq('user_id', userId).maybeSingle(),
+      supabase.from('partner_preferences').select('*').eq('user_id', userId).maybeSingle(),
+      supabase.from('compatibility_profiles').select('chat_state').eq('user_id', userId).maybeSingle(),
+      supabase.from('photos').select('id, is_primary').eq('user_id', userId).order('display_order'),
+      supabase.from('documents').select('id, document_type').eq('user_id', userId),
+    ] as const);
+  }
+
+  let results: QueryResults | null = null;
+  let lastError: string | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 400 * attempt));
+    try {
+      const r = await fetchAll();
+      if (!r[0].error && r[0].data) { results = r; break; }
+      lastError = r[0].error?.message ?? 'no user row found';
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : String(err);
+    }
+  }
+
+  if (!results) {
+    throw new Error(`Failed to load user data: ${lastError}`);
+  }
+
   const [
     usersResult,
     profilesResult,
@@ -39,21 +73,7 @@ export async function hydrateOnboardingForm(): Promise<HydratedForm | null> {
     compatResult,
     photosResult,
     documentsResult,
-  ] = await Promise.all([
-    supabase.from('users').select('*').eq('id', user.id).single(),
-    supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
-    supabase.from('medical_credentials').select('*').eq('user_id', user.id).maybeSingle(),
-    supabase.from('partner_preferences').select('*').eq('user_id', user.id).maybeSingle(),
-    supabase.from('compatibility_profiles').select('chat_state').eq('user_id', user.id).maybeSingle(),
-    supabase.from('photos').select('id, is_primary').eq('user_id', user.id).order('display_order'),
-    supabase.from('documents').select('id, document_type').eq('user_id', user.id),
-  ]);
-
-  if (usersResult.error || !usersResult.data) {
-    throw new Error(
-      `Failed to load user data: ${usersResult.error?.message ?? 'no user row found'}`
-    );
-  }
+  ] = results;
 
   const userData = usersResult.data;
   const profileData = profilesResult.data;
@@ -109,7 +129,12 @@ export async function hydrateOnboardingForm(): Promise<HydratedForm | null> {
     } else {
       const val = (row as Record<string, unknown>)[q.targetColumn];
       if (val !== null && val !== undefined) {
-        answers[q.id] = typeof val === 'boolean' ? String(val) : val;
+        if (q.type === 'multi_select') {
+          // Guard against corrupt DB rows where an array column was written as a string.
+          answers[q.id] = Array.isArray(val) ? val : [];
+        } else {
+          answers[q.id] = typeof val === 'boolean' ? String(val) : val;
+        }
       }
     }
   }

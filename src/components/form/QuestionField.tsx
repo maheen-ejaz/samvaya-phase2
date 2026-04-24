@@ -97,13 +97,14 @@ export function InputSwitch({ question, value, onChange, inputId, ariaDescribedB
 
   // Dynamic options: derive from another question's selected answers
   if (question.dynamicOptionsFrom) {
-    const sourceAnswer = state.answers[question.dynamicOptionsFrom] as string[] | undefined;
+    const raw = state.answers[question.dynamicOptionsFrom];
+    const sourceAnswer = Array.isArray(raw) ? (raw as string[]) : undefined;
     const sourceQuestion = getQuestion(question.dynamicOptionsFrom);
     const derivedOptions: QuestionOption[] = (sourceAnswer || [])
       .map((v) => sourceQuestion?.options?.find((o) => o.value === v))
       .filter((o): o is QuestionOption => !!o);
     const derived = { ...question, options: derivedOptions };
-    const currentValue = (value as string[]) || [];
+    const currentValue = Array.isArray(value) ? (value as string[]) : [];
     const validValues = new Set(derivedOptions.map((o) => o.value));
     const cleanedValue = currentValue.filter((v) => validValues.has(v));
     return (
@@ -205,12 +206,13 @@ export function InputSwitch({ question, value, onChange, inputId, ariaDescribedB
         />
       );
 
-    case 'multi_select':
+    case 'multi_select': {
+      const arrValue = Array.isArray(value) ? (value as string[]) : [];
       if (question.optionGroups?.length) {
         return (
           <GroupedMultiSelectInput
             question={question}
-            value={(value as string[]) || []}
+            value={arrValue}
             onChange={onChange}
             inputId={inputId}
             ariaDescribedBy={ariaDescribedBy}
@@ -222,7 +224,7 @@ export function InputSwitch({ question, value, onChange, inputId, ariaDescribedB
         return (
           <TagInput
             question={question}
-            value={(value as string[]) || []}
+            value={arrValue}
             onChange={onChange}
             inputId={inputId}
             ariaDescribedBy={ariaDescribedBy}
@@ -233,13 +235,14 @@ export function InputSwitch({ question, value, onChange, inputId, ariaDescribedB
       return (
         <MultiSelectInput
           question={question}
-          value={(value as string[]) || []}
+          value={arrValue}
           onChange={onChange}
           inputId={inputId}
           ariaDescribedBy={ariaDescribedBy}
           ariaInvalid={ariaInvalid}
         />
       );
+    }
 
     case 'date':
       return (

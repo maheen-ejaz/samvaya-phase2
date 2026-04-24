@@ -85,7 +85,7 @@ export function PhoneInput({ question, value, onChange, inputId, ariaDescribedBy
   return (
     <div>
       <label htmlFor={digitsId} className="sr-only">Phone number</label>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <Select value={countryCode} onValueChange={handleCodeChange}>
           <SelectTrigger className="h-11 w-[7.5rem] shrink-0 rounded-xl" aria-label="Country dialing code">
             <SelectValue />

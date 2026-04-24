@@ -6,6 +6,14 @@ export function useServiceWorker() {
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
+    if (process.env.NODE_ENV !== 'production') {
+      // Unregister any previously installed SW so it never intercepts dev traffic
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((r) => r.unregister());
+      });
+      return;
+    }
+
     navigator.serviceWorker
       .register('/sw.js')
       .catch((err) => {

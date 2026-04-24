@@ -7,7 +7,7 @@ import { ReactNode } from 'react';
  * Lookup: ICON_REGISTRY[optionValue] → SVG ReactNode
  */
 
-const C = '#64748b'; // slate-500
+const C = 'currentColor';
 
 function Ico({ children }: { children: ReactNode }) {
   return (

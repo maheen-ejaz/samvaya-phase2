@@ -195,11 +195,26 @@ export function FormProvider({
       500,
       initialGateAnswers
     );
+
+    // Recover any dirty fields that survived a crash or forced tab close.
+    // These are merged into the engine's queue so they get saved on the next flush.
+    const persisted = AutoSaveEngine.getPersistedState(userId);
+    if (persisted && (Object.keys(persisted.dirty).length > 0 || Object.keys(persisted.gateAnswers).length > 0)) {
+      engine.loadPersistedState(persisted.dirty, persisted.gateAnswers);
+    }
+
     autoSaveRef.current = engine;
 
-    // Safety net: flush on browser close/refresh (sendBeacon-style best-effort)
+    // On page close / refresh:
+    // 1. Sync localStorage so it reflects the latest dirty state (synchronous — always completes).
+    // 2. sendBeacon a server-side save — the browser queues this even as the page unloads.
+    //    The async flushNow() cannot complete in a beforeunload handler, so we don't call it.
     const handleBeforeUnload = () => {
-      engine.flushNow(); // fire-and-forget on page unload
+      engine.persistDirtyState();
+      const payload = engine.buildBeaconPayload();
+      if (payload) {
+        navigator.sendBeacon('/api/form/beacon', new Blob([payload], { type: 'application/json' }));
+      }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
 

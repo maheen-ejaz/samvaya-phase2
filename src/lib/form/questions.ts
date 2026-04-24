@@ -11,20 +11,50 @@ import { RELIGIONS } from '@/lib/data/religions';
 // ============================================================
 
 const OCCUPATION_OPTIONS = [
+  // Healthcare
   { value: 'doctor', label: 'Doctor / Medical Professional' },
+  { value: 'dentist', label: 'Dentist' },
+  { value: 'pharmacist', label: 'Pharmacist' },
+  { value: 'nurse_paramedic', label: 'Nurse / Paramedic' },
+  { value: 'physiotherapist', label: 'Physiotherapist' },
+  { value: 'veterinarian', label: 'Veterinarian' },
+  // Engineering & Technology
   { value: 'engineer', label: 'Engineer' },
-  { value: 'business_owner', label: 'Business Owner' },
+  { value: 'software_it', label: 'Software Engineer / IT Professional' },
+  { value: 'architect', label: 'Architect' },
+  // Business & Finance
+  { value: 'business_owner', label: 'Business Owner / Entrepreneur' },
+  { value: 'trader_merchant', label: 'Trader / Merchant' },
+  { value: 'real_estate', label: 'Real Estate' },
+  { value: 'chartered_accountant', label: 'Chartered Accountant / CPA' },
+  { value: 'banker', label: 'Banker / Finance Professional' },
+  { value: 'insurance', label: 'Insurance Professional' },
+  { value: 'consultant', label: 'Consultant' },
+  { value: 'manager_corporate', label: 'Manager / Corporate Professional' },
+  // Law & Civil Services
+  { value: 'lawyer', label: 'Lawyer / Advocate' },
+  { value: 'judge_magistrate', label: 'Judge / Magistrate' },
+  { value: 'ias_ips_ifs', label: 'IAS / IPS / IFS Officer' },
   { value: 'government_employee', label: 'Government Employee' },
+  { value: 'military_police', label: 'Military / Police / Paramilitary' },
+  { value: 'politician', label: 'Politician / Public Representative' },
+  // Education & Research
   { value: 'teacher_professor', label: 'Teacher / Professor' },
-  { value: 'lawyer', label: 'Lawyer' },
-  { value: 'chartered_accountant', label: 'Chartered Accountant' },
-  { value: 'banker', label: 'Banker / Finance' },
+  { value: 'researcher_scientist', label: 'Researcher / Scientist' },
+  { value: 'principal_admin', label: 'Principal / School Administrator' },
+  // Media, Arts & Social
+  { value: 'journalist_media', label: 'Journalist / Media Professional' },
+  { value: 'artist_designer', label: 'Artist / Designer / Creative' },
+  { value: 'social_worker_ngo', label: 'Social Worker / NGO' },
+  { value: 'religious_leader', label: 'Priest / Religious Leader' },
+  // Agriculture & Skilled Trades
   { value: 'farmer', label: 'Farmer / Agriculture' },
-  { value: 'military_police', label: 'Military / Police' },
+  { value: 'skilled_trade', label: 'Skilled Trade / Craftsperson' },
+  // Other statuses
   { value: 'retired', label: 'Retired' },
   { value: 'homemaker', label: 'Homemaker' },
   { value: 'deceased', label: 'Deceased' },
-  { value: 'other', label: 'Other' },
+  { value: 'other', label: 'Other (please specify)' },
 ];
 
 const MOTHER_TONGUE_OPTIONS = [
@@ -557,7 +587,7 @@ const sectionB: QuestionConfig[] = [
   { id: 'Q23', questionNumber: 23, section: 'B', text: 'Current city', type: 'text', required: true, targetTable: 'profiles', targetColumn: 'current_city', placeholder: 'Start typing your city name', autocompleteSource: 'indian_cities' },
   { id: 'Q24', questionNumber: 24, section: 'B', text: 'Permanent address same as current?', type: 'select', required: true, targetTable: 'local', targetColumn: 'permanent_same_as_current', options: [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }] },
   { id: 'Q25', questionNumber: 25, section: 'B', text: 'Permanent city and state', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'permanent_city', placeholder: 'e.g. Pune, Maharashtra' },
-  { id: 'Q26', questionNumber: 26, section: 'B', text: 'Home ownership', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'permanent_ownership', options: [{ value: 'owned', label: 'Owned' }, { value: 'rented', label: 'Rental' }, { value: 'family_home', label: 'Family home' }] },
+  { id: 'Q26', questionNumber: 26, section: 'B', text: 'Home ownership', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'permanent_ownership', helpText: "Refers to your family's permanent home — not a rented place for work or studies. Select 'Family home' if you live in a property owned by your parents or relatives.", options: [{ value: 'owned', label: 'Owned' }, { value: 'rented', label: 'Rental' }, { value: 'family_home', label: 'Family home' }] },
 ];
 
 // ============================================================
@@ -569,7 +599,7 @@ const sectionC: QuestionConfig[] = [
   { id: 'Q28', questionNumber: 28, section: 'C', text: 'Level of religious observance', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'religious_observance', options: [{ value: 'actively_practicing', label: 'Actively practicing' }, { value: 'culturally_observant', label: 'Culturally observant' }, { value: 'spiritual', label: 'Spiritual but not religious' }, { value: 'not_religious', label: 'Not religious' }] },
   { id: 'Q29', questionNumber: 29, section: 'C', text: 'Do you believe in Kundali/horoscope matching?', type: 'select', required: false, targetTable: 'profiles', targetColumn: 'believes_in_kundali', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No' }] },
   { id: 'Q30', questionNumber: 30, section: 'C', text: 'Are you comfortable sharing your sect, caste, or community?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'caste_comfort', options: [{ value: 'true', label: 'Yes' }, { value: 'false', label: "No, I'd rather not say" }] },
-  { id: 'Q31', questionNumber: 31, section: 'C', text: 'Sect, caste, or community', type: 'text', required: false, targetTable: 'profiles', targetColumn: 'caste', placeholder: 'e.g. Sunni, Brahmin, Catholic, Jat Sikh', helpText: 'This helps us find compatible matches within your community preferences.', autocompleteSource: 'communities' },
+  { id: 'Q31', questionNumber: 31, section: 'C', text: 'Sect, caste, or community', type: 'text', required: true, targetTable: 'profiles', targetColumn: 'caste', placeholder: 'e.g. Sunni, Brahmin, Catholic, Jat Sikh', helpText: 'This helps us find compatible matches within your community preferences.', autocompleteSource: 'communities' },
 ];
 
 // ============================================================

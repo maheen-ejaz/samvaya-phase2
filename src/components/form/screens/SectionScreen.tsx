@@ -35,6 +35,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
   const { state, setAnswer, navigateToSection, submitForm, flushNow } = useForm();
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [isExiting, setIsExiting] = useState(false);
+  const [savePhase, setSavePhase] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   // Resume banner
   const [showResumeBanner, setShowResumeBanner] = useState(false);
@@ -144,6 +145,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
 
     setErrors(new Set());
     setIsExiting(true);
+    setSavePhase('saving');
 
     // Flush all pending auto-saves before navigating so the server-side lock check
     // sees the current answers and doesn't redirect to a stale/invalid section URL.
@@ -152,6 +154,9 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
     } catch (err) {
       console.warn('[onboarding] continue flush failed (continuing anyway):', err);
     }
+
+    setSavePhase('saved');
+    await new Promise((r) => setTimeout(r, 700));
 
     if (isLastSection) {
       const ok = await submitForm();
@@ -184,6 +189,25 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
   }
 
   return (
+    <>
+    {savePhase !== 'idle' && (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm">
+        {savePhase === 'saving' ? (
+          <>
+            <div className="mb-4 size-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+            <p className="text-sm text-muted-foreground">Saving your responses…</p>
+          </>
+        ) : (
+          <>
+            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 animate-toast-pop">
+              <CheckIcon className="size-7" strokeWidth={2.5} />
+            </div>
+            <p className="text-base font-semibold text-foreground">All responses saved</p>
+            <p className="mt-1 text-sm text-muted-foreground">Moving to the next section…</p>
+          </>
+        )}
+      </div>
+    )}
     <div className={isExiting ? 'form-section-exit' : 'form-section-enter'}>
       {showResumeBanner && (
         <div
@@ -275,6 +299,7 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
         breadcrumb={`Section ${positionLabel} · ${meta.label}`}
       />
     </div>
+    </>
   );
 }
 
