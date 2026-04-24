@@ -136,6 +136,8 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
+  /* Semantic token: all form option/choice chips use this — never 999px */
+  --radius-chip: var(--radius-lg);
 
   /* UI-1: Design tokens — shadows */
   --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
@@ -1130,7 +1132,8 @@ h4 { font-weight: 600; }
   cursor: pointer;
 }
 
-/* Chip / option pill — for multi-select, illustrated MC.
+/* Chip / option button — for multi-select, illustrated MC.
+   Corner radius = --radius-chip (0.75rem). Never use 999px here.
    Selected state = filled maroon with white text + subtle shadow. */
 .form-chip {
   display: inline-flex;
@@ -1145,7 +1148,7 @@ h4 { font-weight: 600; }
   color: var(--color-form-text-primary);
   background: var(--color-form-card);
   border: 1px solid var(--color-form-border-strong);
-  border-radius: 999px;
+  border-radius: var(--radius-chip); /* 0.75rem — matches --radius-lg */
   cursor: pointer;
   text-align: center;
   transition: all 150ms var(--ease-in-out-smooth);

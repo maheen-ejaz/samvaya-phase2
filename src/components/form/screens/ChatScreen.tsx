@@ -92,7 +92,7 @@ export function ChatScreen({ questionId }: ChatScreenProps) {
         onBusyChange={setIsChatBusy}
       />
 
-      <div className="mt-6 flex justify-start">
+      <div className="mt-6 flex items-center justify-between">
         <button
           type="button"
           onClick={handleBack}
@@ -102,6 +102,17 @@ export function ChatScreen({ questionId }: ChatScreenProps) {
           className="form-btn-secondary disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Back
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setAnswer(questionId, 'complete');
+            router.push(NEXT_AFTER_CHAT[questionId]);
+          }}
+          disabled={isChatBusy}
+          className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Skip for now
         </button>
       </div>
     </div>

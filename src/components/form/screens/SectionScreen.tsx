@@ -32,10 +32,11 @@ const CHAT_PATH: Record<string, string> = {
 
 export function SectionScreen({ sectionId }: SectionScreenProps) {
   const router = useRouter();
-  const { state, setAnswer, navigateToSection, submitForm, flushNow } = useForm();
+  const { state, setAnswer, navigateToSection, submitForm, flushNow, markPositionBySection } = useForm();
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [isExiting, setIsExiting] = useState(false);
-  const [savePhase, setSavePhase] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [savePhase, setSavePhase] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
 
   // Resume banner
   const [showResumeBanner, setShowResumeBanner] = useState(false);
@@ -144,15 +145,39 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
     }
 
     setErrors(new Set());
+    setSaveErrorMessage(null);
     setIsExiting(true);
     setSavePhase('saving');
 
-    // Flush all pending auto-saves before navigating so the server-side lock check
-    // sees the current answers and doesn't redirect to a stale/invalid section URL.
-    try {
-      await flushNow();
-    } catch (err) {
-      console.warn('[onboarding] continue flush failed (continuing anyway):', err);
+    // Advance `users.onboarding_section` to the next section in the same flush
+    // so the server-side unlock gate can fast-path via `targetIdx <= resumeIdx`
+    // without relying on completion detection alone.
+    const nextIdx = sectionIndex + 1;
+    const next = SECTIONS[nextIdx];
+    if (next && !isLastSection) markPositionBySection(next.id);
+
+    // Block navigation until every dirty field reaches Supabase. 20s deadline
+    // for user-initiated submits; retry once before giving up so a single slow
+    // request doesn't strand the user.
+    let result = await flushNow({ deadlineMs: 20_000 });
+    if (!result.ok) {
+      result = await flushNow({ deadlineMs: 20_000 });
+    }
+    if (!result.ok) {
+      const engineError = state.saveError;
+      console.error('[onboarding] Continue blocked — flush incomplete', {
+        remainingDirty: result.remainingDirty,
+        saveStatus: state.saveStatus,
+        saveError: engineError,
+      });
+      setSavePhase('error');
+      setIsExiting(false);
+      setSaveErrorMessage(
+        engineError
+          ? `Save error: ${engineError}`
+          : "Couldn't save your answers. Check your connection and try again."
+      );
+      return;
     }
 
     setSavePhase('saved');
@@ -164,8 +189,6 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
       return;
     }
     if (meta) setSectionCompleteToast({ label: meta.label, position, total });
-    const nextIdx = sectionIndex + 1;
-    const next = SECTIONS[nextIdx];
     if (next) router.push(`${sectionPath(next.id)}/intro`);
   }
 
@@ -197,13 +220,39 @@ export function SectionScreen({ sectionId }: SectionScreenProps) {
             <div className="mb-4 size-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
             <p className="text-sm text-muted-foreground">Saving your responses…</p>
           </>
-        ) : (
+        ) : savePhase === 'saved' ? (
           <>
             <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 animate-toast-pop">
               <CheckIcon className="size-7" strokeWidth={2.5} />
             </div>
             <p className="text-base font-semibold text-foreground">All responses saved</p>
             <p className="mt-1 text-sm text-muted-foreground">Moving to the next section…</p>
+          </>
+        ) : (
+          <>
+            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-red-100 text-red-600">
+              <XIcon className="size-7" strokeWidth={2.5} />
+            </div>
+            <p className="text-base font-semibold text-foreground">Couldn&apos;t save your answers</p>
+            <p className="mt-1 max-w-xs text-center text-sm text-muted-foreground">
+              {saveErrorMessage ?? 'Check your connection and try again.'}
+            </p>
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                onClick={() => { setSavePhase('idle'); setSaveErrorMessage(null); }}
+                className="rounded-full border bg-background px-5 py-2 text-sm font-medium hover:bg-muted transition-colors"
+              >
+                Dismiss
+              </button>
+              <button
+                type="button"
+                onClick={() => { setSavePhase('idle'); setSaveErrorMessage(null); void handleContinue(); }}
+                className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
           </>
         )}
       </div>

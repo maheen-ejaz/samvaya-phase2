@@ -28,20 +28,10 @@ export function GroupedMultiSelectInput({ question, value, onChange, inputId, ar
   const accordionGroups = groups.filter((g) => g.key !== 'other');
   const otherOption = (question.options || []).find((o) => o.value === 'other');
 
-  // Auto-expand groups that contain selected values on mount
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    const initial = new Set<string>();
-    for (const group of accordionGroups) {
-      if (group.optionValues.some((v) => selected.includes(v))) {
-        initial.add(group.key);
-      }
-    }
-    // If nothing is selected, expand the first group
-    if (initial.size === 0 && accordionGroups.length > 0) {
-      initial.add(accordionGroups[0].key);
-    }
-    return initial;
-  });
+  // All groups start expanded so users can immediately see the available options
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+    () => new Set(accordionGroups.map((g) => g.key))
+  );
 
   function toggleGroup(groupKey: string) {
     setExpandedGroups((prev) => {

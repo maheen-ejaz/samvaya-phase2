@@ -40,7 +40,23 @@ export function SectionIntro({ sectionId }: SectionIntroProps) {
 
   function handleBegin() {
     setIsExiting(true);
-    setTimeout(() => router.push(sectionPath(sectionId)), 200);
+    if (sectionId === 'N') {
+      // Section N has no list view — navigate directly to the first incomplete chat
+      // rather than through /app/onboarding/n, which requires a server-side DB
+      // re-read that can race with the onboarding_section write from handleContinue.
+      const CHAT_PATHS: Record<string, string> = {
+        Q38: '/app/onboarding/chat/q38',
+        Q75: '/app/onboarding/chat/q75',
+        Q100: '/app/onboarding/chat/q100',
+      };
+      const firstIncomplete = ['Q38', 'Q75', 'Q100'].find(
+        (id) => state.answers[id] !== 'complete'
+      );
+      const target = firstIncomplete ? CHAT_PATHS[firstIncomplete] : '/app/onboarding/complete';
+      setTimeout(() => router.push(target), 200);
+    } else {
+      setTimeout(() => router.push(sectionPath(sectionId)), 200);
+    }
   }
 
   return (

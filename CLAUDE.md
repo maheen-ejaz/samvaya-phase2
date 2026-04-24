@@ -223,6 +223,35 @@ Admin dashboard overhaul is complete. User-facing PWA design is paused. See `pla
 | BGV requires BOTH conditions | Legal and trust issue — one condition alone is not enough |
 | `membership_start_date` = mutual interest date | Payment date gives applicant less time than promised |
 | Supabase is source of truth | Never write structural data to Airtable |
+| **Schema check after any question change** | Missing/wrong-type columns cause silent save failures in prod |
+
+---
+
+## Mandatory: Adding or Modifying Questions
+
+**ANY edit to `src/lib/form/questions.ts` — adding a question, changing `targetTable`, `targetColumn`, or `type` — MUST be followed by these two steps before the task is considered complete:**
+
+### Step 1 — Validate columns exist with correct types
+```bash
+SUPABASE_ACCESS_TOKEN=<token from .env.local> npm run check:schema
+```
+- If errors are reported: add the missing columns to the prod Supabase project (`iqpcrjofhwollksgevqo`) before proceeding.
+- Multi-select questions (`type: 'multi_select'`) MUST map to `text[]` columns, not `text`. Getting this wrong JSON-stringifies arrays, causing answers to silently disappear on re-hydration.
+- Use the Supabase management API to add columns: `POST https://api.supabase.com/v1/projects/iqpcrjofhwollksgevqo/database/query`
+
+### Step 2 — Regenerate TypeScript types
+```bash
+SUPABASE_ACCESS_TOKEN=<token from .env.local> npm run gen:types
+```
+Then run `npx tsc --noEmit` to confirm no type errors.
+
+### Why this is mandatory
+The prod DB and the TypeScript types can silently diverge from `questions.ts`. Past incidents:
+- `profiles.free_time_preferences` — column missing in prod → every Section G save failed with HTTP 400
+- `profiles.hobbies_regular` — column was `text` instead of `text[]` → array answers JSON-serialized to strings, Q54 appeared empty on every re-hydration
+- 10 more columns were missing in prod across Sections H–L, discovered by running the schema check
+
+The `SUPABASE_ACCESS_TOKEN` is in `.env.local` as `SUPABASE_ACCESS_TOKEN=sbp_...`.
 
 ---
 

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gen:types": "SUPABASE_ACCESS_TOKEN=$SUPABASE_ACCESS_TOKEN npx supabase gen types typescript --project-id iqpcrjofhwollksgevqo 2>/dev/null > src/types/supabase.ts",
+    "check:schema": "npx tsx scripts/check-schema.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

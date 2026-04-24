@@ -14,8 +14,8 @@ interface RangeInputProps {
 }
 
 const RANGE_CONSTRAINTS: Record<string, { min: number; max: number }> = {
-  preferred_age_min:        { min: 18,  max: 60  },
-  preferred_height_min_cm:  { min: 100, max: 220 },
+  preferred_age_min:        { min: 18,  max: 40  },
+  preferred_height_min_cm:  { min: 140, max: 220 },
   preferred_weight_min_kg:  { min: 40,  max: 120 },
 };
 

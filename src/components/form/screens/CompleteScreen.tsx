@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import type { ReactNode } from 'react';
 
 interface CompleteScreenProps {
@@ -9,19 +8,19 @@ interface CompleteScreenProps {
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919742811599';
 
-const C = {
+const PC = {
+  bg: '#FBF8F4',
   ink: '#1A1614',
-  ink2: '#3B3430',
   muted: '#7A7370',
   faint: '#A8A19D',
   line: '#ECE7E2',
   line2: '#E3DDD6',
-  bg: '#FBF8F4',
   accent: '#A3171F',
-  accentSoft: '#FFF4F4',
   accentDeep: '#7D1118',
+  accentSoft: '#FFF4F4',
   gold: '#A8804A',
   goldSoft: '#F5EEDE',
+  card: '#FFFFFF',
 };
 
 function formatDate(): string {
@@ -32,32 +31,137 @@ function formatDate(): string {
   });
 }
 
-function InfoRow({ title, sub, icon }: { title: string; sub: ReactNode; icon: ReactNode }) {
+function Crest() {
   return (
     <div style={{
-      display: 'flex', gap: 14,
-      borderRadius: 16,
-      border: `1px solid ${C.line}`,
-      background: '#FFFFFF',
-      padding: 16,
+      position: 'relative',
+      width: 320, height: 320, margin: '0 auto',
+      display: 'grid', placeItems: 'center',
     }}>
       <div style={{
-        width: 40, height: 40, flexShrink: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        borderRadius: 12,
-        background: C.accentSoft,
-        color: C.accent,
+        position: 'absolute', inset: 0,
+        background: `radial-gradient(closest-side, ${PC.accentSoft} 0%, rgba(255,244,244,0.5) 40%, rgba(251,248,244,0) 72%)`,
+        pointerEvents: 'none',
+      }} />
+
+      <svg viewBox="0 0 320 320" width="320" height="320" fill="none"
+        style={{ position: 'absolute', inset: 0 }} aria-hidden="true">
+        <defs>
+          <linearGradient id="ringFade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={PC.accent} stopOpacity="0.32" />
+            <stop offset="55%" stopColor={PC.accent} stopOpacity="0.18" />
+            <stop offset="100%" stopColor={PC.accent} stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="ringFade2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={PC.gold} stopOpacity="0.35" />
+            <stop offset="100%" stopColor={PC.gold} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        <circle cx="160" cy="160" r="154" stroke="url(#ringFade)" strokeWidth="1" />
+        <circle cx="160" cy="160" r="124" stroke="url(#ringFade)" strokeWidth="1" strokeDasharray="1 4" opacity="0.85" />
+        <circle cx="160" cy="160" r="96" stroke="url(#ringFade)" strokeWidth="1" />
+        <circle cx="160" cy="160" r="68" stroke="url(#ringFade2)" strokeWidth="1" strokeDasharray="1 3" />
+
+        <path d="M160 26 C200 86 200 234 160 294 C120 234 120 86 160 26 Z"
+          stroke={PC.accent} strokeOpacity="0.18" strokeWidth="1" fill="none" />
+        <path d="M26 160 C86 120 234 120 294 160 C234 200 86 200 26 160 Z"
+          stroke={PC.accent} strokeOpacity="0.10" strokeWidth="1" fill="none" />
+
+        {[[160, 26], [294, 160], [160, 294], [26, 160]].map(([cx, cy]) => (
+          <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2" fill={PC.gold} opacity="0.5" />
+        ))}
+      </svg>
+
+      <div style={{
+        position: 'relative',
+        width: 104, height: 104, borderRadius: '50%',
+        display: 'grid', placeItems: 'center',
+      }}>
+        <div style={{
+          position: 'absolute', inset: -10, borderRadius: '50%',
+          background: 'radial-gradient(closest-side, rgba(163,23,31,0.10) 0%, rgba(163,23,31,0) 70%)',
+        }} />
+        <div style={{
+          position: 'relative',
+          width: 104, height: 104, borderRadius: '50%',
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #FFFAF5 100%)',
+          boxShadow: `
+            0 1px 0 rgba(255,255,255,0.9) inset,
+            0 0 0 1px rgba(168,128,74,0.28),
+            0 12px 28px rgba(125,17,24,0.12),
+            0 2px 6px rgba(26,22,20,0.06)
+          `,
+          display: 'grid', placeItems: 'center',
+        }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: `radial-gradient(120% 120% at 30% 20%, #C53640 0%, ${PC.accent} 45%, ${PC.accentDeep} 100%)`,
+            display: 'grid', placeItems: 'center',
+            boxShadow: `
+              inset 0 1px 0 rgba(255,255,255,0.22),
+              inset 0 -4px 10px rgba(0,0,0,0.18),
+              0 6px 14px rgba(125,17,24,0.35)
+            `,
+          }}>
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+              <path d="M6 13.2l4.6 4.6L20 8" stroke="#FFF" strokeWidth="2.2"
+                strokeLinecap="round" strokeLinejoin="round"
+                style={{ filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.15))' }} />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Row({ icon, title, subtitle }: { icon: ReactNode; title: ReactNode; subtitle: ReactNode }) {
+  return (
+    <div style={{
+      display: 'flex', gap: 16,
+      padding: '20px 20px',
+      background: 'rgba(255,255,255,0.72)',
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
+      border: `1px solid ${PC.line}`,
+      borderRadius: 16,
+      boxShadow: '0 1px 0 rgba(255,255,255,0.9) inset, 0 1px 2px rgba(26,22,20,0.03)',
+    }}>
+      <div style={{
+        width: 44, height: 44, borderRadius: 12, flex: 'none',
+        background: `linear-gradient(180deg, ${PC.accentSoft} 0%, #FFFFFF 100%)`,
+        border: `1px solid ${PC.line2}`,
+        display: 'grid', placeItems: 'center',
+        color: PC.accent,
+        boxShadow: 'inset 0 1px 0 #FFFFFF',
       }}>
         {icon}
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.3, color: C.ink }}>
+      <div style={{ flex: 1, minWidth: 0, paddingTop: 1 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: PC.ink, letterSpacing: '-0.15px' }}>
           {title}
         </div>
-        <div style={{ marginTop: 4, fontSize: 12.5, lineHeight: 1.5, color: C.muted }}>
-          {sub}
+        <div style={{ marginTop: 4, fontSize: 12.5, lineHeight: 1.55, color: PC.muted, letterSpacing: '-0.05px' }}>
+          {subtitle}
         </div>
       </div>
+    </div>
+  );
+}
+
+function DividerRule() {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 14,
+      margin: '0 auto', width: '100%',
+    }}>
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${PC.line2}, transparent)` }} />
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flex: 'none' }} aria-hidden="true">
+        <path d="M7 1 L8.4 5.6 L13 7 L8.4 8.4 L7 13 L5.6 8.4 L1 7 L5.6 5.6 Z"
+          fill={PC.gold} opacity="0.55" />
+      </svg>
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${PC.line2}, transparent)` }} />
     </div>
   );
 }
@@ -65,114 +169,111 @@ function InfoRow({ title, sub, icon }: { title: string; sub: ReactNode; icon: Re
 export function CompleteScreen({ isGoocampus }: CompleteScreenProps) {
   return (
     <div style={{
-      minHeight: '100vh',
-      background: C.bg,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '40px 20px calc(40px + env(safe-area-inset-bottom))',
+      width: '100%',
+      maxWidth: 520,
+      margin: '0 auto',
+      background: PC.bg,
       fontFamily: 'var(--font-inter), sans-serif',
+      color: PC.ink,
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-      <div style={{ width: '100%', maxWidth: 520, position: 'relative' }}>
+      <div aria-hidden="true" style={{
+        position: 'absolute', top: -80, left: '50%', transform: 'translateX(-50%)',
+        width: 520, height: 520,
+        background: `radial-gradient(closest-side, ${PC.accentSoft} 0%, rgba(255,244,244,0.4) 45%, rgba(251,248,244,0) 72%)`,
+        pointerEvents: 'none',
+      }} />
+      <div aria-hidden="true" style={{
+        position: 'absolute', bottom: -200, right: -100,
+        width: 380, height: 380,
+        background: `radial-gradient(closest-side, ${PC.goldSoft} 0%, rgba(245,238,222,0) 72%)`,
+        pointerEvents: 'none', opacity: 0.7,
+      }} />
 
-        {/* Brand */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 36 }}>
-          <Image src="/samvaya-logo-red.png" alt="Samvaya" width={120} height={32} style={{ height: '24px', width: 'auto' }} />
+      <div style={{ height: 24 }} />
+
+      <div style={{
+        position: 'relative',
+        maxWidth: 520, margin: '0 auto',
+        padding: '8px 24px 32px',
+      }}>
+        <div style={{ marginTop: 8 }}>
+          <Crest />
         </div>
 
-        {/* Arch ornament behind crest */}
-        <div aria-hidden="true" style={{
-          position: 'absolute', left: '50%', top: -60,
-          transform: 'translateX(-50%)',
-          pointerEvents: 'none', opacity: 0.18,
-        }}>
-          <svg viewBox="0 0 440 300" width="440" height="300" fill="none">
-            {[190, 140, 90].map((r) => (
-              <circle key={r} cx="220" cy="150" r={r}
-                stroke={C.accent} strokeWidth="1" />
-            ))}
-            <path d="M220 80 C255 130 255 200 220 240 C185 200 185 130 220 80 Z"
-              stroke={C.accent} strokeWidth="1" opacity="0.5" />
-          </svg>
-        </div>
-
-        {/* Checkmark crest */}
-        <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: -24, position: 'relative' }}>
           <div style={{
-            width: 80, height: 80,
-            borderRadius: '50%',
-            background: `radial-gradient(135deg at 30% 30%, ${C.accent} 0%, ${C.accentDeep} 100%)`,
-            boxShadow: `0 12px 32px ${C.accent}40, inset 0 1px 0 rgba(255,255,255,0.14)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '7px 14px',
+            background: `linear-gradient(180deg, #FBF3E0 0%, ${PC.goldSoft} 100%)`,
+            border: `1px solid rgba(168,128,74,0.32)`,
+            borderRadius: 999,
+            boxShadow: '0 1px 0 rgba(255,255,255,0.8) inset, 0 4px 10px rgba(168,128,74,0.12)',
+            color: PC.gold,
+            fontSize: 10.5, fontWeight: 600, letterSpacing: '1.8px', textTransform: 'uppercase',
           }}>
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-              <path d="M8 17l6 6 12-14" stroke="#fff" strokeWidth="2.4"
-                strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <span style={{
+              width: 5, height: 5, borderRadius: '50%',
+              background: PC.gold,
+              boxShadow: `0 0 0 3px rgba(168,128,74,0.18)`,
+            }} />
+            Profile complete
           </div>
         </div>
 
-        {/* Gold "success" badge */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: 7,
-            padding: '6px 14px',
-            background: C.goldSoft,
-            border: `1px solid rgba(168,128,74,0.28)`,
-            borderRadius: 999,
-            fontSize: 11, fontWeight: 600,
-            letterSpacing: '1.5px', textTransform: 'uppercase',
-            color: C.gold,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.gold }} />
-            Profile complete
-          </span>
-        </div>
-
-        {/* Heading */}
-        <div style={{ textAlign: 'center', marginTop: 16 }}>
+        <div style={{ textAlign: 'center', marginTop: 22 }}>
           <h1 style={{
             margin: 0,
             fontFamily: 'var(--font-fraunces), serif',
-            fontSize: 'clamp(32px, 5vw, 42px)',
+            fontSize: 40, lineHeight: 1.05,
             fontWeight: 500, letterSpacing: '-1.2px',
-            lineHeight: 1.08, color: C.ink,
+            color: PC.ink,
           }}>
-            Your application<br />
-            <span style={{ fontStyle: 'italic', color: C.accent, fontWeight: 400 }}>is in.</span>
+            Your application
+            <br />
+            <span style={{ fontStyle: 'italic', fontWeight: 500, color: PC.accent }}>
+              is in.
+            </span>
           </h1>
-          <p style={{
-            marginTop: 14, fontSize: 15, lineHeight: 1.6,
-            color: C.muted, maxWidth: 380, marginLeft: 'auto', marginRight: 'auto',
-            letterSpacing: '-0.05px',
-          }}>
-            Thank you for completing your Samvaya profile. We&apos;ll take it from here — quietly.
-          </p>
-          <div style={{ marginTop: 8, fontSize: 12, color: C.faint }}>
-            All 14 sections complete · {formatDate()}
-          </div>
         </div>
 
-        {/* Divider */}
-        <div style={{ height: 1, background: C.line, margin: '28px 0' }} />
-
-        {/* What happens next */}
-        <div>
-          <div style={{
-            fontSize: 10.5, fontWeight: 600,
-            letterSpacing: '1.6px', textTransform: 'uppercase',
-            color: C.muted, marginBottom: 12, paddingLeft: 2,
-          }}>
-            What happens next
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {isGoocampus ? <GooCampusRows /> : <VerificationRows />}
-          </div>
+        <div style={{
+          textAlign: 'center',
+          fontSize: 14.5, lineHeight: 1.6, color: PC.muted,
+          maxWidth: 320, margin: '18px auto 0',
+          letterSpacing: '-0.05px',
+        }}>
+          Thank you for completing your Samvaya profile. We&apos;ll take it from here — quietly.
         </div>
 
-        {/* WhatsApp CTA (non-GooCampus only) */}
+        <div style={{
+          marginTop: 16,
+          display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8,
+          fontSize: 11.5, color: PC.faint, letterSpacing: '0.1px',
+        }}>
+          <span>All 14 sections complete</span>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: PC.line2 }} />
+          <span>{formatDate()}</span>
+        </div>
+
+        <div style={{ marginTop: 40 }}>
+          <DividerRule />
+        </div>
+
+        <div style={{
+          marginTop: 22,
+          display: 'flex', justifyContent: 'center',
+          fontSize: 10.5, fontWeight: 600, color: PC.muted,
+          letterSpacing: '1.8px', textTransform: 'uppercase',
+        }}>
+          What happens next
+        </div>
+
+        <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {isGoocampus ? <GooCampusRows /> : <VerificationRows />}
+        </div>
+
         {!isGoocampus && (
           <>
             <a
@@ -182,35 +283,53 @@ export function CompleteScreen({ isGoocampus }: CompleteScreenProps) {
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                marginTop: 24, width: '100%', height: 56,
-                background: C.accent, color: '#FFFFFF',
-                borderRadius: 14, border: 'none',
-                fontSize: 15.5, fontWeight: 600,
+                marginTop: 32,
+                width: '100%', height: 58,
+                background: `linear-gradient(180deg, ${PC.accent} 0%, ${PC.accentDeep} 100%)`,
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: 16,
                 fontFamily: 'var(--font-inter), sans-serif',
-                letterSpacing: '-0.1px', textDecoration: 'none',
-                boxShadow: `0 6px 18px ${C.accent}38, inset 0 1px 0 rgba(255,255,255,0.14)`,
+                fontSize: 15.5, fontWeight: 600, letterSpacing: '-0.1px',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                cursor: 'pointer',
+                textDecoration: 'none',
+                boxShadow: `
+                  0 1px 0 rgba(255,255,255,0.18) inset,
+                  0 -2px 0 rgba(0,0,0,0.10) inset,
+                  0 10px 24px rgba(163,23,31,0.28),
+                  0 2px 4px rgba(125,17,24,0.20)
+                `,
               }}
             >
-              <WhatsAppIcon />
+              <span style={{
+                width: 26, height: 26, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.16)',
+                display: 'grid', placeItems: 'center',
+              }}>
+                <WhatsAppIcon />
+              </span>
               Contact us on WhatsApp
             </a>
-            <p style={{ marginTop: 10, textAlign: 'center', fontSize: 12.5, color: C.faint }}>
+
+            <div style={{
+              marginTop: 14, textAlign: 'center',
+              fontSize: 12.5, color: PC.faint, letterSpacing: '-0.05px',
+            }}>
               Our team will also reach out to you shortly.
-            </p>
+            </div>
           </>
         )}
 
-        {/* Footer */}
         <div style={{
-          marginTop: 32, paddingTop: 20,
-          borderTop: `1px solid ${C.line}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          fontSize: 12, color: C.faint,
+          marginTop: 36, paddingTop: 22,
+          borderTop: `1px solid ${PC.line}`,
+          display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8,
+          fontSize: 11.5, color: PC.muted, letterSpacing: '0.05px',
         }}>
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <rect x="2.5" y="6" width="9" height="6" rx="1.2" stroke={C.faint} strokeWidth="1.3" />
-            <path d="M4.5 6V4.2a2.5 2.5 0 015 0V6" stroke={C.faint} strokeWidth="1.3" strokeLinecap="round" />
+            <rect x="2.5" y="6" width="9" height="6" rx="1.2" stroke={PC.muted} strokeWidth="1.2" />
+            <path d="M4.5 6V4.2a2.5 2.5 0 015 0V6" stroke={PC.muted} strokeWidth="1.2" strokeLinecap="round" />
           </svg>
           Your profile is private and reviewed only by our team.
         </div>
@@ -222,20 +341,20 @@ export function CompleteScreen({ isGoocampus }: CompleteScreenProps) {
 function GooCampusRows() {
   return (
     <>
-      <InfoRow
-        title="Our team reviews your profile"
-        sub="Every Samvaya application is read, not screened by rules."
+      <Row
+        title={"You\u2019ve done the hard part"}
+        subtitle="Your profile is complete. Our team will read every answer carefully — this usually takes 3–5 days."
         icon={<PersonIcon />}
       />
-      <InfoRow
+      <Row
         title="GooCampus verification applies"
-        sub="As a GooCampus member, your verification is already complete."
+        subtitle="As a GooCampus member, your verification is already complete."
         icon={<ShieldCheckIcon />}
       />
-      <InfoRow
-        title="First curated match · within 7 days"
-        sub="No endless swiping. We introduce you to someone only when we think it's right."
-        icon={<HeartIcon />}
+      <Row
+        title={"We\u2019ll reach out to you"}
+        subtitle={"Once our review is done, we\u2019ll contact you directly with everything you need to know about the next steps."}
+        icon={<MessageIcon />}
       />
     </>
   );
@@ -244,20 +363,20 @@ function GooCampusRows() {
 function VerificationRows() {
   return (
     <>
-      <InfoRow
-        title="Human review · 24–48 hours"
-        sub="Our matchmakers read every answer. We may reach out for a short clarifying call."
+      <Row
+        title={"You\u2019ve done the hard part"}
+        subtitle="Your profile is complete. Our team will read every answer carefully — this usually takes 3–5 days."
         icon={<PersonIcon />}
       />
-      <InfoRow
-        title="Verification fee · ₹3,500 + GST"
-        sub="One-time. Covers identity, education, employment, address and court-record checks."
-        icon={<ShieldIcon />}
+      <Row
+        title={<>Verification fee · ₹3,500 <span style={{ color: PC.muted, fontWeight: 500 }}>+ GST</span></>}
+        subtitle="One-time. Covers identity, education, employment, address and court-record checks."
+        icon={<ShieldWithCheckIcon />}
       />
-      <InfoRow
-        title="First curated match · within 7 days of verification"
-        sub="A service fee of ₹35,000 + GST applies only once we find a match and both parties confirm mutual interest."
-        icon={<HeartIcon />}
+      <Row
+        title={"We\u2019ll reach out to you"}
+        subtitle={"Once our review is done, we\u2019ll contact you directly with everything you need to know about the next steps."}
+        icon={<MessageIcon />}
       />
     </>
   );
@@ -265,46 +384,51 @@ function VerificationRows() {
 
 function PersonIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M3 16c.5-3 3-4.5 6-4.5S14.5 13 15 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="10" cy="7" r="3.2" stroke={PC.accent} strokeWidth="1.4" />
+      <path d="M3.5 17c.8-3.2 3.3-4.8 6.5-4.8s5.7 1.6 6.5 4.8" stroke={PC.accent} strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ShieldWithCheckIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M10 1.8 L3 4.2 V9.5 c0 4.2 3.2 7.6 7 8.3 3.8-.7 7-4.1 7-8.3 V4.2 L10 1.8 Z"
+        stroke={PC.accent} strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M7 10.2 L9 12.2 L13.2 8" stroke={PC.accent} strokeWidth="1.5"
+        strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function ShieldCheckIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <path d="M9 1.5L2.5 4v5c0 3.6 2.7 6.5 6.5 7 3.8-.5 6.5-3.4 6.5-7V4L9 1.5z"
-        stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M6.5 9L8 10.5l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M10 1.8 L3 4.2 V9.5 c0 4.2 3.2 7.6 7 8.3 3.8-.7 7-4.1 7-8.3 V4.2 L10 1.8 Z"
+        stroke={PC.accent} strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M7 10.2 L9 12.2 L13.2 8" stroke={PC.accent} strokeWidth="1.5"
+        strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function ShieldIcon() {
+function MessageIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <path d="M9 1.5L2.5 4v5c0 3.6 2.7 6.5 6.5 7 3.8-.5 6.5-3.4 6.5-7V4L9 1.5z"
-        stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <path d="M9 15s-6-3.6-6-8a3.5 3.5 0 016-2.5A3.5 3.5 0 0115 7c0 4.4-6 8-6 8z"
-        stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M3 5 a2 2 0 012-2 h10 a2 2 0 012 2 v7 a2 2 0 01-2 2 H8 l-3.5 2.8 V14 H5 a2 2 0 01-2-2 V5 Z"
+        stroke={PC.accent} strokeWidth="1.4" strokeLinejoin="round" fill="none" />
+      <circle cx="7.5" cy="8.5" r="0.9" fill={PC.accent} />
+      <circle cx="10" cy="8.5" r="0.9" fill={PC.accent} />
+      <circle cx="12.5" cy="8.5" r="0.9" fill={PC.accent} />
     </svg>
   );
 }
 
 function WhatsAppIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.535 5.845L.057 23.552a.5.5 0 00.613.614l5.788-1.48A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.798 9.798 0 01-5.015-1.378l-.36-.213-3.732.954.984-3.641-.234-.374A9.817 9.817 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z" />
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true">
+      <path d="M17.5 14.4c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.48 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.08 4.48.71.31 1.26.49 1.69.63.71.22 1.35.19 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2z" />
     </svg>
   );
 }

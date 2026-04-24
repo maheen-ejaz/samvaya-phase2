@@ -37,6 +37,8 @@ export interface QuestionOption {
   value: string;
   label: string;
   icon?: string;
+  /** When true, selecting this option clears all others; selecting any other option clears this one. */
+  exclusive?: boolean;
 }
 
 /**

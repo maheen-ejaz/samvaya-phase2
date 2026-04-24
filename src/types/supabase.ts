@@ -12,33 +12,192 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.4"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_notes: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["admin_note_entity_enum"]
+          id: string
+          note_text: string
+          updated_at: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["admin_note_entity_enum"]
+          id?: string
+          note_text: string
+          updated_at?: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          entity_id?: string
+          entity_type?: Database["public"]["Enums"]["admin_note_entity_enum"]
+          id?: string
+          note_text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notes_admin_user_id_fkey"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bgv_checks: {
+        Row: {
+          check_type: Database["public"]["Enums"]["bgv_check_type_enum"]
+          created_at: string
+          document_path: string | null
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["bgv_check_status_enum"]
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          check_type: Database["public"]["Enums"]["bgv_check_type_enum"]
+          created_at?: string
+          document_path?: string | null
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["bgv_check_status_enum"]
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          check_type?: Database["public"]["Enums"]["bgv_check_type_enum"]
+          created_at?: string
+          document_path?: string | null
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["bgv_check_status_enum"]
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bgv_checks_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bgv_checks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_log: {
+        Row: {
+          batch_id: string | null
+          body: string
+          channel: Database["public"]["Enums"]["comm_channel_enum"]
+          created_at: string
+          id: string
+          scheduled_at: string | null
+          sent_at: string | null
+          sent_by: string
+          status: Database["public"]["Enums"]["comm_status_enum"]
+          subject: string | null
+          user_id: string
+        }
+        Insert: {
+          batch_id?: string | null
+          body: string
+          channel: Database["public"]["Enums"]["comm_channel_enum"]
+          created_at?: string
+          id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_by: string
+          status?: Database["public"]["Enums"]["comm_status_enum"]
+          subject?: string | null
+          user_id: string
+        }
+        Update: {
+          batch_id?: string | null
+          body?: string
+          channel?: Database["public"]["Enums"]["comm_channel_enum"]
+          created_at?: string
+          id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_by?: string
+          status?: Database["public"]["Enums"]["comm_status_enum"]
+          subject?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_log_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       compatibility_profiles: {
         Row: {
           ai_compatibility_keywords: string[] | null
@@ -239,6 +398,352 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          subject: string
+          updated_at: string
+          variables: string[] | null
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          subject: string
+          updated_at?: string
+          variables?: string[] | null
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          subject?: string
+          updated_at?: string
+          variables?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      introductions: {
+        Row: {
+          created_at: string
+          facilitator_id: string | null
+          id: string
+          introduction_number: number
+          is_team_facilitated: boolean
+          match_presentation_id: string
+          meeting_link: string | null
+          outcome_member_a:
+            | Database["public"]["Enums"]["introduction_outcome_enum"]
+            | null
+          outcome_member_b:
+            | Database["public"]["Enums"]["introduction_outcome_enum"]
+            | null
+          scheduled_at: string | null
+          status: Database["public"]["Enums"]["introduction_status_enum"]
+          team_feedback_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          facilitator_id?: string | null
+          id?: string
+          introduction_number?: number
+          is_team_facilitated?: boolean
+          match_presentation_id: string
+          meeting_link?: string | null
+          outcome_member_a?:
+            | Database["public"]["Enums"]["introduction_outcome_enum"]
+            | null
+          outcome_member_b?:
+            | Database["public"]["Enums"]["introduction_outcome_enum"]
+            | null
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["introduction_status_enum"]
+          team_feedback_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          facilitator_id?: string | null
+          id?: string
+          introduction_number?: number
+          is_team_facilitated?: boolean
+          match_presentation_id?: string
+          meeting_link?: string | null
+          outcome_member_a?:
+            | Database["public"]["Enums"]["introduction_outcome_enum"]
+            | null
+          outcome_member_b?:
+            | Database["public"]["Enums"]["introduction_outcome_enum"]
+            | null
+          scheduled_at?: string | null
+          status?: Database["public"]["Enums"]["introduction_status_enum"]
+          team_feedback_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "introductions_facilitator_id_fkey"
+            columns: ["facilitator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "introductions_match_presentation_id_fkey"
+            columns: ["match_presentation_id"]
+            isOneToOne: false
+            referencedRelation: "match_presentations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_feedback: {
+        Row: {
+          created_at: string
+          feedback_rating: number | null
+          feedback_text: string | null
+          id: string
+          match_presentation_id: string
+          response: Database["public"]["Enums"]["match_member_response_enum"]
+          specific_concern: string | null
+          user_id: string
+          what_didnt_work: string[] | null
+          what_worked: string[] | null
+          would_like_more_like_this: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          feedback_rating?: number | null
+          feedback_text?: string | null
+          id?: string
+          match_presentation_id: string
+          response: Database["public"]["Enums"]["match_member_response_enum"]
+          specific_concern?: string | null
+          user_id: string
+          what_didnt_work?: string[] | null
+          what_worked?: string[] | null
+          would_like_more_like_this?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          feedback_rating?: number | null
+          feedback_text?: string | null
+          id?: string
+          match_presentation_id?: string
+          response?: Database["public"]["Enums"]["match_member_response_enum"]
+          specific_concern?: string | null
+          user_id?: string
+          what_didnt_work?: string[] | null
+          what_worked?: string[] | null
+          would_like_more_like_this?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_feedback_match_presentation_id_fkey"
+            columns: ["match_presentation_id"]
+            isOneToOne: false
+            referencedRelation: "match_presentations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_presentations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          is_full_revealed: boolean
+          is_mutual_interest: boolean
+          match_suggestion_id: string
+          member_a_responded_at: string | null
+          member_a_response: Database["public"]["Enums"]["match_member_response_enum"]
+          member_b_responded_at: string | null
+          member_b_response: Database["public"]["Enums"]["match_member_response_enum"]
+          presented_at: string
+          status: Database["public"]["Enums"]["match_presentation_status_enum"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_full_revealed?: boolean
+          is_mutual_interest?: boolean
+          match_suggestion_id: string
+          member_a_responded_at?: string | null
+          member_a_response?: Database["public"]["Enums"]["match_member_response_enum"]
+          member_b_responded_at?: string | null
+          member_b_response?: Database["public"]["Enums"]["match_member_response_enum"]
+          presented_at?: string
+          status?: Database["public"]["Enums"]["match_presentation_status_enum"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_full_revealed?: boolean
+          is_mutual_interest?: boolean
+          match_suggestion_id?: string
+          member_a_responded_at?: string | null
+          member_a_response?: Database["public"]["Enums"]["match_member_response_enum"]
+          member_b_responded_at?: string | null
+          member_b_response?: Database["public"]["Enums"]["match_member_response_enum"]
+          presented_at?: string
+          status?: Database["public"]["Enums"]["match_presentation_status_enum"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_presentations_match_suggestion_id_fkey"
+            columns: ["match_suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "match_suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_share_tokens: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          match_presentation_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          match_presentation_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          match_presentation_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_share_tokens_match_presentation_id_fkey"
+            columns: ["match_presentation_id"]
+            isOneToOne: true
+            referencedRelation: "match_presentations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_suggestions: {
+        Row: {
+          admin_notes: string | null
+          admin_status: Database["public"]["Enums"]["match_admin_status_enum"]
+          ai_model_version: string
+          compatibility_report: Json
+          created_at: string
+          id: string
+          is_stale: boolean
+          match_narrative: string | null
+          overall_compatibility_score: number
+          profile_a_id: string
+          profile_b_id: string
+          recommendation:
+            | Database["public"]["Enums"]["match_recommendation_enum"]
+            | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_status?: Database["public"]["Enums"]["match_admin_status_enum"]
+          ai_model_version: string
+          compatibility_report?: Json
+          created_at?: string
+          id?: string
+          is_stale?: boolean
+          match_narrative?: string | null
+          overall_compatibility_score: number
+          profile_a_id: string
+          profile_b_id: string
+          recommendation?:
+            | Database["public"]["Enums"]["match_recommendation_enum"]
+            | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_status?: Database["public"]["Enums"]["match_admin_status_enum"]
+          ai_model_version?: string
+          compatibility_report?: Json
+          created_at?: string
+          id?: string
+          is_stale?: boolean
+          match_narrative?: string | null
+          overall_compatibility_score?: number
+          profile_a_id?: string
+          profile_b_id?: string
+          recommendation?:
+            | Database["public"]["Enums"]["match_recommendation_enum"]
+            | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_suggestions_profile_a_id_fkey"
+            columns: ["profile_a_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_suggestions_profile_b_id_fkey"
+            columns: ["profile_b_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_suggestions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medical_credentials: {
         Row: {
           additional_qualifications: string[] | null
@@ -253,6 +758,7 @@ export type Database = {
           instagram_handle: string | null
           linkedin_url: string | null
           monthly_remuneration_range: string | null
+          pg_degree: string | null
           pg_plans: Database["public"]["Enums"]["pg_plans_enum"] | null
           specialty: string[] | null
           total_experience_months: number | null
@@ -273,6 +779,7 @@ export type Database = {
           instagram_handle?: string | null
           linkedin_url?: string | null
           monthly_remuneration_range?: string | null
+          pg_degree?: string | null
           pg_plans?: Database["public"]["Enums"]["pg_plans_enum"] | null
           specialty?: string[] | null
           total_experience_months?: number | null
@@ -293,6 +800,7 @@ export type Database = {
           instagram_handle?: string | null
           linkedin_url?: string | null
           monthly_remuneration_range?: string | null
+          pg_degree?: string | null
           pg_plans?: Database["public"]["Enums"]["pg_plans_enum"] | null
           specialty?: string[] | null
           total_experience_months?: number | null
@@ -343,6 +851,8 @@ export type Database = {
           preferred_indian_states: string[] | null
           preferred_mother_tongue: string[] | null
           preferred_specialties: string[] | null
+          preferred_weight_max_kg: number | null
+          preferred_weight_min_kg: number | null
           prefers_specific_specialty: boolean | null
           religious_observance_preference:
             | Database["public"]["Enums"]["religious_observance_preference_enum"]
@@ -388,6 +898,8 @@ export type Database = {
           preferred_indian_states?: string[] | null
           preferred_mother_tongue?: string[] | null
           preferred_specialties?: string[] | null
+          preferred_weight_max_kg?: number | null
+          preferred_weight_min_kg?: number | null
           prefers_specific_specialty?: boolean | null
           religious_observance_preference?:
             | Database["public"]["Enums"]["religious_observance_preference_enum"]
@@ -433,6 +945,8 @@ export type Database = {
           preferred_indian_states?: string[] | null
           preferred_mother_tongue?: string[] | null
           preferred_specialties?: string[] | null
+          preferred_weight_max_kg?: number | null
+          preferred_weight_min_kg?: number | null
           prefers_specific_specialty?: boolean | null
           religious_observance_preference?:
             | Database["public"]["Enums"]["religious_observance_preference_enum"]
@@ -537,6 +1051,7 @@ export type Database = {
           display_order: number
           id: string
           is_primary: boolean
+          photo_type: string | null
           storage_path: string
           updated_at: string
           uploaded_at: string
@@ -548,6 +1063,7 @@ export type Database = {
           display_order?: number
           id?: string
           is_primary?: boolean
+          photo_type?: string | null
           storage_path: string
           updated_at?: string
           uploaded_at?: string
@@ -559,6 +1075,7 @@ export type Database = {
           display_order?: number
           id?: string
           is_primary?: boolean
+          photo_type?: string | null
           storage_path?: string
           updated_at?: string
           uploaded_at?: string
@@ -578,6 +1095,7 @@ export type Database = {
         Row: {
           abroad_countries: string[] | null
           allergy_description: string | null
+          annual_ctc_range: string | null
           attire_preference:
             | Database["public"]["Enums"]["attire_preference_enum"]
             | null
@@ -594,6 +1112,7 @@ export type Database = {
           children_timing_preference:
             | Database["public"]["Enums"]["children_timing_enum"]
             | null
+          cibil_score_range: string | null
           citizenship_country: string | null
           city_of_birth: string | null
           created_at: string
@@ -608,19 +1127,23 @@ export type Database = {
           father_name: string | null
           father_occupation: string | null
           father_occupation_other: string | null
+          financial_stage: string | null
           first_name: string | null
           fitness_habits:
             | Database["public"]["Enums"]["fitness_habits_enum"]
             | null
+          free_time_preferences: string[] | null
           gender: Database["public"]["Enums"]["gender_enum"] | null
           has_allergies: boolean | null
           has_children_from_previous: boolean | null
           has_disability: Database["public"]["Enums"]["disability_enum"] | null
+          has_education_loan: string | null
           height_cm: number | null
           hobbies_interests: string[] | null
           hobbies_other: string | null
           hobbies_regular: string[] | null
           id: string
+          investment_approach: string | null
           languages_spoken: string[] | null
           last_name: string | null
           long_distance_comfort:
@@ -646,12 +1169,14 @@ export type Database = {
           permanent_ownership:
             | Database["public"]["Enums"]["permanent_ownership_enum"]
             | null
+          pg_degree_other: string | null
           place_of_birth: string | null
           plans_to_go_abroad: boolean | null
           post_marriage_family_arrangement:
             | Database["public"]["Enums"]["family_arrangement_enum"]
             | null
           preferred_settlement_countries: string[] | null
+          property_ownership: string[] | null
           referral_source:
             | Database["public"]["Enums"]["referral_source_enum"]
             | null
@@ -676,6 +1201,7 @@ export type Database = {
         Insert: {
           abroad_countries?: string[] | null
           allergy_description?: string | null
+          annual_ctc_range?: string | null
           attire_preference?:
             | Database["public"]["Enums"]["attire_preference_enum"]
             | null
@@ -692,6 +1218,7 @@ export type Database = {
           children_timing_preference?:
             | Database["public"]["Enums"]["children_timing_enum"]
             | null
+          cibil_score_range?: string | null
           citizenship_country?: string | null
           city_of_birth?: string | null
           created_at?: string
@@ -706,19 +1233,23 @@ export type Database = {
           father_name?: string | null
           father_occupation?: string | null
           father_occupation_other?: string | null
+          financial_stage?: string | null
           first_name?: string | null
           fitness_habits?:
             | Database["public"]["Enums"]["fitness_habits_enum"]
             | null
+          free_time_preferences?: string[] | null
           gender?: Database["public"]["Enums"]["gender_enum"] | null
           has_allergies?: boolean | null
           has_children_from_previous?: boolean | null
           has_disability?: Database["public"]["Enums"]["disability_enum"] | null
+          has_education_loan?: string | null
           height_cm?: number | null
           hobbies_interests?: string[] | null
           hobbies_other?: string | null
           hobbies_regular?: string[] | null
           id?: string
+          investment_approach?: string | null
           languages_spoken?: string[] | null
           last_name?: string | null
           long_distance_comfort?:
@@ -744,12 +1275,14 @@ export type Database = {
           permanent_ownership?:
             | Database["public"]["Enums"]["permanent_ownership_enum"]
             | null
+          pg_degree_other?: string | null
           place_of_birth?: string | null
           plans_to_go_abroad?: boolean | null
           post_marriage_family_arrangement?:
             | Database["public"]["Enums"]["family_arrangement_enum"]
             | null
           preferred_settlement_countries?: string[] | null
+          property_ownership?: string[] | null
           referral_source?:
             | Database["public"]["Enums"]["referral_source_enum"]
             | null
@@ -774,6 +1307,7 @@ export type Database = {
         Update: {
           abroad_countries?: string[] | null
           allergy_description?: string | null
+          annual_ctc_range?: string | null
           attire_preference?:
             | Database["public"]["Enums"]["attire_preference_enum"]
             | null
@@ -790,6 +1324,7 @@ export type Database = {
           children_timing_preference?:
             | Database["public"]["Enums"]["children_timing_enum"]
             | null
+          cibil_score_range?: string | null
           citizenship_country?: string | null
           city_of_birth?: string | null
           created_at?: string
@@ -804,19 +1339,23 @@ export type Database = {
           father_name?: string | null
           father_occupation?: string | null
           father_occupation_other?: string | null
+          financial_stage?: string | null
           first_name?: string | null
           fitness_habits?:
             | Database["public"]["Enums"]["fitness_habits_enum"]
             | null
+          free_time_preferences?: string[] | null
           gender?: Database["public"]["Enums"]["gender_enum"] | null
           has_allergies?: boolean | null
           has_children_from_previous?: boolean | null
           has_disability?: Database["public"]["Enums"]["disability_enum"] | null
+          has_education_loan?: string | null
           height_cm?: number | null
           hobbies_interests?: string[] | null
           hobbies_other?: string | null
           hobbies_regular?: string[] | null
           id?: string
+          investment_approach?: string | null
           languages_spoken?: string[] | null
           last_name?: string | null
           long_distance_comfort?:
@@ -842,12 +1381,14 @@ export type Database = {
           permanent_ownership?:
             | Database["public"]["Enums"]["permanent_ownership_enum"]
             | null
+          pg_degree_other?: string | null
           place_of_birth?: string | null
           plans_to_go_abroad?: boolean | null
           post_marriage_family_arrangement?:
             | Database["public"]["Enums"]["family_arrangement_enum"]
             | null
           preferred_settlement_countries?: string[] | null
+          property_ownership?: string[] | null
           referral_source?:
             | Database["public"]["Enums"]["referral_source_enum"]
             | null
@@ -879,13 +1420,45 @@ export type Database = {
           },
         ]
       }
+      system_config: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_config_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           ai_conversation_status: Database["public"]["Enums"]["ai_conversation_status_enum"]
           bgv_consent: Database["public"]["Enums"]["bgv_consent_enum"]
           bgv_flagged: boolean
           created_at: string
-          gate_answers: Record<string, string>
+          gate_answers: Json | null
           id: string
           is_bgv_complete: boolean
           is_goocampus_member: boolean
@@ -894,6 +1467,7 @@ export type Database = {
           membership_tier: Database["public"]["Enums"]["membership_tier_enum"]
           onboarding_last_question: number
           onboarding_section: number
+          paused_at: string | null
           payment_status: Database["public"]["Enums"]["user_payment_status"]
           profile_completion_pct: number
           role: Database["public"]["Enums"]["user_role"]
@@ -906,7 +1480,7 @@ export type Database = {
           bgv_consent?: Database["public"]["Enums"]["bgv_consent_enum"]
           bgv_flagged?: boolean
           created_at?: string
-          gate_answers?: Record<string, string>
+          gate_answers?: Json | null
           id: string
           is_bgv_complete?: boolean
           is_goocampus_member?: boolean
@@ -915,6 +1489,7 @@ export type Database = {
           membership_tier?: Database["public"]["Enums"]["membership_tier_enum"]
           onboarding_last_question?: number
           onboarding_section?: number
+          paused_at?: string | null
           payment_status?: Database["public"]["Enums"]["user_payment_status"]
           profile_completion_pct?: number
           role?: Database["public"]["Enums"]["user_role"]
@@ -927,7 +1502,7 @@ export type Database = {
           bgv_consent?: Database["public"]["Enums"]["bgv_consent_enum"]
           bgv_flagged?: boolean
           created_at?: string
-          gate_answers?: Record<string, string>
+          gate_answers?: Json | null
           id?: string
           is_bgv_complete?: boolean
           is_goocampus_member?: boolean
@@ -936,6 +1511,7 @@ export type Database = {
           membership_tier?: Database["public"]["Enums"]["membership_tier_enum"]
           onboarding_last_question?: number
           onboarding_section?: number
+          paused_at?: string | null
           payment_status?: Database["public"]["Enums"]["user_payment_status"]
           profile_completion_pct?: number
           role?: Database["public"]["Enums"]["user_role"]
@@ -1015,9 +1591,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_geographic_distribution: {
+        Args: never
+        Returns: {
+          city: string
+          count: number
+          state: string
+        }[]
+      }
+      get_prefiltered_candidates: {
+        Args: { target_user_id: string }
+        Returns: {
+          candidate_id: string
+        }[]
+      }
+      get_specialty_distribution: {
+        Args: never
+        Returns: {
+          count: number
+          specialty: string
+        }[]
+      }
+      handle_match_response: {
+        Args: {
+          p_presentation_id: string
+          p_response: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
+      admin_note_entity_enum:
+        | "user"
+        | "match_suggestion"
+        | "match_presentation"
+        | "introduction"
       ai_conversation_status_enum:
         | "not_started"
         | "conv1_in_progress"
@@ -1031,6 +1641,21 @@ export type Database = {
         | "traditional"
         | "mix"
         | "no_preference"
+      bgv_check_status_enum: "pending" | "in_progress" | "verified" | "flagged"
+      bgv_check_type_enum:
+        | "aadhaar"
+        | "pan"
+        | "bank_account"
+        | "credit_check"
+        | "employment"
+        | "education"
+        | "professional_reference"
+        | "court_records"
+        | "criminal_records"
+        | "global_database"
+        | "address_digital"
+        | "address_physical"
+        | "social_media"
       bgv_consent_enum:
         | "not_given"
         | "consented"
@@ -1048,6 +1673,8 @@ export type Database = {
         | "after_3_5_years"
         | "after_milestones"
         | "no_preference"
+      comm_channel_enum: "email" | "sms"
+      comm_status_enum: "sent" | "failed" | "pending"
       communication_style_enum:
         | "direct"
         | "indirect"
@@ -1101,6 +1728,16 @@ export type Database = {
         | "no_preference"
       gender_enum: "male" | "female"
       input_mode_enum: "text" | "voice"
+      introduction_outcome_enum:
+        | "want_to_continue"
+        | "not_a_match"
+        | "need_more_time"
+      introduction_status_enum:
+        | "scheduled"
+        | "completed"
+        | "rescheduled"
+        | "cancelled"
+        | "no_show"
       long_distance_enum:
         | "yes_absolutely"
         | "open_to_it"
@@ -1111,6 +1748,27 @@ export type Database = {
         | "6_to_12_months"
         | "1_to_2_years"
         | "no_fixed_timeline"
+      match_admin_status_enum:
+        | "pending_review"
+        | "approved"
+        | "rejected"
+        | "expired"
+      match_member_response_enum:
+        | "pending"
+        | "interested"
+        | "not_interested"
+        | "expired"
+      match_presentation_status_enum:
+        | "pending"
+        | "mutual_interest"
+        | "one_sided"
+        | "expired"
+        | "declined"
+      match_recommendation_enum:
+        | "strongly_recommend"
+        | "recommend"
+        | "worth_considering"
+        | "not_recommended"
       medical_status_enum:
         | "mbbs_student"
         | "intern"
@@ -1326,11 +1984,14 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
+      admin_note_entity_enum: [
+        "user",
+        "match_suggestion",
+        "match_presentation",
+        "introduction",
+      ],
       ai_conversation_status_enum: [
         "not_started",
         "conv1_in_progress",
@@ -1345,6 +2006,22 @@ export const Constants = {
         "traditional",
         "mix",
         "no_preference",
+      ],
+      bgv_check_status_enum: ["pending", "in_progress", "verified", "flagged"],
+      bgv_check_type_enum: [
+        "aadhaar",
+        "pan",
+        "bank_account",
+        "credit_check",
+        "employment",
+        "education",
+        "professional_reference",
+        "court_records",
+        "criminal_records",
+        "global_database",
+        "address_digital",
+        "address_physical",
+        "social_media",
       ],
       bgv_consent_enum: [
         "not_given",
@@ -1366,6 +2043,8 @@ export const Constants = {
         "after_milestones",
         "no_preference",
       ],
+      comm_channel_enum: ["email", "sms"],
+      comm_status_enum: ["sent", "failed", "pending"],
       communication_style_enum: [
         "direct",
         "indirect",
@@ -1428,6 +2107,18 @@ export const Constants = {
       ],
       gender_enum: ["male", "female"],
       input_mode_enum: ["text", "voice"],
+      introduction_outcome_enum: [
+        "want_to_continue",
+        "not_a_match",
+        "need_more_time",
+      ],
+      introduction_status_enum: [
+        "scheduled",
+        "completed",
+        "rescheduled",
+        "cancelled",
+        "no_show",
+      ],
       long_distance_enum: [
         "yes_absolutely",
         "open_to_it",
@@ -1439,6 +2130,31 @@ export const Constants = {
         "6_to_12_months",
         "1_to_2_years",
         "no_fixed_timeline",
+      ],
+      match_admin_status_enum: [
+        "pending_review",
+        "approved",
+        "rejected",
+        "expired",
+      ],
+      match_member_response_enum: [
+        "pending",
+        "interested",
+        "not_interested",
+        "expired",
+      ],
+      match_presentation_status_enum: [
+        "pending",
+        "mutual_interest",
+        "one_sided",
+        "expired",
+        "declined",
+      ],
+      match_recommendation_enum: [
+        "strongly_recommend",
+        "recommend",
+        "worth_considering",
+        "not_recommended",
       ],
       medical_status_enum: [
         "mbbs_student",

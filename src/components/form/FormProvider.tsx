@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { AutoSaveEngine } from '@/lib/form/auto-save';
+import { AutoSaveEngine, type FlushResult } from '@/lib/form/auto-save';
 import {
   computeVisibleQuestions,
   findQuestionIndex,
@@ -40,7 +40,8 @@ interface FormContextValue {
   navigateToSection: (sectionId: SectionId) => void;
   navigateNextSection: () => void;
   navigatePrevSection: () => void;
-  flushNow: () => Promise<void>;
+  flushNow: (opts?: { deadlineMs?: number }) => Promise<FlushResult>;
+  markPositionBySection: (sectionId: SectionId) => void;
   submitForm: () => Promise<boolean>;
 }
 
@@ -282,8 +283,14 @@ export function FormProvider({
     if (prev) dispatch({ type: 'NAVIGATE_TO_SECTION', sectionId: prev });
   }, [dispatch]);
 
-  const flushNow = useCallback(async () => {
-    await autoSaveRef.current?.flushNow();
+  const flushNow = useCallback(async (opts?: { deadlineMs?: number }): Promise<FlushResult> => {
+    const engine = autoSaveRef.current;
+    if (!engine) return { ok: true, remainingDirty: 0 };
+    return engine.flushNow(opts);
+  }, []);
+
+  const markPositionBySection = useCallback((sectionId: SectionId) => {
+    autoSaveRef.current?.markPositionBySection(sectionId);
   }, []);
 
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -334,6 +341,7 @@ export function FormProvider({
         navigateNextSection,
         navigatePrevSection,
         flushNow,
+        markPositionBySection,
         submitForm,
       }}
     >

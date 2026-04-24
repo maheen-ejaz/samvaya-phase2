@@ -1,17 +1,25 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/supabase';
-import type { FormState, QuestionConfig } from './types';
+import type { FormState, QuestionConfig, SectionId } from './types';
 import { getQuestion } from './questions';
 import { getSectionForQuestion } from './sections';
 
 type SaveStatus = FormState['saveStatus'];
 
+export interface FlushResult {
+  /** True if every dirty field made it to Supabase before the deadline. */
+  ok: boolean;
+  /** Number of dirty table rows still queued (preserved in localStorage). */
+  remainingDirty: number;
+}
+
 // Per-request network timeout — prevents flushNow() from hanging indefinitely
 // on a slow/stalled connection.
 const SAVE_TIMEOUT_MS = 12_000;
 
-// Maximum time flushNow() will wait before giving up. Dirty state is preserved
-// in localStorage so it will be recovered on the next page load.
+// Default deadline for flushNow(). Short by default because it's called from
+// beforeunload and destroy() paths where we can't block long. The
+// user-initiated submit path passes a longer deadline explicitly.
 const FLUSH_NOW_DEADLINE_MS = 8_000;
 
 // localStorage key for crash-safe write-through (24h TTL)
@@ -216,25 +224,70 @@ export class AutoSaveEngine {
   }
 
   /**
-   * Force an immediate flush. Gives up after FLUSH_NOW_DEADLINE_MS to avoid
-   * blocking navigation indefinitely. Dirty state is preserved in localStorage
-   * and will be recovered on the next page load if the flush doesn't complete.
+   * Advance `users.onboarding_section` to the given section without requiring
+   * a specific question id. Used by the section-by-section "Continue" flow so
+   * the server-side unlock gate can fast-path the next section via
+   * `targetIdx <= resumeIdx` even before the user has navigated into any of
+   * its questions.
    */
-  async flushNow(): Promise<void> {
+  markPositionBySection(sectionId: SectionId): void {
+    const sectionIdx = 'ABCDEFGHIJKLMN'.indexOf(sectionId);
+    if (sectionIdx < 0) return;
+    const existing = this.dirtyFields.get('users') || {};
+    existing['onboarding_section'] = sectionIdx + 1;
+    this.dirtyFields.set('users', existing);
+    this.persistToLocal();
+    this.resetTimer();
+  }
+
+  /**
+   * Force an immediate flush. Returns a result indicating whether all dirty
+   * fields reached Supabase before the deadline. Dirty state is preserved in
+   * localStorage and recovered on the next page load if the flush doesn't
+   * complete.
+   *
+   * The submit-continue path passes a larger `deadlineMs` because it's
+   * user-initiated and we *want* to wait for confirmation — unlike the
+   * beforeunload / destroy paths where the default short deadline applies.
+   */
+  async flushNow(opts: { deadlineMs?: number } = {}): Promise<FlushResult> {
     if (this.timer) { clearTimeout(this.timer); this.timer = null; }
     if (this.retryTimer) { clearTimeout(this.retryTimer); this.retryTimer = null; }
 
-    const deadline = Date.now() + FLUSH_NOW_DEADLINE_MS;
+    const deadline = Date.now() + (opts.deadlineMs ?? FLUSH_NOW_DEADLINE_MS);
+    const startDirtyTables = Array.from(this.dirtyFields.keys());
+    const isOnlineAtStart = this.isOnline;
 
     for (let i = 0; i < 10; i++) {
       while (this.inFlight) {
-        if (Date.now() >= deadline) return; // gave up — localStorage has the backup
+        if (Date.now() >= deadline) {
+          console.warn('[auto-save] flushNow deadline hit while inFlight', {
+            startDirtyTables,
+            remainingDirty: this.dirtyFields.size,
+            isOnline: this.isOnline,
+          });
+          return { ok: this.dirtyFields.size === 0, remainingDirty: this.dirtyFields.size };
+        }
         await new Promise((resolve) => setTimeout(resolve, 20));
       }
-      if (this.dirtyFields.size === 0) return;
-      if (Date.now() >= deadline) return;
+      if (this.dirtyFields.size === 0) return { ok: true, remainingDirty: 0 };
+      if (Date.now() >= deadline) {
+        console.warn('[auto-save] flushNow deadline hit before flush', {
+          startDirtyTables,
+          currentDirtyTables: Array.from(this.dirtyFields.keys()),
+          remainingDirty: this.dirtyFields.size,
+          isOnline: this.isOnline,
+          isOnlineAtStart,
+        });
+        return { ok: false, remainingDirty: this.dirtyFields.size };
+      }
       await this.flush();
     }
+    console.warn('[auto-save] flushNow gave up after 10 iterations', {
+      remainingDirty: this.dirtyFields.size,
+      dirtyTables: Array.from(this.dirtyFields.keys()),
+    });
+    return { ok: this.dirtyFields.size === 0, remainingDirty: this.dirtyFields.size };
   }
 
   destroy(): void {
@@ -404,10 +457,18 @@ export class AutoSaveEngine {
       results.forEach((result, i) => {
         if (result.status === 'rejected') {
           failures.push(tableEntries[i]);
+          const reasonMsg = result.reason instanceof Error
+            ? result.reason.message
+            : (result.reason as { message?: string })?.message
+              ?? (result.reason as { details?: string })?.details
+              ?? JSON.stringify(result.reason);
+          console.error('[auto-save] save failed', {
+            table: tableEntries[i][0],
+            fields: Object.keys(tableEntries[i][1]),
+            reason: reasonMsg,
+          });
           if (!firstError) {
-            firstError = result.reason instanceof Error
-              ? result.reason.message
-              : String(result.reason);
+            firstError = reasonMsg;
             // Detect auth/JWT failures — retrying won't help, user needs to reload
             const msg = firstError.toLowerCase();
             if (msg.includes('jwt') || msg.includes('401') || msg.includes('invalid claim') || msg.includes('token')) {

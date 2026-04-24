@@ -64,7 +64,7 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
             role="switch"
             aria-checked={isConsented}
             aria-label="Consent to background verification"
-            onClick={() => onChange(isConsented ? '' : 'consented')}
+            onClick={() => onChange(isConsented ? '' : 'consented_wants_call')}
             className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[color:var(--color-samvaya-red)]/20 ${
               isConsented ? 'bg-[color:var(--color-samvaya-red)]' : 'bg-[color:var(--color-form-border-strong)]'
             }`}
@@ -80,19 +80,43 @@ export function BgvConsentInput({ value, onChange }: BgvConsentInputProps) {
           </span>
         </div>
 
-        {/* Secondary concierge-call option (only when primary consent is on) */}
+        {/* Representative call callout — on by default when consented */}
         {isConsented && (
-          <label className="mt-4 flex cursor-pointer items-start gap-3 border-t border-[color:var(--color-form-border)] pt-4">
-            <input
-              type="checkbox"
-              checked={wantsCall}
-              onChange={(e) => onChange(e.target.checked ? 'consented_wants_call' : 'consented')}
-              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[color:var(--color-samvaya-red)]"
-            />
-            <span className="form-helper leading-snug text-[color:var(--color-form-text-primary)]">
-              Have a concierge call me to walk through the verification process
-            </span>
-          </label>
+          <div className="mt-4 rounded-lg border border-[color:var(--color-form-border)] bg-[color:var(--color-form-surface-muted)] p-4 border-t border-[color:var(--color-form-border)] pt-4">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white border border-[color:var(--color-form-border)]">
+                <svg className="h-4 w-4 text-[color:var(--color-samvaya-red)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="form-helper font-medium text-[color:var(--color-form-text-primary)] mb-1">
+                  A Samvaya representative will call you first
+                </p>
+                <p className="form-caption text-[color:var(--color-form-text-secondary)]">
+                  Before anything begins, our team will call you to explain every step of the verification process. The verification will not start without your explicit confirmation on that call.
+                </p>
+                {wantsCall && (
+                  <button
+                    type="button"
+                    onClick={() => onChange('consented')}
+                    className="mt-2 form-caption text-[color:var(--color-form-text-muted)] underline underline-offset-2 hover:text-[color:var(--color-form-text-secondary)] transition-colors"
+                  >
+                    I don&apos;t need a call — proceed directly
+                  </button>
+                )}
+                {!wantsCall && (
+                  <button
+                    type="button"
+                    onClick={() => onChange('consented_wants_call')}
+                    className="mt-2 form-caption text-[color:var(--color-samvaya-red)] underline underline-offset-2 hover:opacity-80 transition-opacity"
+                  >
+                    Request a call instead
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

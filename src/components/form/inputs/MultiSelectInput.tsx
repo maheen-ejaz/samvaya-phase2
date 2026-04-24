@@ -25,10 +25,13 @@ export function MultiSelectInput({ question, value, onChange, inputId, ariaDescr
   const selected = value || [];
   const hasNoPreference = question.options.some((o) => o.value === NO_PREFERENCE_VALUE);
 
+  const exclusiveValues = new Set(
+    (question.options ?? []).filter((o) => o.exclusive).map((o) => o.value)
+  );
+
   function toggle(optionValue: string) {
     if (hasNoPreference) {
       const next = applyNoPreferenceToggle(selected, optionValue);
-      // Respect maxSelections only when adding a non-no_preference value
       if (
         optionValue !== NO_PREFERENCE_VALUE &&
         question.maxSelections &&
@@ -40,6 +43,26 @@ export function MultiSelectInput({ question, value, onChange, inputId, ariaDescr
       onChange(next);
       return;
     }
+
+    // Exclusive option (e.g. "None currently"): selecting it clears all others;
+    // selecting any other option clears all exclusive ones.
+    if (exclusiveValues.size > 0) {
+      if (exclusiveValues.has(optionValue)) {
+        // Toggle exclusive: if already selected deselect it, else select only it
+        onChange(selected.includes(optionValue) ? [] : [optionValue]);
+        return;
+      }
+      // Non-exclusive: remove any currently-selected exclusive options
+      const withoutExclusive = selected.filter((v) => !exclusiveValues.has(v));
+      if (withoutExclusive.includes(optionValue)) {
+        onChange(withoutExclusive.filter((v) => v !== optionValue));
+      } else {
+        if (question.maxSelections && withoutExclusive.length >= question.maxSelections) return;
+        onChange([...withoutExclusive, optionValue]);
+      }
+      return;
+    }
+
     if (selected.includes(optionValue)) {
       onChange(selected.filter((v) => v !== optionValue));
     } else {

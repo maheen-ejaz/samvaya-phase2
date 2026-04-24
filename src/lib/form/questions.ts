@@ -849,7 +849,7 @@ const sectionJ: QuestionConfig[] = [
     { value: 'residential', label: 'Residential property' },
     { value: 'commercial', label: 'Commercial property' },
     { value: 'agricultural', label: 'Agricultural land' },
-    { value: 'none', label: 'None currently' },
+    { value: 'none', label: 'None currently', exclusive: true },
   ] },
   { id: 'QFIN4', questionNumber: 69, section: 'J', text: 'How do you approach investments?', type: 'select', required: true, targetTable: 'profiles', targetColumn: 'investment_approach', options: [
     { value: 'actively_invest', label: 'I actively invest in markets (stocks, mutual funds)' },
@@ -926,7 +926,6 @@ const sectionL: QuestionConfig[] = [
   { id: 'Q85', questionNumber: 95, section: 'L', text: "Partner's fitness preference", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'fitness_preference', options: [
     { value: 'regularly_exercises', label: 'Regular', icon: '💪' },
     { value: 'occasionally', label: 'Moderate', icon: '🏃' },
-    { value: 'rarely', label: 'Any level', icon: '🚶' },
     { value: 'no_preference', label: 'No preference', icon: '🤷' },
   ] },
   { id: 'Q86', questionNumber: 96, section: 'L', text: "Partner's smoking preference", type: 'illustrated_mc', required: true, targetTable: 'partner_preferences', targetColumn: 'smoking_preference', options: [
@@ -979,7 +978,7 @@ const sectionL: QuestionConfig[] = [
 const sectionM: QuestionConfig[] = [
   { id: 'Q95', questionNumber: 105, section: 'M', text: 'Upload your photos', type: 'guided_photo_upload', required: true, targetTable: 'photos', targetColumn: 'storage_path', helpText: 'Your photos are shown to potential matches (blurred until mutual interest). Upload at least 3 photos from different angles to give yourself the best chance.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp', maxFiles: 10, minFiles: 3, maxSizeMB: 25, requiresBlur: true } },
   { id: 'Q96', questionNumber: 106, section: 'M', text: 'Upload profile photos', type: 'file_upload', required: false, targetTable: 'photos', targetColumn: 'storage_path', helpText: 'Grouped into Q95 — this question does not render separately.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp', maxFiles: 6, minFiles: 0, maxSizeMB: 25, requiresBlur: true } },
-  { id: 'Q97', questionNumber: 107, section: 'M', text: 'Upload an identity document (Aadhaar or Passport)', type: 'file_upload', required: true, targetTable: 'documents', targetColumn: 'storage_path', helpText: 'A clear scan or photo of your Aadhaar card or passport. This is used for background verification only and is never shared. JPEG, PNG, WebP, or PDF, max 15 MB.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp,application/pdf', maxFiles: 1, minFiles: 1, maxSizeMB: 15, requiresBlur: false, documentType: 'identity_document' } },
+  { id: 'Q97', questionNumber: 107, section: 'M', text: 'Upload an identity document', type: 'file_upload', required: true, targetTable: 'documents', targetColumn: 'storage_path', helpText: 'A clear scan or photo of any government-issued photo ID — Aadhaar card, Passport, PAN card, or Driver\'s Licence. Your name and photo must be clearly visible. Used for background verification only and never shared. JPEG, PNG, WebP, or PDF, max 15 MB.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp,application/pdf', maxFiles: 1, minFiles: 1, maxSizeMB: 15, requiresBlur: false, documentType: 'identity_document' } },
   { id: 'Q98', questionNumber: 108, section: 'M', text: 'Upload your Kundali', type: 'file_upload', required: false, targetTable: 'documents', targetColumn: 'storage_path', helpText: 'Upload a scan or photo of your Kundali. JPEG, PNG, WebP, or PDF, max 15 MB.', fileUploadConfig: { accept: 'image/jpeg,image/png,image/webp,application/pdf', maxFiles: 1, minFiles: 0, maxSizeMB: 15, requiresBlur: false, documentType: 'kundali' } },
   { id: 'Q99', questionNumber: 109, section: 'M', text: 'Background Verification Consent', type: 'bgv_consent', required: true, targetTable: 'users', targetColumn: 'bgv_consent' },
 ];
