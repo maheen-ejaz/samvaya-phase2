@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { extractFromTranscript } from '@/lib/claude/client';
 import { getChatConfig } from '@/lib/claude/prompts';
 import { checkRateLimit } from '@/lib/rate-limit';
+
+export const maxDuration = 60;
 import type { ExtractionRequest } from '@/lib/claude/types';
 
 export async function POST(request: NextRequest) {

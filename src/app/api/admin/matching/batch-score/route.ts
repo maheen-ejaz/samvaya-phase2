@@ -4,6 +4,8 @@ import { logActivity } from '@/lib/admin/activity';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { runMatchingPipeline } from '@/lib/matching/batch';
 
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   const result = await requireAdmin();
   if (result.error) return result.error;

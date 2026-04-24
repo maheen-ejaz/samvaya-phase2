@@ -4,6 +4,8 @@ import { logActivity } from '@/lib/admin/activity';
 import { scoreCompatibility } from '@/lib/matching/scoring';
 import { checkRateLimit } from '@/lib/rate-limit';
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   const result = await requireAdmin();
   if (result.error) return result.error;

@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { checkRateLimit, consumeBudget } from '@/lib/rate-limit';
 import { sendChatMessage } from '@/lib/claude/client';
 import { getChatConfig } from '@/lib/claude/prompts';
+
+export const maxDuration = 60;
 import type { ChatMessage, ChatRequest, ChatState } from '@/lib/claude/types';
 
 // Per-user monthly Anthropic token budget. 500K tokens ≈ a few dollars at
